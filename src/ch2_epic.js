@@ -98,15 +98,19 @@ function epSacrifice(shots,i){const A=FIN.ally,e=BM.finalFor||bossRef;if(!A||!e)
           SP.emit(c.clone().addScaledVector(toW,.3),{n:140,c0:0xffffff,c1:0x8030ff,speed:10,life:.9,s0:.6,s1:.05,dir:toW});SP.emit(c,{n:60,c0:0xfff0c0,c1:0xd09020,speed:6,life:1,s0:.5,s1:.05})}}
       else{fz+=dt/Math.max(.05,CS.speed);if(fz>.55&&CS.speed<.5)CS.speed=.5;if(blade){blade.scale.z=Math.min(1,blade.scale.z+dt*22);blade.userData.glow.material.opacity=.45+Math.sin(time*40)*.15}
         if(Math.random()<.5)SP.emit(headOf(mid,1.2).addScaledVector(toW,.5),{c0:0xe0c0ff,c1:0x5010c0,s0:.35,s1:.03,life:.6,speed:1.5})}}};
-  const hold={dur:2,fov:32,cut:true,cam:k=>({pos:headOf(mid,1.5).addScaledVector(side,1.7-k*.2).addScaledVector(toW,.5),look:headOf(mid,1.3).addScaledVector(toW,-.4)}),onStart:()=>{CS.speed=.75;dk=0},
+  const hold={dur:2,fov:32,cut:true,cam:k=>({pos:headOf(mid,1.6).addScaledVector(side,3.4-k*.3).addScaledVector(toW,.2),look:headOf(mid,1.3).addScaledVector(toW,-.5)}),onStart:()=>{CS.speed=.75;dk=0},
     update:(dt,k)=>{upd(dt);if(Math.random()<.4)SP.emit(headOf(mid,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.6,speed:.3});
       if(k>.72&&blade&&!blade.userData.out){blade.userData.out=1;sx('clash',.5,null,{rate:1.3});act.once('OverhandThrow',.4);SP.emit(headOf(mid,1.25),{n:60,c0:0xffffff,c1:0x8030ff,speed:7,life:.6})}
       if(blade&&blade.userData.out){blade.scale.z=Math.max(0,blade.scale.z-dt*6);if(blade.scale.z<=0){scene.remove(blade);blade=null}}}};
-  const fall={dur:1.7,fov:42,cam:k=>{const c=mid.clone().lerp(land,.5);return{pos:headOf(c,1.6).addScaledVector(side,-4.6).addScaledVector(toW,-.6),look:headOf(c,.7)}},
-    onStart:()=>{CS.speed=1;if(blade){scene.remove(blade);blade=null}A._k=0;A._landed=0;A.setBase('Idle_Loop',.15);A.once('Hit_Knockback',.8);act.setBase('Idle_Loop',.3)},
-    update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/1.1);const k=A._k;A.g.position.lerpVectors(mid,land,k*(2-k));finFaceTo(A.g,e.pos);
-      if(k>=1&&!A._landed){A._landed=1;A.once('Death01',.9);SM.emit(V3(land.x,land.y+.2,land.z),{n:12,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:3,flat:true,life:.8,a:.4});P.shake=.6}}};
-  shots.splice(i,3,run,stand,pierce,hold,fall)}
+  const fall={dur:1.4,fov:40,cam:k=>{const c=mid.clone().lerp(land,.5);return{pos:headOf(c,1.5).addScaledVector(side,-4.2).addScaledVector(toW,-.5),look:headOf(c,1.1)}},
+    onStart:()=>{CS.speed=.85;if(blade){scene.remove(blade);blade=null}A._k=0;A.once('Hit_Knockback',1.5);act.setBase('Idle_Loop',.3)},
+    update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/1.3);const k=A._k;A.g.position.lerpVectors(mid,land,k*(2-k));finFaceTo(A.g,e.pos);if(Math.random()<.3)SP.emit(headOf(A.g.position,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.5,speed:.3})}};
+  let ft=0;const down={dur:4,fov:36,cam:k=>({pos:headOf(land,.7+k*.1).addScaledVector(side,3.2-k*.6).addScaledVector(toW,.5),look:headOf(land,.55-k*.2)}),
+    onStart:()=>{CS.speed=.8;ft=0;A._landed=0;A.g.position.copy(land);finFaceTo(A.g,e.pos);A.setBase('Crouch_Idle_Loop',.9)},
+    update:dt=>{upd(dt);ft+=dt;if(ft>3.5)CS.speed=1;finFaceTo(A.g,e.pos);if(ft>1.3&&!A._fell){A._fell=1;A.once('Death01',3)}
+      if(ft>3.4&&!A._landed){A._landed=1;SM.emit(V3(land.x,land.y+.2,land.z),{n:14,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:2.5,flat:true,life:1,a:.4});P.shake=.4;sx('impact',.4,null,{rate:.6})}
+      if(Math.random()<.25)SP.emit(headOf(A.g.position,.8),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:1,up:.8,speed:.2})}};
+  shots.splice(i,3,run,stand,pierce,hold,fall,down)}
 
 /* ================= 3 · KAEN'S LIMIT BREAKER: the quiet scream, the void, a new theme ================= */
 function epVoidPillar(c,col){const g=new THREE.Group();g.position.copy(c);scene.add(g);const m=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
@@ -188,6 +192,9 @@ function epSummon(e){const act=e.m.actor;const c=e.pos.clone();const d=V3(P.pos.
 
 /* ================= 6 · THE TOWER: magic fails, the Tower asks, the Tower burns ================= */
 const NZQ={links:[],spirit:null,stage:0,said:0,cardT:0};
+const TQE=[['Which river runs past the Tower of London?',['The Thames','The Seine','The Nile','The Amazon']],['What is kept in the Jewel House?',['The Crown Jewels','A dragon','The Eiffel Tower','Pizza']],
+  ['What colour is a classic London bus?',['Red','Green','Purple','Gold']],['Who guards the Tower of London?',['The Beefeaters','The Musketeers','Ninjas','Penguins']],
+  ['What does the Hollow Crown feed on?',['Fear','Croissants','Rain','Music']],['Which city is the Tower of London in?',['London','Paris','Rome','Calais']],['What lives at the Tower, by royal order?',['Ravens','Lions','Sharks','Camels']]];
 const TQ=[['How many ravens must stay at the Tower, or the kingdom falls?',['Six','Three','Nine','Twelve']],['Who guards the Tower of London?',['The Yeoman Warders','The Musketeers','The Swiss Guard','The Night\'s Watch']],
   ['Which king built the White Tower?',['William the Conqueror','Henry VIII','Richard the Lionheart','Charles I']],['Which queen lost her head on Tower Green in 1536?',['Anne Boleyn','Elizabeth I','Mary, Queen of Scots','Victoria']],
   ['What is kept in the Jewel House?',['The Crown Jewels','The Magna Carta','Big Ben\'s bell','The Rosetta Stone']],['Which river runs past the Tower?',['The Thames','The Seine','The Severn','The Mersey']],
@@ -219,7 +226,7 @@ function epChains(){if(NZQ.stage>=1||CS.active)return;NZQ.stage=1;const c=NZ.gre
     {dur:3,fov:54,cut:true,cam:k=>({pos:V3(202,2.5+k*2,-4806),look:V3(226,4+k*10,-4824)}),onStart:()=>{const s=epTowerSpirit();s.y=-12;s.ty=14;sx('garg',.9,null,{rate:.55,wet:.5});sx('riser',.8,null,{rate:.6});flash(V3(226,10,-4824),0x60ff90,30);P.shake=1.4}},
     {who:'The Tower',text:EPL.sp1,fov:38,cam:k=>({pos:V3(204-k*2,2.6+k,-4806),look:epEyes()})}
   ],()=>{epQuiz()})}
-function epQuiz(){if(NZQ.quiz)return;if(typeof TUT!=='undefined'&&TUT.on)try{tutEnd(true)}catch(x){}const pool=TQ.slice().sort(()=>Math.random()-.5).slice(0,5);NZQ.quiz={i:0,pool};P.invuln=99;for(const e of enemies)if(!e.dead)removeEnemy(e);epAsk()}
+function epQuiz(){if(NZQ.quiz)return;if(typeof TUT!=='undefined'&&TUT.on)try{tutEnd(true)}catch(x){}const hard=DIFF==='hard';const pool=(hard?TQ:TQE).slice().sort(()=>Math.random()-.5).slice(0,hard?5:3);NZQ.quiz={i:0,pool};P.invuln=99;for(const e of enemies)if(!e.dead)removeEnemy(e);epAsk()}
 function epAsk(){const Q=NZQ.quiz;if(!Q)return;const [q,opts]=Q.pool[Q.i];const order=opts.map((t,k)=>[t,k]).sort(()=>Math.random()-.5);
   const c=tutCard(`<div class="tl">The Tower · question ${Q.i+1} of ${Q.pool.length}</div><h3>${q}</h3><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">${order.map(([t,k])=>`<button data-a="${k}">${t}</button>`).join('')}</div>`);
   c.onclick=ev=>{const b=ev.target.closest('[data-a]');if(!b||!NZQ.quiz)return;tutHide();if(b.dataset.a==='0'){sx('ding',1,()=>{try{sfx.gem()}catch(x){}});flash(epEyes(),0x9affb0,6);Q.i++;if(Q.i>=Q.pool.length)epPass();else setTimeout(epAsk,650)}else epFail()}}
@@ -239,7 +246,7 @@ function epPass(){NZQ.quiz=null;const c=NZ.green;const sp=epTowerSpirit();
     {dur:2.6,fov:42,cut:true,cam:k=>({pos:headOf(c,1.4).add(V3(3.4-k,.4,3.2)),look:headOf(c,1)}),onStart:()=>{epFreeKaen(false);sx('shbreak',1.2,()=>{try{sfx.shatter()}catch(x){}});sx('ding',.9,null,{delay:.3});sx('powerup',.8,null,{delay:.5});flash(headOf(c,1.2),0xd0f0ff,16);P.shake=1;sp.ty=-14}},
     {who:'@',text:EPL.full,cam:witchShot(1,3)},
     {who:"Kaen's Spirit",text:EPL.free,cut:true,cam:()=>({pos:headOf(c,1.6).add(V3(1.6,.1,2.6)),look:headOf(c,1.5)})}
-  ],()=>{CH2.st=Math.max(CH2.st,6);ch2Save();P.invuln=2;writeSave();toast('Kaen is free. Lyra\'s red door by the Tower gate leads home.','The Tower',true)})}
+  ],()=>{CH2.st=Math.max(CH2.st,6);ch2Save();P.invuln=2;writeSave();stAfterQuiz()})}
 function epFreeKaen(silent){for(const l of NZQ.links){if(silent){l.visible=false;continue}const v=V3(rand(-4,4),rand(2,6),rand(-4,4));addFx(l,1.4,(f,k)=>{l.position.addScaledVector(v,1/60);v.y-=.2;l.rotation.x+=.3;l.scale.setScalar(1-k)},()=>{l.visible=false})}
   try{if(NZ.ghost)NZ.ghost.setBase('Idle_Loop',.6)}catch(x){}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open'||CH2.zone!=='north'||!NZ.green||!started)return;const tw=Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z);

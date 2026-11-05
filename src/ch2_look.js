@@ -71,7 +71,7 @@ function nzPerson(){const R=Math.random,sx=R()<.5?'f':'m';const coat=[0x2a2a30,0
 function nzWalk(par,a,x0,z0,x1,z1){const u={a,x0,z0,x1,z1,t:Math.random(),dir:Math.random()<.5?1:-1,len:Math.hypot(x1-x0,z1-z0)};par.add(a.g);NZP.list.push(u);return u}
 function nzCrowd(where){if(!CH.ok)return;const segs=[];
   if(where==='london'){for(let k=0;k<10;k++){const x=rand(-240,200),s=k%2?-4777.2:-4743;segs.push([x,s,x+rand(30,60),s])}for(const b of[-108,-36,72])segs.push([b+3.6,-4746,b+3.6,-4774]);}
-  else if(where==='calais'){for(let k=0;k<6;k++){const x=rand(-230,190);segs.push([x,-3055,x+rand(25,50),-3055])}}
+  else if(where==='calais'){for(let k=0;k<6;k++){const x=rand(-230,190);segs.push([x,-2155,x+rand(25,50),-2155])}}
   else{for(let k=0;k<10;k++){const x=rand(-380,340),s=k%2?12.6:-12.6;segs.push([x,s,x+rand(30,60),s])}segs.push([-122,50,-122,230],[-130,60,-130,240],[-135,-60,-135,-100],[-117,-100,-117,-60])}
   const par=where==='paris'?scene:NZ.g;for(const s of segs){const a=nzPerson();if(a)nzWalk(par,a,...s)}}
 function nzCrowdTick(dt){const cp=camera.position;for(const u of NZP.list){const g=u.a.g;if(!g.parent)continue;if(g.parent===scene?!(CH2.zone==='paris'&&CH2.st>=1):!g.parent.visible){g.visible=false;continue}

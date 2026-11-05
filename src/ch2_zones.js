@@ -1,7 +1,7 @@
 
 /* ================= CHAPTER 2 · The Crossing: Calais, the cursed Channel, England, London ================= */
-const NZB={x0:-270,x1:270,z0:-4990,z1:-2950},CAL_SHORE=-3092,CURSE_Z=-3450,CLIFF_Z=-4000,LON_Z=-4560,TH_Z=-4760,TH_W=16,LBR=[-108,-36,72,180];
-const NZ={built:false,g:null,hid:[],trig:{},cp:V3(60,0,-3072),cpk:0,spawnT:2,lt:3,burnT:0,swimT:0,fogC:new THREE.Color(0x1d2238),fogD:.008,flashK:0,flashT:6,tollT:40,bossCd:0,boss:null,anim:[],mapR:[],mapP:[],eye:null,ravens:[],wisps:[]};
+const NZB={x0:-270,x1:270,z0:-4990,z1:-2050},CAL_SHORE=-2192,CURSE_Z=-3450,CLIFF_Z=-4000,LON_Z=-4560,TH_Z=-4760,TH_W=16,LBR=[-108,-36,72,180];
+const NZ={built:false,g:null,hid:[],trig:{},cp:V3(60,0,-2172),cpk:0,spawnT:2,lt:3,burnT:0,swimT:0,fogC:new THREE.Color(0x1d2238),fogD:.008,flashK:0,flashT:6,tollT:40,bossCd:0,boss:null,anim:[],mapR:[],mapP:[],eye:null,ravens:[],wisps:[]};
 const nzSm=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
 function nzRiverX(z){return 20+60*Math.sin((z-CLIFF_Z)/95)+18*Math.sin((z-CLIFF_Z)/37)}
 function nzRiverOn(z){return z<CLIFF_Z-34&&z>LON_Z+6}
@@ -10,15 +10,15 @@ function nzLand(x,z){const t=clamp((CLIFF_Z-z)/(CLIFF_Z-LON_Z),0,1),b=nzBase(z);
   let h=b+amp*(.55*Math.sin(x*.021+1.3)*Math.cos(z*.017+.4)+.3*Math.sin(x*.047+z*.031)+.15*Math.cos(z*.083-x*.011));
   if(nzRiverOn(z)||(z<CLIFF_Z-20&&z>LON_Z)){const v=(1-nzSm(4.5,22,Math.abs(x-nzRiverX(z))))*nzSm(CLIFF_Z-20,CLIFF_Z-40,z)*nzSm(LON_Z,LON_Z+12,z);h=lerp(h,b-1.6,v)}return h}
 function nzGround(x,z){const l=lotAt(x,z);if(l)return roofH(l,x,z);
-  if(z>CAL_SHORE)return z>-3058?0:lerp(0,-.35,(-3058-z)/34);
-  if(z>CLIFF_Z){if(Math.abs(x-60)<4.2&&z>-3192)return 1.2;return z<CLIFF_Z+15?-.3:-.85}
+  if(z>CAL_SHORE)return z>-2158?0:lerp(0,-.35,(-2158-z)/34);
+  if(z>CLIFF_Z){if(Math.abs(x-60)<4.2&&z>-2292)return 1.2;return z<CLIFF_Z+15?-.3:-.85}
   if(z>LON_Z-2)return nzLand(x,z);
   if(Math.abs(z-TH_Z)<TH_W)return LBR.some(b=>Math.abs(x-b)<5)?.5:-.85;return 0}
-function nzWater(x,z){if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-3192);
+function nzWater(x,z){if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-2292);
   if(z<=CLIFF_Z&&z>LON_Z-2)return nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<4.5;
   if(z<=LON_Z-2)return Math.abs(z-TH_Z)<TH_W-.15&&!LBR.some(b=>Math.abs(x-b)<5);return false}
-{const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&z<-2800)return nzGround(x,z);return _g.apply(this,arguments)}}
-{const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&z<-2800)return nzWater(x,z);return _w(x,z)}}
+{const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&z<-1500)return nzGround(x,z);return _g.apply(this,arguments)}}
+{const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&z<-1500)return nzWater(x,z);return _w(x,z)}}
 {const _v=validSpot;validSpot=function(x,z,m){if(MODE!=='open'&&CH2.zone==='north'&&nzWater(x,z))return false;return _v.apply(this,arguments)}}
 {const _ss=spawnStones;spawnStones=function(n){_ss(n);for(const s of stones)if(s.g)s.g.position.y=groundAt(s.g.position.x,s.g.position.z)}}
 
@@ -68,33 +68,33 @@ function nzPortal(at,col){const g=new THREE.Group();g.position.copy(at);const c=
   g.userData.tick=dt=>{d.rotation.z-=dt*2.2;const s=1+Math.sin(performance.now()*.006)*.04;d.scale.set(s,s,1);if(Math.random()<.5)SP.emit(V3(at.x+rand(-1.6,1.6),at.y+rand(.6,4.2),at.z),{c0:0xffd0d0,c1:c,s0:.35,s1:.05,life:.7,speed:.6})};scene.add(g);return g}
 
 /* ---------- Calais ---------- */
-function nzCalais(G){const M=nzM();const gm=c2plane(G,540,112,0,-.02,-3004,nzGroundMat(540,112));gm.material.color.setHex(0x8a8494);
-  c2plane(G,540,40,0,-.18,-3076,M.sand).rotation.x=-Math.PI/2-.0105;c2box(G,540,.7,1.2,0,-.2,-3058.6,M.plain,false);
+function nzCalais(G){const M=nzM();const gm=c2plane(G,540,112,0,-.02,-2104,nzGroundMat(540,112));gm.material.color.setHex(0x8a8494);
+  c2plane(G,540,40,0,-.18,-2176,M.sand).rotation.x=-Math.PI/2-.0105;c2box(G,540,.7,1.2,0,-.2,-2158.6,M.plain,false);
   const H=[],rnd=()=>Math.random(),cols=[0x9a5040,0xb8a88a,0xd8d0c0,0x7a4a3a,0xa8b0b8,0xc89a70],rcs=[0x3a3c48,0x7a3a2a,0x4a4a52];
-  for(const[z,d] of[[-3044,10],[-3020,12],[-2996,12],[-2972,12]])for(let x=-258;x<=258;){const w=rand(7,11);if(!(Math.abs(x+90)<16&&z>-3050)&&!(Math.abs(x-20)<26&&z>-3012&&z<-2984)&&Math.abs(x-60)>7&&Math.abs(x)%48>8)H.push({x:x+w/2,z,w:w-.6,d,h:rand(7,11),rh:rand(2.4,3.6),c:cols[(rnd()*6)|0],rc:rcs[(rnd()*3)|0]});x+=w}
+  for(const[z,d] of[[-2144,10],[-2120,12],[-2096,12],[-2072,12]])for(let x=-258;x<=258;){const w=rand(7,11);if(!(Math.abs(x+90)<16&&z>-2150)&&!(Math.abs(x-20)<26&&z>-2112&&z<-2084)&&Math.abs(x-60)>7&&Math.abs(x)%48>8)H.push({x:x+w/2,z,w:w-.6,d,h:rand(7,11),rh:rand(2.4,3.6),c:cols[(rnd()*6)|0],rc:rcs[(rnd()*3)|0]});x+=w}
   nzHouses(G,H);
   /* Hôtel de Ville and its belfry */
-  nzBox(G,34,13,14,20,0,-2998,M.brick,true);nzBox(G,7,46,7,20,0,-2990,M.brick,true);for(const y of[12,24,36])c2box(G,7.4,.6,7.4,20,y,-2990,M.plain,false);
-  const ck=nzClockTex();for(const[dx,dz,ry]of[[0,3.75,0],[0,-3.75,Math.PI],[3.75,0,Math.PI/2],[-3.75,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(2.4,28),new THREE.MeshBasicMaterial({map:ck}));f.position.set(20+dx,41,-2990+dz);f.rotation.y=ry;G.add(f)}
-  nzCone(G,5.4,12,20,46,-2990,M.copper);nzGlow(G,0xffe0a0,10,.35,20,41,-2990);NZ.mapP.push([20,-2990]);
+  nzBox(G,34,13,14,20,0,-2098,M.brick,true);nzBox(G,7,46,7,20,0,-2090,M.brick,true);for(const y of[12,24,36])c2box(G,7.4,.6,7.4,20,y,-2090,M.plain,false);
+  const ck=nzClockTex();for(const[dx,dz,ry]of[[0,3.75,0],[0,-3.75,Math.PI],[3.75,0,Math.PI/2],[-3.75,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(2.4,28),new THREE.MeshBasicMaterial({map:ck}));f.position.set(20+dx,41,-2090+dz);f.rotation.y=ry;G.add(f)}
+  nzCone(G,5.4,12,20,46,-2090,M.copper);nzGlow(G,0xffe0a0,10,.35,20,41,-2090);NZ.mapP.push([20,-2090]);
   /* the lighthouse */
-  nzCyl(G,2.6,3.6,38,-90,0,-3030,M.white,8);boxes.push({x0:-93.5,x1:-86.5,z0:-3033.5,z1:-3026.5,h:44,nz:1});nzLot(-93,-87,-3033,-3027,42.5,0);nzCyl(G,2.3,2.3,4,-90,38,-3030,M.glow(0xffe8a0,.6),8);nzCone(G,2.8,3,-90,42,-3030,M.dark,8,0);
-  const piv=new THREE.Group();piv.position.set(-90,40,-3030);G.add(piv);const bm=new THREE.Mesh(new THREE.ConeGeometry(5,90,20,1,true),M.glow(0xfff0b0,.09));bm.geometry.translate(0,-45,0);bm.rotation.z=Math.PI/2;piv.add(bm);
-  const bm2=bm.clone();bm2.rotation.z=-Math.PI/2;piv.add(bm2);nzGlow(G,0xffe8a0,14,.8,-90,40,-3030);NZ.anim.push(dt=>piv.rotation.y+=dt*.6);NZ.mapP.push([-90,-3030]);
+  nzCyl(G,2.6,3.6,38,-90,0,-2130,M.white,8);boxes.push({x0:-93.5,x1:-86.5,z0:-2133.5,z1:-2126.5,h:44,nz:1});nzLot(-93,-87,-2133,-2127,42.5,0);nzCyl(G,2.3,2.3,4,-90,38,-2130,M.glow(0xffe8a0,.6),8);nzCone(G,2.8,3,-90,42,-2130,M.dark,8,0);
+  const piv=new THREE.Group();piv.position.set(-90,40,-2130);G.add(piv);const bm=new THREE.Mesh(new THREE.ConeGeometry(5,90,20,1,true),M.glow(0xfff0b0,.09));bm.geometry.translate(0,-45,0);bm.rotation.z=Math.PI/2;piv.add(bm);
+  const bm2=bm.clone();bm2.rotation.z=-Math.PI/2;piv.add(bm2);nzGlow(G,0xffe8a0,14,.8,-90,40,-2130);NZ.anim.push(dt=>piv.rotation.y+=dt*.6);NZ.mapP.push([-90,-2130]);
   /* the jetty */
-  c2box(G,8,.4,104,60,.8,-3140,std({color:0x5a4634,roughness:.9}),false);for(let z=-3092;z>=-3190;z-=8)for(const s of[-1,1]){nzCyl(G,.22,.22,2.6,60+s*3.8,-1.4,z,M.dark,6);if(z%16===0)nzGlow(G,0xffc070,2.4,.8,60+s*3.6,2.6,z)}
-  nzGlow(G,0x60ff90,4,.9,60,3.2,-3190);
+  c2box(G,8,.4,104,60,.8,-2240,std({color:0x5a4634,roughness:.9}),false);for(let z=-2192;z>=-2290;z-=8)for(const s of[-1,1]){nzCyl(G,.22,.22,2.6,60+s*3.8,-1.4,z,M.dark,6);if(z%16===0)nzGlow(G,0xffc070,2.4,.8,60+s*3.6,2.6,z)}
+  nzGlow(G,0x60ff90,4,.9,60,3.2,-2290);
   /* beach huts */
-  const hut=[];for(let x=-250;x<=250;x+=6.5)if(Math.abs(x-60)>8&&Math.abs(x+90)>8)hut.push({x,z:-3066,w:3,d:3,h:2.6,rh:1.2,c:[0xd84a4a,0x4a8ad8,0xf0d040,0x5ac080,0xf0f0f0][(Math.random()*5)|0],rc:0xf0f0f0});nzHouses(G,hut);
+  const hut=[];for(let x=-250;x<=250;x+=6.5)if(Math.abs(x-60)>8&&Math.abs(x+90)>8)hut.push({x,z:-2166,w:3,d:3,h:2.6,rh:1.2,c:[0xd84a4a,0x4a8ad8,0xf0d040,0x5ac080,0xf0f0f0][(Math.random()*5)|0],rc:0xf0f0f0});nzHouses(G,hut);
   /* a ferry asleep at the harbour */
-  const fy=new THREE.Group();fy.position.set(200,0,-3122);G.add(fy);const hull=new THREE.Mesh(new THREE.BoxGeometry(48,6,11),M.white);hull.position.y=1.5;fy.add(hull);const st=new THREE.Mesh(new THREE.BoxGeometry(30,5,9),M.white);st.position.set(-3,7,0);fy.add(st);
+  const fy=new THREE.Group();fy.position.set(200,0,-2222);G.add(fy);const hull=new THREE.Mesh(new THREE.BoxGeometry(48,6,11),M.white);hull.position.y=1.5;fy.add(hull);const st=new THREE.Mesh(new THREE.BoxGeometry(30,5,9),M.white);st.position.set(-3,7,0);fy.add(st);
   const fn=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.8,5,12),M.red);fn.position.set(-8,12,0);fy.add(fn);for(let k=0;k<12;k++)for(const s of[-1,1]){const w=glowSprite(0xfff0c0,1,.8);w.position.set(-16+k*2.6,7.5,s*4.6);fy.add(w)}
-  for(let k=0;k<26;k++)nzGlow(G,0xffb060,3,.9,rand(-250,250),5,rand(-2960,-3050));NZ.mapR.push([176,-3128,48,11])}
+  for(let k=0;k<26;k++)nzGlow(G,0xffb060,3,.9,rand(-250,250),5,rand(-2060,-2150));NZ.mapR.push([176,-2228,48,11])}
 function nzClockTex(){if(NZ.ck)return NZ.ck;const c=mkCanvas(128,128,(x)=>{x.fillStyle='#f6ecd0';x.beginPath();x.arc(64,64,62,0,TAU);x.fill();x.strokeStyle='#2a2418';x.lineWidth=4;x.stroke();x.lineWidth=1.5;x.beginPath();x.arc(64,64,48,0,TAU);x.stroke();
   x.fillStyle='#2a2418';for(let k=0;k<12;k++){const a=k/12*TAU;x.save();x.translate(64+Math.sin(a)*54,64-Math.cos(a)*54);x.rotate(a);x.fillRect(-2,-6,4,12);x.restore()}x.fillRect(62,22,4,44);x.save();x.translate(64,64);x.rotate(2.2);x.fillRect(-2,-34,4,34);x.restore()});return NZ.ck=new THREE.CanvasTexture(c)}
 
 /* ---------- the Channel ---------- */
-function nzSea(G){const M=nzM();const sea=c2plane(G,600,893,0,.05,-3538.5,M.sea);sea.receiveShadow=false;
+function nzSea(G){const M=nzM();const sea=c2plane(G,600,1793,0,.05,-3088.5,M.sea);sea.receiveShadow=false;
   const cm=new THREE.ShaderMaterial({uniforms:{uT:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:'varying vec3 vW;void main(){vW=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader:'uniform float uT;varying vec3 vW;void main(){vec2 p=vW.xz*.045;float n=sin(p.x*3.1+uT*.6+sin(p.y*2.3+uT*.4))*sin(p.y*2.7-uT*.5+sin(p.x*1.7));float c=smoothstep(.55,1.,n)*.5+smoothstep(-.2,.9,n)*.06;float edge=(1.-smoothstep(-3520.,-3450.,vW.z))*smoothstep(-4010.,-3960.,vW.z);float fd=exp(-pow(distance(vW,cameraPosition)*.0105,2.));gl_FragColor=vec4(vec3(.2,1.,.55)*c*edge*fd,1.);}'});
@@ -208,9 +208,9 @@ function nzBuild(){if(NZ.built)return;NZ.built=true;const G=NZ.g=new THREE.Group
 function nzKeep(o){return o===SKY||o.isLight||o===moonLight.target||o===W.g||o===camera||(o.isPoints&&o.frustumCulled===false)||o===NZ.g||(LYR.a&&o===LYR.a.g)||(typeof reticle!=='undefined'&&o===reticle)||enemies.some(e=>!e.dead&&e.m&&e.m.g===o)}
 function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+48;MAPOX=WB.x0-24;MAPOZ=WB.z0-24;const x=worldMap.getContext('2d'),X=v=>v-MAPOX,Z=v=>v-MAPOZ,Wd=worldMap.width;
   x.fillStyle='#1d1935';x.fillRect(0,0,Wd,worldMap.height);x.fillStyle='#2b4b86';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CAL_SHORE)-Z(CLIFF_Z));x.fillStyle='#21584e';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CURSE_Z)-Z(CLIFF_Z));
-  x.fillStyle='#8a7a5a';x.fillRect(0,Z(-3058),Wd,Z(CAL_SHORE)-Z(-3058));x.fillStyle='#284332';x.fillRect(0,Z(LON_Z),Wd,Z(CLIFF_Z)-Z(LON_Z));x.fillStyle='#e8e6dc';x.fillRect(0,Z(CLIFF_Z)-2,Wd,4);
+  x.fillStyle='#8a7a5a';x.fillRect(0,Z(-2158),Wd,Z(CAL_SHORE)-Z(-2158));x.fillStyle='#284332';x.fillRect(0,Z(LON_Z),Wd,Z(CLIFF_Z)-Z(LON_Z));x.fillStyle='#e8e6dc';x.fillRect(0,Z(CLIFF_Z)-2,Wd,4);
   x.strokeStyle='#2b4b86';x.lineWidth=9;x.beginPath();for(let z=CLIFF_Z-34;z>LON_Z+6;z-=6)z===CLIFF_Z-34?x.moveTo(X(nzRiverX(z)),Z(z)):x.lineTo(X(nzRiverX(z)),Z(z));x.stroke();
-  x.fillStyle='#2b4b86';x.fillRect(0,Z(TH_Z-TH_W),Wd,TH_W*2);x.fillStyle='#6b6278';for(const b of LBR)x.fillRect(X(b-5),Z(TH_Z-TH_W),10,TH_W*2);x.fillRect(X(56),Z(-3192),8,100);
+  x.fillStyle='#2b4b86';x.fillRect(0,Z(TH_Z-TH_W),Wd,TH_W*2);x.fillStyle='#6b6278';for(const b of LBR)x.fillRect(X(b-5),Z(TH_Z-TH_W),10,TH_W*2);x.fillRect(X(56),Z(-2292),8,100);
   x.fillStyle='#6b6278';for(const r of NZ.mapR)x.fillRect(X(r[0]),Z(r[1]),r[2],r[3]);x.fillStyle='#f2a541';for(const p of NZ.mapP)x.fillRect(X(p[0])-4,Z(p[1])-4,8,8)}
 {const _dw=drawWorldMap;drawWorldMap=function(){if(MODE!=='open'&&CH2.zone==='north')return nzDrawMap();return _dw.apply(this,arguments)}}
 
@@ -218,7 +218,7 @@ function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+4
 function nzClear(){for(const e of enemies)if(!e.dead)removeEnemy(e);for(const p of eProjs)scene.remove(p.s);eProjs.length=0}
 function nzEnter(where){nzBuild();if(CH2.zone==='paris'){CH2.parisWB={x0:WB.x0,x1:WB.x1,z0:WB.z0,z1:WB.z1};NZ.hid=scene.children.filter(o=>o.visible&&!nzKeep(o));for(const o of NZ.hid)o.visible=false}
   nzClear();if(where!=='london'){NZ.trig={};NZ.cpk=0}CH2.zone='north';NZ.g.visible=true;Object.assign(WB,NZB);drawWorldMap();setDawn(.08);NZ.fogD=scene.fog.density;NZ.fogC.copy(scene.fog.color);
-  const p=where==='london'?V3(-108,0,-4608):V3(60,0,-3072);NZ.cp.copy(p);SPAWN.copy(p);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.glide=false;yaw=0;P.face=Math.PI;
+  const p=where==='london'?V3(-108,0,-4608):V3(60,0,-2172);NZ.cp.copy(p);SPAWN.copy(p);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.glide=false;yaw=0;P.face=Math.PI;
   camera.position.set(p.x,P.pos.y+5,p.z+12);if(CH2.st>=5)nzAfter();CH2.obj=nzObj;ch2Save()}
 function nzLeave(){nzClear();sxStop('wind',1);CH2.zone='paris';if(NZ.g)NZ.g.visible=false;for(const o of NZ.hid)o.visible=true;NZ.hid=[];Object.assign(WB,CH2.parisWB||{x0:-430,x1:430,z0:-330,z1:300});drawWorldMap();
   setDawn(STATS.won?.55:dawnK);SPAWN.set(-100,0,22);CH2.flySpd=0;lyraToTroca();const p=V3(-126,0,-100);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;yaw=Math.PI;P.face=0;camera.position.set(p.x,P.pos.y+5,p.z-12);
@@ -228,9 +228,9 @@ function ch2Depart(back){if(CS.active)return;const L=LYR.a?LYR.a.g.position.clon
   const shots=[{dur:3.4,fov:44,title:back?null:['Chapter 2','The Crossing'],cam:k=>({pos:headOf(door,2).add(V3(6-k*2,0,6)),look:headOf(door,2)}),onStart:()=>{if(!portal)portal=nzPortal(door);sx('portal',1,()=>{try{sfx.blink()}catch(e){}},{wet:.4});try{LYR.a.fire('Spell_Simple_Shoot',.8)}catch(e){}},update:dt=>{if(portal)portal.userData.tick(dt)}},
     {dur:1.2,cam:k=>({pos:headOf(door,2.2).add(V3(0,0,3-k*2.4)),look:headOf(door,2.4)}),onStart:()=>{flash(headOf(door,2.4),0xff5060,12);sx('portal',.8,null,{rate:.8})}}];
   if(back)shots.push({dur:5,fov:50,cut:true,title:['London','Lyra\'s door holds'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('london')},cam:k=>({pos:V3(-150+k*40,40-k*10,-4640),look:V3(-90,30,-4760)})});
-  else shots.push({dur:6,fov:50,cut:true,title:['Calais','The edge of French waters'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('calais');lyraPlace(60,-3086,0);LYR.home=false},cam:k=>({pos:V3(110-k*36,24-k*6,-3168+k*8),look:V3(-30,14,-3020)})},
+  else shots.push({dur:6,fov:50,cut:true,title:['Calais','The edge of French waters'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('calais');lyraPlace(60,-2186,0);LYR.home=false},cam:k=>({pos:V3(110-k*36,24-k*6,-2268+k*8),look:V3(-30,14,-2120)})},
     {who:'Lyra',text:LY.ly14,cut:true,cam:lyS(2.4)},{who:'Lyra',text:LY.ly15,cam:lyS(2)},{who:'@',text:'Don\'t wait up.',cut:true,cam:witchShot(1,3.4)});
-  playCutscene(shots,()=>{if(portal)scene.remove(portal);if(!back){CH2.st=Math.max(CH2.st,2);ch2Save();toast('Take off and fly north. Hold jump to climb. The broom will not tire over the sea.','The Channel',true)}})}
+  playCutscene(shots,()=>{if(portal)scene.remove(portal);if(!back){CH2.st=Math.max(CH2.st,2);ch2Save();toast('Take off and fly north. Lyra\'s sea-glass gem keeps your broom alive over water. Over land it tires like always.','The Channel',true)}})}
 function nzObj(){if(CH2.zone==='paris')return LYR.a&&LYR.home?`Meet <b>Lyra</b> at the Trocadéro · ${Math.round(Math.hypot(P.pos.x+126,P.pos.z+112))}m`:null;const z=P.pos.z;
   if(CH2.st<3)return z>CLIFF_Z?`Fly north across the <b>Channel</b> · ${Math.round(z-CLIFF_Z)}m`:`Follow the river to <b>London</b> · ${Math.round(z-LON_Z)}m`;
   if(CH2.st===3&&NZ.bb)return `Something waits on <b>Big Ben</b> · ${Math.round(Math.hypot(P.pos.x-NZ.bb.x,P.pos.z-NZ.bb.z))}m`;
@@ -347,7 +347,7 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
   if(cur){NZ.flashT-=dt;if(NZ.flashT<=0){NZ.flashT=rand(5,11);NZ.flashK=1;const b=V3(P.pos.x+rand(-120,120),90,P.pos.z-rand(60,160));const pts=[];for(let k=0;k<14;k++){pts.push(b.clone());b.x+=rand(-7,7);b.y-=7;b.z+=rand(-3,3)}NZ.bolt.geometry.setFromPoints(pts);after(rand(.3,.9),()=>sx('impact',.35,null,{rate:.55,wet:.6}))}}
   for(const w of NZ.wisps){const u=w.userData;u.ph+=dt;if(!cur){w.visible=false;continue}w.visible=true;if(Math.abs(w.position.z-P.pos.z)>80||Math.abs(w.position.x-P.pos.x)>60)w.position.set(P.pos.x+u.o.x,u.o.y,P.pos.z+u.o.z-40);w.position.y=u.o.y+Math.sin(u.ph*1.3)*.8;w.position.x+=Math.sin(u.ph*.7)*dt*2}
   if(!started||CS.active||!P.alive)return;
-  if(!bossRef&&P.flying)P.flyT=Math.max(P.flyT,4);CH2.flySpd=sea?30:lon?20:26;
+  if(P.flying&&CH2.st>=2&&nzWater(P.pos.x,P.pos.z)){P.flyT=Math.max(P.flyT,4);CH2.gemOn=1}else CH2.gemOn=0;CH2.flySpd=sea?30:lon?20:26;
   if(z<CLIFF_Z-30&&NZ.cpk<1){NZ.cpk=1;NZ.cp.set(nzRiverX(-4060)+16,0,-4060)}if(lon&&NZ.cpk<2){NZ.cpk=2;NZ.cp.set(-108,0,-4608)}SPAWN.copy(NZ.cp);
   if(sea&&P.swim){NZ.swimT+=dt;if(cur){NZ.burnT-=dt;if(NZ.burnT<=0){NZ.burnT=.5;damagePlayer(maxHP()*.05);SP.emit(V3(P.pos.x,P.pos.y+.6,P.pos.z),{n:16,c0:0xc0ff90,c1:0x104010,speed:3,life:.6,up:2})}}
     if(NZ.swimT>(cur?.7:1.6)&&P.alive){NZ.swimT=0;P.flying=true;P.glide=false;P.flyT=60;P.vy=10;try{sfx.fly()}catch(e){}toast(cur?'The cursed water burns! Back on the broom!':'Back on the broom. The sea is long.')}}else NZ.swimT=0;
@@ -429,16 +429,16 @@ Object.assign(LY,{ly22:'Calais. The last French shore. Look north... England, hi
 for(const k of['ly22','ly23','ly24','ly25','ly26'])VO_MAP[LY[k]]=k;Object.assign(VO_MAP,{"Why can't you come with me?":'mx11',"Then stay. I'll bring him back.":'mx12'});
 function nzCalaisTalk(){const L=()=>LYR.a?LYR.a.g.position:P.pos;const face=r=>{if(LYR.a)LYR.a.g.rotation.y=r};
   const lyS=(d,sd)=>()=>{const g=L();const dv=V3(P.pos.x-g.x,0,P.pos.z-g.z).normalize();return{pos:headOf(g,1.6).addScaledVector(dv,d).addScaledVector(V3(dv.z,0,-dv.x),sd||.6),look:headOf(g,1.55)}};
-  return[{who:'Lyra',text:LY.ly22,cut:true,fov:40,onStart:()=>face(Math.PI),cam:k=>({pos:V3(61.4,2.3,-3081.5+k*.6),look:V3(58,5,-3300)})},
+  return[{who:'Lyra',text:LY.ly22,cut:true,fov:40,onStart:()=>face(Math.PI),cam:k=>({pos:V3(61.4,2.3,-2181.5+k*.6),look:V3(58,5,-2400)})},
     {who:'@',text:"Why can't you come with me?",cut:true,cam:witchShot(1,3.2)},
     {who:'Lyra',text:LY.ly23,cut:true,onStart:()=>face(0),cam:lyS(2.3)},
-    {who:'Lyra',text:LY.ly24,cut:true,fov:46,cam:k=>({pos:V3(72-k*6,7+k*2,-3096),look:V3(40,9,-3460)})},
+    {who:'Lyra',text:LY.ly24,cut:true,fov:46,cam:k=>({pos:V3(72-k*6,7+k*2,-2196),look:V3(40,9,-3460)})},
     {who:'Lyra',text:LY.ly25,cut:true,cam:lyS(1.9,-.5)},
     {who:'@',text:"Then stay. I'll bring him back.",cam:witchShot(-1,3)},
     {who:'Lyra',text:LY.ly26,cut:true,cam:lyS(2.5)},
     {who:'Lyra',text:LY.ly14,cam:lyS(2.1,-.4)},{who:'Lyra',text:LY.ly15,cam:lyS(1.8)},{who:'@',text:"Don't wait up.",cut:true,cam:witchShot(1,3.4)}]}
 {const _pc=playCutscene;playCutscene=function(shots,done){if(CH2.st<3&&shots&&shots.length>=4&&shots[3]&&shots[3].text===LY.ly14&&shots[2]&&shots[2].title&&shots[2].title[0]==='Calais'){shots=shots.slice(0,3).concat(nzCalaisTalk());
-    shots[2].cam=k=>({pos:V3(96-k*30,16-k*5,-3175+k*30),look:V3(-20,10,-3020)})}return _pc.call(this,shots,done)}}
+    shots[2].cam=k=>({pos:V3(96-k*30,16-k*5,-2275+k*30),look:V3(-20,10,-2120)})}return _pc.call(this,shots,done)}}
 
 /* ---------- the horizon: fog the colour of the sky, England only a faint line until you are close ---------- */
 const NZH={n:new THREE.Color(0x4e3462),d:new THREE.Color(0xf2bc8e),c:new THREE.Color()};

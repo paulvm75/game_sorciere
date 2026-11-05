@@ -6319,8 +6319,8 @@ function ch2Finale(center,orb,lines){STATS.won=true;writeSave();snow.force=false
   if(CH2.st>=1&&CH2.zone==='paris'){scene.fog.density=Math.min(scene.fog.density,.0062);if(dawnK>.6)setDawn(.55)}}}
 
 /* ================= CHAPTER 2 · The Crossing: Calais, the cursed Channel, England, London ================= */
-const NZB={x0:-270,x1:270,z0:-4990,z1:-2950},CAL_SHORE=-3092,CURSE_Z=-3450,CLIFF_Z=-4000,LON_Z=-4560,TH_Z=-4760,TH_W=16,LBR=[-108,-36,72,180];
-const NZ={built:false,g:null,hid:[],trig:{},cp:V3(60,0,-3072),cpk:0,spawnT:2,lt:3,burnT:0,swimT:0,fogC:new THREE.Color(0x1d2238),fogD:.008,flashK:0,flashT:6,tollT:40,bossCd:0,boss:null,anim:[],mapR:[],mapP:[],eye:null,ravens:[],wisps:[]};
+const NZB={x0:-270,x1:270,z0:-4990,z1:-2050},CAL_SHORE=-2192,CURSE_Z=-3450,CLIFF_Z=-4000,LON_Z=-4560,TH_Z=-4760,TH_W=16,LBR=[-108,-36,72,180];
+const NZ={built:false,g:null,hid:[],trig:{},cp:V3(60,0,-2172),cpk:0,spawnT:2,lt:3,burnT:0,swimT:0,fogC:new THREE.Color(0x1d2238),fogD:.008,flashK:0,flashT:6,tollT:40,bossCd:0,boss:null,anim:[],mapR:[],mapP:[],eye:null,ravens:[],wisps:[]};
 const nzSm=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
 function nzRiverX(z){return 20+60*Math.sin((z-CLIFF_Z)/95)+18*Math.sin((z-CLIFF_Z)/37)}
 function nzRiverOn(z){return z<CLIFF_Z-34&&z>LON_Z+6}
@@ -6329,15 +6329,15 @@ function nzLand(x,z){const t=clamp((CLIFF_Z-z)/(CLIFF_Z-LON_Z),0,1),b=nzBase(z);
   let h=b+amp*(.55*Math.sin(x*.021+1.3)*Math.cos(z*.017+.4)+.3*Math.sin(x*.047+z*.031)+.15*Math.cos(z*.083-x*.011));
   if(nzRiverOn(z)||(z<CLIFF_Z-20&&z>LON_Z)){const v=(1-nzSm(4.5,22,Math.abs(x-nzRiverX(z))))*nzSm(CLIFF_Z-20,CLIFF_Z-40,z)*nzSm(LON_Z,LON_Z+12,z);h=lerp(h,b-1.6,v)}return h}
 function nzGround(x,z){const l=lotAt(x,z);if(l)return roofH(l,x,z);
-  if(z>CAL_SHORE)return z>-3058?0:lerp(0,-.35,(-3058-z)/34);
-  if(z>CLIFF_Z){if(Math.abs(x-60)<4.2&&z>-3192)return 1.2;return z<CLIFF_Z+15?-.3:-.85}
+  if(z>CAL_SHORE)return z>-2158?0:lerp(0,-.35,(-2158-z)/34);
+  if(z>CLIFF_Z){if(Math.abs(x-60)<4.2&&z>-2292)return 1.2;return z<CLIFF_Z+15?-.3:-.85}
   if(z>LON_Z-2)return nzLand(x,z);
   if(Math.abs(z-TH_Z)<TH_W)return LBR.some(b=>Math.abs(x-b)<5)?.5:-.85;return 0}
-function nzWater(x,z){if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-3192);
+function nzWater(x,z){if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-2292);
   if(z<=CLIFF_Z&&z>LON_Z-2)return nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<4.5;
   if(z<=LON_Z-2)return Math.abs(z-TH_Z)<TH_W-.15&&!LBR.some(b=>Math.abs(x-b)<5);return false}
-{const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&z<-2800)return nzGround(x,z);return _g.apply(this,arguments)}}
-{const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&z<-2800)return nzWater(x,z);return _w(x,z)}}
+{const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&z<-1500)return nzGround(x,z);return _g.apply(this,arguments)}}
+{const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&z<-1500)return nzWater(x,z);return _w(x,z)}}
 {const _v=validSpot;validSpot=function(x,z,m){if(MODE!=='open'&&CH2.zone==='north'&&nzWater(x,z))return false;return _v.apply(this,arguments)}}
 {const _ss=spawnStones;spawnStones=function(n){_ss(n);for(const s of stones)if(s.g)s.g.position.y=groundAt(s.g.position.x,s.g.position.z)}}
 
@@ -6387,33 +6387,33 @@ function nzPortal(at,col){const g=new THREE.Group();g.position.copy(at);const c=
   g.userData.tick=dt=>{d.rotation.z-=dt*2.2;const s=1+Math.sin(performance.now()*.006)*.04;d.scale.set(s,s,1);if(Math.random()<.5)SP.emit(V3(at.x+rand(-1.6,1.6),at.y+rand(.6,4.2),at.z),{c0:0xffd0d0,c1:c,s0:.35,s1:.05,life:.7,speed:.6})};scene.add(g);return g}
 
 /* ---------- Calais ---------- */
-function nzCalais(G){const M=nzM();const gm=c2plane(G,540,112,0,-.02,-3004,nzGroundMat(540,112));gm.material.color.setHex(0x8a8494);
-  c2plane(G,540,40,0,-.18,-3076,M.sand).rotation.x=-Math.PI/2-.0105;c2box(G,540,.7,1.2,0,-.2,-3058.6,M.plain,false);
+function nzCalais(G){const M=nzM();const gm=c2plane(G,540,112,0,-.02,-2104,nzGroundMat(540,112));gm.material.color.setHex(0x8a8494);
+  c2plane(G,540,40,0,-.18,-2176,M.sand).rotation.x=-Math.PI/2-.0105;c2box(G,540,.7,1.2,0,-.2,-2158.6,M.plain,false);
   const H=[],rnd=()=>Math.random(),cols=[0x9a5040,0xb8a88a,0xd8d0c0,0x7a4a3a,0xa8b0b8,0xc89a70],rcs=[0x3a3c48,0x7a3a2a,0x4a4a52];
-  for(const[z,d] of[[-3044,10],[-3020,12],[-2996,12],[-2972,12]])for(let x=-258;x<=258;){const w=rand(7,11);if(!(Math.abs(x+90)<16&&z>-3050)&&!(Math.abs(x-20)<26&&z>-3012&&z<-2984)&&Math.abs(x-60)>7&&Math.abs(x)%48>8)H.push({x:x+w/2,z,w:w-.6,d,h:rand(7,11),rh:rand(2.4,3.6),c:cols[(rnd()*6)|0],rc:rcs[(rnd()*3)|0]});x+=w}
+  for(const[z,d] of[[-2144,10],[-2120,12],[-2096,12],[-2072,12]])for(let x=-258;x<=258;){const w=rand(7,11);if(!(Math.abs(x+90)<16&&z>-2150)&&!(Math.abs(x-20)<26&&z>-2112&&z<-2084)&&Math.abs(x-60)>7&&Math.abs(x)%48>8)H.push({x:x+w/2,z,w:w-.6,d,h:rand(7,11),rh:rand(2.4,3.6),c:cols[(rnd()*6)|0],rc:rcs[(rnd()*3)|0]});x+=w}
   nzHouses(G,H);
   /* Hôtel de Ville and its belfry */
-  nzBox(G,34,13,14,20,0,-2998,M.brick,true);nzBox(G,7,46,7,20,0,-2990,M.brick,true);for(const y of[12,24,36])c2box(G,7.4,.6,7.4,20,y,-2990,M.plain,false);
-  const ck=nzClockTex();for(const[dx,dz,ry]of[[0,3.75,0],[0,-3.75,Math.PI],[3.75,0,Math.PI/2],[-3.75,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(2.4,28),new THREE.MeshBasicMaterial({map:ck}));f.position.set(20+dx,41,-2990+dz);f.rotation.y=ry;G.add(f)}
-  nzCone(G,5.4,12,20,46,-2990,M.copper);nzGlow(G,0xffe0a0,10,.35,20,41,-2990);NZ.mapP.push([20,-2990]);
+  nzBox(G,34,13,14,20,0,-2098,M.brick,true);nzBox(G,7,46,7,20,0,-2090,M.brick,true);for(const y of[12,24,36])c2box(G,7.4,.6,7.4,20,y,-2090,M.plain,false);
+  const ck=nzClockTex();for(const[dx,dz,ry]of[[0,3.75,0],[0,-3.75,Math.PI],[3.75,0,Math.PI/2],[-3.75,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(2.4,28),new THREE.MeshBasicMaterial({map:ck}));f.position.set(20+dx,41,-2090+dz);f.rotation.y=ry;G.add(f)}
+  nzCone(G,5.4,12,20,46,-2090,M.copper);nzGlow(G,0xffe0a0,10,.35,20,41,-2090);NZ.mapP.push([20,-2090]);
   /* the lighthouse */
-  nzCyl(G,2.6,3.6,38,-90,0,-3030,M.white,8);boxes.push({x0:-93.5,x1:-86.5,z0:-3033.5,z1:-3026.5,h:44,nz:1});nzLot(-93,-87,-3033,-3027,42.5,0);nzCyl(G,2.3,2.3,4,-90,38,-3030,M.glow(0xffe8a0,.6),8);nzCone(G,2.8,3,-90,42,-3030,M.dark,8,0);
-  const piv=new THREE.Group();piv.position.set(-90,40,-3030);G.add(piv);const bm=new THREE.Mesh(new THREE.ConeGeometry(5,90,20,1,true),M.glow(0xfff0b0,.09));bm.geometry.translate(0,-45,0);bm.rotation.z=Math.PI/2;piv.add(bm);
-  const bm2=bm.clone();bm2.rotation.z=-Math.PI/2;piv.add(bm2);nzGlow(G,0xffe8a0,14,.8,-90,40,-3030);NZ.anim.push(dt=>piv.rotation.y+=dt*.6);NZ.mapP.push([-90,-3030]);
+  nzCyl(G,2.6,3.6,38,-90,0,-2130,M.white,8);boxes.push({x0:-93.5,x1:-86.5,z0:-2133.5,z1:-2126.5,h:44,nz:1});nzLot(-93,-87,-2133,-2127,42.5,0);nzCyl(G,2.3,2.3,4,-90,38,-2130,M.glow(0xffe8a0,.6),8);nzCone(G,2.8,3,-90,42,-2130,M.dark,8,0);
+  const piv=new THREE.Group();piv.position.set(-90,40,-2130);G.add(piv);const bm=new THREE.Mesh(new THREE.ConeGeometry(5,90,20,1,true),M.glow(0xfff0b0,.09));bm.geometry.translate(0,-45,0);bm.rotation.z=Math.PI/2;piv.add(bm);
+  const bm2=bm.clone();bm2.rotation.z=-Math.PI/2;piv.add(bm2);nzGlow(G,0xffe8a0,14,.8,-90,40,-2130);NZ.anim.push(dt=>piv.rotation.y+=dt*.6);NZ.mapP.push([-90,-2130]);
   /* the jetty */
-  c2box(G,8,.4,104,60,.8,-3140,std({color:0x5a4634,roughness:.9}),false);for(let z=-3092;z>=-3190;z-=8)for(const s of[-1,1]){nzCyl(G,.22,.22,2.6,60+s*3.8,-1.4,z,M.dark,6);if(z%16===0)nzGlow(G,0xffc070,2.4,.8,60+s*3.6,2.6,z)}
-  nzGlow(G,0x60ff90,4,.9,60,3.2,-3190);
+  c2box(G,8,.4,104,60,.8,-2240,std({color:0x5a4634,roughness:.9}),false);for(let z=-2192;z>=-2290;z-=8)for(const s of[-1,1]){nzCyl(G,.22,.22,2.6,60+s*3.8,-1.4,z,M.dark,6);if(z%16===0)nzGlow(G,0xffc070,2.4,.8,60+s*3.6,2.6,z)}
+  nzGlow(G,0x60ff90,4,.9,60,3.2,-2290);
   /* beach huts */
-  const hut=[];for(let x=-250;x<=250;x+=6.5)if(Math.abs(x-60)>8&&Math.abs(x+90)>8)hut.push({x,z:-3066,w:3,d:3,h:2.6,rh:1.2,c:[0xd84a4a,0x4a8ad8,0xf0d040,0x5ac080,0xf0f0f0][(Math.random()*5)|0],rc:0xf0f0f0});nzHouses(G,hut);
+  const hut=[];for(let x=-250;x<=250;x+=6.5)if(Math.abs(x-60)>8&&Math.abs(x+90)>8)hut.push({x,z:-2166,w:3,d:3,h:2.6,rh:1.2,c:[0xd84a4a,0x4a8ad8,0xf0d040,0x5ac080,0xf0f0f0][(Math.random()*5)|0],rc:0xf0f0f0});nzHouses(G,hut);
   /* a ferry asleep at the harbour */
-  const fy=new THREE.Group();fy.position.set(200,0,-3122);G.add(fy);const hull=new THREE.Mesh(new THREE.BoxGeometry(48,6,11),M.white);hull.position.y=1.5;fy.add(hull);const st=new THREE.Mesh(new THREE.BoxGeometry(30,5,9),M.white);st.position.set(-3,7,0);fy.add(st);
+  const fy=new THREE.Group();fy.position.set(200,0,-2222);G.add(fy);const hull=new THREE.Mesh(new THREE.BoxGeometry(48,6,11),M.white);hull.position.y=1.5;fy.add(hull);const st=new THREE.Mesh(new THREE.BoxGeometry(30,5,9),M.white);st.position.set(-3,7,0);fy.add(st);
   const fn=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.8,5,12),M.red);fn.position.set(-8,12,0);fy.add(fn);for(let k=0;k<12;k++)for(const s of[-1,1]){const w=glowSprite(0xfff0c0,1,.8);w.position.set(-16+k*2.6,7.5,s*4.6);fy.add(w)}
-  for(let k=0;k<26;k++)nzGlow(G,0xffb060,3,.9,rand(-250,250),5,rand(-2960,-3050));NZ.mapR.push([176,-3128,48,11])}
+  for(let k=0;k<26;k++)nzGlow(G,0xffb060,3,.9,rand(-250,250),5,rand(-2060,-2150));NZ.mapR.push([176,-2228,48,11])}
 function nzClockTex(){if(NZ.ck)return NZ.ck;const c=mkCanvas(128,128,(x)=>{x.fillStyle='#f6ecd0';x.beginPath();x.arc(64,64,62,0,TAU);x.fill();x.strokeStyle='#2a2418';x.lineWidth=4;x.stroke();x.lineWidth=1.5;x.beginPath();x.arc(64,64,48,0,TAU);x.stroke();
   x.fillStyle='#2a2418';for(let k=0;k<12;k++){const a=k/12*TAU;x.save();x.translate(64+Math.sin(a)*54,64-Math.cos(a)*54);x.rotate(a);x.fillRect(-2,-6,4,12);x.restore()}x.fillRect(62,22,4,44);x.save();x.translate(64,64);x.rotate(2.2);x.fillRect(-2,-34,4,34);x.restore()});return NZ.ck=new THREE.CanvasTexture(c)}
 
 /* ---------- the Channel ---------- */
-function nzSea(G){const M=nzM();const sea=c2plane(G,600,893,0,.05,-3538.5,M.sea);sea.receiveShadow=false;
+function nzSea(G){const M=nzM();const sea=c2plane(G,600,1793,0,.05,-3088.5,M.sea);sea.receiveShadow=false;
   const cm=new THREE.ShaderMaterial({uniforms:{uT:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:'varying vec3 vW;void main(){vW=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader:'uniform float uT;varying vec3 vW;void main(){vec2 p=vW.xz*.045;float n=sin(p.x*3.1+uT*.6+sin(p.y*2.3+uT*.4))*sin(p.y*2.7-uT*.5+sin(p.x*1.7));float c=smoothstep(.55,1.,n)*.5+smoothstep(-.2,.9,n)*.06;float edge=(1.-smoothstep(-3520.,-3450.,vW.z))*smoothstep(-4010.,-3960.,vW.z);float fd=exp(-pow(distance(vW,cameraPosition)*.0105,2.));gl_FragColor=vec4(vec3(.2,1.,.55)*c*edge*fd,1.);}'});
@@ -6527,9 +6527,9 @@ function nzBuild(){if(NZ.built)return;NZ.built=true;const G=NZ.g=new THREE.Group
 function nzKeep(o){return o===SKY||o.isLight||o===moonLight.target||o===W.g||o===camera||(o.isPoints&&o.frustumCulled===false)||o===NZ.g||(LYR.a&&o===LYR.a.g)||(typeof reticle!=='undefined'&&o===reticle)||enemies.some(e=>!e.dead&&e.m&&e.m.g===o)}
 function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+48;MAPOX=WB.x0-24;MAPOZ=WB.z0-24;const x=worldMap.getContext('2d'),X=v=>v-MAPOX,Z=v=>v-MAPOZ,Wd=worldMap.width;
   x.fillStyle='#1d1935';x.fillRect(0,0,Wd,worldMap.height);x.fillStyle='#2b4b86';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CAL_SHORE)-Z(CLIFF_Z));x.fillStyle='#21584e';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CURSE_Z)-Z(CLIFF_Z));
-  x.fillStyle='#8a7a5a';x.fillRect(0,Z(-3058),Wd,Z(CAL_SHORE)-Z(-3058));x.fillStyle='#284332';x.fillRect(0,Z(LON_Z),Wd,Z(CLIFF_Z)-Z(LON_Z));x.fillStyle='#e8e6dc';x.fillRect(0,Z(CLIFF_Z)-2,Wd,4);
+  x.fillStyle='#8a7a5a';x.fillRect(0,Z(-2158),Wd,Z(CAL_SHORE)-Z(-2158));x.fillStyle='#284332';x.fillRect(0,Z(LON_Z),Wd,Z(CLIFF_Z)-Z(LON_Z));x.fillStyle='#e8e6dc';x.fillRect(0,Z(CLIFF_Z)-2,Wd,4);
   x.strokeStyle='#2b4b86';x.lineWidth=9;x.beginPath();for(let z=CLIFF_Z-34;z>LON_Z+6;z-=6)z===CLIFF_Z-34?x.moveTo(X(nzRiverX(z)),Z(z)):x.lineTo(X(nzRiverX(z)),Z(z));x.stroke();
-  x.fillStyle='#2b4b86';x.fillRect(0,Z(TH_Z-TH_W),Wd,TH_W*2);x.fillStyle='#6b6278';for(const b of LBR)x.fillRect(X(b-5),Z(TH_Z-TH_W),10,TH_W*2);x.fillRect(X(56),Z(-3192),8,100);
+  x.fillStyle='#2b4b86';x.fillRect(0,Z(TH_Z-TH_W),Wd,TH_W*2);x.fillStyle='#6b6278';for(const b of LBR)x.fillRect(X(b-5),Z(TH_Z-TH_W),10,TH_W*2);x.fillRect(X(56),Z(-2292),8,100);
   x.fillStyle='#6b6278';for(const r of NZ.mapR)x.fillRect(X(r[0]),Z(r[1]),r[2],r[3]);x.fillStyle='#f2a541';for(const p of NZ.mapP)x.fillRect(X(p[0])-4,Z(p[1])-4,8,8)}
 {const _dw=drawWorldMap;drawWorldMap=function(){if(MODE!=='open'&&CH2.zone==='north')return nzDrawMap();return _dw.apply(this,arguments)}}
 
@@ -6537,7 +6537,7 @@ function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+4
 function nzClear(){for(const e of enemies)if(!e.dead)removeEnemy(e);for(const p of eProjs)scene.remove(p.s);eProjs.length=0}
 function nzEnter(where){nzBuild();if(CH2.zone==='paris'){CH2.parisWB={x0:WB.x0,x1:WB.x1,z0:WB.z0,z1:WB.z1};NZ.hid=scene.children.filter(o=>o.visible&&!nzKeep(o));for(const o of NZ.hid)o.visible=false}
   nzClear();if(where!=='london'){NZ.trig={};NZ.cpk=0}CH2.zone='north';NZ.g.visible=true;Object.assign(WB,NZB);drawWorldMap();setDawn(.08);NZ.fogD=scene.fog.density;NZ.fogC.copy(scene.fog.color);
-  const p=where==='london'?V3(-108,0,-4608):V3(60,0,-3072);NZ.cp.copy(p);SPAWN.copy(p);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.glide=false;yaw=0;P.face=Math.PI;
+  const p=where==='london'?V3(-108,0,-4608):V3(60,0,-2172);NZ.cp.copy(p);SPAWN.copy(p);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.glide=false;yaw=0;P.face=Math.PI;
   camera.position.set(p.x,P.pos.y+5,p.z+12);if(CH2.st>=5)nzAfter();CH2.obj=nzObj;ch2Save()}
 function nzLeave(){nzClear();sxStop('wind',1);CH2.zone='paris';if(NZ.g)NZ.g.visible=false;for(const o of NZ.hid)o.visible=true;NZ.hid=[];Object.assign(WB,CH2.parisWB||{x0:-430,x1:430,z0:-330,z1:300});drawWorldMap();
   setDawn(STATS.won?.55:dawnK);SPAWN.set(-100,0,22);CH2.flySpd=0;lyraToTroca();const p=V3(-126,0,-100);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;yaw=Math.PI;P.face=0;camera.position.set(p.x,P.pos.y+5,p.z-12);
@@ -6547,9 +6547,9 @@ function ch2Depart(back){if(CS.active)return;const L=LYR.a?LYR.a.g.position.clon
   const shots=[{dur:3.4,fov:44,title:back?null:['Chapter 2','The Crossing'],cam:k=>({pos:headOf(door,2).add(V3(6-k*2,0,6)),look:headOf(door,2)}),onStart:()=>{if(!portal)portal=nzPortal(door);sx('portal',1,()=>{try{sfx.blink()}catch(e){}},{wet:.4});try{LYR.a.fire('Spell_Simple_Shoot',.8)}catch(e){}},update:dt=>{if(portal)portal.userData.tick(dt)}},
     {dur:1.2,cam:k=>({pos:headOf(door,2.2).add(V3(0,0,3-k*2.4)),look:headOf(door,2.4)}),onStart:()=>{flash(headOf(door,2.4),0xff5060,12);sx('portal',.8,null,{rate:.8})}}];
   if(back)shots.push({dur:5,fov:50,cut:true,title:['London','Lyra\'s door holds'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('london')},cam:k=>({pos:V3(-150+k*40,40-k*10,-4640),look:V3(-90,30,-4760)})});
-  else shots.push({dur:6,fov:50,cut:true,title:['Calais','The edge of French waters'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('calais');lyraPlace(60,-3086,0);LYR.home=false},cam:k=>({pos:V3(110-k*36,24-k*6,-3168+k*8),look:V3(-30,14,-3020)})},
+  else shots.push({dur:6,fov:50,cut:true,title:['Calais','The edge of French waters'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('calais');lyraPlace(60,-2186,0);LYR.home=false},cam:k=>({pos:V3(110-k*36,24-k*6,-2268+k*8),look:V3(-30,14,-2120)})},
     {who:'Lyra',text:LY.ly14,cut:true,cam:lyS(2.4)},{who:'Lyra',text:LY.ly15,cam:lyS(2)},{who:'@',text:'Don\'t wait up.',cut:true,cam:witchShot(1,3.4)});
-  playCutscene(shots,()=>{if(portal)scene.remove(portal);if(!back){CH2.st=Math.max(CH2.st,2);ch2Save();toast('Take off and fly north. Hold jump to climb. The broom will not tire over the sea.','The Channel',true)}})}
+  playCutscene(shots,()=>{if(portal)scene.remove(portal);if(!back){CH2.st=Math.max(CH2.st,2);ch2Save();toast('Take off and fly north. Lyra\'s sea-glass gem keeps your broom alive over water. Over land it tires like always.','The Channel',true)}})}
 function nzObj(){if(CH2.zone==='paris')return LYR.a&&LYR.home?`Meet <b>Lyra</b> at the Trocadéro · ${Math.round(Math.hypot(P.pos.x+126,P.pos.z+112))}m`:null;const z=P.pos.z;
   if(CH2.st<3)return z>CLIFF_Z?`Fly north across the <b>Channel</b> · ${Math.round(z-CLIFF_Z)}m`:`Follow the river to <b>London</b> · ${Math.round(z-LON_Z)}m`;
   if(CH2.st===3&&NZ.bb)return `Something waits on <b>Big Ben</b> · ${Math.round(Math.hypot(P.pos.x-NZ.bb.x,P.pos.z-NZ.bb.z))}m`;
@@ -6666,7 +6666,7 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
   if(cur){NZ.flashT-=dt;if(NZ.flashT<=0){NZ.flashT=rand(5,11);NZ.flashK=1;const b=V3(P.pos.x+rand(-120,120),90,P.pos.z-rand(60,160));const pts=[];for(let k=0;k<14;k++){pts.push(b.clone());b.x+=rand(-7,7);b.y-=7;b.z+=rand(-3,3)}NZ.bolt.geometry.setFromPoints(pts);after(rand(.3,.9),()=>sx('impact',.35,null,{rate:.55,wet:.6}))}}
   for(const w of NZ.wisps){const u=w.userData;u.ph+=dt;if(!cur){w.visible=false;continue}w.visible=true;if(Math.abs(w.position.z-P.pos.z)>80||Math.abs(w.position.x-P.pos.x)>60)w.position.set(P.pos.x+u.o.x,u.o.y,P.pos.z+u.o.z-40);w.position.y=u.o.y+Math.sin(u.ph*1.3)*.8;w.position.x+=Math.sin(u.ph*.7)*dt*2}
   if(!started||CS.active||!P.alive)return;
-  if(!bossRef&&P.flying)P.flyT=Math.max(P.flyT,4);CH2.flySpd=sea?30:lon?20:26;
+  if(P.flying&&CH2.st>=2&&nzWater(P.pos.x,P.pos.z)){P.flyT=Math.max(P.flyT,4);CH2.gemOn=1}else CH2.gemOn=0;CH2.flySpd=sea?30:lon?20:26;
   if(z<CLIFF_Z-30&&NZ.cpk<1){NZ.cpk=1;NZ.cp.set(nzRiverX(-4060)+16,0,-4060)}if(lon&&NZ.cpk<2){NZ.cpk=2;NZ.cp.set(-108,0,-4608)}SPAWN.copy(NZ.cp);
   if(sea&&P.swim){NZ.swimT+=dt;if(cur){NZ.burnT-=dt;if(NZ.burnT<=0){NZ.burnT=.5;damagePlayer(maxHP()*.05);SP.emit(V3(P.pos.x,P.pos.y+.6,P.pos.z),{n:16,c0:0xc0ff90,c1:0x104010,speed:3,life:.6,up:2})}}
     if(NZ.swimT>(cur?.7:1.6)&&P.alive){NZ.swimT=0;P.flying=true;P.glide=false;P.flyT=60;P.vy=10;try{sfx.fly()}catch(e){}toast(cur?'The cursed water burns! Back on the broom!':'Back on the broom. The sea is long.')}}else NZ.swimT=0;
@@ -6748,16 +6748,16 @@ Object.assign(LY,{ly22:'Calais. The last French shore. Look north... England, hi
 for(const k of['ly22','ly23','ly24','ly25','ly26'])VO_MAP[LY[k]]=k;Object.assign(VO_MAP,{"Why can't you come with me?":'mx11',"Then stay. I'll bring him back.":'mx12'});
 function nzCalaisTalk(){const L=()=>LYR.a?LYR.a.g.position:P.pos;const face=r=>{if(LYR.a)LYR.a.g.rotation.y=r};
   const lyS=(d,sd)=>()=>{const g=L();const dv=V3(P.pos.x-g.x,0,P.pos.z-g.z).normalize();return{pos:headOf(g,1.6).addScaledVector(dv,d).addScaledVector(V3(dv.z,0,-dv.x),sd||.6),look:headOf(g,1.55)}};
-  return[{who:'Lyra',text:LY.ly22,cut:true,fov:40,onStart:()=>face(Math.PI),cam:k=>({pos:V3(61.4,2.3,-3081.5+k*.6),look:V3(58,5,-3300)})},
+  return[{who:'Lyra',text:LY.ly22,cut:true,fov:40,onStart:()=>face(Math.PI),cam:k=>({pos:V3(61.4,2.3,-2181.5+k*.6),look:V3(58,5,-2400)})},
     {who:'@',text:"Why can't you come with me?",cut:true,cam:witchShot(1,3.2)},
     {who:'Lyra',text:LY.ly23,cut:true,onStart:()=>face(0),cam:lyS(2.3)},
-    {who:'Lyra',text:LY.ly24,cut:true,fov:46,cam:k=>({pos:V3(72-k*6,7+k*2,-3096),look:V3(40,9,-3460)})},
+    {who:'Lyra',text:LY.ly24,cut:true,fov:46,cam:k=>({pos:V3(72-k*6,7+k*2,-2196),look:V3(40,9,-3460)})},
     {who:'Lyra',text:LY.ly25,cut:true,cam:lyS(1.9,-.5)},
     {who:'@',text:"Then stay. I'll bring him back.",cam:witchShot(-1,3)},
     {who:'Lyra',text:LY.ly26,cut:true,cam:lyS(2.5)},
     {who:'Lyra',text:LY.ly14,cam:lyS(2.1,-.4)},{who:'Lyra',text:LY.ly15,cam:lyS(1.8)},{who:'@',text:"Don't wait up.",cut:true,cam:witchShot(1,3.4)}]}
 {const _pc=playCutscene;playCutscene=function(shots,done){if(CH2.st<3&&shots&&shots.length>=4&&shots[3]&&shots[3].text===LY.ly14&&shots[2]&&shots[2].title&&shots[2].title[0]==='Calais'){shots=shots.slice(0,3).concat(nzCalaisTalk());
-    shots[2].cam=k=>({pos:V3(96-k*30,16-k*5,-3175+k*30),look:V3(-20,10,-3020)})}return _pc.call(this,shots,done)}}
+    shots[2].cam=k=>({pos:V3(96-k*30,16-k*5,-2275+k*30),look:V3(-20,10,-2120)})}return _pc.call(this,shots,done)}}
 
 /* ---------- the horizon: fog the colour of the sky, England only a faint line until you are close ---------- */
 const NZH={n:new THREE.Color(0x4e3462),d:new THREE.Color(0xf2bc8e),c:new THREE.Color()};
@@ -6872,7 +6872,7 @@ function nzPerson(){const R=Math.random,sx=R()<.5?'f':'m';const coat=[0x2a2a30,0
 function nzWalk(par,a,x0,z0,x1,z1){const u={a,x0,z0,x1,z1,t:Math.random(),dir:Math.random()<.5?1:-1,len:Math.hypot(x1-x0,z1-z0)};par.add(a.g);NZP.list.push(u);return u}
 function nzCrowd(where){if(!CH.ok)return;const segs=[];
   if(where==='london'){for(let k=0;k<10;k++){const x=rand(-240,200),s=k%2?-4777.2:-4743;segs.push([x,s,x+rand(30,60),s])}for(const b of[-108,-36,72])segs.push([b+3.6,-4746,b+3.6,-4774]);}
-  else if(where==='calais'){for(let k=0;k<6;k++){const x=rand(-230,190);segs.push([x,-3055,x+rand(25,50),-3055])}}
+  else if(where==='calais'){for(let k=0;k<6;k++){const x=rand(-230,190);segs.push([x,-2155,x+rand(25,50),-2155])}}
   else{for(let k=0;k<10;k++){const x=rand(-380,340),s=k%2?12.6:-12.6;segs.push([x,s,x+rand(30,60),s])}segs.push([-122,50,-122,230],[-130,60,-130,240],[-135,-60,-135,-100],[-117,-100,-117,-60])}
   const par=where==='paris'?scene:NZ.g;for(const s of segs){const a=nzPerson();if(a)nzWalk(par,a,...s)}}
 function nzCrowdTick(dt){const cp=camera.position;for(const u of NZP.list){const g=u.a.g;if(!g.parent)continue;if(g.parent===scene?!(CH2.zone==='paris'&&CH2.st>=1):!g.parent.visible){g.visible=false;continue}
@@ -6992,15 +6992,19 @@ function epSacrifice(shots,i){const A=FIN.ally,e=BM.finalFor||bossRef;if(!A||!e)
           SP.emit(c.clone().addScaledVector(toW,.3),{n:140,c0:0xffffff,c1:0x8030ff,speed:10,life:.9,s0:.6,s1:.05,dir:toW});SP.emit(c,{n:60,c0:0xfff0c0,c1:0xd09020,speed:6,life:1,s0:.5,s1:.05})}}
       else{fz+=dt/Math.max(.05,CS.speed);if(fz>.55&&CS.speed<.5)CS.speed=.5;if(blade){blade.scale.z=Math.min(1,blade.scale.z+dt*22);blade.userData.glow.material.opacity=.45+Math.sin(time*40)*.15}
         if(Math.random()<.5)SP.emit(headOf(mid,1.2).addScaledVector(toW,.5),{c0:0xe0c0ff,c1:0x5010c0,s0:.35,s1:.03,life:.6,speed:1.5})}}};
-  const hold={dur:2,fov:32,cut:true,cam:k=>({pos:headOf(mid,1.5).addScaledVector(side,1.7-k*.2).addScaledVector(toW,.5),look:headOf(mid,1.3).addScaledVector(toW,-.4)}),onStart:()=>{CS.speed=.75;dk=0},
+  const hold={dur:2,fov:32,cut:true,cam:k=>({pos:headOf(mid,1.6).addScaledVector(side,3.4-k*.3).addScaledVector(toW,.2),look:headOf(mid,1.3).addScaledVector(toW,-.5)}),onStart:()=>{CS.speed=.75;dk=0},
     update:(dt,k)=>{upd(dt);if(Math.random()<.4)SP.emit(headOf(mid,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.6,speed:.3});
       if(k>.72&&blade&&!blade.userData.out){blade.userData.out=1;sx('clash',.5,null,{rate:1.3});act.once('OverhandThrow',.4);SP.emit(headOf(mid,1.25),{n:60,c0:0xffffff,c1:0x8030ff,speed:7,life:.6})}
       if(blade&&blade.userData.out){blade.scale.z=Math.max(0,blade.scale.z-dt*6);if(blade.scale.z<=0){scene.remove(blade);blade=null}}}};
-  const fall={dur:1.7,fov:42,cam:k=>{const c=mid.clone().lerp(land,.5);return{pos:headOf(c,1.6).addScaledVector(side,-4.6).addScaledVector(toW,-.6),look:headOf(c,.7)}},
-    onStart:()=>{CS.speed=1;if(blade){scene.remove(blade);blade=null}A._k=0;A._landed=0;A.setBase('Idle_Loop',.15);A.once('Hit_Knockback',.8);act.setBase('Idle_Loop',.3)},
-    update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/1.1);const k=A._k;A.g.position.lerpVectors(mid,land,k*(2-k));finFaceTo(A.g,e.pos);
-      if(k>=1&&!A._landed){A._landed=1;A.once('Death01',.9);SM.emit(V3(land.x,land.y+.2,land.z),{n:12,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:3,flat:true,life:.8,a:.4});P.shake=.6}}};
-  shots.splice(i,3,run,stand,pierce,hold,fall)}
+  const fall={dur:1.4,fov:40,cam:k=>{const c=mid.clone().lerp(land,.5);return{pos:headOf(c,1.5).addScaledVector(side,-4.2).addScaledVector(toW,-.5),look:headOf(c,1.1)}},
+    onStart:()=>{CS.speed=.85;if(blade){scene.remove(blade);blade=null}A._k=0;A.once('Hit_Knockback',1.5);act.setBase('Idle_Loop',.3)},
+    update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/1.3);const k=A._k;A.g.position.lerpVectors(mid,land,k*(2-k));finFaceTo(A.g,e.pos);if(Math.random()<.3)SP.emit(headOf(A.g.position,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.5,speed:.3})}};
+  let ft=0;const down={dur:4,fov:36,cam:k=>({pos:headOf(land,.7+k*.1).addScaledVector(side,3.2-k*.6).addScaledVector(toW,.5),look:headOf(land,.55-k*.2)}),
+    onStart:()=>{CS.speed=.8;ft=0;A._landed=0;A.g.position.copy(land);finFaceTo(A.g,e.pos);A.setBase('Crouch_Idle_Loop',.9)},
+    update:dt=>{upd(dt);ft+=dt;if(ft>3.5)CS.speed=1;finFaceTo(A.g,e.pos);if(ft>1.3&&!A._fell){A._fell=1;A.once('Death01',3)}
+      if(ft>3.4&&!A._landed){A._landed=1;SM.emit(V3(land.x,land.y+.2,land.z),{n:14,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:2.5,flat:true,life:1,a:.4});P.shake=.4;sx('impact',.4,null,{rate:.6})}
+      if(Math.random()<.25)SP.emit(headOf(A.g.position,.8),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:1,up:.8,speed:.2})}};
+  shots.splice(i,3,run,stand,pierce,hold,fall,down)}
 
 /* ================= 3 · KAEN'S LIMIT BREAKER: the quiet scream, the void, a new theme ================= */
 function epVoidPillar(c,col){const g=new THREE.Group();g.position.copy(c);scene.add(g);const m=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
@@ -7082,6 +7086,9 @@ function epSummon(e){const act=e.m.actor;const c=e.pos.clone();const d=V3(P.pos.
 
 /* ================= 6 · THE TOWER: magic fails, the Tower asks, the Tower burns ================= */
 const NZQ={links:[],spirit:null,stage:0,said:0,cardT:0};
+const TQE=[['Which river runs past the Tower of London?',['The Thames','The Seine','The Nile','The Amazon']],['What is kept in the Jewel House?',['The Crown Jewels','A dragon','The Eiffel Tower','Pizza']],
+  ['What colour is a classic London bus?',['Red','Green','Purple','Gold']],['Who guards the Tower of London?',['The Beefeaters','The Musketeers','Ninjas','Penguins']],
+  ['What does the Hollow Crown feed on?',['Fear','Croissants','Rain','Music']],['Which city is the Tower of London in?',['London','Paris','Rome','Calais']],['What lives at the Tower, by royal order?',['Ravens','Lions','Sharks','Camels']]];
 const TQ=[['How many ravens must stay at the Tower, or the kingdom falls?',['Six','Three','Nine','Twelve']],['Who guards the Tower of London?',['The Yeoman Warders','The Musketeers','The Swiss Guard','The Night\'s Watch']],
   ['Which king built the White Tower?',['William the Conqueror','Henry VIII','Richard the Lionheart','Charles I']],['Which queen lost her head on Tower Green in 1536?',['Anne Boleyn','Elizabeth I','Mary, Queen of Scots','Victoria']],
   ['What is kept in the Jewel House?',['The Crown Jewels','The Magna Carta','Big Ben\'s bell','The Rosetta Stone']],['Which river runs past the Tower?',['The Thames','The Seine','The Severn','The Mersey']],
@@ -7113,7 +7120,7 @@ function epChains(){if(NZQ.stage>=1||CS.active)return;NZQ.stage=1;const c=NZ.gre
     {dur:3,fov:54,cut:true,cam:k=>({pos:V3(202,2.5+k*2,-4806),look:V3(226,4+k*10,-4824)}),onStart:()=>{const s=epTowerSpirit();s.y=-12;s.ty=14;sx('garg',.9,null,{rate:.55,wet:.5});sx('riser',.8,null,{rate:.6});flash(V3(226,10,-4824),0x60ff90,30);P.shake=1.4}},
     {who:'The Tower',text:EPL.sp1,fov:38,cam:k=>({pos:V3(204-k*2,2.6+k,-4806),look:epEyes()})}
   ],()=>{epQuiz()})}
-function epQuiz(){if(NZQ.quiz)return;if(typeof TUT!=='undefined'&&TUT.on)try{tutEnd(true)}catch(x){}const pool=TQ.slice().sort(()=>Math.random()-.5).slice(0,5);NZQ.quiz={i:0,pool};P.invuln=99;for(const e of enemies)if(!e.dead)removeEnemy(e);epAsk()}
+function epQuiz(){if(NZQ.quiz)return;if(typeof TUT!=='undefined'&&TUT.on)try{tutEnd(true)}catch(x){}const hard=DIFF==='hard';const pool=(hard?TQ:TQE).slice().sort(()=>Math.random()-.5).slice(0,hard?5:3);NZQ.quiz={i:0,pool};P.invuln=99;for(const e of enemies)if(!e.dead)removeEnemy(e);epAsk()}
 function epAsk(){const Q=NZQ.quiz;if(!Q)return;const [q,opts]=Q.pool[Q.i];const order=opts.map((t,k)=>[t,k]).sort(()=>Math.random()-.5);
   const c=tutCard(`<div class="tl">The Tower · question ${Q.i+1} of ${Q.pool.length}</div><h3>${q}</h3><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">${order.map(([t,k])=>`<button data-a="${k}">${t}</button>`).join('')}</div>`);
   c.onclick=ev=>{const b=ev.target.closest('[data-a]');if(!b||!NZQ.quiz)return;tutHide();if(b.dataset.a==='0'){sx('ding',1,()=>{try{sfx.gem()}catch(x){}});flash(epEyes(),0x9affb0,6);Q.i++;if(Q.i>=Q.pool.length)epPass();else setTimeout(epAsk,650)}else epFail()}}
@@ -7133,7 +7140,7 @@ function epPass(){NZQ.quiz=null;const c=NZ.green;const sp=epTowerSpirit();
     {dur:2.6,fov:42,cut:true,cam:k=>({pos:headOf(c,1.4).add(V3(3.4-k,.4,3.2)),look:headOf(c,1)}),onStart:()=>{epFreeKaen(false);sx('shbreak',1.2,()=>{try{sfx.shatter()}catch(x){}});sx('ding',.9,null,{delay:.3});sx('powerup',.8,null,{delay:.5});flash(headOf(c,1.2),0xd0f0ff,16);P.shake=1;sp.ty=-14}},
     {who:'@',text:EPL.full,cam:witchShot(1,3)},
     {who:"Kaen's Spirit",text:EPL.free,cut:true,cam:()=>({pos:headOf(c,1.6).add(V3(1.6,.1,2.6)),look:headOf(c,1.5)})}
-  ],()=>{CH2.st=Math.max(CH2.st,6);ch2Save();P.invuln=2;writeSave();toast('Kaen is free. Lyra\'s red door by the Tower gate leads home.','The Tower',true)})}
+  ],()=>{CH2.st=Math.max(CH2.st,6);ch2Save();P.invuln=2;writeSave();stAfterQuiz()})}
 function epFreeKaen(silent){for(const l of NZQ.links){if(silent){l.visible=false;continue}const v=V3(rand(-4,4),rand(2,6),rand(-4,4));addFx(l,1.4,(f,k)=>{l.position.addScaledVector(v,1/60);v.y-=.2;l.rotation.x+=.3;l.scale.setScalar(1-k)},()=>{l.visible=false})}
   try{if(NZ.ghost)NZ.ghost.setBase('Idle_Loop',.6)}catch(x){}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open'||CH2.zone!=='north'||!NZ.green||!started)return;const tw=Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z);
@@ -7162,6 +7169,239 @@ const bilelQuest=()=>MODE!=='open'&&started&&!bossRef&&BQ.met&&!BQ.done&&BQ.q>=0
 {const _mw=muWant;muWant=function(){const b=bthKey();if(b)return b;if(bilelQuest()&&BM.tr.mus_bilel&&BM.tr.mus_bilel.ok)return 'mus_bilel';return _mw.apply(this,arguments)}}
 // fetch the next boss's theme ahead of time so it is ready when the fight starts
 {let pt=4;const _mt=muTick;muTick=function(dt){_mt(dt);pt-=dt;if(pt>0||!started)return;pt=10;try{for(const ty of['beast','giant','catdemon','slug','queen'])if(!beaten.has(ty)){bmTrack(BTH[ty]);break}if(BQ.met&&!BQ.done)bmTrack('mus_bilel')}catch(e){}}}
+/* ================= CHAPTER XI · THE ESCAPE: Kaen freed, the Warden, the chase across the Channel, home to Paris ================= */
+Object.assign(SPEAKER,{'The Warden':'#7dff9a','The Tower':'#7dff9a'});
+/* ---------- voices: everything v4. Kaen in a fight = his original voice, Kaen as a spirit = the Tower voice ---------- */
+EPL.kill="I'm gonna kill you, witch... KILL YOU!";
+delete VO_MAP["I'm gonna kill you, witch."];Object.assign(VO_MAP,{[EPL.scream]:'kj_scream',[EPL.kill]:'vo_kaen_kill',[EPL.sum]:'kj_sum'});
+Object.assign(LY,{ly27:'Maëlle! You cannot win this, not here! Cross the Channel, now! Fly!',ly28:'You made it! Both of you! Into the door, quickly!',ly29:'Not here, brother. Through the door. Then you can cry.',
+  ly30:'Now we give you a body back. The old books say a soul can be bound again, with three things.',ly31:"Ash from the place it fell. A heart that still beats for him. And the Crown's own silver, from the vault under the Tower.",
+  ly32:'The ash is still on the Trocadéro, where his body fell. Start there, Maëlle.',ly33:'Take this. A sea-glass gem. It channels the power of the sea, so your broom never tires over water. Over land, you are on your own.',
+  ly34:'Hold on, both of you. I am opening the door.'});
+for(let i=27;i<=34;i++)VO_MAP[LY['ly'+i]]='ly'+i;
+const SL={
+  k01:'Free... and still a ghost. You burned my body to ash in Paris, witch.',k02:'Fair enough. It is what it is. A ghost is better than a slave.',
+  k03:'I cannot shield you, I have no body left! Dodge the green light, it will burn straight through you!',k04:"On a witch's broom. Bilel would laugh himself sick.",
+  k05:'Hold on, witch! Hold on!',k06:'Faster! He is right behind us!',k07:'If I had my body back, I would rip that crown off his head with my bare hands.',k08:'Ten years in chains, and now I am a passenger.',
+  k09:'Hold on! Do not look back!',k11:'He is coming up to us! Get ready!',k12:'Lyra. Little sister.',k13:'So. A ghost, a witch, and my sister. What now?',
+  k14:"And while we are there, we finish the Warden. If the Tower keeps the Crown's fire, it will follow us here. To Paris.",k15:'Stop! I said STOP!',k16:'Witch, you are killing me!',k17:'Please. No more.',k18:'Aaagh!',k19:'Good! Again, witch!',
+  m01:'In my defence, it was trying to kill me at the time.',m02:'Kaen, get on the broom! Now!',m03:"Okay. Okay. We're fine. We're totally fine.",m04:"He's gaining on us, Kaen!",m05:'I crossed this sea once. I can do it twice!',
+  m06:"Too many bats! There's too many!",m07:'I can see Calais! I can see it!',m08:'Get back!',m09:'Not today!',m10:"So we're going back to London. Of course we are.",m11:"Then we end it in London. It doesn't touch Paris. Not again.",
+  m12:'Kaen? KAEN!',m13:"Your shadows don't scare me!",m14:'Come out and fight me yourself!',m16:"He's too strong. I can't keep this up!",
+  t01:"You think the Tower lets its prisoners walk out? I AM the Tower! And the Crown's fire still burns in me!",t02:"I'M GONNA KILL YOU ALL!",t03:'You cannot outfly the Tower!',t04:'Your sister will burn too, Kaen!',
+  t05:'COME BACK HERE!',t06:'This is not over! London always collects!',t07:'Burn.',t08:'Run, little witch. Run!'};
+for(const k in SL){const p=k[0],n=k.slice(1);VO_MAP[SL[k]]=p==='k'?'k2_'+n:p==='m'?'m2_'+n:'t2_'+n}
+for(const k of['k2_01','k2_02','k2_03','k2_04','k2_05','k2_06','k2_07','k2_08','k2_09','k2_11','k2_12','k2_13','k2_14','k2_15','k2_16','k2_17','k2_18','k2_19'])VO_SPIRIT.add(k);
+// Greyfang finally speaks
+{const G=['A French witch. The Crown said you would come crawling.','Then you will fall the whole way down.',...GF_T,'Children of the Crown! Feed!','The Crown... sees you... witch... it always sees...'];G.forEach((t,i)=>VO_MAP[t]='g_0'+(i+1))}
+// Kaen has more to say in his fight (original voice), and so does Maëlle
+BK.illusion.taunt.push(['kj_t1','Your fire is a candle against the void.'],['kj_t2','Look closer, witch. Which of me bleeds?'],['kj_t3','Paris was mine long before you were born.'],['kj_t4','You are dancing inside my illusion.']);
+BK.illusion.hurt.push(['kj_h1','A scratch. Nothing more.'],['kj_h2','You will regret that.']);BK.illusion.rage.push(['kj_r1','I will tear your soul out of that ridiculous hat!'],['kj_r2','Enough games! Burn!']);
+BK['@'].v_kaen=[['m2_13',SL.m13],['m2_14',SL.m14]];
+{let vt=20;const _bt=barkTick;barkTick=function(dt){_bt(dt);const b=bossRef&&!bossRef.dead?bossRef:null;if(!b||b.type!=='illusion'||CS.active||!P.alive){vt=20;return}vt-=dt;if(vt<=0){vt=rand(24,34);bark('@','v_kaen',1,0,.7)}}}
+/* cineLine now speaks when the line is voiced */
+function epVoice(text,vol){const k=VO_MAP[text];if(!k||muted||!AC)return 0;const go=b=>{if(!b||muted)return;const s=AC.createBufferSource();s.buffer=b;const sp=VO_SPIRIT.has(k);if(sp)s.playbackRate.value=.94;const g=AC.createGain();g.gain.value=vol||1.3;s.connect(g);g.connect(master);
+    if(verbIn){const w=AC.createGain();w.gain.value=sp?.4:.14;g.connect(w);w.connect(verbIn)}s.start(0);CLIP.duckT=Math.max(CLIP.duckT,b.duration)};if(CLIP.buf[k])go(CLIP.buf[k]);else voLoad(k).then(go);return CLIP.buf[k]?CLIP.buf[k].duration:2.6}
+{const _cl=cineLine;cineLine=function(who,text){_cl.apply(this,arguments);if(!CS.active)epVoice(text)}}
+// a little queue so lines in flight never talk over each other
+const SAYQ={q:[],free:0};function epSay(who,text,prio){if(prio)SAYQ.q.unshift([who,text]);else if(SAYQ.q.length<4)SAYQ.q.push([who,text])}
+{const _mt=muTick;muTick=function(dt){_mt(dt);const now=performance.now()*.001;if(!SAYQ.q.length||now<SAYQ.free||CS.active)return;const [w,t]=SAYQ.q.shift();cineLine(w,t);const k=VO_MAP[t];const d=k&&CLIP.buf[k]?CLIP.buf[k].duration:3;SAYQ.free=now+d+.5}}
+
+/* ---------- Lyra hands over the sea-glass gem at Calais ---------- */
+{const _pc=playCutscene;playCutscene=function(shots,done){try{const i=shots.findIndex(s=>s.who==='Lyra'&&s.text===LY.ly15);if(i>=0&&!shots.some(s=>s.text===LY.ly33)){const cam=shots[i].cam;
+    shots.splice(i+1,0,{who:'Lyra',text:LY.ly33,cam,onStart:()=>{CH2.gem=1;const h=headOf(P.pos,1.2);flash(h,0x60e0ff,8);SP.emit(h,{n:60,c0:0xffffff,c1:0x30c0ff,speed:4,life:.9});sx('ding',.8)}})}}catch(e){}return _pc.call(this,shots,done)}}
+
+/* ---------- Kaen raises his hands, the light gathers, the guardians rise ---------- */
+epSummon=function(e){const act=e.m.actor;const c=e.pos.clone();const d=V3(P.pos.x-c.x,0,P.pos.z-c.z).normalize();const sd=V3(d.z,0,-d.x);let gs=[],gl=[],pw=0;e.busy=99;e.m.lock=99;
+  const hold=dt=>{e.t+=dt;e.pos.copy(c);e.m.g.rotation.y=Math.atan2(d.x,d.z);kaenFx(e,dt);act.update(dt);for(const s of gl){s.scale.setScalar(.4+pw*2.6+Math.sin(time*18)*.08);s.material.opacity=.5+pw*.5}};
+  const hands=()=>{try{for(const b of['hand_l','hand_r']){const s=glowSprite(0xc080ff,1,.6);act.attach(b,s,act.S.SK[b].clone());gl.push(s)}}catch(x){}};
+  playCutscene([
+    {dur:2,fov:38,cut:true,cam:k=>({pos:headOf(c,1.5).addScaledVector(d,3.6-k*.7).addScaledVector(sd,.9),look:headOf(c,1.9)}),onStart:()=>{act.setBase('Spell_Simple_Idle_Loop',.4);hands();runeFlash(c,0x9a40ff,7,2.2);sx('portal',.7,null,{rate:.7,wet:.4})},
+      update:dt=>{hold(dt);pw=Math.min(1,pw+dt*.6);for(const s of gl){const p=s.getWorldPosition(V3());if(Math.random()<.6)SP.emit(p.clone().add(V3(rand(-1,1),rand(-1,1),rand(-1,1))),{c0:0xe0c0ff,c1:0x5010c0,s0:.3,s1:.03,life:.4,speed:-3})}}},
+    {who:'Kaen',text:EPL.sum,fov:46,cam:k=>{const m=gs.length?gs.reduce((s,g)=>s.add(g.pos),V3()).multiplyScalar(1/gs.length):c;return{pos:headOf(c,3.6).addScaledVector(d,-7).addScaledVector(sd,4.5),look:headOf(m,2.6)}},
+      onStart:()=>{sx('summon',1.2,()=>{try{sfx.roar()}catch(x){}},{wet:.35});for(const s of gl)lightning(s.getWorldPosition(V3()),V3(c.x,c.y+30,c.z),0xd0a0ff);flash(headOf(c,2.4),0xb070ff,12);
+        gs=summonGuardians(e,2);for(const g of gs){g.m.g.scale.setScalar(.01);g._grow=0;runeFlash(g.pos,0xa050ff,9,2)}},
+      update:dt=>{hold(dt);for(const g of gs){g._grow=Math.min(1,(g._grow||0)+dt*.7);const k=g._grow;g.m.g.scale.setScalar(Math.max(.01,k*k*(3-2*k)));g.m.g.position.copy(g.pos);if(Math.random()<.7)SM.emit(V3(g.pos.x+rand(-2,2),g.pos.y+rand(0,4),g.pos.z+rand(-2,2)),{c0:0xb080ff,c1:0x200840,s0:1,s1:3,life:1,a:.4,up:2})}}},
+    {dur:2.4,fov:50,cut:true,title:['Two guardians','One is real. One is a lie.'],cam:k=>({pos:headOf(c,7+k*2).addScaledVector(d,20-k*3).addScaledVector(sd,-6),look:headOf(c,4)}),onStart:()=>{for(const g of gs)g.m.g.scale.setScalar(1)},update:hold}
+  ],()=>{e.busy=0;e.m.lock=0;for(const s of gl)if(s.parent)s.parent.remove(s);for(const g of gs)g.m.g.scale.setScalar(1);act.setBase('Idle_Loop',.3);after(.8,()=>bark('@','m_illu',3,0))})};
+
+/* ---------- keep hitting the chains and they kill him ---------- */
+NZQ.hits=0;
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open'||CH2.zone!=='north'||!NZ.green||CH2.st!==5||NZQ.stage<1||NZQ.quiz||CS.active||!P.alive)return;
+  for(const p of projs){if(p._ch||Math.hypot(p.pos.x-NZ.green.x,p.pos.z-NZ.green.z)>3||p.pos.y>4)continue;p._ch=1;p.life=0;NZQ.hits++;epChainHit();break}}}
+function epChainHit(){const c=NZ.green,n=NZQ.hits;sx('chain',1.2,()=>{try{sfx.boom()}catch(x){}});flash(headOf(c,1),0x60ff90,8);P.shake=.6;
+  for(const l of NZQ.links){if(l.material&&l.material.emissive){l.material.emissive.setHex(0x40ff80);l.material.emissiveIntensity=1.6}if(l.userData.p0)l.position.lerpVectors(l.userData.p0,V3(c.x,l.userData.p0.y-.2,c.z+.1),Math.min(.8,.25+n*.12))}
+  try{NZ.ghost.fire('Hit_Knockback',.5)}catch(x){}
+  if(n>=5){epKaenCrushed();return}cineLine("Kaen's Spirit",[SL.k15,SL.k16,SL.k17,SL.k17][Math.min(3,n-1)]);if(n===3)after(2.4,()=>toast('Stop hitting the chains. One more and they crush him.','The Tower',true))}
+function epKaenCrushed(){const c=NZ.green;const kS=()=>({pos:headOf(c,1.2).add(V3(2.2,.3,3)),look:headOf(c,.9)});
+  playCutscene([
+    {who:"Kaen's Spirit",text:SL.k18,fov:38,cut:true,cam:kS,onStart:()=>{sx('chain',1.4,null,{rate:.8});sx('impact',1,null,{rate:.5});P.shake=1.2;for(const l of NZQ.links)if(l.userData.p0)l.position.set(c.x+rand(-.3,.3),l.userData.p0.y-.3,c.z+rand(-.2,.2))},
+      update:dt=>{if(NZ.ghost){NZ.ghost.g.scale.multiplyScalar(1-dt*.4);if(Math.random()<.8)SP.emit(headOf(c,1),{c0:0xd0f0ff,c1:0x2050a0,s0:.4,s1:.03,life:1,speed:3})}}},
+    {who:'@',text:SL.m12,cut:true,cam:witchShot(1,2.8),onStart:()=>{if(NZ.ghost)NZ.ghost.g.visible=false;flash(headOf(c,1),0xd0f0ff,16)}}
+  ],()=>{toast('The chains crushed Kaen. Never strike them more than four times.','Kaen is gone',true);NZQ.dead=1;P.invuln=0;die()})}
+{const _rv=revive;revive=function(){const r=_rv.apply(this,arguments);try{if(NZQ.dead){NZQ.dead=0;NZQ.hits=0;if(NZ.ghost){NZ.ghost.g.visible=true;NZ.ghost.g.scale.setScalar(1)}for(const l of NZQ.links)if(l.userData.p0){l.position.copy(l.userData.p0);if(l.material)l.material.emissiveIntensity=.3}}
+  if(CH2.chase)epChaseAbort()}catch(e){}return r}}
+
+/* ================= Kaen follows you everywhere now: a ghost on your shoulder, on your broom ================= */
+const KFW={a:null,mode:''};
+function kfBuild(){if(KFW.a)return KFW.a;const a=makeCHActor('m',{skin:0xfff0ea,hair:'hairPart',hairTex:'1',hairCol:0x0b0a10,brow:0x0b0a10,keepReg:[5,6,9],wear:[['long',0x121016],['trousers',0x0f0d13],['shoes',0x0a0a0c]]});if(!a)return null;
+  const gm=new THREE.MeshBasicMaterial({color:0x9ad8ff,transparent:true,opacity:.42,blending:THREE.AdditiveBlending,depthWrite:false,skinning:true});a.g.traverse(o=>{if(o.isMesh){o.material=gm;o.castShadow=false}});
+  const gl=glowSprite(0x9ad8ff,3.4,.35);gl.position.y=1.1;a.g.add(gl);scene.add(a.g);a.g.position.copy(CH2.zone==='north'&&NZ.green?V3(NZ.green.x,P.pos.y,NZ.green.z):P.pos);KFW.a=a;KFW.gm=gm;try{a.setBase('Idle_Loop');a.update(.3)}catch(x){}return a}
+function kfwOn(){return MODE!=='open'&&(CH2.st>=7||(CH2.st===6&&KFW.go))&&!KFW.off}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started)return;const on=kfwOn();if(!on){if(KFW.a)KFW.a.g.visible=false;return}const a=kfBuild();if(!a)return;a.g.visible=W.g.visible!==false;
+  if(NZ.ghost&&CH2.zone==='north')NZ.ghost.g.visible=false;
+  const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);const ride=P.flying||!!CH2.chase;let tgt,ry=P.face;
+  if(ride){tgt=P.pos.clone().addScaledVector(f,-.62);tgt.y+=EP.lev+.06;if(KFW.mode!=='ride'){KFW.mode='ride';try{a.setBase('Sitting_Idle_Loop',.3)}catch(x){a.setBase('Crouch_Idle_Loop',.3)}}a.g.position.copy(W.g.position).addScaledVector(f,-.62);a.g.position.y+=.06}
+  else{tgt=P.pos.clone().addScaledVector(f,-1.1).addScaledVector(r,-1.2);tgt.y=P.pos.y+.35+Math.sin(time*1.6)*.12;if(KFW.mode!=='float'){KFW.mode='float';a.setBase('Idle_Loop',.4)}a.g.position.lerp(tgt,Math.min(1,dt*3.5));
+    const dx=P.pos.x-a.g.position.x,dz=P.pos.z-a.g.position.z;if(Math.hypot(dx,dz)>.4)ry=lerpAngle(a.g.rotation.y,P.face,Math.min(1,dt*3))}
+  a.g.rotation.y=ry;try{a.update(dt)}catch(x){}KFW.gm.opacity=.36+Math.sin(time*2.6)*.07;if(Math.random()<.15)SP.emit(V3(a.g.position.x+rand(-.3,.3),a.g.position.y+rand(.3,1.6),a.g.position.z+rand(-.3,.3)),{c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:.8,up:.5})}}
+
+/* ================= after the quiz: Kaen is free, but the Tower is not done with you ================= */
+function stAfterQuiz(){const c=NZ.green;const kS=sd=>()=>({pos:headOf(c,1.5).add(V3(sd||1.8,.2,2.8)),look:headOf(c,1.4)});
+  playCutscene([
+    {who:"Kaen's Spirit",text:SL.k01,fov:36,cut:true,cam:kS(1.6),onStart:()=>{try{NZ.ghost.setBase('Idle_Loop',.5)}catch(x){}}},
+    {who:'@',text:SL.m01,cam:witchShot(-1,3)},
+    {who:"Kaen's Spirit",text:SL.k02,cam:kS(-1.6)},
+    {dur:2.4,fov:52,cut:true,cam:k=>({pos:V3(203,2.5+k,-4805),look:V3(226,12+k*4,-4824)}),onStart:()=>{const s=epTowerSpirit();s.ty=14;P.shake=1.4;sx('garg',1,null,{rate:.5,wet:.5});flash(V3(226,14,-4824),0x60ff90,24)}},
+    {who:'The Tower',text:SL.t01,fov:40,cam:()=>({pos:V3(205,2.6,-4806),look:epEyes()})},
+    {dur:3,fov:46,cut:true,title:['The Warden','The Tower takes a body'],cam:k=>({pos:V3(204,3+k*2,-4804),look:V3(226,8-k*3,-4822)}),onStart:()=>{const s=epTowerSpirit();s.ty=-14;sx('powerup',1,null,{rate:.7});sx('impact',1,null,{rate:.5});
+        const at=V3(224,8,-4822);flash(at,0x60ff90,30);ring(V3(224,0,-4822),0x60ff90,1,20,.8);SP.emit(at,{n:220,c0:0xffffff,c1:0x30ff70,speed:14,life:1.2});wdSpawn(at,true)},update:dt=>{if(WD.e)WD.e.m.anim(WD.e,dt,0)}},
+    {who:"Kaen's Spirit",text:SL.k03,cut:true,cam:kS(1.4)}
+  ],()=>{wdFight()})}
+
+/* ---------- the Warden: the Tower's magic, wearing a man ---------- */
+const WD={e:null,t:0,lasT:4,orbT:7,said:0};
+function buildWarden(){const a=makeCHActor('m',{skin:0xe8fff0,hair:'hairBuzz',hairCol:0x0a1a10,brow:0x0a1a10,keepReg:[5,6,9],wear:[['long',0x0c2a18,{roughness:.5}],['trousers',0x081a10],['shoes',0x050a08]]});
+  const g=new THREE.Group(),body=new THREE.Group();g.add(body);if(a){a.g.scale.setScalar(1.7);body.add(a.g);
+    a.g.traverse(o=>{if(o.isMesh&&o.material){const m=o.material.clone();m.transparent=true;m.opacity=.82;m.emissive=new THREE.Color(0x1aff70);m.emissiveIntensity=.55;m.color.lerp(new THREE.Color(0x60ffa0),.45);o.material=m}});
+    try{const gold=std({color:0x3a6a30,emissive:0x40ff70,emissiveIntensity:1,metalness:.8,roughness:.3});const cr=new THREE.Group();for(let k=0;k<7;k++){const s=new THREE.Mesh(new THREE.ConeGeometry(.035,.2,5),gold);const an=k/7*TAU;s.position.set(Math.sin(an)*.13,.2,Math.cos(an)*.13);cr.add(s)}
+      const band=new THREE.Mesh(new THREE.TorusGeometry(.135,.02,6,20),gold);band.rotation.x=Math.PI/2;band.position.y=.12;cr.add(band);a.attach('Head',cr,a.S.SK.Head.clone().add(V3(0,.06,0)));
+      for(const s of[-1,1]){const e=glowSprite(0x9affb0,.22,1,false);a.attach('Head',e,a.S.SK.Head.clone().add(V3(s*.035,.07,.09)))}}catch(x){}
+    try{a.setBase('Spell_Simple_Idle_Loop');a.update(.3)}catch(x){}}
+  const aura=glowSprite(0x50ff90,9,.3);aura.position.y=2.4;body.add(aura);
+  const anim=(e,dt,mv)=>{e.t+=dt;if(a)try{a.update(dt)}catch(x){}aura.material.opacity=.24+Math.sin(e.t*5)*.07;if(Math.random()<.5)SM.emit(V3(e.pos.x+rand(-1,1),e.pos.y+rand(0,1),e.pos.z+rand(-1,1)),{c0:0x40ff80,c1:0x02140a,s0:.8,s1:2.4,life:1,a:.3,up:-1.2,speed:.5})};
+  return{g,body,anim,actor:a,head:null}}
+ETYPES.warden={name:'The Warden, Spirit of the Tower',boss:true,lvl:58,hp:3200,speed:0,dmg:30,range:0,cd:9,xp:3500,r:1.6,h:4.6,fly:1,ghost:true,noCalm:true,build:buildWarden};
+if(typeof BTH!=='undefined')BTH.warden='mus_greyfang';
+function wdSpawn(at,still){if(WD.e&&!WD.e.dead)return WD.e;const e=spawnEnemy('warden',V3(at.x,0,at.z));e.pos.y=at.y;e.aggro=true;e.hpFloor=.55;e.invuln=!!still;e.m.g.children.forEach(c=>{if(c.material&&c.material.map===scorchTex)c.visible=false});WD.e=e;WD.t=0;WD.lasT=3;WD.orbT=6;return e}
+function wdFight(){KFW.go=1;const e=WD.e||wdSpawn(V3(224,8,-4822));e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;toast('Avoid the green lasers. They are far too strong to take.','The Warden',true);after(4,()=>epSay("Kaen's Spirit",SL.k03))}
+function wdLaser(e,from,to,dmg,w){const mid=from.clone().lerp(to,.5);const L=from.distanceTo(to);const tg=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,L,6,1,true),new THREE.MeshBasicMaterial({color:0x9affb0,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));
+  tg.position.copy(mid);tg.lookAt(to);tg.rotateX(Math.PI/2);scene.add(tg);sx('riser',.5,null,{rate:1.6});
+  addFx(tg,.9,(f,k)=>{tg.material.opacity=.3+Math.sin(f.t*40)*.2;tg.scale.set(1+k*3,1,1+k*3)},()=>{scene.remove(tg);if(e.dead)return;sx('laser',1.1,()=>{try{sfx.boom()}catch(x){}},{wet:.2});
+    const bm=new THREE.Mesh(new THREE.CylinderGeometry(w||.7,w||.7,L,14,1,true),new THREE.MeshBasicMaterial({color:0x60ff90,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));bm.position.copy(mid);bm.lookAt(to);bm.rotateX(Math.PI/2);scene.add(bm);
+    addFx(bm,.5,(f,k)=>{bm.material.opacity=.7*(1-k);bm.scale.set(1-k*.5,1,1-k*.5)},()=>scene.remove(bm));flash(to,0x60ff90,10);SP.emit(to,{n:60,c0:0xffffff,c1:0x30ff70,speed:9,life:.6});
+    const ab=to.clone().sub(from),ap=headOf(P.pos,1).sub(from);const t=clamp(ap.dot(ab)/ab.lengthSq(),0,1);const cl=from.clone().addScaledVector(ab,t);if(cl.distanceTo(headOf(P.pos,1))<(w||.7)+.9)damagePlayer(dmg)})}
+BOSSAI.warden=function(e,dt,d){const a=e.ai;WD.t+=dt;if(e.busy>0)e.busy-=dt;e.m.g.rotation.y=Math.atan2(P.pos.x-e.pos.x,P.pos.z-e.pos.z);
+  if(CH2.chase){wdChaseAI(e,dt,d);return}
+  a.orb=(a.orb==null?Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z):a.orb)+dt*.35;const R=15;const tx=P.pos.x+Math.sin(a.orb)*R,tz=P.pos.z+Math.cos(a.orb)*R,ty=Math.max(groundAt(tx,tz)+5,P.pos.y+5)+Math.sin(e.t*1.3);
+  const f=Math.min(1,dt*1.4);e.pos.x+=(tx-e.pos.x)*f;e.pos.z+=(tz-e.pos.z)*f;e.pos.y+=(ty-e.pos.y)*f;
+  WD.lasT-=dt;WD.orbT-=dt;if(WD.lasT<=0){WD.lasT=rand(3.2,4.4);try{e.m.actor.fire('Spell_Simple_Shoot',.6)}catch(x){}if(Math.random()<.35)epSay('The Warden',SL.t07);wdLaser(e,headOf(e.pos,4.2),headOf(P.pos,1),maxHP()*.45)}
+  if(WD.orbT<=0){WD.orbT=rand(5,7);const c=headOf(e.pos,4);const base=aimAtPlayer(c).normalize();for(let k=0;k<5;k++)after(k*.1,()=>{if(e.dead)return;enemyOrb(headOf(e.pos,4),base.clone().applyAxisAngle(V3(0,1,0),(k-2)*.15),16,e.dmg*.5,0x9dff70,.4,{keepY:false,life:2.6})})}
+  if(!WD.said&&e.hp<e.maxhp*.75){WD.said=1;bark('@','w_strong',3,0)||epSay('@',SL.m16)}
+  if((e.hp<=e.maxhp*.56||WD.t>55)&&!WD.esc){WD.esc=1;after(.3,epEscape)}};
+BK['@'].w_strong=[['m2_16',SL.m16]];
+
+/* ---------- Lyra: "Cross the Channel!" ---------- */
+function epEscape(){SAYQ.q.length=0;const e=WD.e;for(const o of enemies)if(!o.dead&&o!==e)removeEnemy(o);for(const p of eProjs)scene.remove(p.s);eProjs.length=0;if(e){e.invuln=true}
+  playCutscene([
+    {who:'Lyra',text:LY.ly27,cut:true,fov:40,cam:witchShot(1,2.8,1.6),onStart:()=>{flash(headOf(P.pos,1.6),0xff6060,6)}},
+    {who:'@',text:SL.m02,cam:witchShot(-1,3)},
+    {who:"Kaen's Spirit",text:SL.k04,cam:()=>{const a=KFW.a?KFW.a.g.position:P.pos;return{pos:headOf(a,1.5).add(V3(1.4,.1,2.2)),look:headOf(a,1.4)}}},
+    {dur:2.2,fov:54,cut:true,title:['The Escape','Cross the Channel. Do not stop.'],cam:k=>({pos:headOf(P.pos,2+k*6).add(V3(8-k*3,0,6)),look:headOf(P.pos,1+k*5)}),onStart:()=>{P.flying=true;P.glide=false;P.flyT=60;P.vy=8;try{sfx.fly()}catch(x){}}}
+  ],()=>{epChaseStart()})}
+
+/* ================= the chase across the Channel ================= */
+let EP_CAST=0;{const _p=projs.push;projs.push=function(){EP_CAST=performance.now();return _p.apply(this,arguments)}}
+function epChaseStart(){const e=WD.e||wdSpawn(V3(P.pos.x,P.pos.y+4,P.pos.z-30));e.invuln=false;e.hpFloor=.2;bossRef=e;$('boss').classList.remove('hidden');
+  CH2.chase={t:0,surge:14,lasT:5,batT:8,line:0,lineT:2,tut:0,win:0,ok:0,warned:0,said:{}};P.flying=true;P.flyT=60;NZ.lt=999;
+  toast('Fly south to Calais. When the Warden catches up, counter with any spell.','The Escape',true);epSay("Kaen's Spirit",SL.k05,1);epSay('The Warden',SL.t02)}
+function epChaseAbort(){SAYQ.q.length=0;CH2.chase=null;if(WD.e&&!WD.e.dead)removeEnemy(WD.e);WD.e=null;WD.esc=0;WD.t=0;hitStop=0;tutHide()}
+const CHL=[[6,'@','m03'],[13,'The Warden','t03'],[19,"Kaen's Spirit",'k07'],[27,'@','m04'],[33,"Kaen's Spirit",'k06'],[40,'The Warden','t04'],[47,"Kaen's Spirit",'k08'],[54,'@','m05'],[61,'The Warden','t05'],[68,"Kaen's Spirit",'k09'],[76,'The Warden','t08'],[84,"Kaen's Spirit",'k05']];
+function wdChaseAI(e,dt,d){const C=CH2.chase;if(!C)return;const back=C.win?0:(C.ok>0?44:30);
+  if(C.win){const s=V3(P.pos.x+6,P.pos.y+.5,P.pos.z+1.5);e.pos.lerp(s,Math.min(1,dt*6))}
+  else{const t=V3(P.pos.x+Math.sin(C.t*.6)*9,P.pos.y+2+Math.sin(C.t*1.1)*2,P.pos.z-back);e.pos.lerp(t,Math.min(1,dt*(C.ok>0?2.5:1.2)));C.ok=Math.max(0,C.ok-dt)}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);const C=CH2.chase;if(!C||!started||MODE==='open')return;const e=WD.e;if(!P.alive)return;if(CS.active)return;
+  C.t+=dt;P.flying=true;P.flyT=Math.max(P.flyT,6);const z=P.pos.z;
+  // the lines
+  if(C.line<CHL.length&&C.t>CHL[C.line][0]){const[,w,k]=CHL[C.line++];epSay(w,SL[k])}
+  // lasers from behind
+  C.lasT-=dt;if(e&&!e.dead&&!C.win&&C.lasT<=0){C.lasT=rand(4.5,6.5);if(!C.warned){C.warned=1;toast('Green laser! Swerve!','Dodge')}wdLaser(e,headOf(e.pos,4),headOf(P.pos,1).add(V3(rand(-1,1),0,rand(2,5))),maxHP()*.3,.6)}
+  // he catches up: slow motion, counter or get hit
+  C.surge-=dt;if(e&&!e.dead&&!C.win&&C.surge<=0){C.surge=rand(15,21);C.win=performance.now();C.cast0=EP_CAST;epSay("Kaen's Spirit",SL.k11,1);sx('garg',.9,null,{rate:.7});
+    setTimeout(()=>{if(!CH2.chase||!P.alive)return;hitStop=C.tut?1.6:3.2;C.slow=performance.now();if(!C.tut){C.tut=1;const c=tutCard(`<div class="tl">Counter</div><h3>He caught up!</h3><p>Time slows. Cast any spell ${isTouch?'':'(<kbd>1</kbd> to <kbd>9</kbd>) '}right now to blast him back. Miss it and he hits hard.</p>`);setTimeout(()=>tutHide(),3200)}
+      else floatText(headOf(P.pos,2.2),'COUNTER!','#9affb0',true)},700)}
+  if(C.win&&C.slow){const now=performance.now();if(EP_CAST>C.slow-200){C.win=0;C.slow=0;hitStop=0;C.ok=3;tutHide();const c=eCenter(e);flash(c,0xffffff,14);flash(c,0x60ff90,10);sx('impact',1.1,null,{rate:.7});sx('kame',.6,null,{rate:1.4});P.shake=1;
+      SP.emit(c,{n:120,c0:0xffffff,c1:0x30ff70,speed:12,life:.8});damageEnemy(e,power()*40,'#9affb0');floatText(headOf(P.pos,2.4),'COUNTERED','#9affb0',true);epSay("Kaen's Spirit",SL.k19,1);epSay('@',Math.random()<.5?SL.m08:SL.m09)}
+    else if(now-C.slow>(C.tut===1&&!C.tutDone?3200:1700)){C.tutDone=1;C.win=0;C.slow=0;hitStop=0;tutHide();const c=eCenter(e);try{e.m.actor.fire('Spell_Simple_Shoot',.5)}catch(x){}flash(headOf(P.pos,1),0x60ff90,12);sx('laser',.9,null,{rate:1.3});
+      P.invuln=0;damagePlayer(maxHP()*.38);P.shake=1.4;P.vy=-4;epSay("Kaen's Spirit",SL.k05,1);C.ok=2}}
+  // the bats come thick near France
+  if(z>-3300){C.batT-=dt;if(C.batT<=0){C.batT=rand(3,5);if(!C.said.bats){C.said.bats=1;epSay('@',SL.m06,1)}const n=enemies.filter(o=>!o.dead&&o.type==='nbat').length;if(n<12)for(let k=0;k<4;k++)nzSpawnFly(Math.random()<.75?'nbat':'pumpkin',V3(P.pos.x+rand(-30,30),P.pos.y+rand(-3,5),P.pos.z+rand(40,70)*(Math.random()<.7?1:-1)))}}
+  if(z>-2700&&!C.said.cal){C.said.cal=1;epSay('@',SL.m07,1);after(3.5,()=>{if(CH2.chase)lyraSay('ly34','Lyra, in your head')})}
+  if(z>CAL_SHORE+4){epArrive()}}}
+{const _bk=bark;bark=function(who,cat){if(CH2.chase&&who==='@'&&(cat==='broom'||cat==='broomtired'))return false;return _bk.apply(this,arguments)}}
+
+/* ---------- Calais: Lyra and the door home ---------- */
+function epArrive(){const C=CH2.chase;if(!C||C.arr)return;C.arr=1;const e=WD.e;for(const o of enemies)if(!o.dead&&o!==e)removeEnemy(o);for(const p of eProjs)scene.remove(p.s);eProjs.length=0;hitStop=0;tutHide();
+  if(e){e.invuln=true;e.pos.set(P.pos.x+10,P.pos.y+14,P.pos.z-70)}SAYQ.q.length=0;const door=V3(45,0,-2187);lyraPlace(51,-2188,Math.PI);let portal=nzPortal(door);NZ.g.add(portal);
+  const L=()=>LYR.a?LYR.a.g.position:V3(51,0,-2188);const lyS=d=>()=>{const g=L();return{pos:headOf(g,1.6).add(V3(.9,0,-(d||2.4))),look:headOf(g,1.55)}};
+  P.flying=false;P.glide=true;P.pos.set(54,groundAt(54,-2191),-2191);P.face=0;
+  playCutscene([
+    {dur:2.6,fov:48,cut:true,cam:k=>({pos:V3(70-k*6,5-k*2,-2215),look:V3(50,2,-2188)}),onStart:()=>{sx('portal',1,null,{wet:.4})},update:dt=>{portal.userData.tick(dt)}},
+    {who:'Lyra',text:LY.ly28,cam:lyS(2.6),update:dt=>portal.userData.tick(dt)},
+    {who:"Kaen's Spirit",text:SL.k12,cut:true,cam:()=>{const a=KFW.a?KFW.a.g.position:P.pos;return{pos:headOf(a,1.5).add(V3(-1.2,.1,-2.2)),look:headOf(a,1.4)}},update:dt=>portal.userData.tick(dt)},
+    {who:'Lyra',text:LY.ly29,cam:lyS(1.9),update:dt=>portal.userData.tick(dt)},
+    {who:'The Warden',text:SL.t06,cut:true,fov:44,cam:()=>({pos:V3(52,3,-2186),look:e?eCenter(e):V3(55,14,-2260)}),onStart:()=>{sx('garg',1,null,{rate:.5,wet:.6});P.shake=.6},update:dt=>portal.userData.tick(dt)},
+    {dur:1.6,fov:50,cut:true,cam:k=>({pos:headOf(door,2).add(V3(0,0,6-k*4)),look:headOf(door,2)}),onStart:()=>{flash(headOf(door,2),0xff5060,14);sx('portal',.9,null,{rate:.8})},update:dt=>portal.userData.tick(dt)}
+  ],()=>{if(portal)NZ.g.remove(portal);CH2.chase=null;if(WD.e&&!WD.e.dead)removeEnemy(WD.e);WD.e=null;CH2.st=Math.max(CH2.st,7);ch2Save();writeSave();nzLeave();after(.4,epParisPlan)})}
+
+/* ---------- Paris: three things to bring him back ---------- */
+function epParisPlan(){const L=()=>LYR.a?LYR.a.g.position:V3(-126,0,-112);const lyS=d=>()=>{const g=L();const dv=V3(P.pos.x-g.x,0,P.pos.z-g.z).normalize();return{pos:headOf(g,1.6).addScaledVector(dv,d||2.4).addScaledVector(V3(dv.z,0,-dv.x),.6),look:headOf(g,1.55)}};
+  const kS=()=>{const a=KFW.a?KFW.a.g.position:P.pos;return{pos:headOf(a,1.4).add(V3(1.6,.2,2.2)),look:headOf(a,1.35)}};
+  P.pos.set(-126,groundAt(-126,-106),-106);P.face=Math.PI;
+  playCutscene([
+    {dur:4,fov:50,cut:true,title:['Paris','Three things to bring him back'],cam:k=>({pos:V3(-150+k*14,20-k*12,-60-k*30),look:V3(-126,4,-110)})},
+    {who:"Kaen's Spirit",text:SL.k13,cut:true,cam:kS},
+    {who:'Lyra',text:LY.ly30,cam:lyS(2.5)},
+    {who:'Lyra',text:LY.ly31,cam:lyS(2.1)},
+    {who:'@',text:SL.m10,cam:witchShot(1,3)},
+    {who:"Kaen's Spirit",text:SL.k14,cam:kS},
+    {who:'@',text:SL.m11,cam:witchShot(-1,3)},
+    {who:'Lyra',text:LY.ly32,cam:lyS(2.3)}
+  ],()=>{epAshPlace();toast('Find Kaen\'s ash on the Trocadéro.','Chapter XII · Ash and Silver',true)})}
+const ASH={g:null};
+function epAshPlace(){if(ASH.g||CH2.st>=8)return;const at=V3(-118,0,-128);at.y=groundAt(at.x,at.z);const g=new THREE.Group();g.position.copy(at);
+  const pile=new THREE.Mesh(new THREE.ConeGeometry(.7,.35,14),std({color:0x3a3640,roughness:1}));pile.position.y=.17;g.add(pile);const gl=glowSprite(0xb080ff,3,.5);gl.position.y=.6;g.add(gl);scene.add(g);ASH.g=g;
+  CH2.obj=()=>CH2.zone==='paris'&&ASH.g?`Collect <b>Kaen's ash</b> on the Trocadéro · ${Math.round(Math.hypot(P.pos.x-at.x,P.pos.z-at.z))}m`:null}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!ASH.g||!started||CS.active)return;const g=ASH.g;g.children[1].material.opacity=.4+Math.sin(time*3)*.15;if(Math.random()<.3)SP.emit(V3(g.position.x+rand(-.5,.5),g.position.y+.3,g.position.z+rand(-.5,.5)),{c0:0xd0b0ff,c1:0x30106a,s0:.25,s1:.03,life:1,up:1});
+  if(Math.hypot(P.pos.x-g.position.x,P.pos.z-g.position.z)<1.6){scene.remove(g);ASH.g=null;CH2.st=Math.max(CH2.st,8);ch2Save();writeSave();sx('ding',1);flash(headOf(P.pos,1),0xb080ff,10);CH2.obj=()=>'Next: <b>Chapter XII · Ash and Silver</b>';
+    toast('Kaen\'s ash · 1 of 3. A heart that beats for him and the Crown\'s silver are still out there. Chapter XII is coming.','Ash collected',true)}}}
+{const _lt=lyraToTroca;lyraToTroca=function(){_lt.apply(this,arguments);if(CH2.st===7){after(1,()=>{if(CH2.st===7&&!CS.active)epAshPlace()})}}}
+
+/* ---------- the Tower door stays shut while the Warden is loose; a reload resumes at the Tower ---------- */
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open'||CH2.zone!=='north'||!started)return;
+  if(NZ.home){const hide=CH2.st===6;if(hide&&!NZ.home.userData.moved){NZ.home.userData.moved=1;NZ.home.position.x+=10000}else if(!hide&&NZ.home.userData.moved){NZ.home.userData.moved=0;NZ.home.position.x-=10000}}
+  if(CH2.st===6&&!CH2.chase&&!CS.active&&P.alive&&NZ.green&&(!WD.e||WD.e.dead)&&!WD.esc&&Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z)<30){epFreeKaen(true);
+    const e=wdSpawn(V3(224,8,-4822));epSay('The Warden',SL.t08,1);after(.5,wdFight)}
+  if(CH2.st===6&&WD.esc&&!CH2.chase&&!CS.active&&(!WD.e||WD.e.dead))WD.esc=0}}
+
+/* ---------- ferries and buoys: the long French waters ---------- */
+{const _nb=nzBuild;nzBuild=function(){const r=_nb.apply(this,arguments);try{const G=NZ.g;const hull=std({color:0x2a2e3a,roughness:.7}),deck=std({color:0x7a7c88,roughness:.6});
+  for(const[x,z,ry]of[[-140,-2650,.3],[150,-2980,-.2],[-60,-3280,.1],[200,-2450,.5]]){const f=new THREE.Group();f.position.set(x,0,z);f.rotation.y=ry;
+    const h=new THREE.Mesh(new THREE.BoxGeometry(14,3,60),hull);h.position.y=1.2;f.add(h);const d=new THREE.Mesh(new THREE.BoxGeometry(12,5,34),deck);d.position.set(0,5,-4);f.add(d);
+    for(let k=0;k<8;k++){const l=glowSprite(0xffd890,1.4,.8);l.position.set(k%2?6.2:-6.2,5.5,-18+k*4.6);f.add(l)}const m=glowSprite(0xff4040,2,.9);m.position.set(0,9,-4);f.add(m);G.add(f);
+    NZ.anim.push(dt=>{f.position.z+=dt*1.2*(x>0?1:-1);f.position.y=Math.sin(performance.now()*.0007+x)*.3})}
+  for(let z=-2260;z>-3400;z-=120){const b=glowSprite(z%240?0x60ff60:0xff5050,1.2,.9);b.position.set(z%240?50:70,1.2,z);G.add(b)}}catch(e){}return r}}
+
+/* ---------- chapter XI: jump straight to the Tower ---------- */
+CHAPTERS.push({id:'escape',n:'XI',title:'The Escape',desc:"The Tower's questions, the Warden and the flight home."});
+{const _cb=chapBoss;chapBoss=function(c){if(c.id==='escape')return null;return _cb(c)}}
+{const _ac=applyChapter;applyChapter=function(id){if(id!=='escape')return _ac.apply(this,arguments);_ac.call(this,'london');beaten.add('greyfang');CH2.st=5;ch2Save();NZQ.stage=0;NZQ.hits=0;nzAfter();
+  const p=V3(NZ.green.x+6,0,NZ.green.z+12);P.pos.set(p.x,groundAt(p.x,p.z),p.z);NZ.cp.copy(p);after(.4,()=>toast('Free Kaen from the Crown\'s chains.','Chapter XI: The Escape',true))}}
+{const _rc=renderChapters;renderChapters=function(){_rc();const list=$('chapList');const el=list&&list.children[chapIndexOf('escape')];if(el){const done=CH2.st>=7,cur=started&&CH2.st>=5&&CH2.st<7;el.className='chap'+(done?' done':'')+(cur?' cur':'');
+  el.innerHTML='<span class="cn">Chapter XI · Story</span><b>The Escape</b><span class="cd">'+"The Tower's questions, the Warden and the flight home."+'</span><span class="cs">'+(cur?'Current · ':'')+(done?'Cleared':'Not cleared')+'</span>'}}}
+{const _no=nzObj;nzObj=function(){if(CH2.zone==='north'&&CH2.st===6){if(CH2.chase)return `Escape to <b>Calais</b> · ${Math.max(0,Math.round(CAL_SHORE-P.pos.z))}m`;if(WD.e&&!WD.e.dead)return 'Survive <b>the Warden</b>. Dodge the green lasers.';return 'Return to the <b>Tower</b>. The Warden waits.'}return _no.apply(this,arguments)}}
+{const _ot=objTick;objTick=function(dt){_ot(dt);if(MODE==='open'||!bossRef||bossRef.type!=='warden'||CH2.zone!=='north')return;const el=$('objTrack');if(!el)return;const t=nzObj();if(t&&el.innerHTML!==t)el.innerHTML=t}}
+{const _ct=nzCalaisTalk;nzCalaisTalk=function(){const r=_ct.apply(this,arguments);const i=r.findIndex(s=>s.text===LY.ly15);if(i>=0&&!r.some(s=>s.text===LY.ly33))r.splice(i+1,0,{who:'Lyra',text:LY.ly33,cam:r[i].cam,onStart:()=>{CH2.gem=1;const h=headOf(P.pos,1.2);flash(h,0x60e0ff,8);SP.emit(h,{n:60,c0:0xffffff,c1:0x30c0ff,speed:4,life:.9});sx('ding',.8)}});return r}}
 const ORSON_FACE="data:image/webp;base64,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";
 
 /* ---------- Orson's face on his dialogue lines, living water, no more sinking ---------- */
