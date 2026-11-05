@@ -42,4 +42,4 @@ Mobile is supported with on-screen controls.
 
 ## Audio
 
-Chapter 2 voices (Lyra, Maëlle, Kaen, the Tower), sound effects (`assets/sx_*`) and music (`assets/mus_mourn.mp3`, `assets/mus_london.mp3`, `assets/mus_greyfang.mp3`, `assets/mus_kaenlb.mp3`) were generated with ElevenLabs.
+Chapter 2 voices (Lyra, Maëlle, Kaen, the Tower), sound effects (`assets/sx_*`) and music (`assets/mus_mourn.mp3`, `assets/mus_london.mp3`, `assets/mus_greyfang.mp3`, `assets/mus_kaenlb.mp3`, boss themes `assets/mus_b_*.mp3`) were generated with ElevenLabs.
