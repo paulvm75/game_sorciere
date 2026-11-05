@@ -14,5 +14,5 @@ function voPlay(who,text,shot){const k=voKey(who,text);if(!k||!AC||muted||CS.ski
     const s=AC.createBufferSource();s.buffer=b;s.playbackRate.value=(sp?.9:1)*1.03;const g=AC.createGain();g.gain.value=who==='@'?1.15:1.25;s.connect(g);g.connect(master);
     if(verbIn){const w=AC.createGain();w.gain.value=sp?.55:.1;g.connect(w);w.connect(verbIn)}
     s.start(0);VO.src=s;VO.g=g;const d=b.duration/((sp?.9:1)*1.03);s.onended=()=>{if(VO.src===s)VO.src=null};
-    CLIP.duckT=Math.max(CLIP.duckT,d);if(shot)shot._dur=Math.max(shot._dur,d+.55)};
+    CLIP.duckT=Math.max(CLIP.duckT,d);if(shot)shot._dur=Math.max(shot._dur,d+.28)};
   if(CLIP.buf[k])go(CLIP.buf[k]);else voLoad(k).then(go)}
