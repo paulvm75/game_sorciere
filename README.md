@@ -3,12 +3,13 @@
 A witch action RPG in Paris, built with Three.js (r128). Two modes:
 
 - **Story** - Maëlle fights her way through Paris after midnight, from the catacomb pigs to Kaen, the Master of Illusions.
+  - **Chapter 2 · The Crossing** - Kaen's prison breaks and the map grows into the real 7th and 16th (Trocadéro, Pont d'Iéna, Bir-Hakeim, Île aux Cygnes, Maison de la Radio, Invalides, Pont Alexandre III, Orsay). Kaen's journal tells his story, his sister Lyra opens a door to Calais, and you fly the cursed Channel through waves of bats, winged jack-o'-lanterns and gargoyles, over the white cliffs and the English countryside, to London: Big Ben, the London Eye, St Paul's, the Shard, Tower Bridge and the Tower. Greyfang waits on the clock tower.
 - **Open world** - real Paris street data, métro, cafés, quests, Orson's gold, broom flight over the city.
 
 ## Play
 
 - **Online:** enable GitHub Pages on this repo (Settings > Pages > Deploy from branch `main`, root) and open the Pages URL. `index.html` loads its sounds, models and map data from `assets/`.
-- **Offline:** download `Sorciere-offline.html` and open it in Chrome. Everything is embedded except the large voice, sound and music packs, which fall back to synth sound.
+- **Offline:** download `Sorciere-offline.html` and open it in Chrome. Everything is embedded except the music and the larger sound packs, which fall back to synth sound. Chapter 2 voices and one take of each new sound are embedded.
 
 Opening `index.html` straight from disk will not load the assets (browsers block `file://` fetches). Serve the folder instead, for example `python3 -m http.server` and go to http://localhost:8000.
 
@@ -38,3 +39,7 @@ Mobile is supported with on-screen controls.
 ```
 ./build.sh   # rebuilds index.html from src/
 ```
+
+## Audio
+
+Chapter 2 voice (Lyra), sound effects (`assets/sx_*`) and music (`assets/mus_mourn.mp3`, `assets/mus_london.mp3`) were generated with ElevenLabs.

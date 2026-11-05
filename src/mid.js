@@ -602,7 +602,7 @@ function damageEnemy(e,amt,color,dot){if(e.dead||e.invuln)return;if(!e.aggro)agg
   if(e.hpFloor&&e.hp<e.maxhp*e.hpFloor)e.hp=Math.ceil(e.maxhp*e.hpFloor);if(e.hp<=0){if(e.def.boss||e.elite)hitStop=.12;killEnemy(e)}}
 function killEnemy(e){const c=eCenter(e);STATS.kills++;bqKill(e);comboKill(e);if(e.def.boss)vib([60,40,120]);if(e.quest&&MODE==='open')questKill(e);
   if(e.def.boss){fireBurst(c,8,true);SP.emit(c,{n:160,c0:0xffffff,c1:e.type==='giant'?0x60c0ff:0xff3050,speed:18,life:1.2,s0:.8,s1:.1,grav:4});flash(c,0xff6070,12);P.shake=1.4;sfx.boom();
-    beaten.add(e.type);CLEARED.add(e.type);bossTimer=30;peaceT=e.type==='queen'?rand(55,70):rand(130,170);if(MODE!=='open'&&!e.def.final&&e.type!=='slug')after(12,()=>{if(!bossRef)toast(`Catch your breath and farm some monsters. The next demon comes in about ${e.type==='queen'?'a minute':'2 or 3 minutes'}.`,'Calm')});for(let k=0;k<3;k++)dropPotion(V3(e.pos.x+rand(-3,3),0,e.pos.z+rand(-3,3)));
+    beaten.add(e.type);CLEARED.add(e.type);bossTimer=30;peaceT=e.type==='queen'?rand(55,70):rand(130,170);if(MODE!=='open'&&!e.def.final&&!e.def.noCalm&&e.type!=='slug')after(12,()=>{if(!bossRef)toast(`Catch your breath and farm some monsters. The next demon comes in about ${e.type==='queen'?'a minute':'2 or 3 minutes'}.`,'Calm')});for(let k=0;k<3;k++)dropPotion(V3(e.pos.x+rand(-3,3),0,e.pos.z+rand(-3,3)));
     for(const o of enemies)if(o.type==='fox'&&!o.dead)removeEnemy(o);
     removeEnemy(e);if(e.xp)gainXP(e.xp);writeSave();after(1.2,()=>bossOutro(e.type,c));return}
   SP.emit(c,{n:35,c0:e.type==='spider'?0xc08a50:e.type==='demon'?0xffc080:0xff7080,c1:0x201030,speed:6,life:.9,grav:3,s0:.6,s1:.1});
@@ -701,7 +701,7 @@ function animateEnemy(e,dt,mv){const def=e.def,b=e.m.body,t=e.t;const lunge=e.at
     if(Math.random()<.5)SM.emit(V3(e.pos.x+rand(-3,3),e.pos.y+rand(1,4),e.pos.z+rand(-3,3)),{c0:0xe0f4ff,c1:0x8090c0,s0:2,s1:5,life:1.5,a:.25})}
   const sc=1+e.flash*1.2;if(e.type!=='spider'){b.scale.set(sc,sc,sc)}}
 function updateEnemies(dt){
-  const target=MODE==='open'?0:Math.min(16,5+Math.floor(P.level*.6))*(P.weak?.7:1)*(bossRef?.35:1)*DF().spawn*(BQ.active()?.3:1);
+  const target=MODE==='open'||CH2.zone!=='paris'?0:Math.min(16,5+Math.floor(P.level*.6))*(P.weak?.7:1)*(bossRef?.35:1)*DF().spawn*(BQ.active()?.3:1);
   spawnT-=dt;if(spawnT<=0&&P.alive){spawnT=.9;const alive=enemies.filter(e=>!e.dead&&!e.def.boss&&e.type!=='fox').length;if(alive<target){const at=findSpot(P.pos.x,P.pos.z,30,56);if(at){const ty=pickType();spawnEnemy(ty,at);if(ty==='spider'&&Math.random()<.4){const b=findSpot(at.x,at.z,2,5);if(b)spawnEnemy('spider',b)}}}}
   if(!bossRef&&peaceT>0&&!CS.active)peaceT-=dt;if(!bossRef&&P.alive&&nextBoss()&&peaceT<=0&&!enemies.some(q=>q.dormant&&!q.dead)){bossTimer-=dt;if(bossTimer<=0&&!scPending(nextBoss())){const at=findSpot(P.pos.x,P.pos.z,55,75)||findSpot(P.pos.x,P.pos.z,32,46);if(at){const e=spawnEnemy(nextBoss(),at);bossTimer=40;bossDormant(e)}}}
   for(const e of enemies){if(e.dead)continue;const def=e.def;e.t+=dt;
@@ -730,7 +730,7 @@ function updateEnemies(dt){
       if(def.climb){const nx=e.pos.x+mx*sp,nz=e.pos.z+mz*sp,gh=groundAt(nx,nz);if(gh>e.pos.y+.5){e.pos.y=Math.min(gh,e.pos.y+5.5*dt);e.climbing=true}else{e.pos.x=nx;e.pos.z=nz;e.climbing=false}collide(e.pos,def.r,false,true)}
       else{e.pos.x+=mx*sp;e.pos.z+=mz*sp}}
     if(!def.climb)collide(e.pos,def.r,def.ghost,false);
-    {const gh=groundAt(e.pos.x,e.pos.z);if(!e.leap){if(def.climb){if(!e.climbing)e.pos.y=e.pos.y>gh+.1?Math.max(gh,e.pos.y-10*dt):gh}else e.pos.y=lerp(e.pos.y,gh,Math.min(1,dt*10))}}
+    {const gh=groundAt(e.pos.x,e.pos.z);if(!e.leap&&!def.fly){if(def.climb){if(!e.climbing)e.pos.y=e.pos.y>gh+.1?Math.max(gh,e.pos.y-10*dt):gh}else e.pos.y=lerp(e.pos.y,gh,Math.min(1,dt*10))}}
     e.moveK=lerp(e.moveK,mv,Math.min(1,dt*8));
     if(!locked&&!e.dash){e.m.g.rotation.y=lerpAngle(e.m.g.rotation.y,idle&&(mx||mz)?Math.atan2(mx,mz):Math.atan2(dx,dz),Math.min(1,dt*(def.boss?3:8)))}
     if(!locked&&P.alive&&!idle){

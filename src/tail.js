@@ -95,7 +95,7 @@ function updatePlayer(dt){
   const s=Math.sin(yaw),c=Math.cos(yaw);const mx=s*iy+c*ix,mz=c*iy-s*ix;const ml=Math.hypot(mx,mz);
   lastMove.l=ml;if(ml>.05){lastMove.x=mx/ml;lastMove.z=mz/ml}
   let boosting=P.flying&&MODE==='open'&&sprint&&P.boostT>0&&ml>.2;if(boosting){P.boostT-=dt;if(Math.random()<.8)SP.emit(V3(P.pos.x-Math.sin(P.face)*2,P.pos.y+.9,P.pos.z-Math.cos(P.face)*2),{n:4,c0:0xffffff,c1:0xff60c0,s0:.9,s1:.1,life:.5,speed:2})}P.boosting=boosting;
-  let spd=P.flying?(MODE==='open'?(boosting?40*2.2:40):17):sprint&&ml>.5?13.5:8;if(P.swim)spd=sprint?5.5:3.6;if(P.climb||P.stairs)spd=0;P.punchT=Math.max(0,(P.punchT||0)-dt);if(MODE==='open'&&(actMenu||talkEl||compelEl))spd*=.0;if(MODE==='open'&&OWS.coffee>0)spd*=1.25;if(P.weak)spd*=.85;if(P.webbed>0)spd*=.3;if(P.chilled>0)spd*=.6;if(P.lbT>0)spd*=P.flying?1.3:1.5;
+  let spd=P.flying?(MODE==='open'?(boosting?40*2.2:40):(CH2.flySpd||17)):sprint&&ml>.5?13.5:8;if(P.swim)spd=sprint?5.5:3.6;if(P.climb||P.stairs)spd=0;P.punchT=Math.max(0,(P.punchT||0)-dt);if(MODE==='open'&&(actMenu||talkEl||compelEl))spd*=.0;if(MODE==='open'&&OWS.coffee>0)spd*=1.25;if(P.weak)spd*=.85;if(P.webbed>0)spd*=.3;if(P.chilled>0)spd*=.6;if(P.lbT>0)spd*=P.flying?1.3:1.5;
   movePlayer(mx*spd*dt,mz*spd*dt);
   // métro stairs: walk in and you go down
   if(MODE==='open'&&!CS.active){if(!P.stairs&&!P.flying&&!P.climb&&P.onGround){const E=entranceAt(P.pos.x,P.pos.z);if(E&&E.v<E.e.V0-.5){P.stairs={e:E.e,ph:'down'};closeActMenu();toast(MST[E.e.st].name,'Métro')}}
