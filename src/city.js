@@ -132,9 +132,10 @@ function cityFlush(A,parent,sty){const {bGeos,mans,chims,walks,dormers,awnings,c
   bGeos.forEach((l,i)=>{if(l.length){const m=new THREE.Mesh(mergeGeos(l),(sty&&sty.facade||facadeMats)[i]);m.receiveShadow=true;P0.add(m)}});
   const zincTex=canvasTex(128,128,(x)=>{x.fillStyle='#5a6678';x.fillRect(0,0,128,128);for(let k=0;k<128;k+=8){x.fillStyle='rgba(20,25,35,.5)';x.fillRect(k,0,2,128)}});rep(zincTex,1,1);
   const mg=new THREE.CylinderGeometry(.6*Math.SQRT1_2,Math.SQRT1_2,1,4,1);mg.rotateY(Math.PI/4);mg.translate(0,.5,0);
-  instanced(mg,std({color:0x6a7890,map:zincTex,roughness:.45,metalness:.55,envMapIntensity:.9}),mans,(o,m)=>{o.position.set(m.x,m.y,m.z);o.scale.set(m.w+.5,m.hm,m.d+.5)});
+  instanced(sty&&sty.roofGeo||mg,sty&&sty.roofMat||std({color:0x6a7890,map:zincTex,roughness:.45,metalness:.55,envMapIntensity:.9}),mans,(o,m)=>{o.position.set(m.x,m.y,m.z);if(sty&&sty.roofGeo&&m.w>m.d){o.rotation.y=Math.PI/2;o.scale.set(m.d+.5,m.hm,m.w+.5)}else o.scale.set(m.w+.5,m.hm,m.d+.5)});
   instanced(new THREE.BoxGeometry(.9,1.8,.9),std({color:0x8a5040,roughness:.9}),chims,(o,c)=>{o.position.set(c.x,c.y,c.z)});
   const dg=new THREE.BoxGeometry(1.1,1.4,.9);
+  if(sty&&sty.noDormers)dormers.length=0;
   instanced(dg,std({color:0x7a7468,roughness:.7,metalness:.3}),dormers,(o,d)=>{o.position.set(d.x,d.y,d.z);o.rotation.y=d.r});
   instanced(new THREE.PlaneGeometry(.7,.9),new THREE.MeshBasicMaterial({color:0xffc060}),dormers.filter(d=>d.lit),(o,d)=>{o.position.set(d.x+Math.sin(d.r)*.47,d.y,d.z+Math.cos(d.r)*.47);o.rotation.y=d.r});
   instanced(new THREE.BoxGeometry(30.5,.25,30.5),std({color:0x5a5468,roughness:.9}),walks,(o,w)=>{o.position.set(w[0],.12,w[1])}).receiveShadow=true;

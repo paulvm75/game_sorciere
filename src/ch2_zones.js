@@ -123,7 +123,7 @@ function nzCountry(G){const M=nzM();const W=540,D=564,z0=CLIFF_Z,zc=CLIFF_Z-D/2;
   /* the river */
   const rp=[],ri=[];let n=0;for(let z=CLIFF_Z-30;z>LON_Z+4;z-=4){const x=nzRiverX(z),y=nzBase(z)-.7;rp.push(x-4.6,y,z,x+4.6,y,z);if(n){const a=(n-1)*2;ri.push(a,a+1,a+2,a+1,a+3,a+2)}n++}
   const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setIndex(ri);rg.computeVertexNormals();const uv=[];for(let k=0;k<n;k++)uv.push(0,k*.25,1,k*.25);rg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-  G.add(new THREE.Mesh(rg,std({color:0x4a6a88,roughness:.1,metalness:.6,emissive:0x0a1828,side:THREE.DoubleSide})));
+  {const rm=new THREE.Mesh(rg,std({color:0x4a6a88,roughness:.1,metalness:.6,emissive:0x0a1828,side:THREE.DoubleSide}));rm.name='nzRiver';G.add(rm)}
   /* cottages, trees, sheep */
   const H=[],T=[],S=[];for(let k=0;k<70;k++){const x=rand(-245,245),z=rand(CLIFF_Z-50,LON_Z+30);if(Math.abs(x-nzRiverX(z))<18)continue;const w=rand(5,8),d=rand(4,6);const y=Math.min(nzLand(x-w/2,z),nzLand(x+w/2,z),nzLand(x,z-d/2),nzLand(x,z+d/2))-.2;
     H.push({x,z,w,d,h:rand(3.4,4.6),rh:rand(2.2,3),y,c:Math.random()<.6?0xe8e2d2:0xb0a088,rc:Math.random()<.5?0x5a4a30:0x3a3c46})}nzHouses(G,H);
@@ -144,16 +144,15 @@ function nzCountry(G){const M=nzM();const W=540,D=564,z0=CLIFF_Z,zc=CLIFF_Z-D/2;
 
 /* ---------- London ---------- */
 function nzLondon(G){const M=nzM();c2plane(G,560,440,0,-.02,-4775,nzGroundMat(560,440));
-  const th=c2plane(G,560,TH_W*2,0,.05,TH_Z,M.sea);th.material=M.sea;for(const s of[-1,1])c2box(G,560,1.4,.8,0,-1.1,TH_Z+s*(TH_W+.4),M.plain,false);
+  const th=c2plane(G,560,TH_W*2,0,.05,TH_Z,M.sea);th.material=M.sea;for(const s of[-1,1])c2box(G,560,1.4,.8,0,-1.1,TH_Z+s*(TH_W+.4),std({color:0x6a6458,roughness:.95,envMapIntensity:.2}),false);
   const resv=[[-206,-96,-4840,-4778],[0,72,-4900,-4824],[184,260,-4870,-4790],[-96,-24,-4750,-4690],[106,146,-4720,-4670]];
   const A=cityArrs(0);for(let i=-2;i<=11;i++)for(const j of[-123,-124,-125,-126,-129,-130,-131,-132]){const cx=-162+i*PITCH,cz=-162+j*PITCH;if(resv.some(r=>cx+14>r[0]&&cx-14<r[1]&&cz+14>r[2]&&cz-14<r[3]))continue;stCell(cx,cz,i,j,A);NZ.mapR.push([cx-14,cz-14,28,28])}
-  A.columns.length=0;const brick=facadeMats.map(m=>{const c=m.clone();c.color=new THREE.Color(0xb87060);return c});cityFlush(A,G,{facade:brick});
+  A.columns.length=0;cityFlush(A,G,nzLondonStyle());nzChimPots(G,A.chims);
   for(let x=-264;x<=264;x+=12)if(!LBR.some(b=>Math.abs(x-b)<7))for(const s of[-1,1])A.lamps.push([x,TH_Z+s*(TH_W+1.6)]);lampFlush(A.lamps,G);for(const l of A.lamps)lampList.push(l);
   for(const b of LBR)nzBridge(G,b,b===-108?0x3a7a50:b===180?null:0x8a2a2a);
   nzBigBen(G);nzEye(G,-60,-4728);nzShard(G,126,-4692);nzStPauls(G,36,-4862);nzTowerBridge(G,180);nzTower(G);
   /* red buses and phone boxes */
-  const bus=(x,z,ry)=>{const b=new THREE.Group();b.position.set(x,0,z);b.rotation.y=ry;G.add(b);const m=new THREE.Mesh(new THREE.BoxGeometry(2.5,4.2,10),M.red);m.position.y=2.4;b.add(m);for(const y of[1.9,3.6]){const w=new THREE.Mesh(new THREE.BoxGeometry(2.56,.8,9.2),std({color:0x101018,emissive:0x3a2a10,roughness:.2}));w.position.y=y;b.add(w)}
-    for(const s of[-1,1]){const h=glowSprite(0xfff0d0,1.6,.8);h.position.set(s*.9,1,5.05);b.add(h)}boxes.push({x0:x-2,x1:x+2,z0:z-5.5,z1:z+5.5,h:4.6,nz:1})};
+  const bus=(x,z,ry)=>{const b=nzBus();b.position.set(x,0,z);b.rotation.y=ry;G.add(b);boxes.push({x0:x-2,x1:x+2,z0:z-5.5,z1:z+5.5,h:4.6,nz:1})};
   bus(-106,-4758,0);bus(70,-4766,0);bus(-0,-4644,Math.PI/2);bus(-144,-4680,0);
   const ph=[];for(let x=-216;x<=216;x+=72)for(const z of[-4608,-4716,-4824,-4932])ph.push([x+16.4,z+4]);CITY_PARENT=G;instanced(new THREE.BoxGeometry(1.1,2.6,1.1),M.red,ph,(o,p)=>{o.position.set(p[0],1.3,p[1])});
   instanced(new THREE.BoxGeometry(.9,.9,1.14),M.glow(0xfff0c0,.7),ph,(o,p)=>{o.position.set(p[0],1.9,p[1])});CITY_PARENT=null}
