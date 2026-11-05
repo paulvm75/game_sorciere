@@ -218,7 +218,7 @@ function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+4
 /* ---------- moving between Paris and the north ---------- */
 function nzClear(){for(const e of enemies)if(!e.dead)removeEnemy(e);for(const p of eProjs)scene.remove(p.s);eProjs.length=0}
 function nzEnter(where){nzBuild();if(CH2.zone==='paris'){CH2.parisWB={x0:WB.x0,x1:WB.x1,z0:WB.z0,z1:WB.z1};NZ.hid=scene.children.filter(o=>o.visible&&!nzKeep(o));for(const o of NZ.hid)o.visible=false}
-  nzClear();CH2.zone='north';NZ.g.visible=true;Object.assign(WB,NZB);drawWorldMap();setDawn(.08);NZ.fogD=scene.fog.density;NZ.fogC.copy(scene.fog.color);
+  nzClear();if(where!=='london'){NZ.trig={};NZ.cpk=0}CH2.zone='north';NZ.g.visible=true;Object.assign(WB,NZB);drawWorldMap();setDawn(.08);NZ.fogD=scene.fog.density;NZ.fogC.copy(scene.fog.color);
   const p=where==='london'?V3(-108,0,-4608):V3(60,0,-3072);NZ.cp.copy(p);SPAWN.copy(p);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.glide=false;yaw=0;P.face=Math.PI;
   camera.position.set(p.x,P.pos.y+5,p.z+12);if(CH2.st>=5)nzAfter();CH2.obj=nzObj;ch2Save()}
 function nzLeave(){nzClear();sxStop('wind',1);CH2.zone='paris';if(NZ.g)NZ.g.visible=false;for(const o of NZ.hid)o.visible=true;NZ.hid=[];Object.assign(WB,CH2.parisWB||{x0:-430,x1:430,z0:-330,z1:300});drawWorldMap();
@@ -236,7 +236,7 @@ function nzObj(){if(CH2.zone==='paris')return LYR.a&&LYR.home?`Meet <b>Lyra</b> 
   if(CH2.st<3)return z>CLIFF_Z?`Fly north across the <b>Channel</b> · ${Math.round(z-CLIFF_Z)}m`:`Follow the river to <b>London</b> · ${Math.round(z-LON_Z)}m`;
   if(CH2.st===3&&NZ.bb)return `Something waits on <b>Big Ben</b> · ${Math.round(Math.hypot(P.pos.x-NZ.bb.x,P.pos.z-NZ.bb.z))}m`;
   if(CH2.st===4&&NZ.green)return `Find Kaen in the <b>Tower of London</b> · ${Math.round(Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z))}m`;
-  return 'Chapter 2 complete · Lyra\'s red door by the Tower leads home'}
+  return 'Break the Crown\'s chains · Lyra\'s red door by the Tower leads home'}
 {const _lt=lyraToTroca;lyraToTroca=function(){_lt();CH2.obj=nzObj}}
 {const _rv=revive;revive=function(){const r=_rv.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='north'){const c=NZ.cp;P.pos.set(c.x,groundAt(c.x,c.z),c.z);P.flying=false;NZ.bossCd=25}return r}}
 
@@ -319,18 +319,24 @@ function nzCrown(at){const g=new THREE.Group();g.position.copy(at);NZ.g.add(g);c
   NZ.anim.push(dt=>{g.rotation.y+=dt*.25;g.position.y=at.y+Math.sin(performance.now()*.0008)*1.2;if(Math.random()<.6)FL.emit(V3(at.x+rand(-7,7),g.position.y+rand(0,4),at.z+rand(-7,7)),{c0:0xc0ff90,c1:0x0a3010,s0:1.4,s1:.2,life:.9,up:3});
     const A=g.position,Bp=NZ.green;const L=Math.hypot(A.x-Bp.x,A.y-1,A.z-Bp.z);beam.position.set((A.x+Bp.x)/2,(A.y+1)/2,(A.z+Bp.z)/2);beam.scale.set(1,L,1);beam.lookAt(A);beam.rotateX(Math.PI/2)});return g}
 function nzAfter(){if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-4836));NZ.home=nzPortal(V3(222,0,-4794));NZ.g.add(NZ.home);NZ.anim.push(dt=>NZ.home.userData.tick(dt))}
-function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;let ghost=null,crown=null;const kS=()=>({pos:headOf(c,1.3).add(V3(2.2,.2,3.2)),look:headOf(c,.9)});const crS=()=>({pos:V3(c.x-6,6,c.z+16),look:V3(232,34,-4836)});
+function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const kS=(sd)=>()=>({pos:headOf(c,1.3).add(V3(sd||2.2,.2,3.2)),look:headOf(c,.9)});const crS=()=>({pos:V3(c.x-6,6,c.z+16),look:V3(232,34,-4836)});
+  const gk=a=>{try{if(NZ.ghost)NZ.ghost.setBase(a,.5)}catch(e){}};
   playCutscene([{dur:4.2,fov:46,title:['The Tower of London','Where the Crown keeps its prisoners'],cam:k=>({pos:V3(c.x-24+k*8,15-k*5,c.z+30),look:V3(c.x+10,8,c.z-12)}),onStart:()=>{NZ.scatter=1;sx('cackle',.6);sx('bats',.5)}},
-    {dur:3.2,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost){NZ.ghost=nzGhostKaen(c)}sx('shield',.8)}},
+    {dur:3,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost)NZ.ghost=nzGhostKaen(c);sx('shield',.8)}},
     {who:'@',text:'Kaen?',cam:witchShot(1,3)},
-    {who:"Kaen's Spirit",text:'Witch... you came. Is Lyra... is she free?',cam:kS},
-    {who:'@',text:'She is. She sent me. We are taking you home.',cam:witchShot(-1,3.2)},
-    {who:"Kaen's Spirit",text:'Then run. These chains are not mine to break. They belong to its crown.',cam:kS},
+    {who:"Kaen's Spirit",text:'Come to gloat, witch? Or worse... to pity me?',cut:true,cam:kS(),onStart:()=>gk('Idle_Loop')},
+    {who:'@',text:'Lyra is free. She sent me.',cam:witchShot(-1,3.2)},
+    {who:"Kaen's Spirit",text:'Keep your pity. I sold my soul with my eyes open. Every monster in Paris was mine.',cut:true,cam:kS(-1.8)},
+    {who:'@',text:'No. The Crown was wearing your face. I read your journal, Kaen. You did it for her.',cam:witchShot(1,3)},
+    {who:"Kaen's Spirit",text:'I... told myself that too. Every night. While it fed on them.',cut:true,cam:kS(1.4)},
+    {who:"Kaen's Spirit",text:'Bilel... I could not stop it. I watched it wear my hands. I am so sorry...',cam:k=>({pos:headOf(c,.8).add(V3(1.6,.1,2.2-k*.4)),look:headOf(c,.7)}),onStart:()=>{gk('Crouch_Idle_Loop');for(let k=0;k<6;k++)after(k*.4,()=>SP.emit(headOf(c,.9),{n:8,c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:1.4,grav:2}))}},
+    {who:'@',text:'Then let us carry it with you. We are taking you home.',cam:witchShot(-1,3.2)},
+    {who:"Kaen's Spirit",text:'Then run, witch. These chains are not mine to break. They belong to its crown.',cut:true,cam:kS()},
     {dur:4.6,fov:56,cut:true,cam:k=>({pos:V3(c.x-10,4+k*5,c.z+24),look:V3(232,24+k*10,-4836)}),onStart:()=>{if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-4836));flash(V3(232,30,-4836),0x60ff80,30);sx('powerup',1,null,{wet:.4});sx('garg',.6,null,{rate:.7,delay:.3});P.shake=1.2}},
     {who:'The Hollow Crown',text:'Another sister. Another bargain. London always collects its debts, little witch.',cam:crS},
     {who:'@',text:'Then I am the debt you will never collect.',cam:witchShot(1,3.6)},
-    {dur:5.5,fov:40,title:['To be continued','Chapter 3 · The Hollow Crown'],cam:k=>({pos:V3(c.x,30+k*20,c.z+50+k*20),look:V3(232,22,-4836)})}],
-    ()=>{nzAfter();toast('Chapter 2 complete. Lyra\'s red door by the Tower gate leads back to Paris.','To be continued',true);writeSave()})}
+    {dur:4.5,fov:40,cam:k=>({pos:V3(c.x,30+k*20,c.z+50+k*20),look:V3(232,22,-4836)})}],
+    ()=>{nzAfter();toast('Kaen is still chained to the Crown. Lyra\'s red door by the Tower gate leads back to Paris.','The Tower',true);writeSave()})}
 
 /* ---------- the tick ---------- */
 function nzFog(c,d,dt){NZ.fogC.lerp(c,Math.min(1,dt*.6));NZ.fogD=lerp(NZ.fogD,d,Math.min(1,dt*.6));scene.fog.color.copy(NZ.fogC);scene.fog.density=NZ.fogD}
@@ -347,7 +353,7 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
   if(sea&&P.swim){NZ.swimT+=dt;if(cur){NZ.burnT-=dt;if(NZ.burnT<=0){NZ.burnT=.5;damagePlayer(maxHP()*.05);SP.emit(V3(P.pos.x,P.pos.y+.6,P.pos.z),{n:16,c0:0xc0ff90,c1:0x104010,speed:3,life:.6,up:2})}}
     if(NZ.swimT>(cur?.7:1.6)&&P.alive){NZ.swimT=0;P.flying=true;P.glide=false;P.flyT=60;P.vy=10;try{sfx.fly()}catch(e){}toast(cur?'The cursed water burns! Back on the broom!':'Back on the broom. The sea is long.')}}else NZ.swimT=0;
   const T=NZ.trig;if(z<CAL_SHORE-10&&!T.sea){T.sea=1;sxLoop('wind','wind',.32)}
-  if(cur&&!T.curse&&CH2.st<3){T.curse=1;lyraSay('ly16','Lyra, in your head');after(1.2,()=>toast('English waters. The curse begins here.','The Channel',true));nzWave(1)}
+  if(cur&&!T.curse){T.curse=1;if(CH2.st<3){lyraSay('ly16','Lyra, in your head');after(1.2,()=>toast('English waters. The curse begins here.','The Channel',true))}nzWave(1)}
   if(sea&&z<-3600&&!T.w2&&T.curse){T.w2=1;nzWave(2)}if(sea&&z<-3730&&!T.w3&&T.curse){T.w3=1;lyraSay('ly17','Lyra, in your head');nzWave(3)}if(sea&&z<-3860&&!T.w4&&T.curse){T.w4=1;nzWave(4)}
   if(z<CLIFF_Z+30&&!T.cliff){T.cliff=1;sxStop('wind',2.5);if(CH2.st<3){lyraSay('ly18','Lyra, in your head');after(.8,()=>toast('Climb over the white cliffs of Dover.','England',true))}}
   if(cur&&!T.cliff){NZ.spawnT-=dt;if(NZ.spawnT<=0){NZ.spawnT=rand(2.4,4);if(enemies.filter(e=>!e.dead).length<10)nzSpawnFly(Math.random()<.7?'nbat':'pumpkin',V3(P.pos.x+rand(-30,30),P.pos.y+rand(-2,5),P.pos.z-rand(50,70)))}}
@@ -360,7 +366,7 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE!=='open'&&CH2.zone==='north')nzTick(Math.min(dt,.05))}}
 /* Maëlle's chapter 2 lines, voiced */
 Object.assign(VO_MAP,{"Who's there?! Stay back. I'm warning you.":'mx01','His sister? He killed Bilel!':'mx02','So the real Kaen is still out there. Suffering.':'mx03','London, then. Bilel would have gone.':'mx04',"Don't wait up.":'mx05',
-  'Thirteen. And something is sitting on the clock.':'mx06','Kaen?':'mx07','She is. She sent me. We are taking you home.':'mx08','Then I am the debt you will never collect.':'mx09','Crawling? I flew. Over your whole cursed sea.':'mx10'});
+  'Thirteen. And something is sitting on the clock.':'mx06','Kaen?':'mx07','Then I am the debt you will never collect.':'mx09','Crawling? I flew. Over your whole cursed sea.':'mx10'});
 
 /* ---------- Greyfang, rebuilt: muscled stone-hide demon, ram horns, ribbed wings, skull trophies ---------- */
 function nzTaper(curve,r0,r1,seg,rs,mat){const n=rs||8,g=new THREE.TubeGeometry(curve,seg,1,n,false),p=g.attributes.position,c=V3(),v=V3();
@@ -432,7 +438,7 @@ function nzCalaisTalk(){const L=()=>LYR.a?LYR.a.g.position:P.pos;const face=r=>{
     {who:'@',text:"Then stay. I'll bring him back.",cam:witchShot(-1,3)},
     {who:'Lyra',text:LY.ly26,cut:true,cam:lyS(2.5)},
     {who:'Lyra',text:LY.ly14,cam:lyS(2.1,-.4)},{who:'Lyra',text:LY.ly15,cam:lyS(1.8)},{who:'@',text:"Don't wait up.",cut:true,cam:witchShot(1,3.4)}]}
-{const _pc=playCutscene;playCutscene=function(shots,done){if(shots&&shots.length>=4&&shots[3]&&shots[3].text===LY.ly14&&shots[2]&&shots[2].title&&shots[2].title[0]==='Calais'){shots=shots.slice(0,3).concat(nzCalaisTalk());
+{const _pc=playCutscene;playCutscene=function(shots,done){if(CH2.st<3&&shots&&shots.length>=4&&shots[3]&&shots[3].text===LY.ly14&&shots[2]&&shots[2].title&&shots[2].title[0]==='Calais'){shots=shots.slice(0,3).concat(nzCalaisTalk());
     shots[2].cam=k=>({pos:V3(96-k*30,16-k*5,-3175+k*30),look:V3(-20,10,-3020)})}return _pc.call(this,shots,done)}}
 
 /* ---------- the horizon: fog the colour of the sky, England only a faint line until you are close ---------- */
@@ -453,3 +459,25 @@ function nzHorizon(){return NZH.c.copy(NZH.n).lerp(NZH.d,dawnK)}
 /* ---------- Enter / Space never re-click a button that kept focus ---------- */
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(b)setTimeout(()=>{try{b.blur()}catch(x){}},0)},true);
 addEventListener('keydown',e=>{if(!started||(e.key!=='Enter'&&e.code!=='Space'))return;const a=document.activeElement;if(a&&a.tagName==='BUTTON'){a.blur();if(!CS.active)e.preventDefault()}},true);
+
+/* Maëlle (Blondie) and Kaen, voiced */
+Object.assign(VO_MAP,{'Lyra is free. She sent me.':'mx13','No. The Crown was wearing your face. I read your journal, Kaen. You did it for her.':'mx14','Then let us carry it with you. We are taking you home.':'mx15',
+  'Come to gloat, witch? Or worse... to pity me?':'kx1','Keep your pity. I sold my soul with my eyes open. Every monster in Paris was mine.':'kx2','I... told myself that too. Every night. While it fed on them.':'kx3',
+  'Bilel... I could not stop it. I watched it wear my hands. I am so sorry...':'kx4','Then run, witch. These chains are not mine to break. They belong to its crown.':'kx5'});
+for(const k of['kx1','kx2','kx3','kx4','kx5'])VO_SPIRIT.add(k);
+
+/* ---------- chapter select: Chapter 2 and London are chapters you can jump to ---------- */
+ETYPES.greyfang.lvl=58;
+CHAPTERS.push({id:'crossing',n:'IX',title:'The Crossing',desc:'Lyra, Calais and the cursed Channel.'},{id:'london',n:'X',title:'Greyfang',desc:'London, Big Ben and the Tower.'});
+{const _cb=chapBoss;chapBoss=function(c){if(c.id==='crossing')return null;if(c.id==='london')return'greyfang';return _cb(c)}}
+{const _rc=renderChapters;renderChapters=function(){_rc();const list=$('chapList');const el=list&&list.children[chapIndexOf('crossing')];if(el){const done=CH2.st>=3,cur=started&&CH2.st>=1&&CH2.st<3;el.className='chap'+(done?' done':'')+(cur?' cur':'');
+  el.innerHTML='<span class="cn">Chapter IX · Story</span><b>The Crossing</b><span class="cd">Lyra, Calais and the cursed Channel.</span><span class="cs">'+(cur?'Current · ':'')+(done?'Cleared':'Not cleared')+'</span>'}
+  const el2=list&&list.children[chapIndexOf('london')];if(el2&&started&&CH2.st>=3&&CH2.st<4)el2.classList.add('cur')}}
+{const _ac=applyChapter;applyChapter=function(id){if(id!=='crossing'&&id!=='london'){if(CH2.zone==='north')nzLeave();CH2.st=0;ch2Save();return _ac.apply(this,arguments)}
+  if(MODE==='open')return;if(CS.active)endCutscene();nzClear();bossRef=null;$('boss').classList.add('hidden');
+  for(const ch of CHAPTERS){const b=chapBoss(ch);if(b&&b!=='greyfang')beaten.add(b)}beaten.add('kaenSpirit');BQ.met=true;BQ.done=true;CLEARED.add('bilelq');P.taught.add('limit');
+  STATS.won=true;if(P.level<56){P.level=56;P.xp=0}if(W.setEvolved)W.setEvolved(true);P.weak=false;P.hp=maxHP();P.mp=maxMP();P.invuln=2;
+  ch2ExpandParis();lyraToTroca();$('victory').classList.add('hidden');
+  if(id==='crossing'){if(CH2.zone==='north')nzLeave();CH2.st=1;beaten.delete('greyfang');setDawn(.55);P.pos.set(-126,groundAt(-126,-100),-100);yaw=Math.PI;P.face=0;after(.3,()=>toast('Lyra waits at the Trocadéro to open the door to Calais.','Chapter IX: The Crossing',true))}
+  else{beaten.delete('greyfang');CH2.st=3;NZ.boss=null;nzEnter('london');NZ.trig.london=1;NZ.bossCd=4;after(.3,()=>toast('Greyfang waits on top of Big Ben.','Chapter X: Greyfang',true))}
+  renderBar();ch2Save();writeSave()}}

@@ -6,7 +6,7 @@ function ch2Save(){try{localStorage.setItem('sorciere-ch2',JSON.stringify({st:CH
 ch2Load();
 
 /* ---------- sound kit: every set has up to 4 recorded variants (assets/sx_<set>_<n>.mp3); old sound only as a fallback ---------- */
-const SX={sets:{boss:3,clash:2,impact:2,riser:2,heart:1,shield:1,shbreak:1,powerup:1,bats:2,garg:1,cackle:2,wind:1,bigben:1,portal:1,skyshatter:1,book:1},last:{},pre:false,loops:{}};
+const SX={sets:{boss:3,clash:2,impact:2,riser:2,heart:1,shield:1,shbreak:1,powerup:1,bats:2,garg:1,cackle:2,wind:1,bigben:1,portal:1,skyshatter:1,book:1,kame:2},last:{},pre:false,loops:{}};
 function sxKey(n,i){return 'sx_'+n+'_'+i}
 function sxPre(){if(SX.pre)return;SX.pre=true;let d=0;for(const n in SX.sets)for(let i=0;i<SX.sets[n];i++){const k=sxKey(n,i);setTimeout(()=>clipLoad(k),d+=40)}}
 function sxBuf(b,vol,o={}){if(!AC||muted||!b)return null;try{const s=AC.createBufferSource();s.buffer=b;s.loop=!!o.loop;s.playbackRate.value=(o.rate||1)*(1+((Math.random()-.5)*(o.jit||0)));const g=AC.createGain();g.gain.value=vol;
@@ -64,8 +64,8 @@ const CLX={};
   /* hook the beam shots of the clash: start the recorded clash loop when the beams appear, kill it on impact */
   try{if(CLX.on&&shots&&shots.length>=8&&!shots._clx){shots._clx=1;const s4=shots[3],s7=shots[6],s8=shots[7];
     const o4=s4.onStart;s4.onStart=function(){o4&&o4.apply(this,arguments);sxLoop('clash','clash',.85,{fade:.25,wet:.2})};
-    const o7=s7.onStart;s7.onStart=function(){o7&&o7.apply(this,arguments);sxStop('clash',.8)};
-    const o8=s8.onStart;s8.onStart=function(){o8&&o8.apply(this,arguments);sx('impact',1,null,{pick:1,wet:.35,delay:.25})}}}catch(x){}
+    const o7=s7.onStart;s7.onStart=function(){o7&&o7.apply(this,arguments);sxStop('clash',.6);sx('kame',1.15,null,{wet:.3,duck:6})};
+    const o8=s8.onStart;s8.onStart=function(){o8&&o8.apply(this,arguments);sx('impact',.75,null,{pick:1,wet:.35,delay:.4})}}}catch(x){}
   return _pc2.apply(this,arguments)}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!CLX.on||!CLX.parts)return;CLX.t+=dt;const [core,r1,r2]=CLX.parts;
   /* follow the white orb the clash already spawns (largest additive sprite near the beams) */

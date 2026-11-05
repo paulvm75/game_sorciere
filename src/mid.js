@@ -86,7 +86,7 @@ function nextShot(){CS.i++;if(CS.i>=CS.shots.length){endCutscene();return}const 
   s._dur=Math.max(s.dur||2,s.text?s.text.length/42+1.4:0);if(s.who&&s.text&&typeof voPlay==='function')voPlay(s.who,s.text,s)}
 function endCutscene(){if(!CS.active)return;W.talking=false;W.g.visible=true;CS.active=false;camera.fov=60;camera.updateProjectionMatrix();if(bokehPass)bokehPass.enabled=false;titleCard.classList.remove('show');cineEl.classList.remove('on');dlg.classList.remove('show');$('hud').style.opacity='';setTimeout(()=>{if(!CS.active)cineEl.classList.add('hidden')},600);
   const d=CS.done;CS.done=null;if(d)d()}
-function updateCutscene(dt){const s=CS.shots[CS.i];if(!s)return;const sdt=dt*CS.speed;CS.t+=sdt;
+function updateCutscene(dt){const s=CS.shots[CS.i];if(!s)return;const sdt=dt*CS.speed*1.03;CS.t+=sdt;
   if(s.text){const before=Math.floor(CS.typed);CS.typed=Math.min(s.text.length,CS.typed+sdt*42);const n=Math.floor(CS.typed);if(n>before&&n%3===0)sfx.blip();dlgText.textContent=s.text.slice(0,n)}
   const k=clamp(CS.t/s._dur,0,1);const c=s.cam(k,CS.t);if(CS.snapNext){CS.cam.copy(c.pos);CS.look.copy(c.look);CS.snapNext=false}
   CS.cam.lerp(c.pos,1-Math.exp(-sdt*(s.snap?30:2.2)));CS.lookT.copy(c.look);CS.look.lerp(CS.lookT,1-Math.exp(-sdt*(s.snap?30:3)));

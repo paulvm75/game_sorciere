@@ -1990,7 +1990,7 @@ function nextShot(){CS.i++;if(CS.i>=CS.shots.length){endCutscene();return}const 
   s._dur=Math.max(s.dur||2,s.text?s.text.length/42+1.4:0);if(s.who&&s.text&&typeof voPlay==='function')voPlay(s.who,s.text,s)}
 function endCutscene(){if(!CS.active)return;W.talking=false;W.g.visible=true;CS.active=false;camera.fov=60;camera.updateProjectionMatrix();if(bokehPass)bokehPass.enabled=false;titleCard.classList.remove('show');cineEl.classList.remove('on');dlg.classList.remove('show');$('hud').style.opacity='';setTimeout(()=>{if(!CS.active)cineEl.classList.add('hidden')},600);
   const d=CS.done;CS.done=null;if(d)d()}
-function updateCutscene(dt){const s=CS.shots[CS.i];if(!s)return;const sdt=dt*CS.speed;CS.t+=sdt;
+function updateCutscene(dt){const s=CS.shots[CS.i];if(!s)return;const sdt=dt*CS.speed*1.03;CS.t+=sdt;
   if(s.text){const before=Math.floor(CS.typed);CS.typed=Math.min(s.text.length,CS.typed+sdt*42);const n=Math.floor(CS.typed);if(n>before&&n%3===0)sfx.blip();dlgText.textContent=s.text.slice(0,n)}
   const k=clamp(CS.t/s._dur,0,1);const c=s.cam(k,CS.t);if(CS.snapNext){CS.cam.copy(c.pos);CS.look.copy(c.look);CS.snapNext=false}
   CS.cam.lerp(c.pos,1-Math.exp(-sdt*(s.snap?30:2.2)));CS.lookT.copy(c.look);CS.look.lerp(CS.lookT,1-Math.exp(-sdt*(s.snap?30:3)));
@@ -5256,9 +5256,9 @@ function voStop(fade){if(!VO.src||!AC)return;try{const t=AC.currentTime;VO.g.gai
 function voPrefetch(shots){if(!shots)return;for(const s of shots){const k=voKey(s.who,s.text);if(k)voLoad(k)}}
 function voPlay(who,text,shot){const k=voKey(who,text);if(!k||!AC||muted||CS.skipping)return;voStop();
   const go=b=>{if(!b||muted)return;if(shot&&(!CS.active||CS.shots[CS.i]!==shot))return;const sp=VO_SPIRIT.has(k);
-    const s=AC.createBufferSource();s.buffer=b;if(sp)s.playbackRate.value=.9;const g=AC.createGain();g.gain.value=who==='@'?1.15:1.25;s.connect(g);g.connect(master);
+    const s=AC.createBufferSource();s.buffer=b;s.playbackRate.value=(sp?.9:1)*1.03;const g=AC.createGain();g.gain.value=who==='@'?1.15:1.25;s.connect(g);g.connect(master);
     if(verbIn){const w=AC.createGain();w.gain.value=sp?.55:.1;g.connect(w);w.connect(verbIn)}
-    s.start(0);VO.src=s;VO.g=g;const d=b.duration/(sp?.9:1);s.onended=()=>{if(VO.src===s)VO.src=null};
+    s.start(0);VO.src=s;VO.g=g;const d=b.duration/((sp?.9:1)*1.03);s.onended=()=>{if(VO.src===s)VO.src=null};
     CLIP.duckT=Math.max(CLIP.duckT,d);if(shot)shot._dur=Math.max(shot._dur,d+.55)};
   if(CLIP.buf[k])go(CLIP.buf[k]);else voLoad(k).then(go)}
 /* ---------- gameplay barks: bosses taunt, she reacts (ElevenLabs) ---------- */
@@ -6013,7 +6013,7 @@ function ch2Save(){try{localStorage.setItem('sorciere-ch2',JSON.stringify({st:CH
 ch2Load();
 
 /* ---------- sound kit: every set has up to 4 recorded variants (assets/sx_<set>_<n>.mp3); old sound only as a fallback ---------- */
-const SX={sets:{boss:3,clash:2,impact:2,riser:2,heart:1,shield:1,shbreak:1,powerup:1,bats:2,garg:1,cackle:2,wind:1,bigben:1,portal:1,skyshatter:1,book:1},last:{},pre:false,loops:{}};
+const SX={sets:{boss:3,clash:2,impact:2,riser:2,heart:1,shield:1,shbreak:1,powerup:1,bats:2,garg:1,cackle:2,wind:1,bigben:1,portal:1,skyshatter:1,book:1,kame:2},last:{},pre:false,loops:{}};
 function sxKey(n,i){return 'sx_'+n+'_'+i}
 function sxPre(){if(SX.pre)return;SX.pre=true;let d=0;for(const n in SX.sets)for(let i=0;i<SX.sets[n];i++){const k=sxKey(n,i);setTimeout(()=>clipLoad(k),d+=40)}}
 function sxBuf(b,vol,o={}){if(!AC||muted||!b)return null;try{const s=AC.createBufferSource();s.buffer=b;s.loop=!!o.loop;s.playbackRate.value=(o.rate||1)*(1+((Math.random()-.5)*(o.jit||0)));const g=AC.createGain();g.gain.value=vol;
@@ -6071,8 +6071,8 @@ const CLX={};
   /* hook the beam shots of the clash: start the recorded clash loop when the beams appear, kill it on impact */
   try{if(CLX.on&&shots&&shots.length>=8&&!shots._clx){shots._clx=1;const s4=shots[3],s7=shots[6],s8=shots[7];
     const o4=s4.onStart;s4.onStart=function(){o4&&o4.apply(this,arguments);sxLoop('clash','clash',.85,{fade:.25,wet:.2})};
-    const o7=s7.onStart;s7.onStart=function(){o7&&o7.apply(this,arguments);sxStop('clash',.8)};
-    const o8=s8.onStart;s8.onStart=function(){o8&&o8.apply(this,arguments);sx('impact',1,null,{pick:1,wet:.35,delay:.25})}}}catch(x){}
+    const o7=s7.onStart;s7.onStart=function(){o7&&o7.apply(this,arguments);sxStop('clash',.6);sx('kame',1.15,null,{wet:.3,duck:6})};
+    const o8=s8.onStart;s8.onStart=function(){o8&&o8.apply(this,arguments);sx('impact',.75,null,{pick:1,wet:.35,delay:.4})}}}catch(x){}
   return _pc2.apply(this,arguments)}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!CLX.on||!CLX.parts)return;CLX.t+=dt;const [core,r1,r2]=CLX.parts;
   /* follow the white orb the clash already spawns (largest additive sprite near the beams) */
@@ -6267,7 +6267,7 @@ function lyraToTroca(){lyraPlace(-126,-112,0);LYR.home=true;CH2.obj=()=>CH2.zone
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!LYR.a||!LYR.a.g.visible)return;try{LYR.a.update(dt)}catch(e){}if(LYR.mk)LYR.mk.material.opacity=.6+Math.sin(performance.now()*.004)*.3;
   if(!LYR.home||CS.active||!started||CH2.zone!=='paris')return;const g=LYR.a.g.position;const dx=P.pos.x-g.x,dz=P.pos.z-g.z,d=Math.hypot(dx,dz);LYR.a.g.rotation.y=lerpAngle(LYR.a.g.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*3));
   if(d<1.3){P.pos.x=g.x+dx/d*1.3;P.pos.z=g.z+dz/d*1.3}LYR.panelT-=dt;if(d<4&&LYR.panelT<=0&&!bossRef){LYR.panelT=9;lyraPanel()}else if(d>7&&LYR.panelT>1)LYR.panelT=1}}
-function lyraPanel(){const back=CH2.st>=3;const c=tutCard(`<div class="tl">Lyra</div><h3>${back?'Back to London?':'The door to Calais'}</h3><p>${back?'The way to London is still open. My brother is still in the Tower.':'From Calais you fly alone, across the cursed water, all the way to London. Ready, witch?'}</p><div class="row"><button class="gh" data-a="no">Not yet</button><button data-a="go">${back?'Take me to London':'Open the door'}</button></div>`);
+function lyraPanel(){const again=CH2.st>=3,back=false;const c=tutCard(`<div class="tl">Lyra</div><h3>The door to Calais</h3><p>${again?'Calais is as far as my magic reaches. From there you fly the Channel again. My brother is still in the Tower.':'From Calais you fly alone, across the cursed water, all the way to London. Ready, witch?'}</p><div class="row"><button class="gh" data-a="no">Not yet</button><button data-a="go">Open the door</button></div>`);
   c.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;tutHide();if(b.dataset.a==='go')ch2Depart(back)}}
 
 /* ---------- the finale of chapter 1 now opens chapter 2 ---------- */
@@ -6305,8 +6305,8 @@ function ch2Finale(center,orb,lines){STATS.won=true;writeSave();snow.force=false
     {who:'Lyra',text:LY.ly13,cam:lyShot(2.1),update:dt=>{if(lyr)lyr.update(dt)}},
     {who:'@',text:'London, then. Bilel would have gone.',cam:witchShot(-1,3.4),update:dt=>{if(lyr)lyr.update(dt)}}];
   playCutscene(shots,()=>{CH2.mourn=false;P.heroAnim=null;setDawn(.55);if(book){scene.remove(book);book=null}if(lyr){scene.remove(lyr.g);lyr=null}CH2.st=Math.max(CH2.st,1);ch2Save();lyraToTroca();
-    toast('Lyra waits at the Trocadéro, across the river from the tower. The real Paris is open: the 7th and the 16th.','Chapter 2 · The Crossing',true);
-    after(7,()=>{const v=$('victory');if(!v)return;v.querySelector('h1').textContent='Chapter 1 complete';const s=v.querySelector('.sub');if(s)s.innerHTML='Chapter 2 is open: <b>Lyra</b> waits at the Trocadéro.';const ob=$('owBtn');if(ob)ob.style.display='none';$('vLvl').textContent=P.level;$('vKills').textContent=STATS.kills;$('vTime').textContent=Math.max(1,Math.round(STATS.time/60));v.classList.remove('hidden');paused=true})})}
+    toast('Lyra waits at the Trocadéro, across the river from the tower. The real Paris is open: the 7th and the 16th.','Lyra',true);
+})}
 
 /* ---------- load / new game ---------- */
 {const _sg=startGame;startGame=function(fromSave){const r=_sg.apply(this,arguments);if(MODE==='open')return r;
@@ -6536,7 +6536,7 @@ function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+4
 /* ---------- moving between Paris and the north ---------- */
 function nzClear(){for(const e of enemies)if(!e.dead)removeEnemy(e);for(const p of eProjs)scene.remove(p.s);eProjs.length=0}
 function nzEnter(where){nzBuild();if(CH2.zone==='paris'){CH2.parisWB={x0:WB.x0,x1:WB.x1,z0:WB.z0,z1:WB.z1};NZ.hid=scene.children.filter(o=>o.visible&&!nzKeep(o));for(const o of NZ.hid)o.visible=false}
-  nzClear();CH2.zone='north';NZ.g.visible=true;Object.assign(WB,NZB);drawWorldMap();setDawn(.08);NZ.fogD=scene.fog.density;NZ.fogC.copy(scene.fog.color);
+  nzClear();if(where!=='london'){NZ.trig={};NZ.cpk=0}CH2.zone='north';NZ.g.visible=true;Object.assign(WB,NZB);drawWorldMap();setDawn(.08);NZ.fogD=scene.fog.density;NZ.fogC.copy(scene.fog.color);
   const p=where==='london'?V3(-108,0,-4608):V3(60,0,-3072);NZ.cp.copy(p);SPAWN.copy(p);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.glide=false;yaw=0;P.face=Math.PI;
   camera.position.set(p.x,P.pos.y+5,p.z+12);if(CH2.st>=5)nzAfter();CH2.obj=nzObj;ch2Save()}
 function nzLeave(){nzClear();sxStop('wind',1);CH2.zone='paris';if(NZ.g)NZ.g.visible=false;for(const o of NZ.hid)o.visible=true;NZ.hid=[];Object.assign(WB,CH2.parisWB||{x0:-430,x1:430,z0:-330,z1:300});drawWorldMap();
@@ -6554,7 +6554,7 @@ function nzObj(){if(CH2.zone==='paris')return LYR.a&&LYR.home?`Meet <b>Lyra</b> 
   if(CH2.st<3)return z>CLIFF_Z?`Fly north across the <b>Channel</b> · ${Math.round(z-CLIFF_Z)}m`:`Follow the river to <b>London</b> · ${Math.round(z-LON_Z)}m`;
   if(CH2.st===3&&NZ.bb)return `Something waits on <b>Big Ben</b> · ${Math.round(Math.hypot(P.pos.x-NZ.bb.x,P.pos.z-NZ.bb.z))}m`;
   if(CH2.st===4&&NZ.green)return `Find Kaen in the <b>Tower of London</b> · ${Math.round(Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z))}m`;
-  return 'Chapter 2 complete · Lyra\'s red door by the Tower leads home'}
+  return 'Break the Crown\'s chains · Lyra\'s red door by the Tower leads home'}
 {const _lt=lyraToTroca;lyraToTroca=function(){_lt();CH2.obj=nzObj}}
 {const _rv=revive;revive=function(){const r=_rv.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='north'){const c=NZ.cp;P.pos.set(c.x,groundAt(c.x,c.z),c.z);P.flying=false;NZ.bossCd=25}return r}}
 
@@ -6637,18 +6637,24 @@ function nzCrown(at){const g=new THREE.Group();g.position.copy(at);NZ.g.add(g);c
   NZ.anim.push(dt=>{g.rotation.y+=dt*.25;g.position.y=at.y+Math.sin(performance.now()*.0008)*1.2;if(Math.random()<.6)FL.emit(V3(at.x+rand(-7,7),g.position.y+rand(0,4),at.z+rand(-7,7)),{c0:0xc0ff90,c1:0x0a3010,s0:1.4,s1:.2,life:.9,up:3});
     const A=g.position,Bp=NZ.green;const L=Math.hypot(A.x-Bp.x,A.y-1,A.z-Bp.z);beam.position.set((A.x+Bp.x)/2,(A.y+1)/2,(A.z+Bp.z)/2);beam.scale.set(1,L,1);beam.lookAt(A);beam.rotateX(Math.PI/2)});return g}
 function nzAfter(){if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-4836));NZ.home=nzPortal(V3(222,0,-4794));NZ.g.add(NZ.home);NZ.anim.push(dt=>NZ.home.userData.tick(dt))}
-function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;let ghost=null,crown=null;const kS=()=>({pos:headOf(c,1.3).add(V3(2.2,.2,3.2)),look:headOf(c,.9)});const crS=()=>({pos:V3(c.x-6,6,c.z+16),look:V3(232,34,-4836)});
+function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const kS=(sd)=>()=>({pos:headOf(c,1.3).add(V3(sd||2.2,.2,3.2)),look:headOf(c,.9)});const crS=()=>({pos:V3(c.x-6,6,c.z+16),look:V3(232,34,-4836)});
+  const gk=a=>{try{if(NZ.ghost)NZ.ghost.setBase(a,.5)}catch(e){}};
   playCutscene([{dur:4.2,fov:46,title:['The Tower of London','Where the Crown keeps its prisoners'],cam:k=>({pos:V3(c.x-24+k*8,15-k*5,c.z+30),look:V3(c.x+10,8,c.z-12)}),onStart:()=>{NZ.scatter=1;sx('cackle',.6);sx('bats',.5)}},
-    {dur:3.2,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost){NZ.ghost=nzGhostKaen(c)}sx('shield',.8)}},
+    {dur:3,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost)NZ.ghost=nzGhostKaen(c);sx('shield',.8)}},
     {who:'@',text:'Kaen?',cam:witchShot(1,3)},
-    {who:"Kaen's Spirit",text:'Witch... you came. Is Lyra... is she free?',cam:kS},
-    {who:'@',text:'She is. She sent me. We are taking you home.',cam:witchShot(-1,3.2)},
-    {who:"Kaen's Spirit",text:'Then run. These chains are not mine to break. They belong to its crown.',cam:kS},
+    {who:"Kaen's Spirit",text:'Come to gloat, witch? Or worse... to pity me?',cut:true,cam:kS(),onStart:()=>gk('Idle_Loop')},
+    {who:'@',text:'Lyra is free. She sent me.',cam:witchShot(-1,3.2)},
+    {who:"Kaen's Spirit",text:'Keep your pity. I sold my soul with my eyes open. Every monster in Paris was mine.',cut:true,cam:kS(-1.8)},
+    {who:'@',text:'No. The Crown was wearing your face. I read your journal, Kaen. You did it for her.',cam:witchShot(1,3)},
+    {who:"Kaen's Spirit",text:'I... told myself that too. Every night. While it fed on them.',cut:true,cam:kS(1.4)},
+    {who:"Kaen's Spirit",text:'Bilel... I could not stop it. I watched it wear my hands. I am so sorry...',cam:k=>({pos:headOf(c,.8).add(V3(1.6,.1,2.2-k*.4)),look:headOf(c,.7)}),onStart:()=>{gk('Crouch_Idle_Loop');for(let k=0;k<6;k++)after(k*.4,()=>SP.emit(headOf(c,.9),{n:8,c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:1.4,grav:2}))}},
+    {who:'@',text:'Then let us carry it with you. We are taking you home.',cam:witchShot(-1,3.2)},
+    {who:"Kaen's Spirit",text:'Then run, witch. These chains are not mine to break. They belong to its crown.',cut:true,cam:kS()},
     {dur:4.6,fov:56,cut:true,cam:k=>({pos:V3(c.x-10,4+k*5,c.z+24),look:V3(232,24+k*10,-4836)}),onStart:()=>{if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-4836));flash(V3(232,30,-4836),0x60ff80,30);sx('powerup',1,null,{wet:.4});sx('garg',.6,null,{rate:.7,delay:.3});P.shake=1.2}},
     {who:'The Hollow Crown',text:'Another sister. Another bargain. London always collects its debts, little witch.',cam:crS},
     {who:'@',text:'Then I am the debt you will never collect.',cam:witchShot(1,3.6)},
-    {dur:5.5,fov:40,title:['To be continued','Chapter 3 · The Hollow Crown'],cam:k=>({pos:V3(c.x,30+k*20,c.z+50+k*20),look:V3(232,22,-4836)})}],
-    ()=>{nzAfter();toast('Chapter 2 complete. Lyra\'s red door by the Tower gate leads back to Paris.','To be continued',true);writeSave()})}
+    {dur:4.5,fov:40,cam:k=>({pos:V3(c.x,30+k*20,c.z+50+k*20),look:V3(232,22,-4836)})}],
+    ()=>{nzAfter();toast('Kaen is still chained to the Crown. Lyra\'s red door by the Tower gate leads back to Paris.','The Tower',true);writeSave()})}
 
 /* ---------- the tick ---------- */
 function nzFog(c,d,dt){NZ.fogC.lerp(c,Math.min(1,dt*.6));NZ.fogD=lerp(NZ.fogD,d,Math.min(1,dt*.6));scene.fog.color.copy(NZ.fogC);scene.fog.density=NZ.fogD}
@@ -6665,7 +6671,7 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
   if(sea&&P.swim){NZ.swimT+=dt;if(cur){NZ.burnT-=dt;if(NZ.burnT<=0){NZ.burnT=.5;damagePlayer(maxHP()*.05);SP.emit(V3(P.pos.x,P.pos.y+.6,P.pos.z),{n:16,c0:0xc0ff90,c1:0x104010,speed:3,life:.6,up:2})}}
     if(NZ.swimT>(cur?.7:1.6)&&P.alive){NZ.swimT=0;P.flying=true;P.glide=false;P.flyT=60;P.vy=10;try{sfx.fly()}catch(e){}toast(cur?'The cursed water burns! Back on the broom!':'Back on the broom. The sea is long.')}}else NZ.swimT=0;
   const T=NZ.trig;if(z<CAL_SHORE-10&&!T.sea){T.sea=1;sxLoop('wind','wind',.32)}
-  if(cur&&!T.curse&&CH2.st<3){T.curse=1;lyraSay('ly16','Lyra, in your head');after(1.2,()=>toast('English waters. The curse begins here.','The Channel',true));nzWave(1)}
+  if(cur&&!T.curse){T.curse=1;if(CH2.st<3){lyraSay('ly16','Lyra, in your head');after(1.2,()=>toast('English waters. The curse begins here.','The Channel',true))}nzWave(1)}
   if(sea&&z<-3600&&!T.w2&&T.curse){T.w2=1;nzWave(2)}if(sea&&z<-3730&&!T.w3&&T.curse){T.w3=1;lyraSay('ly17','Lyra, in your head');nzWave(3)}if(sea&&z<-3860&&!T.w4&&T.curse){T.w4=1;nzWave(4)}
   if(z<CLIFF_Z+30&&!T.cliff){T.cliff=1;sxStop('wind',2.5);if(CH2.st<3){lyraSay('ly18','Lyra, in your head');after(.8,()=>toast('Climb over the white cliffs of Dover.','England',true))}}
   if(cur&&!T.cliff){NZ.spawnT-=dt;if(NZ.spawnT<=0){NZ.spawnT=rand(2.4,4);if(enemies.filter(e=>!e.dead).length<10)nzSpawnFly(Math.random()<.7?'nbat':'pumpkin',V3(P.pos.x+rand(-30,30),P.pos.y+rand(-2,5),P.pos.z-rand(50,70)))}}
@@ -6678,7 +6684,7 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE!=='open'&&CH2.zone==='north')nzTick(Math.min(dt,.05))}}
 /* Maëlle's chapter 2 lines, voiced */
 Object.assign(VO_MAP,{"Who's there?! Stay back. I'm warning you.":'mx01','His sister? He killed Bilel!':'mx02','So the real Kaen is still out there. Suffering.':'mx03','London, then. Bilel would have gone.':'mx04',"Don't wait up.":'mx05',
-  'Thirteen. And something is sitting on the clock.':'mx06','Kaen?':'mx07','She is. She sent me. We are taking you home.':'mx08','Then I am the debt you will never collect.':'mx09','Crawling? I flew. Over your whole cursed sea.':'mx10'});
+  'Thirteen. And something is sitting on the clock.':'mx06','Kaen?':'mx07','Then I am the debt you will never collect.':'mx09','Crawling? I flew. Over your whole cursed sea.':'mx10'});
 
 /* ---------- Greyfang, rebuilt: muscled stone-hide demon, ram horns, ribbed wings, skull trophies ---------- */
 function nzTaper(curve,r0,r1,seg,rs,mat){const n=rs||8,g=new THREE.TubeGeometry(curve,seg,1,n,false),p=g.attributes.position,c=V3(),v=V3();
@@ -6750,7 +6756,7 @@ function nzCalaisTalk(){const L=()=>LYR.a?LYR.a.g.position:P.pos;const face=r=>{
     {who:'@',text:"Then stay. I'll bring him back.",cam:witchShot(-1,3)},
     {who:'Lyra',text:LY.ly26,cut:true,cam:lyS(2.5)},
     {who:'Lyra',text:LY.ly14,cam:lyS(2.1,-.4)},{who:'Lyra',text:LY.ly15,cam:lyS(1.8)},{who:'@',text:"Don't wait up.",cut:true,cam:witchShot(1,3.4)}]}
-{const _pc=playCutscene;playCutscene=function(shots,done){if(shots&&shots.length>=4&&shots[3]&&shots[3].text===LY.ly14&&shots[2]&&shots[2].title&&shots[2].title[0]==='Calais'){shots=shots.slice(0,3).concat(nzCalaisTalk());
+{const _pc=playCutscene;playCutscene=function(shots,done){if(CH2.st<3&&shots&&shots.length>=4&&shots[3]&&shots[3].text===LY.ly14&&shots[2]&&shots[2].title&&shots[2].title[0]==='Calais'){shots=shots.slice(0,3).concat(nzCalaisTalk());
     shots[2].cam=k=>({pos:V3(96-k*30,16-k*5,-3175+k*30),look:V3(-20,10,-3020)})}return _pc.call(this,shots,done)}}
 
 /* ---------- the horizon: fog the colour of the sky, England only a faint line until you are close ---------- */
@@ -6771,6 +6777,28 @@ function nzHorizon(){return NZH.c.copy(NZH.n).lerp(NZH.d,dawnK)}
 /* ---------- Enter / Space never re-click a button that kept focus ---------- */
 document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(b)setTimeout(()=>{try{b.blur()}catch(x){}},0)},true);
 addEventListener('keydown',e=>{if(!started||(e.key!=='Enter'&&e.code!=='Space'))return;const a=document.activeElement;if(a&&a.tagName==='BUTTON'){a.blur();if(!CS.active)e.preventDefault()}},true);
+
+/* Maëlle (Blondie) and Kaen, voiced */
+Object.assign(VO_MAP,{'Lyra is free. She sent me.':'mx13','No. The Crown was wearing your face. I read your journal, Kaen. You did it for her.':'mx14','Then let us carry it with you. We are taking you home.':'mx15',
+  'Come to gloat, witch? Or worse... to pity me?':'kx1','Keep your pity. I sold my soul with my eyes open. Every monster in Paris was mine.':'kx2','I... told myself that too. Every night. While it fed on them.':'kx3',
+  'Bilel... I could not stop it. I watched it wear my hands. I am so sorry...':'kx4','Then run, witch. These chains are not mine to break. They belong to its crown.':'kx5'});
+for(const k of['kx1','kx2','kx3','kx4','kx5'])VO_SPIRIT.add(k);
+
+/* ---------- chapter select: Chapter 2 and London are chapters you can jump to ---------- */
+ETYPES.greyfang.lvl=58;
+CHAPTERS.push({id:'crossing',n:'IX',title:'The Crossing',desc:'Lyra, Calais and the cursed Channel.'},{id:'london',n:'X',title:'Greyfang',desc:'London, Big Ben and the Tower.'});
+{const _cb=chapBoss;chapBoss=function(c){if(c.id==='crossing')return null;if(c.id==='london')return'greyfang';return _cb(c)}}
+{const _rc=renderChapters;renderChapters=function(){_rc();const list=$('chapList');const el=list&&list.children[chapIndexOf('crossing')];if(el){const done=CH2.st>=3,cur=started&&CH2.st>=1&&CH2.st<3;el.className='chap'+(done?' done':'')+(cur?' cur':'');
+  el.innerHTML='<span class="cn">Chapter IX · Story</span><b>The Crossing</b><span class="cd">Lyra, Calais and the cursed Channel.</span><span class="cs">'+(cur?'Current · ':'')+(done?'Cleared':'Not cleared')+'</span>'}
+  const el2=list&&list.children[chapIndexOf('london')];if(el2&&started&&CH2.st>=3&&CH2.st<4)el2.classList.add('cur')}}
+{const _ac=applyChapter;applyChapter=function(id){if(id!=='crossing'&&id!=='london'){if(CH2.zone==='north')nzLeave();CH2.st=0;ch2Save();return _ac.apply(this,arguments)}
+  if(MODE==='open')return;if(CS.active)endCutscene();nzClear();bossRef=null;$('boss').classList.add('hidden');
+  for(const ch of CHAPTERS){const b=chapBoss(ch);if(b&&b!=='greyfang')beaten.add(b)}beaten.add('kaenSpirit');BQ.met=true;BQ.done=true;CLEARED.add('bilelq');P.taught.add('limit');
+  STATS.won=true;if(P.level<56){P.level=56;P.xp=0}if(W.setEvolved)W.setEvolved(true);P.weak=false;P.hp=maxHP();P.mp=maxMP();P.invuln=2;
+  ch2ExpandParis();lyraToTroca();$('victory').classList.add('hidden');
+  if(id==='crossing'){if(CH2.zone==='north')nzLeave();CH2.st=1;beaten.delete('greyfang');setDawn(.55);P.pos.set(-126,groundAt(-126,-100),-100);yaw=Math.PI;P.face=0;after(.3,()=>toast('Lyra waits at the Trocadéro to open the door to Calais.','Chapter IX: The Crossing',true))}
+  else{beaten.delete('greyfang');CH2.st=3;NZ.boss=null;nzEnter('london');NZ.trig.london=1;NZ.bossCd=4;after(.3,()=>toast('Greyfang waits on top of Big Ben.','Chapter X: Greyfang',true))}
+  renderBar();ch2Save();writeSave()}}
 const ORSON_FACE="data:image/webp;base64,UklGRgYcAABXRUJQVlA4IPobAABQYgCdASqwALAAPo04lUelIyIhspYtoKARiWIAx9xHztSfOUe/LsfzPkf+6d8r0qeVN0iueT84jfu5VT8G/yP5L+cfk9+GfvXoVZF+0XUX748Uu+/5O6hHtDwX9rrbD0Be+3/X9R+an9jsV1AT9NesT/o+Uj699hL9heuV6TAZ6t6G4EuTQNBvfRreyBK8a9u+cjWziQZ4i1O+cG5A0Lluphl9qILByYsBHk9AMzxtm5b4z2mxOlly3ohqgtTqfCi4vfLuxoHuurngziGNPFI2OrKhpN59jfrpaUBYVp1/ERBIQLwW+OclJgfM+jzVJ590cUk30PgdPd6eby5cEltXCRVR737fmkEex9JN0ViLPxwkR+YGIgH11ZIjttLEOR+wkUolgeLVFALRO5Iru6bwPgDO6FRogy3l/2ItRAwT3ZfHjWgxOe7LYjoxC1j1UVBLeDnVMmOOcuV/lp0Md4/BeiuEl0jJP+GcEEghr/9eDKPv9p8ywEhwMjShNqS+RjCLYCJGAYI5mXcLwq0Rj/euR4RFt4mhJ4lJpSWgQnLqj6UoXyOIwyLSb89vrq2ZeEj2inDjW2Jh6b94arqOzGH2fNna0Z6TbWwfokeCR1QHyVJ9QOsIrAGq0Bt+YTqlJStEuynjUzZpLrMqZQGh0fioI4SWJ6LmslqDsRahAhO/eSDgZmOECarAnx4yhKz1fNzRV0YybpNSq8t+l+gH4DzfwnoHl87SS+sLnylHkxd+zo/gSCjPPwFQLidajt0wxp/ZElK8a350+aWI4d0AMd5o30rUuk3IA9mPRD6fZ//kzFLD3YhJyRkDe+XXDcKdy8RrqMEOonlLhWuSmyxhQXIscL5Y/U2a41mMnzlm73LeFXtoU5L7MHrEoti12ZFcr/QqRD1LtIEcqCfe/sBXOTN+uWazrr2I3cz6XmwGiVwAJtWOLaUnI1a8aMjmzLIL/KoyJW6uoUTCxz6aktlY2/n5AV4cfmqVxZLYQ8J+SIvxkjmLzq6UGt/mb/7uCyzfy4uK0++YAJp/NYKL4uz0cPdeceGtvoE/St5TbVAA/vKWZn/ca6qauQoRvhRfS1HRJZrTAogXErFeX43J1HjvSdfnznbdiaT/iNg4UiyW4628+clef4Gy4uXEaSHmJ2lJ+5itjjAfPDOjFp/IiUBJ/5hMLfxVMFG0NP9XHU08Cj4U93ZZIkotnOcRmQlqVt0jm6BXlMAyeFZAIcSvYfebcNFziKJCn/Oelm+RXGBd0ZZXXnQxGFyMcRfQKJDO2vD8XCP0g1fpgI+YbxZZuHFzI+9KYNt1IAC0m6x9NAbijnEale+m/Z+v2iwINVA32WFG5JufBYta00UCsxx+ZPLTj6Gu7imVTdwYhgjkCoR04vZzec3ad0GBeG1aWvDrHJKvdQnIMWKPp9StNTxeNa1TAUCwLcDw1xc9My5tXJ2YLqXZIydT3WqE9KCGFtwd+NqRXV5W+lr2D6+Xv6nM5CQu9D/PutrCTP/A1++fsNGEjciGl+PkuQdQcUvg4gvKoKMFyv0iX3MVPCCHGyoqYoLhls2i7YoMUrs1aY1g6CmAwsws3QooSEYhxrAPV449Rsz7zR18UCUt45c5oItOh4XcSKvbeVpywz/uf87/wWgiTbf2ia1zwmS+9xE4v7qdLxMAI+SixMM4RTySbSUEuni7QTPmXJb9PQFqTqzkHMQ5owKPFX6yCK5uLT62bf/xsP4j23ZLY+J9fuLbQXQoSfiv6mf74ibBYtDne2ITaQaVkDtXca6loLZSHGM5OyVDsz3HnIK1RIk8WBkezZ7KAWSzyxddA5g7w0t2Xr2vVoafadmrH41zaWkWDvkAG8PqYh2mZr9hfJk10ZUGmito8OYzwfmow1pqmOqbpzLzj56pcgHIGKmP5KCXEckWCzRVnLbJ9z3VazHcjfzzNpey60BdrfrStLegjIhaNLMF+ziknx3Rwojv/Fbh2V2kXEKk6TEU56Yv9DN/tDY6FOqaHVY5+rZ6pNfvT5DlJH26fQrAjIr/qrToYatDRm9dSlTEDXbwauZ16EPYPLe/DcVXDxtCF/W1eN+2krumRJev2U8/JSSFm5tKfnZRzqSaa+uoeZBfdtpoJ64NMl0jH7RTcvy+n3aKtTZ12EFH/8/hjxoxFufpKPCrvfogrJ3Gq8ONnkH2Az65BRAj+aAvxjV+m8NJzVb4uzfMrH/10L00vNv+uhunagAyDGU3ok06ZvZwRE/fXHUkSUAvpKe53n7CvlcrchDnMpqDiPoCkEZ9X/w/w3TkkbVbcJG9jUTNlLDVR/CIRM7Ucr1Xm50sZTuTfc3QFdLYqyuSFqtQkGhC1kaFISezuDDI6zjFocppVLydwYa3v0cccXQ/ZfzgHLHptOKDGoktwgor6TiAShFJ9SpupbKXGxvYgIItu5nexk/hKj7DqB4kfvFPGSas+xUujDHvMDRihOZw/fuRH5mHUDDIEHycZx/FbiBL1Iu012uvD6Ku0GXKUhRIvEQOMqp+ZoK3twDJMwnzyA0DxgV76RV2km8bSoshQuIjIFK1oXFv6yUsjNH2M0PRgV+nutYircSOVZuxwcMlelbQqWIU4iPoBQcnwyMsZL6LRmivdnlETzXHVELi99esQLSvc6T/W0YWsc8NNfmOl0Vmj56PAI3lIA36qa36o+xhhwYGKVb76FXqa+R+HM6eRRy9HEQQFz1rr70hTk5C4+cRkJ+5HD32sNaqeDCXuOaY7v7Xy3JOQOeI9Lq8xYPny57xQ0es5cq9wK7vQyrHV2cHBn0ztPzegforByBVwKscjzXW80/Aa+/cpKUTptIwJYeu5DeCN4HkZzdQtNgDdz8Groz2HMis4LTaOqjgCagesUTnTMGMi21hnktyRWGj8sNIPKmhzeBByVXHWV4mOmPYAzJhrKdQLYR1NDxCCm4b5M4uSdiERnyjemMSHFOni/ITeTFht4LmQUOaau29pkN9ipZjWK8ncZO+KobmciGLxlRJ+du2pc++sGZi8Syd8xbl3KBiQ4mOfAmenzPfV7cCZRfE9WOqN5Jocdwt+HjArFb7Y23vY4UDa5F+6Ub6F2qhNVSGHviG0sn4AgaY1jqnvqX9j00cAF9jPZgAX0t63smpLuSGTfXMgOxzxF5RlHPrjfTfIIjmOhqoHwxfs53F9bL7YAsDqshbjqDOldxhkTLV3JpINCz+j03KSeFEFv1eGdaiEhEOmCUTfrm7dJzpa8x+uh19XcU0b9Tr9TTVnszhkWRBWk38oNFADHG2+yEAXa/1/lu4kzbu6wnjF6biMPmflwlCftfwI2zg3XC7yF3D3C61/AwjuXiW/ag7KW2bNwEzzKtQsQXZAzE7cGbiloHtIf6Z5hCcm6XqaXG6DVbu5ehad94oAXzRqn86qwsav7iWQ4xHyx7uIqQcW4F9+BfzIQjX3bP1uUcGx+W26WrEUSt3hzcpVpfir18xmHD1+dfAzjecmjp+IOLrGLKxiso3k384uRYztrvPP1GTnY5mnuznZ09xLReE41srjwWJX6ExyEdSGNAqcajENP/0UOS7GjboZjTQIuWYgVgAH5G/U6s2FVuBl/oVHBeTTm7dM0X/eZ+ZPFQRpTBrzCiQWWL8zqqdpjdBCW8QHiqPBlMlVCEO3xjvyHV54PL23cDi5ISeh63dpK5rDF96lJi6qLnn5J9smPKcckOZsWydtjKWSgPcXfnAWDKOMGmeUGo3DpTxNn9HRmwkCdH1Il/gAiMqjSZFNrIR65bVztvmVL1qa/SWvD6xIqaqrYmde+tORuRYZ+u47OxvYKA3To2trmVnqahJS9M4Vy7uWZusrHtrF1XD17Es4KXg9ZfWTfY6ekiRzO5gLc7RG62nZzUMMYdVfJB9ufcNpop142DMWVS3BT8aW9tJ6uraKFZsdB1IjiwDWusSWp1LUvj+j+vQPPyB/oc12N4nFWGRCtPCcX1ybri1a+QzRMNyUzw20oTJ57ZbVhS6F+hmXZjZTEOXbIuQJtCOtPou/hWdox2pu45YRTzftzgeGCYkM0uM4Kl1Z78R6rfyRJ0y4dgge8k9xzN0NPCQu78l+uxGN0AMiFL5HqZ53BEWpmCipt/DRQgqi/GrS128E8C0imHsUN24VsD3ZDoJCvEXpPQ8YOJZvSz5HhOzPDlm89CudVG9I3K0AlsSD6DrvIAVFlYiJVRTlw7Iv7bOYhZZe+R1JVqIS9SPa4Aqz/5Fic0N938w3pa/WPVUasnPQNE9t4xqQjseM/pS5hjP7Z3OA50wbwTz+OkE+r1kjBwB/AEa6oqZPmNepzKBNJkL5zjqQNFbQCf9kyy6vwfvyId7OBTMRM4o5JkF6K0d0ZyIvugd2wI1/WqRjXY2gmFB09ZZJuhplTci/eKvMn8F5FMa3GjdmiW8V6q/mW+n3N2iPU5UpY2JBt/UAT6usZ3GLJtPQNJkRskGRQgYHZJI4IXvu1QreOgvqTHAGSeU8KuFjvbBwzNpMlhMN8TULWhLNaV9BezL4cNoLteEr5YWMlVst2GQRuj3zGMzMyRI7a33c/vo5MlLCRo5frVj2I7d8Xs6NjbdE1KZorXHJNVbywOyad0JkzBz/SFOi1GZO9072r7ZOLcV0F5gS2clGuRg4N0o8y6MUtdR48blgweSyRkZed9LmK1wxUpR8g/RtcoCfuUtZVe3i1Uwmt+KVZ8GPOcQBP27jWjwA5DU940vNf12BQ05pKPZ5n4zHcAIsYa0mJx+nI8mL3pJjlGvrNQUwOl2bQUcbkZ1CLcH9JaasNbW2rf9ZeAi39h0Q/kBhCNxjGkMTMUxUCOGIzoSYosODDv2Q169HGyW3e/oi1doeHUGWCjOk9abyRw3Ki0GGWOSYXI2DQEECHMqwtCqu8N7NteCtk6HJ8R2uL9VDXMVV/Q4bMk/+ULOKvxNRogHIvh/h+QDFryUhFmiqQxI9CjnjMgDfodijIsitN8n+XTc+66aYTY6yjpJM8+1e75RXLvqASuz2kD2kNbVslTHimQBP26D6n5KRXhx/sMoSlw1vC5AqG6RSEUrxqFkA+xh0I8nFDhcQXM02fzuI1MLBw0aH68tOXcH4LpUJsT5HQM11j1jAc/gfBkhl3Zb57owfEzzQTR4bmdxvjjDGWVMwmLG59gOD/VjtrjxIgckYHjjiuiMr8e4WDfBxbZV1kNMYPmzAOGshZX9mgy9CalyjqSr6I+SLXIj0oHO2ETpeNXZ0BcMfqlP3F/i/sdlEdBlw4IWmjrlWd6bI8GvzbRLe9ARqwcDspZQiB6acynU8KGwCF6oCZOJ0PdE5Kpy6qL+Fb5fAP5Ct+FXmdpg6nefOrEpoBV7w6oAp2VcsT/4dbnqT6tcHDrfGFO39CbpS0BZojHqvN59RYbgowvzbRbasQLR9VSVr9WYjNVUa4UrESwyEwa5aOvVmxdZ1wb4fUhA6/NZWJN9BIjsP9ZBLh8fwKCMULQFuzeSnbNTHYnSKxVoW2oOycE3wk5ndjunGeeaHVcC1nkIjsEDUtd9lkyWKzGpcS87D/NmLdtutnwS7TB+R/cEqd+muFaIg2gP5Jt08TklVc1bNhoGBdktP/YOW08Y4Ao3qk9V8mh61FEJiajZLjzrxQapn1QGKSvX3FJ0zn1VyoaDztGbMKFFOn1GUjh6d1ROARZAKRG9N2bJISgh2Zix2BafGxT0KCnYy3IDIiFIwbdwWzFo4zQS469oyrN4Ud70+Jf06Hle8yVMvGHlLYuJCTGIk/nrMhwlf+gULBB8NDnpHRZyZzHGNaOlxIGTBrB4RoFybU7E++AhkzpXAOIEm8Wa1+vwsZUvYcJm+lH8e8ts7RQuPSWMxX8gHPQW1uAiN7oyJUyspQrTGIwRM2UfjeVV79autBS62g2NqKPCSp4RbK6A/Y9pS4z/KKIWcRGcfLT7MR+sJxkz/pOlZQZCJmFuncAUdyZ7joWeRt6P847yDXeHvsln0GForY2hSf8EvG3zl7pfxKwBqP9c9MIyALxoDeikTchsbV2EgoOcHKo+m2jvhtXcuyyWkE+aLdtDhkRtsLqqshs8rxI2zFivWsrKEc2NA0OxOchXG/8u0vkpFpwGbhSpW+aQu3TB8S2hcWVVVLFz2qgroo1Tyv7OD6jAP/YwfNAJS646JOxPzDHnfm61hfsEbHjfdEVuxQwunkY1FIBbJY1f96GKhwyWf3ckH2WjJEDQHdH1e5H+MxhaauXZK+pEMptNUKswU41pTR6WXRxM02/hhl96tggFjLJtb1c9xVemq6lQcFpCFQbtoa4AZtTidGh7DHzIIlwgFB2fRsm104JC3Zaiwie6LslvjA3hcg9eM43gbTuuFTGAX0jUyl48gAi5pioDCMhYxu79/fYlZxhjmExOYPUDyaQbQI0I7B37SgrRZAhnSoKWQ2XmlFio+IAFIbKXDn6xfP7PKv8IvjkFHyY2a459gybL+3ZZANbmq60ZFjotJUwNikQBVKP8yxqiWnPzwwkt6aTWe+MU0ECL6xCW89LrT79Cim14i+n7wPH4EkCLXcNG0QZoejVtGU2E51mOeSdKpifMDSxjZJpegyIq6mSbP+qzgeRaBN1t5OulloT/4wy2COgCX/7rlLys8LfofFEklrTJbUKa4T4Zvew6Gr2/XxpmesgSdB0k7Qq9NSpmzkONyNxQ35t7QNyvp3xKQJjwMH0u9PmotdnX8o+e2qqWbG9nXgwFWoAZ0ZbA5+WpIfiuk6RRvJWefcko8+Nc65I3VifgUogTEbTmklBcIRTZEYS9wEVGGBy2CAJZFKE5CDMGFpu2FObeKLPX7FVWqeLNkaAkeLQaETlRo6RLuEtpD9NZxtFG0VIC/YZ/xKy47wqlpPeGhxLKEtD6UM05QybsI1Z8P+fVwE26si8nynLmOlY6sOIp60JX13JxvIfBbWQP2UnVKHhp451u4VvBSK0zQJL6WHy1S6nNApC+e+x67swA0+P8o6dzsXdAaZKBkDx8GgvFTOmGy1fBeBLkKcp7os8EJq4+9bk2pY7HOW2htMcaGwz+9dPwlE8onQuD4tYQkSoT3vXgJWgzgxN3uc4l/Qii/b+prTfFxLZyd6NYiESvdkZXn7HixNAJLNsy/L9zNVj7hSYcXpZ4WVUPhTFFli4OmUkv2rljQ84Yr3yc5J5ossu4lPq03uNj9SAX5SGm7SW9Yko4/yeOrRHQ9k1U3RjW6TUQorTvOEPgMips5rSKodmj+yFa5pGm+0a8gyZQsizrytjz2GrYP/TckmkJueg/DpoiuYjo/uyro4m5nnv9VqhZD2+tD5FyFkv3FJ28bPvCru0IhfGkddXENjKLPU3QYWXep/O4Gwa2aRllIpv9eqiExsOii/njDhmLaF3CDLwHmBn+DQ6R1O7fp+QS9pafwVIWLPT/c5VlxKfGWipbT2xqr1ReytPBV/Df6v1DWzLH2DDZgPrt9P1iw3Im8fIUAErycECGklvuWDQYD2XiSlAHRMMq+kPVSK1I2e3S2616lJqyEirr9URGaF8EhPrIdkBsGeatoZ7gEblC2glutbeaebVG8uPn356mlQEvPK05+If2GMJEZisUOobfO2YhfE62MPtda+Z067vLnL2UmT1bgKiTQdbS/bdA0F0aj6XHDbpmSthuR7BHuwyn+/nHQy5mg5PrlA1h8sYVmx1sFY2l9ceQ5dlCMyBiTFKh4NXSsOAIUEa6+hyLaSuov/AN7/FJ65Q7fAmljmFApkh38gMyErk/FSlziVmfuH57Bbrg4g6bNwOL7zwIBmcijYVn2dwG+Nz3DLfW+jGnQFt/HcmQp9di5CYrRFShrJM2S3hoYvLun0ZnjfvcX4JmnOYLhO+CYda/vRduvNfi69Y43whSZhISo5hdjXDxuB+XPt2KLS42TXvhdqukXFWYmGe6AgffwP+FymnN/uGinClLh7Ysh9iPTlMqjqEPRpwTLlRB7waJJl9O+wJtEuF65bNYirsPrAP3wHfCI51eiiIxw/mYb4dl5VHeVhN6CKeheeJr7uv7jtMPQXX2MtfwnKNckrdCZDQNJLEar6MtvsebFzQ8nwJsW2FFGR5eXCgP/m4xNwZjJsoSsmeJ5a5h83NysM0aToKBSYxNW6ePD99ZKIM5fTPfK8Ge4A1AWL723m5g8ykGvpiVIbLFDB9vl12Rz0eNi7ad4BraBX4hzZy8aseeIDGvlG4fo2UKaTOEk/H5O+LNE9DCL0X/lrtS0ZUH2nWzxHGl37Bjw7yyXRE/t8wBgjFZFiS5vJbExCMYDMyF+cZz1CPhFmTIrVh6K6uH8Vl6XNbDVoXqpPv3h0ZnYgBBxAqF0n0pkoChz/jcGyRx9PqjUHz9tH0Zw2RnEhEQDTM4VrtRY1A18oDCVPBL8Qp+t1vf9whrNUnJ7qTvk0JfrIxD+NHuDemVk2F2ul64aQmXp9EbcOOfqM6UnwGYBQlCFmtI4wfYEVR1XRachAEzs3Lui4nWRIedHGs89W3YsWt+hFC0WfWukqLJal+cUzI8RjQ6UUUmHQhmXIG4s3+Qv3l4eWwbOm2xIdAxslZu37q8M8VYuBbCFRsBFJAQ77+Xiu1zaiwuZJsBzMkfZrUCYXsnN5EFbVw8HXL/3eBc66AAVCWz8fDwbdyGzP10fmrG/A1Wb668DnEPEZ43dHP/NizU8H6y9srTzudAdWYkFhsDGGvQD8PKvBDis2aT+O++fC1CoMchr/mY1UYbXblqTnhy4YpeuRHmkQQcIbdwBeECNfOuFhLFIbk57TLbXl92q3YpOHLfJaY40ZZbYdC6MBSSypKnHKiP8O9x4Rl0682FEatcxfjhwU6VgPccKneapDiapbr7XWkPBPA3t26iBqecVQ5xBbeQrNtYmtpZ2YDfsLbNZT745tllkpLCkTtc3DJczte+9EsOCUN+vPFKgThdDicYJfAcbEQvW2D40Du371CZDsOM8XlBdPj8k6F1r/AMJ9y+LUhp+6rJvP2gg4aeYIKbkYqJ+36TP1GvfA1FQB6M+xLzVzwvvpKs74eP/ERPi6KNu99z2hY5wHeKpFzxHk5R1Fe0DkdblDiTuE0tLN4EoC3GV7AXMPIoKw8JoTsAEdNCIUmD9X8bs8WAzXU6+sJRPM5YXHrIRCLohcJVBPA8g/uzEQY9Dm+NOc3cLFWAXuQd0hrlVLTDjqWRDdoxKKmbBo0l64Jag1TwGE+cP2D3XWcQqPTAgapqId7AK58JtQm1xhhC3UeA8gupVVaAi6qEK8tjbp0TL/G2I0ll3kmfWlVS3GLYGsyd9bH8KoLQfCfa1EZ/0fYQq5NYKB9q3Gor6U1yWoRzBaSiM1iP3tLPHImvaV1v0/XdlPvA647W1u08jNW+GjdX0QdjayK/y4P7WJF2gcPPuVgjQvL+0bN7vouXJUEeg7SduSpKFjufXDSYR/y5Ld6aRiXxlVOX9RoF+tjImwHoAtFNLNBNZrVnrYyoEp1DY3XF6/3E4X9SZn50i/SKSpCJaMU+50UUd8/mE71hGtBi3Fa4PbYSNuPt1ogSed5nGtbgAN21Kr8eMguCkrqk/m18Y7GMRB+8oAAA";
 
 /* ---------- Orson's face on his dialogue lines, living water, no more sinking ---------- */

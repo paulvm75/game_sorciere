@@ -162,7 +162,7 @@ function lyraToTroca(){lyraPlace(-126,-112,0);LYR.home=true;CH2.obj=()=>CH2.zone
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!LYR.a||!LYR.a.g.visible)return;try{LYR.a.update(dt)}catch(e){}if(LYR.mk)LYR.mk.material.opacity=.6+Math.sin(performance.now()*.004)*.3;
   if(!LYR.home||CS.active||!started||CH2.zone!=='paris')return;const g=LYR.a.g.position;const dx=P.pos.x-g.x,dz=P.pos.z-g.z,d=Math.hypot(dx,dz);LYR.a.g.rotation.y=lerpAngle(LYR.a.g.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*3));
   if(d<1.3){P.pos.x=g.x+dx/d*1.3;P.pos.z=g.z+dz/d*1.3}LYR.panelT-=dt;if(d<4&&LYR.panelT<=0&&!bossRef){LYR.panelT=9;lyraPanel()}else if(d>7&&LYR.panelT>1)LYR.panelT=1}}
-function lyraPanel(){const back=CH2.st>=3;const c=tutCard(`<div class="tl">Lyra</div><h3>${back?'Back to London?':'The door to Calais'}</h3><p>${back?'The way to London is still open. My brother is still in the Tower.':'From Calais you fly alone, across the cursed water, all the way to London. Ready, witch?'}</p><div class="row"><button class="gh" data-a="no">Not yet</button><button data-a="go">${back?'Take me to London':'Open the door'}</button></div>`);
+function lyraPanel(){const again=CH2.st>=3,back=false;const c=tutCard(`<div class="tl">Lyra</div><h3>The door to Calais</h3><p>${again?'Calais is as far as my magic reaches. From there you fly the Channel again. My brother is still in the Tower.':'From Calais you fly alone, across the cursed water, all the way to London. Ready, witch?'}</p><div class="row"><button class="gh" data-a="no">Not yet</button><button data-a="go">Open the door</button></div>`);
   c.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;tutHide();if(b.dataset.a==='go')ch2Depart(back)}}
 
 /* ---------- the finale of chapter 1 now opens chapter 2 ---------- */
@@ -200,8 +200,8 @@ function ch2Finale(center,orb,lines){STATS.won=true;writeSave();snow.force=false
     {who:'Lyra',text:LY.ly13,cam:lyShot(2.1),update:dt=>{if(lyr)lyr.update(dt)}},
     {who:'@',text:'London, then. Bilel would have gone.',cam:witchShot(-1,3.4),update:dt=>{if(lyr)lyr.update(dt)}}];
   playCutscene(shots,()=>{CH2.mourn=false;P.heroAnim=null;setDawn(.55);if(book){scene.remove(book);book=null}if(lyr){scene.remove(lyr.g);lyr=null}CH2.st=Math.max(CH2.st,1);ch2Save();lyraToTroca();
-    toast('Lyra waits at the Trocadéro, across the river from the tower. The real Paris is open: the 7th and the 16th.','Chapter 2 · The Crossing',true);
-    after(7,()=>{const v=$('victory');if(!v)return;v.querySelector('h1').textContent='Chapter 1 complete';const s=v.querySelector('.sub');if(s)s.innerHTML='Chapter 2 is open: <b>Lyra</b> waits at the Trocadéro.';const ob=$('owBtn');if(ob)ob.style.display='none';$('vLvl').textContent=P.level;$('vKills').textContent=STATS.kills;$('vTime').textContent=Math.max(1,Math.round(STATS.time/60));v.classList.remove('hidden');paused=true})})}
+    toast('Lyra waits at the Trocadéro, across the river from the tower. The real Paris is open: the 7th and the 16th.','Lyra',true);
+})}
 
 /* ---------- load / new game ---------- */
 {const _sg=startGame;startGame=function(fromSave){const r=_sg.apply(this,arguments);if(MODE==='open')return r;
