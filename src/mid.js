@@ -175,7 +175,7 @@ function doJump(){if(!started||paused||!P.alive||CS.active)return;
   if(P.flying){P.flying=false;P.glide=true;return}
   if(P.level<4&&MODE!=='open'){if(!P.flyTold){P.flyTold=true;toast('Flying unlocks at level 4')}return}
   if(P.flyMeter<1.2){toast('Your broom needs to rest');return}
-  P.flying=true;P.flyT=Math.min(flyMax(),P.flyMeter);P.flyMeter-=P.flyT;P.boostT=MODE==='open'?5:0;P.vy=Math.max(P.vy,7);sfx.fly();runeFlash(P.pos,0xb58cff,4,.6);
+  P.flying=true;P.flyT=Math.min(flyMax(),P.flyMeter);P.flyMeter-=P.flyT;P.boostT=MODE==='open'||CH2.boost?Math.max(P.boostT||0,2.5):0;P.vy=Math.max(P.vy,7);sfx.fly();runeFlash(P.pos,0xb58cff,4,.6);
   SP.emit(V3(P.pos.x,P.pos.y+1,P.pos.z),{n:40,c0:0xffffff,c1:0x7a40ff,speed:6,life:.7})}
 function blink(){if(!started||paused||!P.alive||P.blinkCd>0||CS.active)return;P.blinkCd=2.4;if(P.onGround&&W.ch&&!P.heroAnim){P.heroAnim='Roll';after(.55,()=>{if(P.heroAnim==='Roll')P.heroAnim=null})}vib(15);let dx=Math.sin(P.face),dz=Math.cos(P.face);
   if(lastMove.l>.1){dx=lastMove.x;dz=lastMove.z}const from=P.pos.clone();for(let i=0;i<12;i++)movePlayer(dx*.8,dz*.8);

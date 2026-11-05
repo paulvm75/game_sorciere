@@ -60,7 +60,7 @@ function nzTrees(G,list){if(!list.length)return;const lm=std({color:0x2e4a30,rou
 function nzMistWall(G,z,col,H){const mat=new THREE.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:new THREE.Color(col)}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false,
     vertexShader:'varying vec2 vU;varying vec3 vW;void main(){vU=uv;vW=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader:'uniform float uT;uniform vec3 uC;varying vec2 vU;varying vec3 vW;void main(){float n=sin(vW.x*.09+uT*.7)*sin(vW.y*.13-uT*.5)+sin(vW.x*.031-uT*.3+vW.y*.05);float a=(.18+.12*n)*smoothstep(0.,.15,vU.y)*(1.-smoothstep(.35,1.,vU.y))*(.25+.75*exp(-pow(distance(vW,cameraPosition)*.006,2.)));gl_FragColor=vec4(uC*(1.+n*.4),a);}'});
-  const m=new THREE.Mesh(new THREE.PlaneGeometry(NZB.x1-NZB.x0+40,H||70),mat);m.position.set(0,(H||70)/2-4,z);G.add(m);NZ.anim.push(dt=>mat.uniforms.uT.value+=dt);return m}
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(1800,H||70),mat);m.position.set(0,(H||70)/2-4,z);G.add(m);NZ.anim.push(dt=>mat.uniforms.uT.value+=dt);return m}
 function nzPortal(at,col){const g=new THREE.Group();g.position.copy(at);const c=col||0xff3a4a;
   const disc=mkCanvas(128,128,(x)=>{const gr=x.createRadialGradient(64,64,4,64,64,62);gr.addColorStop(0,'rgba(255,240,240,1)');gr.addColorStop(.35,'rgba(255,60,80,.85)');gr.addColorStop(.8,'rgba(120,0,30,.5)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);x.strokeStyle='rgba(255,200,200,.6)';x.lineWidth=3;for(let k=0;k<6;k++){x.beginPath();x.arc(64,64,14+k*8,k,k+2.2);x.stroke()}});
   const d=new THREE.Mesh(new THREE.CircleGeometry(2.1,40),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(disc),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));d.position.y=2.4;g.add(d);
@@ -361,3 +361,95 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
 /* Maëlle's chapter 2 lines, voiced */
 Object.assign(VO_MAP,{"Who's there?! Stay back. I'm warning you.":'mx01','His sister? He killed Bilel!':'mx02','So the real Kaen is still out there. Suffering.':'mx03','London, then. Bilel would have gone.':'mx04',"Don't wait up.":'mx05',
   'Thirteen. And something is sitting on the clock.':'mx06','Kaen?':'mx07','She is. She sent me. We are taking you home.':'mx08','Then I am the debt you will never collect.':'mx09','Crawling? I flew. Over your whole cursed sea.':'mx10'});
+
+/* ---------- Greyfang, rebuilt: muscled stone-hide demon, ram horns, ribbed wings, skull trophies ---------- */
+function nzTaper(curve,r0,r1,seg,rs,mat){const n=rs||8,g=new THREE.TubeGeometry(curve,seg,1,n,false),p=g.attributes.position,c=V3(),v=V3();
+  for(let i=0;i<=seg;i++){const t=i/seg;curve.getPointAt(t,c);const r=lerp(r0,r1,t);for(let j=0;j<=n;j++){const k=i*(n+1)+j;v.set(p.getX(k),p.getY(k),p.getZ(k)).sub(c).multiplyScalar(r).add(c);p.setXYZ(k,v.x,v.y,v.z)}}g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.castShadow=true;return m}
+function nzGFMats(){if(NZ.gfm)return NZ.gfm;const cr=[];for(let k=0;k<26;k++){let x=rand(0,256),y=rand(0,256);const pts=[[x,y]];for(let s=0;s<6;s++){x+=rand(-22,22);y+=rand(-22,22);pts.push([x,y])}cr.push(pts)}
+  const draw=(x,col,w)=>{x.strokeStyle=col;x.lineWidth=w;for(const pts of cr){x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.stroke()}};
+  const map=mkCanvas(256,256,x=>{x.fillStyle='#4a4250';x.fillRect(0,0,256,256);for(let k=0;k<2600;k++){const v=rand(40,110)|0;x.fillStyle=`rgba(${v},${v-8},${v+6},.35)`;x.fillRect(rand(0,256),rand(0,256),rand(1,3),rand(1,3))}draw(x,'rgba(14,10,16,.85)',2.4)});
+  const em=mkCanvas(256,256,x=>{x.fillStyle='#000';x.fillRect(0,0,256,256);draw(x,'rgba(110,255,120,.9)',1)});
+  const vein=mkCanvas(128,128,x=>{x.fillStyle='#3a1e2a';x.fillRect(0,0,128,128);x.strokeStyle='rgba(20,6,12,.9)';x.lineWidth=1.5;for(let k=0;k<14;k++){x.beginPath();x.moveTo(0,rand(0,128));for(let s=0;s<6;s++)x.lineTo(s*24,rand(0,128));x.stroke()}});
+  return NZ.gfm={skin:std({map:rep(new THREE.CanvasTexture(map),2,2),emissive:0xffffff,emissiveMap:rep(new THREE.CanvasTexture(em),2,2),emissiveIntensity:.55,roughness:.62,metalness:.05}),
+    dark:std({color:0x1e1820,roughness:.7}),bone:std({color:0xcfc09a,roughness:.55}),horn:std({color:0x2a2420,roughness:.35,metalness:.15}),claw:std({color:0x14100e,roughness:.3}),
+    mem:std({map:new THREE.CanvasTexture(vein),color:0xc08090,roughness:.75,side:THREE.DoubleSide,transparent:true,opacity:.95,emissive:0x120408}),cloth:std({color:0x2a1c18,roughness:.95,side:THREE.DoubleSide}),
+    glow:new THREE.MeshBasicMaterial({color:0x9dff70})}}
+function nzSkull(par,M,s,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);g.scale.setScalar(s);par.add(g);const Q=nzG();nzPart(g,Q.sph,M.bone,.17,.17,.19,0,0,0);nzPart(g,Q.sph,M.bone,.1,.06,.12,0,-.12,.06);
+  for(const q of[-1,1])nzPart(g,Q.sph,M.claw,.05,.05,.03,q*.065,.02,.16);nzPart(g,Q.cone,M.claw,.025,.05,.02,0,-.04,.18).rotation.x=Math.PI;return g}
+function buildGreyfang(){const Q=nzG(),M=nzGFMats(),g=new THREE.Group(),body=new THREE.Group();g.add(body);const I=new THREE.Group();I.scale.setScalar(2.3);body.add(I);const P_=(geo,m,a,b,c,x,y,z,p)=>nzPart(p||I,geo,m,a,b,c,x,y,z);
+  const tor=new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.34,.02],[.37,.24],[.47,.52],[.62,.82],[.67,1.02],[.52,1.18],[.22,1.3],[0,1.32]].map(p=>new THREE.Vector2(p[0],p[1])),20),M.skin);tor.scale.z=.72;tor.position.y=1.18;tor.castShadow=true;I.add(tor);
+  for(const q of[-1,1]){P_(Q.sph,M.skin,.27,.2,.16,q*.21,2.14,.3);for(let r=0;r<3;r++)P_(Q.sph,M.skin,.1,.075,.06,q*.1,1.56+r*.15,.3)}
+  P_(Q.sph,M.skin,.38,.22,.3,0,2.5,-.04);P_(Q.sph,M.dark,.44,.28,.34,0,1.2,0);
+  const sig=new THREE.Mesh(new THREE.TorusGeometry(.1,.018,6,20),M.glow);sig.position.set(0,1.98,.37);I.add(sig);for(let k=0;k<5;k++){const c=P_(Q.cone,M.glow,.022,.08,.022,(k-2)*.045,2.1+(2-Math.abs(k-2))*.012,.37)}
+  for(let k=0;k<5;k++){const cl=new THREE.Mesh(new THREE.PlaneGeometry(.18,rand(.45,.7)),M.cloth);cl.position.set((k-2)*.17,.85,.28-Math.abs(k-2)*.08);cl.rotation.y=(k-2)*.3;I.add(cl)}
+  for(let k=0;k<4;k++){const a=-1.1+k*.73;nzSkull(I,M,.75,Math.sin(a)*.47,1.3,Math.cos(a)*.36)}
+  /* head */
+  const head=new THREE.Group();head.position.set(0,2.8,.2);I.add(head);P_(Q.sph,M.skin,.24,.26,.3,0,0,0,head);const sn=P_(Q.cyl,M.skin,.13,.28,.17,0,-.06,.28,head);sn.rotation.x=Math.PI/2;
+  const brow=P_(Q.sph,M.skin,.27,.08,.14,0,.1,.18,head);brow.rotation.x=-.3;const jaw=new THREE.Group();jaw.position.set(0,-.13,.06);head.add(jaw);P_(Q.sph,M.skin,.17,.06,.25,0,0,.12,jaw);
+  for(let k=0;k<6;k++){const a=(k/5-.5)*1.6;P_(Q.cone,M.bone,.018,.07,.018,Math.sin(a)*.12,.05,.12+Math.cos(a)*.18,jaw);P_(Q.cone,M.bone,.016,.06,.016,Math.sin(a)*.12,-.13,.12+Math.cos(a)*.2,head).rotation.x=Math.PI}
+  for(const q of[-1,1]){const e=glowSprite(0xc8ff60,.38,1);e.position.set(q*.1,.04,.28);head.add(e);P_(Q.cone,M.skin,.06,.24,.04,q*.22,.12,-.08,head).rotation.set(-.6,0,-q*.9);
+    const hc=new THREE.CatmullRomCurve3([V3(q*.14,.14,-.02),V3(q*.36,.3,-.12),V3(q*.52,.52,-.36),V3(q*.46,.8,-.6),V3(q*.28,.88,-.5)]);head.add(nzTaper(hc,.09,.012,22,8,M.horn));
+    const tip=glowSprite(0x80ff70,.6,.9);tip.position.set(q*.28,.88,-.5);head.add(tip)}
+  /* arms */
+  const arms=[];for(const q of[-1,1]){P_(Q.sph,M.skin,.3,.28,.28,q*.7,2.36,0);for(let k=0;k<3;k++)P_(Q.cone,M.bone,.05,.22,.05,q*(.72+k*.06),2.62-k*.04,-.05+k*.08).rotation.z=-q*(.35+k*.25);
+    const sh=new THREE.Group();sh.position.set(q*.76,2.3,0);sh.rotation.z=q*.32;I.add(sh);P_(Q.cyl,M.skin,.15,.62,.15,0,-.32,0,sh).scale.set(.17,.62,.17);
+    const el=new THREE.Group();el.position.y=-.64;el.rotation.x=-.65;sh.add(el);P_(Q.cyl,M.skin,.13,.58,.13,0,-.29,0,el);const hd=new THREE.Group();hd.position.y=-.62;el.add(hd);P_(Q.sph,M.skin,.13,.11,.15,0,0,.03,hd);
+    for(let k=0;k<4;k++)P_(Q.cone,M.claw,.025,.16,.025,(k-1.5)*.05,-.12,.1).rotation.x=.4;nzSkull(hd,M,q<0?1.1:1.5,0,-.24,.12);arms.push(sh)}
+  /* legs: digitigrade with claws */
+  for(const q of[-1,1]){const th=P_(Q.cyl,M.skin,.2,.62,.22,q*.27,.92,.07);th.rotation.x=.42;const sn2=P_(Q.cyl,M.skin,.13,.52,.13,q*.29,.47,-.1);sn2.rotation.x=-.55;P_(Q.sph,M.skin,.11,.09,.18,q*.29,.17,.04);
+    for(let k=0;k<3;k++)P_(Q.cone,M.claw,.03,.14,.03,q*.29+(k-1)*.06,.1,.2).rotation.x=1.3}
+  /* tail with spade */
+  const tc=new THREE.CatmullRomCurve3([V3(0,1.15,-.3),V3(0,.75,-.85),V3(.25,.45,-1.4),V3(.6,.5,-1.85),V3(.8,.7,-2.15)]);const tail=new THREE.Group();I.add(tail);tail.add(nzTaper(tc,.12,.035,24,8,M.skin));const sp=P_(Q.cone,M.skin,.14,.3,.04,.86,.76,-2.24,tail);sp.rotation.set(-.6,0,-1);
+  /* wings: bone arm, four fingers, scalloped membrane */
+  const wings=[];for(const q of[-1,1]){const W=new THREE.Group();W.position.set(q*.28,2.35,-.32);I.add(W);W.userData.q=q;
+    const E=V3(q*.9,.55,-.25),Wr=V3(q*1.95,.9,-.15),T=[V3(q*3.25,1.05,-.35),V3(q*3.05,.25,-.45),V3(q*2.6,-.45,-.42),V3(q*1.8,-.95,-.35)];
+    W.add(nzTaper(new THREE.LineCurve3(V3(),E),.08,.06,4,6,M.horn));W.add(nzTaper(new THREE.LineCurve3(E,Wr),.06,.045,4,6,M.horn));for(const t of T)W.add(nzTaper(new THREE.LineCurve3(Wr,t),.04,.01,6,6,M.horn));
+    P_(Q.cone,M.claw,.05,.2,.05,Wr.x+q*.06,Wr.y+.14,Wr.z,W).rotation.z=-q*.4;
+    const poly=[V3(q*.12,-.12,-.3),E,Wr,T[0]];for(let k=1;k<T.length;k++){const a=T[k-1],b=T[k];poly.push(a.clone().lerp(b,.5).lerp(Wr,.28));poly.push(b)}poly.push(V3(q*.75,-.75,-.32));
+    const pos=[],uv=[];for(let k=1;k<poly.length-1;k++)for(const v of[poly[0],poly[k],poly[k+1]]){pos.push(v.x,v.y,v.z);uv.push(Math.abs(v.x)/3.3,(v.y+1)/2.1)}
+    const mg=new THREE.BufferGeometry();mg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));mg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));mg.computeVertexNormals();const mm=new THREE.Mesh(mg,M.mem);mm.castShadow=true;W.add(mm);wings.push(W)}
+  const au=glowSprite(0x60ff80,9,.08);au.position.y=4.5;body.add(au);
+  return{g,body,anim:(e,dt,mv,l)=>{const t=e.t,f=Math.sin(t*4.2);for(const w of wings){w.rotation.z=w.userData.q*(.25+f*.55);w.rotation.y=w.userData.q*(.25-f*.12)}body.position.y=Math.sin(t*2.1)*.5;tail.rotation.y=Math.sin(t*1.7)*.35;
+    tor.scale.x=1+Math.sin(t*1.4)*.02;jaw.rotation.x=.12+l*.5+(e.busy>0?.25:0)*(.5+.5*Math.sin(t*20));head.rotation.x=-.08+Math.sin(t*1.1)*.06;arms.forEach((a,i)=>a.rotation.x=-.25-l*1.5+Math.sin(t*2+i*2)*.12);I.rotation.x=.1+l*.2;
+    if(Math.random()<.35)FL.emit(V3(e.pos.x+rand(-.6,.6),e.pos.y+body.position.y+8.6,e.pos.z),{c0:0xc0ff90,c1:0x104010,s0:1,s1:.1,life:.6,up:2.5})}}}
+ETYPES.greyfang.build=buildGreyfang;
+/* Greyfang gets his own battle theme */
+MU.keys&&MU.keys.push('mus_greyfang');
+const nzGF=()=>MODE!=='open'&&bossRef&&!bossRef.dead&&bossRef.type==='greyfang';{const _bw=bmWant;bmWant=function(){if(nzGF())return null;return _bw.apply(this,arguments)}}{const _mw=muWant;muWant=function(){if(started&&nzGF())return 'mus_greyfang';return _mw.apply(this,arguments)}}
+
+/* ---------- Calais: Lyra explains why she stays ---------- */
+Object.assign(LY,{ly22:'Calais. The last French shore. Look north... England, hiding in the fog.',ly23:'I wish I could. But the Crown still knows the taste of me.',
+  ly24:'The second I cross the English border, it starts feeding on me again. Every spirit in the Channel would smell me coming.',ly25:'My brother gave up his kindness so I could live. I will not hand that life back to the Crown.',
+  ly26:'So I stay here and keep the door open. When you find him, I will feel it.'});
+for(const k of['ly22','ly23','ly24','ly25','ly26'])VO_MAP[LY[k]]=k;Object.assign(VO_MAP,{"Why can't you come with me?":'mx11',"Then stay. I'll bring him back.":'mx12'});
+function nzCalaisTalk(){const L=()=>LYR.a?LYR.a.g.position:P.pos;const face=r=>{if(LYR.a)LYR.a.g.rotation.y=r};
+  const lyS=(d,sd)=>()=>{const g=L();const dv=V3(P.pos.x-g.x,0,P.pos.z-g.z).normalize();return{pos:headOf(g,1.6).addScaledVector(dv,d).addScaledVector(V3(dv.z,0,-dv.x),sd||.6),look:headOf(g,1.55)}};
+  return[{who:'Lyra',text:LY.ly22,cut:true,fov:40,onStart:()=>face(Math.PI),cam:k=>({pos:V3(61.4,2.3,-3081.5+k*.6),look:V3(58,5,-3300)})},
+    {who:'@',text:"Why can't you come with me?",cut:true,cam:witchShot(1,3.2)},
+    {who:'Lyra',text:LY.ly23,cut:true,onStart:()=>face(0),cam:lyS(2.3)},
+    {who:'Lyra',text:LY.ly24,cut:true,fov:46,cam:k=>({pos:V3(72-k*6,7+k*2,-3096),look:V3(40,9,-3460)})},
+    {who:'Lyra',text:LY.ly25,cut:true,cam:lyS(1.9,-.5)},
+    {who:'@',text:"Then stay. I'll bring him back.",cam:witchShot(-1,3)},
+    {who:'Lyra',text:LY.ly26,cut:true,cam:lyS(2.5)},
+    {who:'Lyra',text:LY.ly14,cam:lyS(2.1,-.4)},{who:'Lyra',text:LY.ly15,cam:lyS(1.8)},{who:'@',text:"Don't wait up.",cut:true,cam:witchShot(1,3.4)}]}
+{const _pc=playCutscene;playCutscene=function(shots,done){if(shots&&shots.length>=4&&shots[3]&&shots[3].text===LY.ly14&&shots[2]&&shots[2].title&&shots[2].title[0]==='Calais'){shots=shots.slice(0,3).concat(nzCalaisTalk());
+    shots[2].cam=k=>({pos:V3(96-k*30,16-k*5,-3175+k*30),look:V3(-20,10,-3020)})}return _pc.call(this,shots,done)}}
+
+/* ---------- the horizon: fog the colour of the sky, England only a faint line until you are close ---------- */
+const NZH={n:new THREE.Color(0x4e3462),d:new THREE.Color(0xf2bc8e),c:new THREE.Color()};
+function nzHorizon(){return NZH.c.copy(NZH.n).lerp(NZH.d,dawnK)}
+{const _nf=nzFog;nzFog=function(c,d,dt){const h=nzHorizon(),z=P.pos.z,sea=z<CAL_SHORE&&z>CLIFF_Z,cal=z>=CAL_SHORE;
+  const col=h.clone();if(c===NZC.cur)col.lerp(NZC.cur,.4);else if(c===NZC.lon)col.lerp(NZC.lon,.45);else if(c===NZC.tow)col.lerp(NZC.tow,.5);else if(c===NZC.eng)col.lerp(NZC.eng,.25);
+  _nf(col,cal?.0088:sea&&c!==NZC.cur?.0082:d,dt);if(camera.far<1400){camera.far=1400;camera.updateProjectionMatrix()}
+  if(!NZ.sil){const sh=new THREE.Shape();sh.moveTo(-900,-2);for(let x=-900;x<=900;x+=18){const y=26+Math.sin(x*.05)*1.5+Math.sin(x*.17)*.8+(Math.abs(x+140)<12?10:0)+(Math.abs(x+140)<4?6:0);sh.lineTo(x,y)}sh.lineTo(900,-2);sh.lineTo(-900,-2);
+    NZ.sil=new THREE.Mesh(new THREE.ShapeGeometry(sh),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,fog:false,depthWrite:false}));NZ.sil.position.set(0,0,CLIFF_Z-4);NZ.sil.renderOrder=1;NZ.g.add(NZ.sil)}
+  const dd=z-CLIFF_Z;NZ.sil.visible=dd>200;NZ.sil.material.opacity=.16*nzSm(240,460,dd);NZ.sil.material.color.copy(h).lerp(new THREE.Color(0xe8e4f0),.28)}}
+{const _lv=nzLeave;nzLeave=function(){_lv.apply(this,arguments);camera.far=800;camera.updateProjectionMatrix()}}
+
+/* ---------- broom boost (hold sprint while flying) after Kaen ---------- */
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open')return;CH2.boost=CH2.st>=1;const bb=$('boostBar');if(bb)bb.style.display=CH2.boost?'':'none';
+  if(CH2.boost&&P.flying&&!P.boosting)P.boostT=Math.min(5,(P.boostT||0)+dt*(CH2.zone==='north'?.9:.5))}}
+
+/* ---------- Enter / Space never re-click a button that kept focus ---------- */
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('button');if(b)setTimeout(()=>{try{b.blur()}catch(x){}},0)},true);
+addEventListener('keydown',e=>{if(!started||(e.key!=='Enter'&&e.code!=='Space'))return;const a=document.activeElement;if(a&&a.tagName==='BUTTON'){a.blur();if(!CS.active)e.preventDefault()}},true);
