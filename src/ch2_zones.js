@@ -222,7 +222,7 @@ function nzEnter(where){nzBuild();if(CH2.zone==='paris'){CH2.parisWB={x0:WB.x0,x
   const p=where==='london'?V3(-108,0,-4608):V3(60,0,-3072);NZ.cp.copy(p);SPAWN.copy(p);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.glide=false;yaw=0;P.face=Math.PI;
   camera.position.set(p.x,P.pos.y+5,p.z+12);if(CH2.st>=5)nzAfter();CH2.obj=nzObj;ch2Save()}
 function nzLeave(){nzClear();sxStop('wind',1);CH2.zone='paris';if(NZ.g)NZ.g.visible=false;for(const o of NZ.hid)o.visible=true;NZ.hid=[];Object.assign(WB,CH2.parisWB||{x0:-430,x1:430,z0:-330,z1:300});drawWorldMap();
-  setDawn(STATS.won?1:dawnK);SPAWN.set(-100,0,22);CH2.flySpd=0;lyraToTroca();const p=V3(-126,0,-100);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;yaw=Math.PI;P.face=0;camera.position.set(p.x,P.pos.y+5,p.z-12);
+  setDawn(STATS.won?.55:dawnK);SPAWN.set(-100,0,22);CH2.flySpd=0;lyraToTroca();const p=V3(-126,0,-100);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;yaw=Math.PI;P.face=0;camera.position.set(p.x,P.pos.y+5,p.z-12);
   flash(headOf(P.pos,1.2),0xff4050,8);toast('Back in Paris. Lyra can open the door to London again.','Paris',true);ch2Save()}
 function ch2Depart(back){if(CS.active)return;const L=LYR.a?LYR.a.g.position.clone():P.pos.clone();const fw=V3(Math.sin(LYR.a?LYR.a.g.rotation.y:0),0,Math.cos(LYR.a?LYR.a.g.rotation.y:0));const door=L.clone().addScaledVector(V3(fw.z,0,-fw.x),2.6);let portal=null;
   const lyS=d=>()=>{const g=LYR.a?LYR.a.g.position:P.pos;const dv=V3(P.pos.x-g.x,0,P.pos.z-g.z).normalize();return{pos:headOf(g,1.6).addScaledVector(dv,d||2.6).addScaledVector(V3(dv.z,0,-dv.x),.6),look:headOf(g,1.55)}};
@@ -358,3 +358,6 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
   if(CH2.st>=5&&NZ.home&&Math.hypot(P.pos.x-NZ.home.position.x,z-NZ.home.position.z)<2.4){nzLeave();return}
   if(lon&&CH2.st>=3&&!bossRef){NZ.tollT-=dt;if(NZ.tollT<=0){NZ.tollT=rand(55,90);nzToll(1)}NZ.lt-=dt;if(NZ.lt<=0){NZ.lt=4.5;if(enemies.filter(e=>!e.dead).length<6){const s=findSpot(P.pos.x,P.pos.z,26,46);if(s){if(Math.random()<.5)spawnEnemy('demon',s);else nzSpawnFly('nbat',V3(s.x,P.pos.y+rand(2,6),s.z))}}}}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE!=='open'&&CH2.zone==='north')nzTick(Math.min(dt,.05))}}
+/* Maëlle's chapter 2 lines, voiced */
+Object.assign(VO_MAP,{"Who's there?! Stay back. I'm warning you.":'mx01','His sister? He killed Bilel!':'mx02','So the real Kaen is still out there. Suffering.':'mx03','London, then. Bilel would have gone.':'mx04',"Don't wait up.":'mx05',
+  'Thirteen. And something is sitting on the clock.':'mx06','Kaen?':'mx07','She is. She sent me. We are taking you home.':'mx08','Then I am the debt you will never collect.':'mx09','Crawling? I flew. Over your whole cursed sea.':'mx10'});

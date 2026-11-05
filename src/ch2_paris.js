@@ -144,7 +144,7 @@ function buildJournal(){const g=new THREE.Group();const cov=std({color:0x3a1420,
   const gl=glowSprite(0xb080ff,3.5,.7);g.add(gl);g.userData={flip,gl};return g}
 
 /* ---------- Lyra, Kaen's sister ---------- */
-function buildLyra(){const a=makeCHActor('f',{skin:0xfff1e8,skinLift:[1.42,1.56,1.66],hair:'hairLong',hairCol:0x0e0e12,brow:0x101014,eyeTint:0xd8c8c0,
+function buildLyra(){const a=makeCHActor('f',{skin:0xfff1e8,skinLift:[1.42,1.56,1.66],hair:'hairLong',hairCol:0x0e0e12,brow:0x101014,eyeTint:0xd8c8c0,keepReg:[5,6,7,8,9],
     wear:[['tee',0xf2efea,{roughness:.6}],['trousers',0x8c1418,{roughness:.55}],['shoes',0x111114,{roughness:.4}]]});if(!a)return null;const SK=a.S.SK;
   const at=(b,m,off)=>{try{if(SK[b])a.attach(b,m,SK[b].clone().add(off||V3()))}catch(e){}};const red=std({color:0xa01820,roughness:.45}),gold=std({color:0xd8b060,metalness:.9,roughness:.3}),blk=std({color:0x16141a,roughness:.5});
   const sash=new THREE.Mesh(new THREE.TorusGeometry(.15,.016,6,32),red);sash.scale.set(1,1.55,1);sash.rotation.set(Math.PI/2-.2,.55,0);at('spine_03',sash,V3(0,.02,0));
@@ -199,11 +199,15 @@ function ch2Finale(center,orb,lines){STATS.won=true;writeSave();snow.force=false
     {who:'Lyra',text:LY.ly12,cam:lyShot(2.3),update:dt=>{if(lyr)lyr.update(dt)}},
     {who:'Lyra',text:LY.ly13,cam:lyShot(2.1),update:dt=>{if(lyr)lyr.update(dt)}},
     {who:'@',text:'London, then. Bilel would have gone.',cam:witchShot(-1,3.4),update:dt=>{if(lyr)lyr.update(dt)}}];
-  playCutscene(shots,()=>{CH2.mourn=false;P.heroAnim=null;setDawn(1);if(book){scene.remove(book);book=null}if(lyr){scene.remove(lyr.g);lyr=null}CH2.st=Math.max(CH2.st,1);ch2Save();lyraToTroca();
+  playCutscene(shots,()=>{CH2.mourn=false;P.heroAnim=null;setDawn(.55);if(book){scene.remove(book);book=null}if(lyr){scene.remove(lyr.g);lyr=null}CH2.st=Math.max(CH2.st,1);ch2Save();lyraToTroca();
     toast('Lyra waits at the Trocadéro, across the river from the tower. The real Paris is open: the 7th and the 16th.','Chapter 2 · The Crossing',true);
-    after(7,()=>{const v=$('victory');if(!v)return;v.querySelector('h1').textContent='Chapter 1 complete';const s=v.querySelector('.sub');if(s)s.innerHTML='Chapter 2 is open: <b>Lyra</b> waits at the Trocadéro.<br>Open world mode is unlocked too.';$('vLvl').textContent=P.level;$('vKills').textContent=STATS.kills;$('vTime').textContent=Math.max(1,Math.round(STATS.time/60));v.classList.remove('hidden');paused=true})})}
+    after(7,()=>{const v=$('victory');if(!v)return;v.querySelector('h1').textContent='Chapter 1 complete';const s=v.querySelector('.sub');if(s)s.innerHTML='Chapter 2 is open: <b>Lyra</b> waits at the Trocadéro.';const ob=$('owBtn');if(ob)ob.style.display='none';$('vLvl').textContent=P.level;$('vKills').textContent=STATS.kills;$('vTime').textContent=Math.max(1,Math.round(STATS.time/60));v.classList.remove('hidden');paused=true})})}
 
 /* ---------- load / new game ---------- */
 {const _sg=startGame;startGame=function(fromSave){const r=_sg.apply(this,arguments);if(MODE==='open')return r;
   if(!fromSave){CH2.st=0;ch2Save()}
   if(CH2.st>=1&&STATS.won){ch2ExpandParis();lyraToTroca()}else prisonWall();return r}}
+
+/* softer light: less bloom in story mode, lighter dawn haze after Kaen */
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open'||!bloomPass||CS.active&&OWT.fog!=null)return;bloomPass.strength=.22;bloomPass.threshold=.9;
+  if(CH2.st>=1&&CH2.zone==='paris'){scene.fog.density=Math.min(scene.fog.density,.0062);if(dawnK>.6)setDawn(.55)}}}
