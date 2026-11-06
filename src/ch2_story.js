@@ -82,10 +82,13 @@ function kfwOn(){return MODE!=='open'&&(CH2.st>=7||(CH2.st===6&&KFW.go))&&!KFW.o
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started)return;const on=kfwOn();if(!on){if(KFW.a)KFW.a.g.visible=false;return}const a=kfBuild();if(!a)return;a.g.visible=W.g.visible!==false;
   if(NZ.ghost&&CH2.zone==='north')NZ.ghost.g.visible=false;
   const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);const ride=P.flying||!!CH2.chase;let tgt,ry=P.face;
-  if(ride){if(KFW.mode!=='ride'){KFW.mode='ride';try{a.setBase('Sitting_Idle_Loop',.3)}catch(x){a.setBase('Crouch_Idle_Loop',.3)}}const wr=W.g.rotation.y,wf=V3(Math.sin(wr),0,Math.cos(wr)),sc=W.g.scale.y||1,by=W.broom?W.broom.position.y:.95;a.g.position.copy(W.g.position).addScaledVector(wf,(.1+SBR.seat)*sc);a.g.position.y+=(by+.07)*sc-(KFW.hip||.68);ry=wr}
+  if(ride){if(KFW.mode!=='ride'){KFW.mode='ride';try{a.setBase('Sitting_Idle_Loop',.3)}catch(x){a.setBase('Crouch_Idle_Loop',.3)}}const wr=W.g.rotation.y,wf=V3(Math.sin(wr),0,Math.cos(wr)),sc=W.g.scale.y||1,by=W.broom?W.broom.position.y:.95;a.g.position.copy(W.g.position).addScaledVector(wf,(.1+SBR.seat)*sc);a.g.position.y+=(by+.07)*sc-(KFW.hip||.68)*a.g.scale.y;ry=wr;a.g.rotation.y=wr;
+    try{if(KFW.wpG!==W.g){KFW.wpG=W.g;KFW.wp=null;W.g.traverse(o=>{if(!KFW.wp&&o.isBone&&/pelvis/i.test(o.name))KFW.wp=o})}if(!KFW.kp)a.g.traverse(o=>{if(!KFW.kp&&o.isBone&&/pelvis/i.test(o.name))KFW.kp=o});
+      if(KFW.wp&&KFW.kp){a.g.updateMatrixWorld(true);const kp=KFW.kp.getWorldPosition(V3()),seat=W.g.position.clone().addScaledVector(wf,(.1+SBR.seat)*sc);const wy=KFW.wp.getWorldPosition(V3()).y;
+        a.g.position.x+=seat.x-kp.x;a.g.position.z+=seat.z-kp.z;a.g.position.y+=wy-kp.y+.02}}catch(x){}}
   else{tgt=P.pos.clone().addScaledVector(f,-1.1).addScaledVector(r,-1.2);tgt.y=P.pos.y+.35+Math.sin(time*1.6)*.12;if(KFW.mode!=='float'){KFW.mode='float';a.setBase('Idle_Loop',.4)}a.g.position.lerp(tgt,Math.min(1,dt*3.5));
     const dx=P.pos.x-a.g.position.x,dz=P.pos.z-a.g.position.z;if(Math.hypot(dx,dz)>.4)ry=lerpAngle(a.g.rotation.y,P.face,Math.min(1,dt*3))}
-  a.g.rotation.y=ry;try{a.update(dt)}catch(x){}KFW.gm.opacity=.36+Math.sin(time*2.6)*.07;if(Math.random()<.15)SP.emit(V3(a.g.position.x+rand(-.3,.3),a.g.position.y+rand(.3,1.6),a.g.position.z+rand(-.3,.3)),{c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:.8,up:.5})}}
+  a.g.rotation.y=ry;try{a.update(dt)}catch(x){}KFW.gm.opacity=.26+Math.sin(time*2.6)*.06;a.g.scale.setScalar(KFW.sc||1.12);if(Math.random()<.15)SP.emit(V3(a.g.position.x+rand(-.3,.3),a.g.position.y+rand(.3,1.6),a.g.position.z+rand(-.3,.3)),{c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:.8,up:.5})}}
 
 /* ================= after the quiz: Kaen is free, but the Tower is not done with you ================= */
 function stAfterQuiz(){const c=NZ.green;const kS=sd=>()=>({pos:headOf(c,1.5).add(V3(sd||1.8,.2,2.8)),look:headOf(c,1.4)});
@@ -239,24 +242,42 @@ CHAPTERS.push({id:'escape',n:'XI',title:'The Escape',desc:"The Tower's questions
   if(e&&e.ai&&!e.ai.g0){e.ai.g0=1;const S=epSummonShots(e);const d0=done;shots=shots.concat(S.shots);done=function(){try{if(d0)d0()}catch(x){}S.done()}}}}catch(x){}return _pc.call(this,shots,done)}}
 
 /* ---------- the long broom: room for two, sea-glass blue, trail over the sea ---------- */
-const SBR={g:null,on:false,b:null,def:null,seat:-1.3,trT:0};
-function sbBuild(){if(SBR.g)return SBR.g;const g=new THREE.Group();
-  const wood=std({color:0x2e4066,roughness:.42,metalness:.25,emissive:0x0a2a66,emissiveIntensity:.35});
-  const st=new THREE.Mesh(new THREE.CylinderGeometry(.06,.072,4.7,10),wood);st.rotation.x=Math.PI/2;st.position.z=-.9;g.add(st);
-  const rm=std({color:0x7ad8ff,emissive:0x40b0ff,emissiveIntensity:1.3,metalness:.4,roughness:.25});SBR.rm=rm;
-  for(const z of[1.1,.5,-.62,-1.95,-3.1]){const r=new THREE.Mesh(new THREE.TorusGeometry(.086,.017,6,18),rm);r.position.z=z;g.add(r)}
-  const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),std({color:0xa8ecff,emissive:0x30a0ff,emissiveIntensity:1.6,transparent:true,opacity:.92,roughness:.1}));gem.position.z=1.58;gem.scale.set(1,1,1.6);g.add(gem);SBR.gem=gem;
-  const gs=glowSprite(0x60c8ff,.9,.55);gs.position.z=1.58;g.add(gs);SBR.gs=gs;
-  const band=new THREE.Mesh(new THREE.TorusGeometry(.14,.03,6,18),rm);band.position.z=-3.28;g.add(band);
-  const br=new THREE.Mesh(new THREE.CylinderGeometry(.13,.4,1.6,18,3),std({color:0x7e96c4,roughness:.9,emissive:0x0a2250,emissiveIntensity:.35}));br.rotation.x=Math.PI/2;br.position.z=-4.05;g.add(br);
-  
-  const pad=std({color:0x1a2442,roughness:.8});for(const z of[.05,SBR.seat+.1]){const p=new THREE.Mesh(new THREE.BoxGeometry(.3,.06,.55),pad);p.position.set(0,.07,z);g.add(p)}
+const SBR={g:null,on:false,b:null,def:null,seat:-1.5,trT:0};
+function sbBuild(){if(SBR.g)return SBR.g;const g=new THREE.Group();const Z0=1.45,Z1=-3.25,LEN=Z0-Z1,ZM=(Z0+Z1)/2;
+  const wood=std({color:0x24345a,roughness:.38,metalness:.3,emissive:0x081e50,emissiveIntensity:.4});
+  const st=new THREE.Mesh(new THREE.CylinderGeometry(.052,.07,LEN,12),wood);st.rotation.x=Math.PI/2;st.position.z=ZM;g.add(st);
+  const rm=std({color:0x8ae0ff,emissive:0x40b8ff,emissiveIntensity:1.3,metalness:.4,roughness:.25});SBR.rm=rm;
+  const silver=std({color:0xdfe8f4,metalness:.9,roughness:.22,emissive:0x203040,emissiveIntensity:.3});
+  // a glowing ribbon wound round the shaft
+  {const pts=[];const N=160,turns=9;for(let i=0;i<=N;i++){const t=i/N,a=t*turns*TAU,z=Z0-.15-t*(LEN-.35),r=.066+.008*(1-t);pts.push(V3(Math.cos(a)*r,Math.sin(a)*r,z))}
+    const tb=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),N,.011,5,false),rm);g.add(tb)}
+  // the front curl, holding the sea-glass gem in a little silver claw
+  const curl=new THREE.Mesh(new THREE.TorusGeometry(.17,.055,8,20,Math.PI*1.25),wood);curl.rotation.set(0,Math.PI/2,0);curl.position.set(0,.17,Z0);curl.rotation.z=-Math.PI/2;g.add(curl);
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.12,12),silver);cap.rotation.x=Math.PI/2;cap.position.z=Z0-.04;g.add(cap);
+  const gemP=V3(0,.36,Z0+.05);const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.12,0),std({color:0xb0f0ff,emissive:0x30a8ff,emissiveIntensity:1.8,transparent:true,opacity:.92,roughness:.05,metalness:.2}));gem.position.copy(gemP);gem.scale.set(1,1.5,1);g.add(gem);SBR.gem=gem;
+  for(let k=0;k<4;k++){const a=k/4*TAU;const pr=new THREE.Mesh(new THREE.ConeGeometry(.018,.2,4),silver);pr.position.set(gemP.x+Math.cos(a)*.08,gemP.y-.12,gemP.z+Math.sin(a)*.08);pr.rotation.set(Math.sin(a)*.5,0,-Math.cos(a)*.5);g.add(pr)}
+  const gs=glowSprite(0x60c8ff,1,.55);gs.position.copy(gemP);g.add(gs);SBR.gs=gs;
+  // silver bands and the two leather grips
+  for(const z of[Z0-.14,.75,-.45,-1.95,Z1+.08]){const b=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,.05,14),silver);b.rotation.x=Math.PI/2;b.position.z=z;g.add(b)}
+  const lth=std({color:0x1c1830,roughness:.85});for(const[z,l]of[[.5,.36],[SBR.seat+.62,.3]]){const gp=new THREE.Mesh(new THREE.CylinderGeometry(.078,.078,l,12),lth);gp.rotation.x=Math.PI/2;gp.position.z=z;g.add(gp)}
+  // two saddles with stirrups
+  const sad=std({color:0x1b2546,roughness:.7,metalness:.1});
+  for(const z of[0,SBR.seat]){const s=new THREE.Mesh(new THREE.SphereGeometry(1,14,8,0,TAU,0,Math.PI/2),sad);s.scale.set(.16,.07,.3);s.position.set(0,.05,z);g.add(s);
+    const rim=new THREE.Mesh(new THREE.TorusGeometry(1,.06,5,22),rm);rim.scale.set(.16,.3,1);rim.rotation.x=Math.PI/2;rim.position.set(0,.055,z);g.add(rim);
+    for(const sx of[-1,1]){const rod=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.42,4),silver);rod.position.set(sx*.13,-.17,z+.12);rod.rotation.z=sx*.35;g.add(rod);const ft=new THREE.Mesh(new THREE.TorusGeometry(.06,.014,5,10),silver);ft.position.set(sx*.21,-.38,z+.12);ft.rotation.y=Math.PI/2;g.add(ft)}}
+  // layered bristles, bound with silver and a glowing cord
+  const B=Z1-.02;const stx=k=>{const c=mkCanvas(128,128,x=>{x.clearRect(0,0,128,128);for(let i=0;i<128;i++){const h=128*(k?.8+Math.random()*.2:.72+Math.random()*.28),l=40+Math.random()*40;x.fillStyle=`hsl(${215+Math.random()*16},${30+Math.random()*25}%,${k?l*.55:l}%)`;x.fillRect(i,0,1,h);if(Math.random()<.08){x.fillStyle='rgba(170,225,255,.9)';x.fillRect(i,0,1,h*.9)}}});const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;t.repeat.set(3,1);t.anisotropy=4;return t};
+  for(const[r0,r1,l,k]of[[.13,.44,1.8,0],[.11,.34,1.65,1]]){const m=new THREE.Mesh(new THREE.CylinderGeometry(r0,r1,l,32,1,true),std({map:stx(k),alphaTest:.5,transparent:false,roughness:.95,emissive:0x0a2250,emissiveIntensity:.25,side:THREE.DoubleSide}));m.rotation.x=Math.PI/2;m.position.z=B-l/2;g.add(m)}
+  const core=new THREE.Mesh(new THREE.ConeGeometry(.24,1.3,14),std({color:0x22325a,roughness:.95}));core.rotation.x=Math.PI/2;core.position.z=B-.85;g.add(core);
+  for(const[z,r,m]of[[B-.05,.135,silver],[B-.32,.18,rm]]){const t=new THREE.Mesh(new THREE.TorusGeometry(r,.026,6,22),m);t.position.z=z;g.add(t)}
+  // a soft aura that breathes along the shaft
+  SBR.au=[];for(let k=0;k<7;k++){const s=glowSprite(0x58c0ff,.7,.2);s.position.set(0,0,Z0-.3-k*(LEN-.2)/6);g.add(s);SBR.au.push(s)}
   SBR.g=g;return g}
-function sbTail(){const wr=W.g.rotation.y,sc=W.g.scale.y||1;const o=W.g.position.clone().add(V3(Math.sin(wr),0,Math.cos(wr)).multiplyScalar((.1-4.9)*sc));o.y+=(W.broom.position.y)*sc;return o}
+function sbTail(){const wr=W.g.rotation.y,sc=W.g.scale.y||1;const o=W.g.position.clone().add(V3(Math.sin(wr),0,Math.cos(wr)).multiplyScalar((.1-4.95)*sc));o.y+=(W.broom.position.y)*sc;return o}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||!W||!W.broom)return;if(SBR.b!==W.broom){SBR.b=W.broom;SBR.on=false;SBR.def=null}
   const want=kfwOn();if(want!==SBR.on){SBR.on=want;const b=W.broom;if(!SBR.def)SBR.def=[b.children[0],b.children[1]];if(want)b.add(sbBuild());else if(SBR.g&&SBR.g.parent)SBR.g.parent.remove(SBR.g);for(const c of SBR.def)if(c)c.visible=!want}
-  if(!SBR.on||!W.broom.visible)return;const sea=CH2.zone==='north'&&CH2.gemOn&&P.flying;SBR.gs.material.opacity=(sea?.75:.4)+Math.sin(time*4)*.15;SBR.gem.rotation.z+=dt*2;SBR.rm.emissiveIntensity=lerp(SBR.rm.emissiveIntensity,sea?2.4:1.2,Math.min(1,dt*3));
-  if(sea){SBR.trT-=dt;if(SBR.trT<=0){SBR.trT=.03;const t=sbTail();SP.emit(t,{n:3,c0:0xe0f6ff,c1:0x1868e0,s0:.55,s1:.05,life:1.2,speed:.7});if(Math.random()<.5)SM.emit(t.clone(),{c0:0x70c8ff,c1:0x0a2a6a,s0:.5,s1:1.5,life:.9,a:.32,up:0})}}}}
+  if(!SBR.on||!W.broom.visible)return;const sea=CH2.zone==='north'&&CH2.gemOn&&P.flying;SBR.gs.material.opacity=(sea?.75:.4)+Math.sin(time*4)*.15;SBR.gem.rotation.y+=dt*2;SBR.blk=(SBR.blk||0)-dt;if(SBR.blk<=0)SBR.blk=rand(1.6,4);const bl=SBR.blk<.12?1.6:1;for(let k=0;k<SBR.au.length;k++){const s=SBR.au[k],w=Math.max(0,Math.sin(time*2.4-k*.7));s.material.opacity=(sea?.3:.16)*(.35+w)*bl;s.scale.setScalar(.6+w*.5)}SBR.rm.emissiveIntensity=lerp(SBR.rm.emissiveIntensity,sea?2.4:1.2,Math.min(1,dt*3));
+  if(sea){SBR.trT-=dt;if(SBR.trT<=0){SBR.trT=.03;const t=sbTail();SP.emit(t.clone().add(V3(rand(-.25,.25),rand(-.25,.25),rand(-.25,.25))),{n:3,c0:0x9adcff,c1:0x1050d0,s0:.42,s1:.04,life:1.1,speed:.5});if(Math.random()<.35)SM.emit(t.clone(),{c0:0x3a8cff,c1:0x061a50,s0:.35,s1:.9,life:.7,a:.2,up:0})}}}}
 
 /* ---------- London stays hidden until you are well inland ---------- */
 {const _nl=nzLondon;nzLondon=function(G){const n0=G.children.length;const r=_nl.apply(this,arguments);NZ.lonObjs=G.children.slice(n0);return r}}
@@ -294,4 +315,84 @@ function nzFlag(G,x,y,z,h,ry){const g=new THREE.Group();g.position.set(x,y,z);g.
 const CHL2=['k06','t03','k07','m04','t04','k08','m05','t05','k09','m03','t08'];
 {const _mt=muTick;muTick=function(dt){_mt(dt);const C=CH2.chase;if(!C||!started||MODE==='open'||CS.active||!P.alive||C.arr)return;
   if(C.line>=CHL.length){C.rT=(C.rT==null?6:C.rT)-dt;if(C.rT<=0){C.rT=rand(15,21);const k=CHL2[(C.ri=(C.ri||0)+1)%CHL2.length];const w=k[0]==='k'?"Kaen's Spirit":k[0]==='t'?'The Warden':'@';epSay(w,SL[k])}}
-  const z=P.pos.z;if(z<-3300&&z>CURSE_Z+40){C.bT=(C.bT==null?14:C.bT)-dt;if(C.bT<=0){C.bT=rand(16,24);const n=enemies.filter(o=>!o.dead&&o.type==='nbat').length;if(n<8)for(let k=0;k<3;k++)nzSpawnFly('nbat',V3(P.pos.x+rand(-25,25),P.pos.y+rand(-2,4),P.pos.z+rand(45,65)))}}}}
+  }}
+
+/* ================= the Warden, sharper: better lasers, seals, blinking ahead of you, a bar that heals ================= */
+function wdBeamTex(){if(WD.bt)return WD.bt;const c=mkCanvas(4,128,x=>{for(let y=0;y<128;y++){const v=.5+.5*Math.abs(Math.sin(y/128*Math.PI*3)*Math.sin(y/128*Math.PI*7+1));x.fillStyle=`rgba(255,255,255,${v.toFixed(3)})`;x.fillRect(0,y,4,1)}});
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return WD.bt=t}
+function wdBM(col,op,map){return new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,map:map||null,fog:false})}
+wdLaser=function(e,from,to,dmg,w,o){o=o||{};w=w||.7;const dir=to.clone().sub(from).normalize();const end=from.clone().addScaledVector(dir,from.distanceTo(to)+(o.ext==null?30:o.ext));const L=from.distanceTo(end);
+  const grp=new THREE.Group();grp.position.copy(from).lerp(end,.5);grp.lookAt(end);scene.add(grp);const geos=[],mats=[];
+  const mk=(r,mat)=>{const gm=new THREE.CylinderGeometry(r,r,L,18,1,true);geos.push(gm);mats.push(mat);const m=new THREE.Mesh(gm,mat);m.rotation.x=Math.PI/2;grp.add(m);return m};
+  const kill=()=>{scene.remove(grp);for(const g of geos)g.dispose();for(const m of mats){if(m.map&&m.map!==WD.bt)m.map.dispose();m.dispose()}};
+  const guide=mk(.035,wdBM(0xc8ffd8,0));const ch=glowSprite(0x80ffa8,.5,.9,false);ch.position.copy(from);scene.add(ch);const chR=new THREE.Mesh(new THREE.TorusGeometry(1,.06,6,28),wdBM(0x9affb0,.8));chR.position.copy(from);chR.lookAt(end);scene.add(chR);
+  sx('riser',.5,null,{rate:1.7});const tc=o.charge||.7;let lt=0;
+  addFx(null,tc,(f,k)=>{guide.material.opacity=(.18+.5*k)*(Math.sin(f.t*70)>0?1:.35);ch.scale.setScalar(.5+k*3.6);ch.material.opacity=.5+k*.5;chR.scale.setScalar(w*(5-k*3.6));chR.material.opacity=.3+k*.6;chR.rotation.z+=.2;
+      if(Math.random()<.85)SP.emit(from.clone().add(V3(rand(-2.4,2.4),rand(-2.4,2.4),rand(-2.4,2.4))),{c0:0xffffff,c1:0x30ff70,s0:.32,s1:.04,life:.28,speed:-8})},
+    ()=>{scene.remove(ch);scene.remove(chR);chR.geometry.dispose();chR.material.dispose();if(e.dead){kill();return}guide.visible=false;
+      const tex=wdBeamTex().clone();tex.needsUpdate=true;tex.repeat.set(1,L/7);
+      const halo=mk(w*2.4,wdBM(0x18b050,.2)),body=mk(w,wdBM(0x4dff88,.8,tex)),core=mk(w*.3,wdBM(0xffffff,1));
+      const f1=glowSprite(0xd0ffe0,w*10,1,false);f1.position.copy(from);scene.add(f1);const f2=glowSprite(0x70ffa0,w*16,.9,false);f2.position.copy(to);scene.add(f2);
+      sx('laser',1.15,()=>{try{sfx.boom()}catch(x){}},{wet:.2});flash(to,0x60ff90,14);P.shake=Math.max(P.shake,.55);
+      let hit=false;lt=0;
+      addFx(null,o.dur||.62,(f,k)=>{const dt=f.t-lt;lt=f.t;const p=1+Math.sin(f.t*55)*.14,s=k<.12?k/.12:1-(k-.12)/.88*.9;core.scale.set(s*p,1,s*p);body.scale.set(s*p,1,s*p);halo.scale.set(s*(1+k*.8),1,s*(1+k*.8));tex.offset.y-=dt*7;
+          body.material.opacity=.8*(1-k*.7);halo.material.opacity=.2*(1-k);f1.material.opacity=1-k;f2.material.opacity=.9*(1-k);f1.scale.setScalar(w*10*(1+Math.sin(f.t*40)*.15));
+          for(let n=0;n<2;n++)SP.emit(from.clone().lerp(end,Math.random()).add(V3(rand(-w,w),rand(-w,w),rand(-w,w))),{c0:0xffffff,c1:0x30ff70,s0:.4,s1:.04,life:.45,speed:3});
+          if(!hit&&k<.4){const ab=end.clone().sub(from),ap=headOf(P.pos,1).sub(from);const t=clamp(ap.dot(ab)/ab.lengthSq(),0,1);if(from.clone().addScaledVector(ab,t).distanceTo(headOf(P.pos,1))<w+.9){hit=true;damagePlayer(dmg);flash(headOf(P.pos,1),0x60ff90,10)}}},
+        ()=>{kill();scene.remove(f1);scene.remove(f2)})})};
+
+/* seals: rune walls he throws across your path */
+const WSEAL=[];
+function wdSeal(at,r,face){const g=new THREE.Group();g.position.copy(at);g.rotation.y=face;const rn=decal(runeTex,0x60ff90,r*2,true,.85);rn.rotation.set(0,0,0);g.add(rn);
+  const tr=new THREE.Mesh(new THREE.TorusGeometry(r,.12,6,36),wdBM(0x9affb0,.9));g.add(tr);const gl=glowSprite(0x40ff80,r*3.2,.35,false);g.add(gl);scene.add(g);
+  const s={g,r,t:0,life:11,rn,tr,gl,dead:false};WSEAL.push(s);g.scale.setScalar(.01);runeFlash(at,0x60ff90,r*1.4,.5);return s}
+function wdSealClear(){for(const s of WSEAL){scene.remove(s.g);disposeObj(s.g)}WSEAL.length=0}
+function wdSealWall(){const f=CH2.chase.dir||V3(0,0,1),sd=V3(f.z,0,-f.x);const at=P.pos.clone().addScaledVector(f,rand(42,52));const gap=Math.floor(rand(0,6)),face=Math.atan2(f.x,f.z);
+  for(let c=0;c<6;c++){if(c===gap)continue;for(const dy of[-1.2,7.2])after(c*.05+(dy>0?.15:0),()=>{if(CH2.chase)wdSeal(at.clone().addScaledVector(sd,(c-2.5)*8.4).add(V3(0,dy,0)),4.1,face)})}
+  sx('garg',.8,null,{rate:.8,wet:.4})}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!WSEAL.length)return;if(!CH2.chase||CH2.zone!=='north'){wdSealClear();return}if(CS.active)return;const pc=headOf(P.pos,1);
+  for(let i=WSEAL.length-1;i>=0;i--){const s=WSEAL[i];s.t+=dt;const k=Math.min(1,s.t*3);s.g.scale.setScalar(k*k*(3-2*k));s.rn.rotation.z+=dt*1.6;s.tr.material.opacity=.6+Math.sin(time*9+i)*.3;s.gl.material.opacity=.25+Math.sin(time*5+i)*.1;
+    const rel=pc.clone().sub(s.g.position);const fw=V3(Math.sin(s.g.rotation.y),0,Math.cos(s.g.rotation.y));const along=rel.dot(fw),lat=rel.clone().addScaledVector(fw,-along).length();
+    if(!s.dead&&Math.abs(along)<1.6&&lat<s.r*.92&&P.invuln<=0){s.dead=true;damagePlayer(maxHP()*.2);P.vy=-5;P.shake=1.2;flash(pc,0x60ff90,12);sx('impact',1,null,{rate:.7});SP.emit(s.g.position,{n:80,c0:0xffffff,c1:0x30ff70,speed:10,life:.7});floatText(headOf(P.pos,2.2),'SEALED','#9affb0',true);s.life=Math.min(s.life,s.t+.25)}
+    if(s.t>s.life||along>40){scene.remove(s.g);disposeObj(s.g);WSEAL.splice(i,1)}}}}
+
+/* the chase brain: track your heading, blink ahead, seals, orb spirals, bursts, freeze slows him, the bar heals */
+{const st=document.createElement('style');st.textContent='#boss.wdregen i{background:linear-gradient(90deg,#0b5a34,#5dffa4,#d8ffe8,#5dffa4);background-size:300% 100%;animation:wdreg .9s linear infinite}#boss.wdregen .bar{box-shadow:inset 0 0 0 1px rgba(120,255,170,.7),0 0 22px rgba(80,255,150,.55)}@keyframes wdreg{0%{background-position:100% 0}100%{background-position:0 0}}#boss .wdtag{font-size:11px;color:#9affb0;letter-spacing:.14em;margin-top:4px;text-align:center;text-shadow:0 0 8px rgba(80,255,150,.8)}';document.head.appendChild(st)}
+function wdBarReset(){const b=$('boss');if(b)b.classList.remove('wdregen');const t=document.querySelector('#boss .wdtag');if(t)t.remove()}
+function wdBlink(e,to){const c=eCenter(e);SM.emit(c,{n:30,c0:0x60ff90,c1:0x02140a,s0:1.5,s1:4,life:.9,a:.5,up:1});SP.emit(c,{n:80,c0:0xffffff,c1:0x30ff70,speed:10,life:.6});flash(c,0x60ff90,10);
+  e.pos.copy(to);const d=eCenter(e);SP.emit(d,{n:100,c0:0xffffff,c1:0x30ff70,speed:12,life:.7});ring(V3(d.x,d.y-2,d.z),0x60ff90,1,14,.5);flash(d,0x60ff90,16);sx('portal',.9,null,{rate:1.3,wet:.3})}
+{const _ai=wdChaseAI;wdChaseAI=function(e,dt,d){const C=CH2.chase;if(!C)return;const k=e.slow>0?.5:1;if(C.ah){const f=C.dir;const t=P.pos.clone().addScaledVector(f,C.ah.dist).add(V3(Math.sin(C.t*.9)*5,3.5,0));e.pos.lerp(t,Math.min(1,dt*3*k));e.m.g.rotation.y=Math.atan2(P.pos.x-e.pos.x,P.pos.z-e.pos.z);return}
+  const f=C.dir||V3(0,0,1);const back=C.win?0:(C.ok>0?44:30);if(C.win){_ai(e,dt,d);return}
+  const t=P.pos.clone().addScaledVector(f,-back).add(V3(Math.sin(C.t*.6)*9,2+Math.sin(C.t*1.1)*2,0));e.pos.lerp(t,Math.min(1,dt*(C.ok>0?2.5:1.2)*k));C.ok=Math.max(0,C.ok-dt)}}
+{const _ea=epArrive;epArrive=function(){wdSealClear();wdBarReset();return _ea.apply(this,arguments)}}
+{const _ab=epChaseAbort;epChaseAbort=function(){wdSealClear();wdBarReset();return _ab.apply(this,arguments)}}
+{const _mt=muTick;muTick=function(dt){const C=CH2.chase,e=WD.e;const pre=C&&e&&!e.dead&&started&&!CS.active&&P.alive&&MODE!=='open'&&!C.arr;
+  let fk=1;if(pre){fk=e.frozen>0?.18:e.slow>0?.55:1;if(fk<1){C.lasT+=dt*(1-fk);C.surge+=dt*(1-fk);if(!C.fzS){C.fzS=1;floatText(headOf(e.pos,4.6),'SLOWED','#bfe8ff',true);epSay('@','Ice slows him down. Good to know.')}}}
+  _mt(dt);if(!pre||!CH2.chase)return;
+  // heading
+  if(C.lp){const v=P.pos.clone().sub(C.lp);v.y=0;if(v.lengthSq()>1e-4){v.normalize();C.dir=(C.dir||v.clone()).lerp(v,Math.min(1,dt*4)).normalize()}}C.lp=P.pos.clone();if(!C.dir)C.dir=V3(0,0,1);
+  // the bar: normal until you hurt him, then it races back
+  const box=$('boss');if(e.hp<e.maxhp-1){e.hp=Math.min(e.maxhp,e.hp+e.maxhp*.32*dt*fk);if(box&&!box.classList.contains('wdregen')){box.classList.add('wdregen');const n=$('bossName');if(n&&!box.querySelector('.wdtag')){const t=document.createElement('div');t.className='wdtag';t.textContent='REGENERATING · CANNOT DIE HERE';box.appendChild(t)}if(!C.regS){C.regS=1;after(.6,()=>epSay("Kaen's Spirit",'He heals as fast as you hurt him! Freeze him, and keep flying!',1))}}}
+  else if(box&&box.classList.contains('wdregen'))wdBarReset();
+  if(C.win)return;const dk=dt*fk;
+  // blink ahead, seal the path, fire from the front
+  C.ahT=(C.ahT==null?16:C.ahT)-dk;if(!C.ah&&C.ahT<=0&&C.surge>5){C.ah={t:0,dist:48,shot:0};C.surge=Math.max(C.surge,8);wdBlink(e,P.pos.clone().addScaledVector(C.dir,48).add(V3(0,3.5,0)));epSay('The Warden',Math.random()<.5?SL.t03:SL.t05,1);after(.5,()=>{if(CH2.chase)wdSealWall()})}
+  if(C.ah){const A=C.ah;A.t+=dk;if(A.t>1.4&&A.shot<3&&A.t>1.4+A.shot*.9){A.shot++;try{e.m.actor.fire('Spell_Simple_Shoot',.6)}catch(x){}wdLaser(e,headOf(e.pos,4.2),headOf(P.pos,1).addScaledVector(C.dir,8),maxHP()*.28,.65,{charge:.55})}
+    if(A.t>2.2&&!A.orb){A.orb=1;wdSpiral(e,true)}
+    if(A.t>5.2){C.ah=null;C.ahT=rand(17,24);wdBlink(e,P.pos.clone().addScaledVector(C.dir,-32).add(V3(0,3,0)));C.lasT=Math.max(C.lasT,2.5)}}
+  // orb spirals from behind, aimed where you will be
+  C.spT=(C.spT==null?9:C.spT)-dk;if(!C.ah&&C.spT<=0){C.spT=rand(10,14);wdSpiral(e,false)}
+  // extra laser bursts
+  C.bsT=(C.bsT==null?7:C.bsT)-dk;if(!C.ah&&C.bsT<=0){C.bsT=rand(6,9);const lead=V3().copy(C.dir).multiplyScalar(30*.7);for(let k=0;k<3;k++)after(k*.38,()=>{if(!CH2.chase||C.win||C.ah||e.dead)return;wdLaser(e,headOf(e.pos,4.2),headOf(P.pos,1).add(lead).add(V3(rand(-4,4),rand(-2,2),0)),maxHP()*.24,.55,{charge:.6})})}}}
+function wdSpiral(e,front){const c=headOf(e.pos,4);const C=CH2.chase;const tgt=headOf(P.pos,1).addScaledVector(C.dir,front?0:28);const base=tgt.clone().sub(c).normalize();const up=V3(0,1,0),sd=base.clone().cross(up).normalize(),u2=sd.clone().cross(base).normalize();
+  sx('riser',.7,null,{rate:.8});for(let w=0;w<3;w++)for(let k=0;k<8;k++)after(w*.22,()=>{if(e.dead||!CH2.chase)return;const a=k/8*TAU+w*.4;const dv=base.clone().addScaledVector(sd,Math.cos(a)*.16).addScaledVector(u2,Math.sin(a)*.16).normalize();
+    enemyOrb(headOf(e.pos,4),dv,front?24:48,maxHP()*.07,0x8dff70,.38,{keepY:false,life:3})})}
+
+/* the bats come home in clouds */
+{const _mt=muTick;muTick=function(dt){_mt(dt);const C=CH2.chase;if(!C||!started||MODE==='open'||CS.active||!P.alive||C.arr)return;C.batT=999;
+  C.coT=(C.coT==null?12:C.coT)-dt;if(C.coT<=0){const z=P.pos.z,near=z>-3600;C.coT=near?rand(9,13):rand(14,19);const alive=enemies.filter(o=>!o.dead&&o.type==='nbat').length;const n=Math.min(near?32:24,56-alive);if(n<6)return;
+    if(!C.said.bats){C.said.bats=1;epSay('@',SL.m06,1)}else if(Math.random()<.35)epSay("Kaen's Spirit",'Another swarm! Burn straight through them!');sx('bats',1.1);after(.5,()=>sx('bats',.9,null,{rate:.85}));
+    const f=C.dir||V3(0,0,1),sd=V3(f.z,0,-f.x);const ctr=P.pos.clone().addScaledVector(f,rand(60,78)).addScaledVector(sd,rand(-10,10));
+    for(let k=0;k<n;k++)after(k*.035,()=>{if(!CH2.chase)return;const p=ctr.clone().addScaledVector(sd,rand(-20,20)).addScaledVector(f,rand(-8,8));p.y=P.pos.y+rand(-4,7);const b=nzSpawnFly('nbat',p);b.maxhp=b.hp=Math.max(5,Math.round(b.maxhp*.3));b.dmg*=.55;b.swarm=1})}}}
+
+VO_MAP['He heals as fast as you hurt him! Freeze him, and keep flying!']='k3_01';VO_MAP['Another swarm! Burn straight through them!']='k3_02';VO_MAP['Ice slows him down. Good to know.']='m3_01';VO_SPIRIT.add('k3_01');VO_SPIRIT.add('k3_02');
