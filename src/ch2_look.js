@@ -58,7 +58,7 @@ function nzCab(){if(!NZ.cabK){const sh=new THREE.Shape();sh.moveTo(-2.2,.35);sh.
   const c=new THREE.Group();const b=new THREE.Mesh(NZ.cabK.g,NZ.cabK.m);b.castShadow=true;c.add(b);const sign=glowSprite(0xffb020,.9,.9);sign.position.set(0,1.95,.6);c.add(sign);
   for(const s of[-1,1]){const h=glowSprite(0xfff2d0,1.2,.8);h.position.set(s*.6,.75,2.3);c.add(h);const t=glowSprite(0xff2010,.7,.7);t.position.set(s*.65,.8,-2.3);c.add(t)}
   for(const z of[1.4,-1.4])for(const s of[-1,1]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.22,12),NZ.busK?NZ.busK.tyre:std({color:0x0c0c0e}));w.rotation.z=Math.PI/2;w.position.set(s*.85,.34,z);c.add(w)}return c}
-function nzTraffic(G){nzBus();const lanes=[{z:-10179.5,dir:1},{z:-10140.5,dir:-1}],cars=[];
+function nzTraffic(G){nzBus();const lanes=[{z:-9819.5,dir:1},{z:-9780.5,dir:-1}],cars=[];
   for(const L of lanes)for(let k=0;k<5;k++){const v=k%3===1?nzBus():nzCab();v.userData={x:-250+k*104+rand(-20,20),z:L.z,dir:L.dir,sp:k%3===1?7:10,bus:k%3===1};v.rotation.y=L.dir>0?Math.PI/2:-Math.PI/2;G.add(v);cars.push(v)}
   NZ.anim.push(dt=>{for(const v of cars){const u=v.userData;u.x+=u.dir*u.sp*dt;if(u.x>262)u.x=-262;if(u.x<-262)u.x=262;v.position.set(u.x,0,u.z)}})}
 
@@ -70,7 +70,7 @@ function nzPerson(){const R=Math.random,sx=R()<.5?'f':'m';const coat=[0x2a2a30,0
   if(!a)return null;try{a.setBase('Walk_Loop',.2,.9+R()*.25)}catch(e){}return a}
 function nzWalk(par,a,x0,z0,x1,z1){const u={a,x0,z0,x1,z1,t:Math.random(),dir:Math.random()<.5?1:-1,len:Math.hypot(x1-x0,z1-z0)};par.add(a.g);NZP.list.push(u);return u}
 function nzCrowd(where){if(!CH.ok)return;const segs=[];
-  if(where==='london'){for(let k=0;k<10;k++){const x=rand(-240,200),s=k%2?-10177.2:-10143;segs.push([x,s,x+rand(30,60),s])}for(const b of[-108,-36,72])segs.push([b+3.6,-10146,b+3.6,-10174]);}
+  if(where==='london'){for(let k=0;k<10;k++){const x=rand(-240,200),s=k%2?-9817.2:-9783;segs.push([x,s,x+rand(30,60),s])}for(const b of[-108,-36,72])segs.push([b+3.6,-9786,b+3.6,-9814]);}
   else if(where==='calais'){for(let k=0;k<6;k++){const x=rand(-230,190);segs.push([x,-2155,x+rand(25,50),-2155])}}
   else{for(let k=0;k<10;k++){const x=rand(-380,340),s=k%2?12.6:-12.6;segs.push([x,s,x+rand(30,60),s])}segs.push([-122,50,-122,230],[-130,60,-130,240],[-135,-60,-135,-100],[-117,-100,-117,-60])}
   const par=where==='paris'?scene:NZ.g;for(const s of segs){const a=nzPerson();if(a)nzWalk(par,a,...s)}}
@@ -89,5 +89,5 @@ function nzLeaveQuiet(){if(CH2.zone!=='north')return;nzClear();sxStop('wind',.4)
   const r=_ac.apply(this,arguments);
   if(id!=='crossing'&&id!=='london'){CH2.st=0;ch2Save();CH2.obj=null;if(LYR.a){LYR.a.g.visible=false;LYR.home=false}SPAWN.set(-100,0,22);P.pos.set(SPAWN.x,groundAt(SPAWN.x,SPAWN.z),SPAWN.z);yaw=Math.atan2(-(EIFFEL.x-SPAWN.x),-(EIFFEL.z-SPAWN.z));P.face=yaw+Math.PI}
   else if(id==='crossing'){P.pos.set(-126,groundAt(-126,-100),-100);yaw=Math.PI;P.face=0}
-  else{const p=V3(-108,0,-10008);P.pos.set(p.x,groundAt(p.x,p.z),p.z);yaw=0;P.face=Math.PI}
+  else{const p=V3(-108,0,-9648);P.pos.set(p.x,groundAt(p.x,p.z),p.z);yaw=0;P.face=Math.PI}
   P.vy=0;P.flying=false;P.glide=false;P.alive=true;$('death')&&$('death').classList.add('hidden');camera.position.set(P.pos.x+Math.sin(yaw)*10,P.pos.y+5,P.pos.z+Math.cos(yaw)*10);writeSave();return r}}

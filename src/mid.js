@@ -679,7 +679,7 @@ const BOSSAI={
     else if(a.a4<=0){a.a4=rage?5.5:8;e.busy=1;e.stomp=.8;after(.6,()=>{if(e.dead)return;P.shake=1.2;sfx.boom();shockwave(e.pos.clone(),34,13,e.dmg*1.4,0xbff2ff);if(rage)after(.7,()=>{if(!e.dead)shockwave(e.pos.clone(),34,13,e.dmg*1.4,0xbff2ff)})});toast('Jump the shockwave!')}
     if(!a.s1&&e.hp<e.maxhp*.5){a.s1=1;snow.heavy=true;summonNear(e,beaten.has('beast')?'demon':'pig',4);cineLine('Hrímgar','WINTER TAKES EVERYTHING. EVEN YOU.')}}
 };
-let lineT=0;function cineLine(who,text){toast(`<span style="color:${SPEAKER[who]||'#fff'}">${who}:</span> ${text}`);toastT=3.5}
+let lineT=0;function cineLine(who,text){toast(`<span style="color:${SPEAKER[who]||'#fff'}">${who==='@'?'Maëlle':who}:</span> ${text}`);toastT=3.5}
 
 /* ---------- enemy update ---------- */
 const tq=new THREE.Quaternion();

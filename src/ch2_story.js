@@ -82,13 +82,13 @@ function kfwOn(){return MODE!=='open'&&(CH2.st>=7||(CH2.st===6&&KFW.go))&&!KFW.o
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started)return;const on=kfwOn();if(!on){if(KFW.a)KFW.a.g.visible=false;return}const a=kfBuild();if(!a)return;a.g.visible=W.g.visible!==false;
   if(NZ.ghost&&CH2.zone==='north')NZ.ghost.g.visible=false;
   const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);const ride=P.flying||!!CH2.chase;let tgt,ry=P.face;
-  if(ride){if(KFW.mode!=='ride'){KFW.mode='ride';try{a.setBase('Sitting_Idle_Loop',.3)}catch(x){a.setBase('Crouch_Idle_Loop',.3)}}const wr=W.g.rotation.y,wf=V3(Math.sin(wr),0,Math.cos(wr)),sc=W.g.scale.y||1,by=W.broom?W.broom.position.y:.95;a.g.position.copy(W.g.position).addScaledVector(wf,(.1+SBR.seat)*sc);a.g.position.y+=(by+.07)*sc-(KFW.hip||.68)*a.g.scale.y;ry=wr;a.g.rotation.y=wr;
+  if(ride){if(KFW.mode!=='ride'){KFW.mode='ride';KFW.an='';try{a.setBase('Sitting_Idle_Loop',.3)}catch(x){a.setBase('Crouch_Idle_Loop',.3)}}const wr=W.g.rotation.y,wf=V3(Math.sin(wr),0,Math.cos(wr)),sc=W.g.scale.y||1,by=W.broom?W.broom.position.y:.95;a.g.position.copy(W.g.position).addScaledVector(wf,(.1+SBR.seat)*sc);a.g.position.y+=(by+.07)*sc-(KFW.hip||.68)*a.g.scale.y;ry=wr;a.g.rotation.y=wr;
     try{if(KFW.wpG!==W.g){KFW.wpG=W.g;KFW.wp=null;W.g.traverse(o=>{if(!KFW.wp&&o.isBone&&/pelvis/i.test(o.name))KFW.wp=o})}if(!KFW.kp)a.g.traverse(o=>{if(!KFW.kp&&o.isBone&&/pelvis/i.test(o.name))KFW.kp=o});
       if(KFW.wp&&KFW.kp){a.g.updateMatrixWorld(true);const kp=KFW.kp.getWorldPosition(V3()),seat=W.g.position.clone().addScaledVector(wf,(.1+SBR.seat)*sc);const wy=KFW.wp.getWorldPosition(V3()).y;
         a.g.position.x+=seat.x-kp.x;a.g.position.z+=seat.z-kp.z;a.g.position.y+=wy-kp.y+.02}}catch(x){}}
-  else{tgt=P.pos.clone().addScaledVector(f,-1.1).addScaledVector(r,-1.2);tgt.y=P.pos.y+.35+Math.sin(time*1.6)*.12;if(KFW.mode!=='float'){KFW.mode='float';a.setBase('Idle_Loop',.4)}a.g.position.lerp(tgt,Math.min(1,dt*3.5));
+  else{tgt=P.pos.clone().addScaledVector(f,-1.1).addScaledVector(r,-1.2);tgt.y=XII.solid?groundAt(tgt.x,tgt.z):P.pos.y+.35+Math.sin(time*1.6)*.12;if(KFW.mode!=='float'){KFW.mode='float';KFW.an='';if(!XII.solid)a.setBase('Idle_Loop',.4)}a.g.position.lerp(tgt,Math.min(1,dt*3.5));
     const dx=P.pos.x-a.g.position.x,dz=P.pos.z-a.g.position.z;if(Math.hypot(dx,dz)>.4)ry=lerpAngle(a.g.rotation.y,P.face,Math.min(1,dt*3))}
-  a.g.rotation.y=ry;try{a.update(dt)}catch(x){}KFW.gm.opacity=.26+Math.sin(time*2.6)*.06;a.g.scale.setScalar(KFW.sc||1.12);if(Math.random()<.15)SP.emit(V3(a.g.position.x+rand(-.3,.3),a.g.position.y+rand(.3,1.6),a.g.position.z+rand(-.3,.3)),{c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:.8,up:.5})}}
+  a.g.rotation.y=ry;try{a.update(dt)}catch(x){}KFW.gm.opacity=.26+Math.sin(time*2.6)*.06;a.g.scale.setScalar(KFW.sc||1.12);if(!XII.solid&&Math.random()<.15)SP.emit(V3(a.g.position.x+rand(-.3,.3),a.g.position.y+rand(.3,1.6),a.g.position.z+rand(-.3,.3)),{c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:.8,up:.5})}}
 
 /* ================= after the quiz: Kaen is free, but the Tower is not done with you ================= */
 function stAfterQuiz(){const c=NZ.green;const kS=sd=>()=>({pos:headOf(c,1.5).add(V3(sd||1.8,.2,2.8)),look:headOf(c,1.4)});
@@ -96,10 +96,10 @@ function stAfterQuiz(){const c=NZ.green;const kS=sd=>()=>({pos:headOf(c,1.5).add
     {who:"Kaen's Spirit",text:SL.k01,fov:36,cut:true,cam:kS(1.6),onStart:()=>{try{NZ.ghost.setBase('Idle_Loop',.5)}catch(x){}}},
     {who:'@',text:SL.m01,cam:witchShot(-1,3)},
     {who:"Kaen's Spirit",text:SL.k02,cam:kS(-1.6)},
-    {dur:2.4,fov:52,cut:true,cam:k=>({pos:V3(203,2.5+k,-10205),look:V3(226,12+k*4,-10224)}),onStart:()=>{const s=epTowerSpirit();s.ty=14;P.shake=1.4;sx('garg',1,null,{rate:.5,wet:.5});flash(V3(226,14,-10224),0x60ff90,24)}},
-    {who:'The Tower',text:SL.t01,fov:40,cam:()=>({pos:V3(205,2.6,-10206),look:epEyes()})},
-    {dur:3,fov:46,cut:true,title:['The Warden','The Tower takes a body'],cam:k=>({pos:V3(204,3+k*2,-10204),look:V3(226,8-k*3,-10222)}),onStart:()=>{const s=epTowerSpirit();s.ty=-14;sx('powerup',1,null,{rate:.7});sx('impact',1,null,{rate:.5});
-        const at=V3(224,8,-10222);flash(at,0x60ff90,30);ring(V3(224,0,-10222),0x60ff90,1,20,.8);SP.emit(at,{n:220,c0:0xffffff,c1:0x30ff70,speed:14,life:1.2});wdSpawn(at,true)},update:dt=>{if(WD.e)WD.e.m.anim(WD.e,dt,0)}},
+    {dur:2.4,fov:52,cut:true,cam:k=>({pos:V3(203,2.5+k,-9845),look:V3(226,12+k*4,-9864)}),onStart:()=>{const s=epTowerSpirit();s.ty=14;P.shake=1.4;sx('garg',1,null,{rate:.5,wet:.5});flash(V3(226,14,-9864),0x60ff90,24)}},
+    {who:'The Tower',text:SL.t01,fov:40,cam:()=>({pos:V3(205,2.6,-9846),look:epEyes()})},
+    {dur:3,fov:46,cut:true,title:['The Warden','The Tower takes a body'],cam:k=>({pos:V3(204,3+k*2,-9844),look:V3(226,8-k*3,-9862)}),onStart:()=>{const s=epTowerSpirit();s.ty=-14;sx('powerup',1,null,{rate:.7});sx('impact',1,null,{rate:.5});
+        const at=V3(224,8,-9862);flash(at,0x60ff90,30);ring(V3(224,0,-9862),0x60ff90,1,20,.8);SP.emit(at,{n:220,c0:0xffffff,c1:0x30ff70,speed:14,life:1.2});wdSpawn(at,true)},update:dt=>{if(WD.e)WD.e.m.anim(WD.e,dt,0)}},
     {who:"Kaen's Spirit",text:SL.k03,cut:true,cam:kS(1.4)}
   ],()=>{wdFight()})}
 
@@ -118,7 +118,7 @@ function buildWarden(){const a=makeCHActor('m',{skin:0xe8fff0,hair:'hairBuzz',ha
 ETYPES.warden={name:'The Warden, Spirit of the Tower',boss:true,lvl:58,hp:3200,speed:0,dmg:30,range:0,cd:9,xp:3500,r:1.6,h:4.6,fly:1,ghost:true,noCalm:true,build:buildWarden};
 if(typeof BTH!=='undefined')BTH.warden='mus_greyfang';
 function wdSpawn(at,still){if(WD.e&&!WD.e.dead)return WD.e;const e=spawnEnemy('warden',V3(at.x,0,at.z));e.pos.y=at.y;e.aggro=true;e.hpFloor=.55;e.invuln=!!still;e.m.g.children.forEach(c=>{if(c.material&&c.material.map===scorchTex)c.visible=false});WD.e=e;WD.t=0;WD.lasT=3;WD.orbT=6;return e}
-function wdFight(){KFW.go=1;const e=WD.e||wdSpawn(V3(224,8,-10222));e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;toast('Avoid the green lasers. They are far too strong to take.','The Warden',true);after(4,()=>epSay("Kaen's Spirit",SL.k03))}
+function wdFight(){KFW.go=1;const e=WD.e||wdSpawn(V3(224,8,-9862));e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;toast('Avoid the green lasers. They are far too strong to take.','The Warden',true);after(4,()=>epSay("Kaen's Spirit",SL.k03))}
 function wdLaser(e,from,to,dmg,w){const mid=from.clone().lerp(to,.5);const L=from.distanceTo(to);const tg=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,L,6,1,true),new THREE.MeshBasicMaterial({color:0x9affb0,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));
   tg.position.copy(mid);tg.lookAt(to);tg.rotateX(Math.PI/2);scene.add(tg);sx('riser',.5,null,{rate:1.6});
   addFx(tg,.9,(f,k)=>{tg.material.opacity=.3+Math.sin(f.t*40)*.2;tg.scale.set(1+k*3,1,1+k*3)},()=>{scene.remove(tg);if(e.dead)return;sx('laser',1.1,()=>{try{sfx.boom()}catch(x){}},{wet:.2});
@@ -207,15 +207,15 @@ function epAshPlace(){if(ASH.g||CH2.st>=8)return;const at=V3(-118,0,-128);at.y=g
   const pile=new THREE.Mesh(new THREE.ConeGeometry(.7,.35,14),std({color:0x3a3640,roughness:1}));pile.position.y=.17;g.add(pile);const gl=glowSprite(0xb080ff,3,.5);gl.position.y=.6;g.add(gl);scene.add(g);ASH.g=g;
   CH2.obj=()=>CH2.zone==='paris'&&ASH.g?`Collect <b>Kaen's ash</b> on the Trocadéro · ${Math.round(Math.hypot(P.pos.x-at.x,P.pos.z-at.z))}m`:null}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!ASH.g||!started||CS.active)return;const g=ASH.g;g.children[1].material.opacity=.4+Math.sin(time*3)*.15;if(Math.random()<.3)SP.emit(V3(g.position.x+rand(-.5,.5),g.position.y+.3,g.position.z+rand(-.5,.5)),{c0:0xd0b0ff,c1:0x30106a,s0:.25,s1:.03,life:1,up:1});
-  if(Math.hypot(P.pos.x-g.position.x,P.pos.z-g.position.z)<1.6){scene.remove(g);ASH.g=null;CH2.st=Math.max(CH2.st,8);ch2Save();writeSave();sx('ding',1);flash(headOf(P.pos,1),0xb080ff,10);CH2.obj=()=>'Next: <b>Chapter XII · Ash and Silver</b>';
-    toast('Kaen\'s ash · 1 of 3. A heart that beats for him and the Crown\'s silver are still out there. Chapter XII is coming.','Ash collected',true)}}}
+  if(Math.hypot(P.pos.x-g.position.x,P.pos.z-g.position.z)<1.6){scene.remove(g);ASH.g=null;CH2.st=Math.max(CH2.st,8);ch2Save();writeSave();sx('ding',1);flash(headOf(P.pos,1),0xb080ff,10);CH2.obj=xiiObj;
+    toast('Kaen\'s ash · 1 of 3. Lyra is waiting for you.','Ash collected',true)}}}
 {const _lt=lyraToTroca;lyraToTroca=function(){_lt.apply(this,arguments);if(CH2.st===7){after(1,()=>{if(CH2.st===7&&!CS.active)epAshPlace()})}}}
 
 /* ---------- the Tower door stays shut while the Warden is loose; a reload resumes at the Tower ---------- */
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open'||CH2.zone!=='north'||!started)return;
   if(NZ.home){const hide=CH2.st===6;if(hide&&!NZ.home.userData.moved){NZ.home.userData.moved=1;NZ.home.position.x+=10000}else if(!hide&&NZ.home.userData.moved){NZ.home.userData.moved=0;NZ.home.position.x-=10000}}
   if(CH2.st===6&&!CH2.chase&&!CS.active&&P.alive&&NZ.green&&(!WD.e||WD.e.dead)&&!WD.esc&&Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z)<30){epFreeKaen(true);
-    const e=wdSpawn(V3(224,8,-10222));epSay('The Warden',SL.t08,1);after(.5,wdFight)}
+    const e=wdSpawn(V3(224,8,-9862));epSay('The Warden',SL.t08,1);after(.5,wdFight)}
   if(CH2.st===6&&WD.esc&&!CH2.chase&&!CS.active&&(!WD.e||WD.e.dead))WD.esc=0}}
 
 /* ---------- ferries and buoys: the long French waters ---------- */
@@ -281,7 +281,7 @@ function sbTail(){const wr=W.g.rotation.y,sc=W.g.scale.y||1;const o=W.g.position
 
 /* ---------- London stays hidden until you are well inland ---------- */
 {const _nl=nzLondon;nzLondon=function(G){const n0=G.children.length;const r=_nl.apply(this,arguments);NZ.lonObjs=G.children.slice(n0);return r}}
-{const _mt=muTick;muTick=function(dt){_mt(dt);if(!NZ.lonObjs||CH2.zone!=='north'||!NZ.g)return;const show=Math.min(P.pos.z,camera.position.z)<CLIFF_Z-240;
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!NZ.lonObjs||CH2.zone!=='north'||!NZ.g)return;const show=Math.min(P.pos.z,camera.position.z)<LON_Z+450;
   if(show!==NZ.lonShow){NZ.lonShow=show;for(const o of NZ.lonObjs)o.visible=show}}}
 
 /* ---------- boats across the long Channel, and a few Union Jacks in London ---------- */
@@ -305,10 +305,10 @@ function nzFlag(G,x,y,z,h,ry){const g=new THREE.Group();g.position.set(x,y,z);g.
     else{const h=new THREE.Mesh(new THREE.BoxGeometry(2.2,1.2,7.5),wh);h.position.y=.4;b.add(h);const m=new THREE.Mesh(new THREE.CylinderGeometry(.06,.07,8,5),deck);m.position.set(0,4.8,.8);b.add(m);
       const s=new THREE.Mesh(sailGeo,sail);s.position.set(0,1.4,.6);b.add(s);const l=glowSprite(0x90ff90,.9,.8);l.position.set(0,8.9,.8);b.add(l)}
     G.add(b);const sp=kind===0?1.4:kind===1?.8:1.1,ph=rn()*9;NZ.anim.push(dt=>{b.position.x+=Math.sin(ry)*dt*sp;b.position.z+=Math.cos(ry)*dt*sp;const t=performance.now()*.001;b.position.y=Math.sin(t*.8+ph)*.25;b.rotation.z=Math.sin(t*.9+ph)*.04;b.rotation.x=Math.sin(t*.7+ph*2)*.03})};
-  for(let z=-3500;z>-8700;z-=rn()*170+150){const k=rn()<.22?0:rn()<.55?1:2;let x=(rn()*2-1)*240;if(Math.abs(x-60)<18)x+=x<60?-24:24;boat(k,x,z,rn()*TAU)}
-  for(let z=-3500;z>-8800;z-=160){const b=glowSprite(Math.round(z/160)%2?0x60ff60:0xff5050,1.2,.9);b.position.set(Math.round(z/160)%2?50:70,1.2,z);G.add(b)}
-  const fl=[nzFlag(G,-202,42,-10194,7,.4),nzFlag(G,242,26.9,-10236.5,5,-.6)];
-  fl.push(nzFlag(G,-140,17,-10194,5,.2),nzFlag(G,36,18,-10284,5,1.2),nzFlag(G,180,24.9,TH_Z,4.5,-.8));
+  for(let z=-3500;z>CURSE_Z+150;z-=rn()*170+150){const k=rn()<.22?0:rn()<.55?1:2;let x=(rn()*2-1)*240;if(Math.abs(x-60)<18)x+=x<60?-24:24;boat(k,x,z,rn()*TAU)}
+  for(let z=-3500;z>CURSE_Z+50;z-=160){const b=glowSprite(Math.round(z/160)%2?0x60ff60:0xff5050,1.2,.9);b.position.set(Math.round(z/160)%2?50:70,1.2,z);G.add(b)}
+  const fl=[nzFlag(G,-202,42,-9834,7,.4),nzFlag(G,242,26.9,-9876.5,5,-.6)];
+  fl.push(nzFlag(G,-140,17,-9834,5,.2),nzFlag(G,36,18,-9924,5,1.2),nzFlag(G,180,24.9,TH_Z,4.5,-.8));
   if(NZ.lonObjs)NZ.lonObjs.push(...fl);NZ.flags=fl}catch(e){console.warn('boats/flags',e)}return r}}
 
 /* ---------- the long chase: more lines, and the bats never quite give up ---------- */
@@ -396,3 +396,155 @@ function wdSpiral(e,front){const c=headOf(e.pos,4);const C=CH2.chase;const tgt=h
     for(let k=0;k<n;k++)after(k*.035,()=>{if(!CH2.chase)return;const p=ctr.clone().addScaledVector(sd,rand(-20,20)).addScaledVector(f,rand(-8,8));p.y=P.pos.y+rand(-4,7);const b=nzSpawnFly('nbat',p);b.maxhp=b.hp=Math.max(5,Math.round(b.maxhp*.3));b.dmg*=.55;b.swarm=1})}}}
 
 VO_MAP['He heals as fast as you hurt him! Freeze him, and keep flying!']='k3_01';VO_MAP['Another swarm! Burn straight through them!']='k3_02';VO_MAP['Ice slows him down. Good to know.']='m3_01';VO_SPIRIT.add('k3_01');VO_SPIRIT.add('k3_02');
+
+/* ================= ULTRA BOOST: Lyra's storm in the broom (crossings only, never in the chase) ================= */
+const UB={on:0,t:0,cd:0,told:0,was:1,DUR:3,CD:10,MUL:3.6};
+{const st=document.createElement('style');st.textContent='#ubChip{position:fixed;left:50%;bottom:112px;transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:4px 12px 4px 4px;border-radius:999px;background:rgba(10,14,30,.6);border:1px solid rgba(140,200,255,.3);color:#cfe8ff;font:600 11px/1 system-ui,sans-serif;letter-spacing:.14em;cursor:pointer;z-index:30;backdrop-filter:blur(4px);transition:box-shadow .3s,border-color .3s}#ubChip b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:conic-gradient(#7fd4ff calc(var(--p,1)*360deg),rgba(255,255,255,.14) 0);color:#061024;font-size:11px}#ubChip.rdy{border-color:#8fe0ff;box-shadow:0 0 16px rgba(110,200,255,.6)}#ubChip.on{background:rgba(40,120,230,.6)}';document.head.appendChild(st)}
+const ubEl=document.createElement('div');ubEl.id='ubChip';ubEl.innerHTML='<b>B</b><span>ULTRA BOOST</span>';document.body.appendChild(ubEl);
+function ubOk(){return MODE!=='open'&&started&&CH2.zone==='north'&&!CH2.chase&&!CS.active&&P.alive&&CH2.st>=2&&P.pos.z>LON_Z}
+function ubFire(){if(!ubOk())return;if(!P.flying){toast('Get on your broom first.','Ultra boost');return}if(UB.cd>0||UB.on)return;UB.on=1;UB.t=UB.DUR;
+  sx('riser',.8,null,{rate:2.2});try{sfx.fly()}catch(x){}const h=headOf(P.pos,1);flash(h,0x8fd8ff,12);SP.emit(h,{n:70,c0:0xffffff,c1:0x3a90ff,speed:9,life:.6});P.shake=Math.max(P.shake,.5)}
+ubEl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();ubFire()});
+addEventListener('keydown',e=>{if(e.code==='KeyB'&&!e.repeat){if(ubOk()){ubFire();e.preventDefault()}}});
+{const _nt=nzTick;nzTick=function(dt){_nt(dt);if(UB.on)CH2.flySpd=(CH2.flySpd||26)*UB.MUL}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);const vis=MODE!=='open'&&started&&CH2.zone==='north'&&!CH2.chase&&CH2.st>=2&&!CS.active&&P.pos.z>LON_Z;ubEl.style.display=vis?'flex':'none';
+  if(UB.on){UB.t-=dt;if(!P.flying||CH2.chase)UB.t=0;const f=V3(Math.sin(P.face),0,Math.cos(P.face));for(let k=0;k<3;k++)SP.emit(P.pos.clone().add(V3(rand(-1.5,1.5),rand(.2,2.2),rand(-1.5,1.5))).addScaledVector(f,-2),{c0:0xe8f6ff,c1:0x2a70e0,s0:.5,s1:.04,life:.45,speed:1});
+    if(UB.t<=0){UB.on=0;UB.cd=UB.CD}}else if(UB.cd>0)UB.cd=Math.max(0,UB.cd-dt);
+  const rdy=!UB.on&&UB.cd<=0;ubEl.style.setProperty('--p',(UB.on?UB.t/UB.DUR:1-UB.cd/UB.CD).toFixed(3));ubEl.classList.toggle('rdy',rdy);ubEl.classList.toggle('on',!!UB.on);
+  if(vis&&P.flying&&!UB.told){UB.told=1;toast('Ultra boost: press <b>B</b> (or tap the chip) for a few seconds of storm speed. Then it recharges.','Lyra\'s gift',true)}
+  if(rdy&&!UB.was&&vis&&P.flying)toast('Ultra boost ready · <b>B</b>','Broom');UB.was=rdy;
+  if(!CS.active&&MODE!=='open'){const tf=UB.on?82:60;if(Math.abs(camera.fov-tf)>.05){camera.fov=lerp(camera.fov,tf,Math.min(1,dt*(UB.on?6:2.5)));camera.updateProjectionMatrix()}}}}
+
+/* ---------- town names as you arrive ---------- */
+{const _ne=nzEnter;nzEnter=function(){for(const t of NZTOWNS)t.seen=0;return _ne.apply(this,arguments)}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CH2.zone!=='north'||CS.active)return;for(const T of NZTOWNS){if(T.seen)continue;if(Math.hypot(P.pos.x-T.x,P.pos.z-T.z)<T.r*.75){T.seen=1;toast(T.pub?`${T.s} · ${T.pub} is still open`:T.s,T.n)}}}}
+
+/* ================= CHAPTER XII · Ash and Silver ================= */
+const XII={rv:[0,0,0,0,0,0],lazy:0,solid:0,perch:null,said:{}};
+try{Object.assign(XII,JSON.parse(localStorage.getItem('sorciere-xii')||'{}'))}catch(e){}
+function xiiSave(){try{localStorage.setItem('sorciere-xii',JSON.stringify({rv:XII.rv,lazy:XII.lazy,solid:XII.solid}))}catch(e){}}
+Object.assign(SPEAKER,{'Kaen':'#9ad8ff'});
+const XL={ly35:'Stop moaning, both of you. I will open a door to Calais. From there it is only the sea.',ly36:'And I woke something in your broom. Press it hard and it will fly like a storm. Not for long, but it will save your arms.',ly37:'Go. The silver will not steal itself.',
+  ly38:"I can feel them. The clock tower, the great wheel, the dome of Saint Paul's, the bridge, the glass spire, and Westminster.",ly39:'The silver is in the vault beneath the White Tower. He will be waiting.',ly40:"Ash from where he fell. The Crown's own silver. And the last thing is mine to give.",ly41:'Not all of it, brother. Just one beat. A heart that still beats for you.',ly42:'Welcome back, Kaen.',
+  m3_02:'One of three. Ash, done. The silver is in London. Again.',m3_03:'I just flew that whole sea with a ghost on my back. My arms are jelly. Can we not?',m3_04:'A turbo broom. Okay. I take it back. I love this job.',m3_05:'Folkestone. Dover is just east along the cliffs. London is a long way north.',
+  m3_06:'The ravens? The old legend? If the ravens leave the Tower, the kingdom falls?',m3_07:'Six ravens. Fine. Raven hunting it is.',m3_08:'One less chain. Fly away, little bird.',m3_09:'Big bird. Bad bird.',m3_10:'You can try. You will not like how it ends.',m3_11:'Not today.',m3_12:"Three. Bilel's counts too. Make it worth it.",
+  k3_03:'She complains more than Bilel did. And Bilel complained about everything.',k3_04:'Follow the river. It runs all the way to the city.',k3_05:'Look at the Tower. The Warden is healing. As long as the ravens stay, he cannot die.',k3_06:'Not a legend. Six ravens, six chains of the Crown. Free them, and he bleeds like anyone.',
+  k3_07:'I felt that one break. Keep going!',k3_08:'That was the last one. His chains are gone. He can bleed now.',k3_09:"The Crown's silver. I spent ten years in chains of this.",k3_10:'Lyra, no. Not your heart.',
+  kb_01:'I can feel the cold. I can feel my hands.',kb_02:'Maëlle. I owe you a life. Two, maybe.',kb_03:'The Crown is not finished with us. I can still hear it. Far away.',
+  t2_09:'Leave my ravens alone, witch!',t2_10:'You took my ravens. Then I will take your heart instead!',t2_11:'London... always... collects...'};
+for(const k in XL){VO_MAP[XL[k]]=k;if(/^k3_/.test(k))VO_SPIRIT.add(k)}
+const kS3=(sd,h)=>()=>{const a=KFW.a?KFW.a.g.position:P.pos;const d=V3(P.pos.x-a.x,0,P.pos.z-a.z);if(d.lengthSq()<.01)d.set(0,0,1);d.normalize();const r=V3(d.z,0,-d.x);return{pos:headOf(a,h||1.6).addScaledVector(d,2.8).addScaledVector(r,sd||1.4),look:headOf(a,1.5)}};
+const lyS3=(sd)=>()=>{const g=LYR.a?LYR.a.g.position:P.pos;const d=V3(P.pos.x-g.x,0,P.pos.z-g.z);if(d.lengthSq()<.01)d.set(0,0,1);d.normalize();const r=V3(d.z,0,-d.x);return{pos:headOf(g,1.6).addScaledVector(d,2.6).addScaledVector(r,sd||1.2),look:headOf(g,1.5)}};
+/* Kaen, solid again */
+{const _kb=kfBuild;kfBuild=function(){if(!XII.solid||KFW.a)return _kb.apply(this,arguments);const a=makeCHActor('m',{skin:0xf2d8c8,hair:'hairPart',hairTex:'1',hairCol:0x0b0a10,brow:0x0b0a10,keepReg:[5,6,9],wear:[['long',0x121016],['trousers',0x0f0d13],['shoes',0x0a0a0c]]});if(!a)return null;
+  scene.add(a.g);a.g.position.copy(P.pos);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;try{a.setBase('Idle_Loop');a.update(.3)}catch(x){}return a}}
+function kfSolidify(){if(KFW.a){scene.remove(KFW.a.g);KFW.a=null}KFW.kp=null;KFW.mode='';XII.solid=1;xiiSave();kfBuild()}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!XII.solid||!KFW.a||!KFW.a.g.visible||KFW.mode==='ride'||P.flying||CH2.chase)return;const a=KFW.a,f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
+  const t=P.pos.clone().addScaledVector(f,-1.3).addScaledVector(r,-1.3);const gy=groundAt(a.g.position.x,a.g.position.z);a.g.position.y=gy;const sp=Math.hypot(t.x-a.g.position.x,t.z-a.g.position.z)*3.5;const an=sp>6?'Sprint_Loop':sp>1.2?'Walk_Loop':'Idle_Loop';
+  if(KFW.an!==an){KFW.an=an;try{a.setBase(an,.3)}catch(x){}}}}
+
+/* ---------- 1. Paris: the ash is in hand, and Maëlle does not want to fly again ---------- */
+function xiiObj(){const st=CH2.st;if(CH2.zone==='paris'){if(st===8&&!XII.lazy)return `Talk to <b>Lyra</b> at the Trocadéro · ${LYR.a?Math.round(Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)):0}m`;if(st>=8&&st<11)return 'Go back to <b>London</b> through Lyra\'s door';return st>=11?'Next: <b>Chapter XIII</b>':null}
+  if(st===8)return P.pos.z>CLIFF_Z?`Cross the Channel to <b>Folkestone</b> · ${Math.max(0,Math.round(P.pos.z-CLIFF_Z))}m`:`Follow the river to <b>London</b> · ${Math.max(0,Math.round(P.pos.z-LON_Z))}m`;
+  if(st===9){const n=XII.rv.filter(Boolean).length;let best=null;RVP().forEach((r,i)=>{if(XII.rv[i])return;const d=Math.hypot(P.pos.x-r.p.x,P.pos.z-r.p.z);if(!best||d<best[1])best=[r.n,d]});return `Free the <b>ravens</b> · ${n}/6`+(best?` · nearest: ${best[0]} ${Math.round(best[1])}m`:'')}
+  if(st===10){const g=NZ.green||V3(222,0,-9862);return `Face <b>the Warden</b> at the Tower · ${Math.round(Math.hypot(P.pos.x-g.x,P.pos.z-g.z))}m`}
+  if(st>=11)return 'Next: <b>Chapter XIII</b>';return null}
+{const _no=nzObj;nzObj=function(){if(CH2.st>=8)return xiiObj();return _no.apply(this,arguments)}}
+function xiiLazy(){if(XII.lazy||CS.active)return;const L=LYR.a;if(L){const d=V3(P.pos.x-L.g.position.x,0,P.pos.z-L.g.position.z);L.g.rotation.y=Math.atan2(d.x,d.z)}
+  playCutscene([{who:'@',text:XL.m3_02,cam:witchShot(1,3.2)},{who:'@',text:XL.m3_03,cam:witchShot(-1,3)},{who:"Kaen's Spirit",text:XL.k3_03,cut:true,cam:kS3(1.4)},
+    {who:'Lyra',text:XL.ly35,cut:true,cam:lyS3(1.2)},{who:'Lyra',text:XL.ly36,cam:lyS3(-1.3),onStart:()=>{const h=headOf(P.pos,1);flash(h,0x8fd8ff,8);SP.emit(h,{n:60,c0:0xffffff,c1:0x3a90ff,speed:4,life:.9});sx('ding',.8)}},
+    {who:'@',text:XL.m3_04,cam:witchShot(1,3.4)},
+    {who:'Lyra',text:XL.ly37,cut:true,cam:lyS3(1),onStart:()=>{const g=LYR.a?LYR.a.g.position:P.pos;flash(headOf(g,1.4),0xff4050,14);sx('portal',1,null,{wet:.4})}},
+    {dur:1.6,fov:58,cam:k=>({pos:headOf(P.pos,2+k*3).add(V3(3,0,4)),look:headOf(P.pos,1)}),onStart:()=>{flash(headOf(P.pos,1),0xff4050,26);SP.emit(headOf(P.pos,1),{n:160,c0:0xffffff,c1:0xff3040,speed:10,life:1})}}],
+    ()=>{XII.lazy=1;xiiSave();CH2.st=Math.max(CH2.st,8);ch2Save();nzEnter('calais');CH2.obj=nzObj;after(.6,()=>toast('Fly back across the Channel and up the river to London. Your broom has a new trick: <b>B</b>.','Chapter XII · Ash and Silver',true))})}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CS.active)return;
+  if(CH2.zone==='paris'&&CH2.st===8&&!XII.lazy&&LYR.a&&LYR.a.g.visible){CH2.obj=xiiObj;if(Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)<7)xiiLazy()}
+  if(CH2.zone==='paris'&&CH2.st>=8&&CH2.st<11&&XII.lazy&&LYR.a&&LYR.a.g.visible&&!P.flying&&Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)<4){if(!XII.dT||time-XII.dT>6){XII.dT=time;flash(headOf(P.pos,1),0xff4050,18);sx('portal',.8);nzEnter(CH2.st>=9?'london':'calais');CH2.obj=nzObj}}}}
+
+/* ---------- 2. the crossing: Folkestone, then the long way north ---------- */
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CH2.zone!=='north'||CS.active||!P.alive)return;const z=P.pos.z;
+  if(CH2.st===8){if(z<CLIFF_Z-20&&!XII.said.fk){XII.said.fk=1;epSay('@',XL.m3_05,1);after(6.5,()=>epSay("Kaen's Spirit",XL.k3_04))}
+    if(z<LON_Z-12&&!XII.said.lon){XII.said.lon=1;xiiLondon()}}
+  if(CH2.st===9){xiiPerches();xiiRavenTick(dt)}
+  if(CH2.st===10&&NZ.green&&!XII.wd&&Math.hypot(P.pos.x-NZ.green.x,z-NZ.green.z)<42)xiiWarden()}}
+
+/* ---------- 3. London: six ravens, six chains ---------- */
+function RVP(){const B=NZ.bb||V3(-118,0,-9832);return[{n:'Big Ben',p:V3(B.x,57.5,B.z)},{n:'the London Eye',p:V3(-60,64,-9768)},{n:"St Paul's",p:V3(36,45.5,-9894)},{n:'Tower Bridge',p:V3(180,26.6,TH_Z)},{n:'the Shard',p:V3(126,96,-9732)},{n:'Westminster',p:V3(-202,49,-9834)}]}
+function xiiLondon(){const T=V3(224,10,-9862);
+  playCutscene([{dur:5,fov:50,title:['Chapter XII','The Ravens of the Crown'],cam:k=>({pos:V3(-20+k*40,60-k*12,-9620-k*60),look:V3(120,20,-9850)})},
+    {who:"Kaen's Spirit",text:XL.k3_05,fov:44,cam:k=>({pos:V3(190-k*6,30,-9800),look:V3(T.x,T.y+8,T.z)}),onStart:()=>{if(NZ.crown)flash(NZ.crown.position,0x60ff80,24);sx('garg',.6,null,{rate:.7})}},
+    {who:'@',text:XL.m3_06,cam:witchShot(1,3.2)},{who:"Kaen's Spirit",text:XL.k3_06,cut:true,cam:kS3(1.4)},
+    {who:'Lyra',text:XL.ly38,cam:k=>({pos:V3(-30+k*30,70,-9700),look:V3(0,30,-9830)}),onStart:()=>{xiiPerches();for(const r of RVP())flash(r.p,0x60ff80,14)}},
+    {who:'@',text:XL.m3_07,cam:witchShot(-1,3.4)}],
+    ()=>{CH2.st=Math.max(CH2.st,9);ch2Save();xiiPerches();toast('Six ravens hold the Warden\'s chains. Find them on London\'s landmarks and set them free.','The Ravens',true)})}
+function buildRaven(s){const g=new THREE.Group(),body=new THREE.Group();g.add(body);const I=new THREE.Group();I.scale.setScalar(s);body.add(I);
+  const fm=std({color:0x0e0e16,roughness:.45,metalness:.35,emissive:0x041008,emissiveIntensity:.6});const bm=std({color:0x202024,roughness:.35,metalness:.6});
+  const b=new THREE.Mesh(new THREE.SphereGeometry(.5,14,10),fm);b.scale.set(.78,.74,1.45);b.position.y=1;I.add(b);const hd=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),fm);hd.position.set(0,1.38,.62);I.add(hd);
+  const bk=new THREE.Mesh(new THREE.ConeGeometry(.085,.5,6),bm);bk.rotation.x=Math.PI/2;bk.position.set(0,1.34,1.02);I.add(bk);
+  for(const q of[-1,1]){const e=glowSprite(0x80ff90,.22,1,false);e.position.set(q*.15,1.45,.82);I.add(e)}
+  const tl=new THREE.Mesh(new THREE.ConeGeometry(.3,1,4),fm);tl.rotation.x=-Math.PI/2-.25;tl.scale.set(1.5,1,.28);tl.position.set(0,.92,-1.05);I.add(tl);
+  const wings=[];for(const q of[-1,1]){const w=new THREE.Group();w.position.set(q*.32,1.12,.1);I.add(w);w.userData.q=q;for(let k=0;k<5;k++){const f=new THREE.Mesh(new THREE.BoxGeometry(1.5-k*.12,.05,.34+k*.04),fm);f.position.set(q*(.7-k*.04),0,-.05-k*.17);f.rotation.y=q*(-.05-k*.14);w.add(f)}wings.push(w)}
+  for(const q of[-1,1]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.5,5),bm);l.position.set(q*.16,.5,.05);I.add(l)}
+  const cm=std({color:0x1a3a20,emissive:0x40ff70,emissiveIntensity:1,metalness:.7,roughness:.3});for(let k=0;k<7;k++){const c=new THREE.Mesh(new THREE.TorusGeometry(.09,.025,4,8),cm);c.position.set(0,.3-k*.17,.05);c.rotation.y=k*Math.PI/2;I.add(c)}
+  const au=glowSprite(0x50ff80,4.5,.18);au.position.y=1.1;I.add(au);
+  return{g,body,wings,anim:(e,dt,mv,fold)=>{const t=e.t||0;if(fold){for(const w of wings){w.rotation.set(0,w.userData.q*-1.38,w.userData.q*-.28+Math.sin(t*2)*.02)}body.position.y=0;hd.rotation.y=Math.sin(t*.7)*.6}
+    else{const f=Math.sin(t*7.5);for(const w of wings){w.rotation.y=w.userData.q*-.12;w.rotation.z=w.userData.q*(.35+f*.7)}body.position.y=Math.sin(t*3.6)*.25*s;I.rotation.x=.1}au.material.opacity=.14+Math.sin(t*4)*.05}}}
+function xiiPerches(){if(XII.perch||!NZ.g)return;XII.perch=RVP().map((r,i)=>{if(XII.rv[i])return null;const m=buildRaven(2.2);m.g.position.copy(r.p);m.g.rotation.y=rand(0,TAU);NZ.g.add(m.g);const o={t:rand(0,9)};
+  const pil=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,160,8,1,true),nzM().glow(0x60ff90,.12));pil.position.set(r.p.x,r.p.y+80,r.p.z);NZ.g.add(pil);
+  NZ.anim.push(dt=>{o.t+=dt;if(m.g.visible)m.anim(o,dt,0,true);pil.material.opacity=.08+Math.sin(o.t*2)*.04});return{m,pil}})}
+ETYPES.traven={name:'Raven of the Tower',hp:700,speed:20,dmg:20,range:3.2,cd:1.3,xp:300,r:1.6,h:2.6,fly:1,build:()=>{const m=buildRaven(2.2);return{g:m.g,body:m.body,anim:(e,dt,mv)=>m.anim(e,dt,mv,false)}},
+  ai:(e,dt,d)=>{const a=e.ai||(e.ai={});e.t=(e.t||0);nzFlyAI(1.2)(e,dt,d);a.v=(a.v==null?3:a.v)-dt;a.s=(a.s==null?8:a.s)-dt;
+    if(a.v<=0&&d<40){a.v=rand(4,5.5);const c=eCenter(e),base=aimAtPlayer(c).normalize();sx('cackle',.5,null,{rate:1.6});for(let k=0;k<7;k++)after(k*.05,()=>{if(e.dead)return;enemyOrb(eCenter(e),base.clone().applyAxisAngle(V3(0,1,0),(k-3)*.12),22,e.dmg*.45,0x1a1a1a,.32,{keepY:false,life:2.4})})}
+    if(a.s<=0&&e.hp<e.maxhp*.75){a.s=rand(10,13);sx('bats',.7);for(let k=0;k<6;k++){const b=nzSpawnFly('nbat',V3(e.pos.x+rand(-6,6),e.pos.y+rand(-1,3),e.pos.z+rand(-6,6)));b.maxhp=b.hp=Math.max(6,Math.round(b.maxhp*.5))}}}};
+function xiiRavenTick(dt){if(!XII.perch)return;RVP().forEach((r,i)=>{const P_=XII.perch[i];if(!P_||XII.rv[i]||P_.e)return;if(Math.hypot(P.pos.x-r.p.x,P.pos.z-r.p.z)<60){P_.m.g.visible=false;const e=nzSpawnFly('traven',r.p.clone());e.ravenIx=i;e.quest=true;P_.e=e;sx('cackle',.9,null,{rate:.8});
+    if(!XII.said.bird){XII.said.bird=1;epSay('@',XL.m3_09,1)}toast(`The raven of ${r.n} breaks from its perch!`,'Raven of the Tower')}});
+  for(const P_ of XII.perch)if(P_&&P_.e&&!P_.e.dead&&Math.hypot(P.pos.x-P_.e.pos.x,P.pos.z-P_.e.pos.z)>140){removeEnemy(P_.e);P_.e=null;P_.m.g.visible=true}}
+{const _ke=killEnemy;killEnemy=function(e){const r=_ke.apply(this,arguments);try{if(e.type==='traven'&&e.ravenIx!=null&&!XII.rv[e.ravenIx])xiiFreed(e)}catch(x){console.warn(x)}return r}}
+function xiiFreed(e){const i=e.ravenIx;XII.rv[i]=1;xiiSave();const c=eCenter(e);flash(c,0xffffff,18);SP.emit(c,{n:120,c0:0xffffff,c1:0x60ff80,speed:10,life:.9});sx('ding',1);
+  const P_=XII.perch&&XII.perch[i];if(P_&&P_.pil){P_.pil.visible=false}
+  const w=buildRaven(1.6);w.g.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){o.material=o.material.clone();o.material.color.setHex(0xf4f4f8);o.material.emissive=new THREE.Color(0x90c0ff);o.material.emissiveIntensity=.4}});w.g.position.copy(c);NZ.g.add(w.g);
+  const dir=V3(rand(-1,1),0,rand(-1,1)).normalize();const o={t:0};addFx(null,6,(f,k)=>{o.t=f.t;w.anim(o,.016,1,false);w.g.position.addScaledVector(dir,.35).add(V3(0,.16,0));w.g.rotation.y=Math.atan2(dir.x,dir.z);if(Math.random()<.4)SP.emit(w.g.position.clone(),{c0:0xffffff,c1:0x8fb0ff,s0:.4,s1:.04,life:.8})},()=>{NZ.g.remove(w.g)});
+  const n=XII.rv.filter(Boolean).length;toast(`A raven flies free · ${n} of 6`,'The Ravens',true);
+  if(n<6){after(1.2,()=>epSay(n%2?'@':"Kaen's Spirit",n%2?XL.m3_08:XL.k3_07,1));if(n===3)after(5,()=>epSay('The Warden',XL.t2_09,1))}else after(1.5,xiiRavensDone)}
+function xiiRavensDone(){const T=V3(224,14,-9862);
+  playCutscene([{dur:3.6,fov:48,cam:k=>({pos:V3(170,26+k*6,-9810),look:T}),onStart:()=>{if(NZ.crown){flash(NZ.crown.position,0x60ff80,30);SP.emit(NZ.crown.position,{n:200,c0:0xffffff,c1:0x30ff70,speed:14,life:1.2})}P.shake=1.2;sx('impact',1,null,{rate:.5});sx('garg',.8,null,{rate:.6,delay:.3})}},
+    {who:"Kaen's Spirit",text:XL.k3_08,cut:true,cam:kS3(1.4)},{who:'Lyra',text:XL.ly39,cam:witchShot(1,3.4)}],
+    ()=>{CH2.st=Math.max(CH2.st,10);ch2Save();toast('The chains are broken. Go to the Tower and take the Crown\'s silver from the Warden.','The Vault',true)})}
+
+/* ---------- 4. the Warden, mortal at last ---------- */
+function xiiWarden(){XII.wd=1;const at=V3(224,8,-9862);const e=wdSpawn(at,true);e.pos.copy(at);e.invuln=true;e.dead=false;WD.esc=1;WD.said=1;e.hpFloor=0;e.lvl=60;e.maxhp=e.hp=Math.round(e.maxhp*1.35);XII.wdE=e;
+  playCutscene([{dur:2.6,fov:50,title:['The Warden','Mortal now'],cam:k=>({pos:V3(204,3+k*2,-9844),look:V3(at.x,at.y+2,at.z)}),onStart:()=>{flash(at,0x60ff90,26);ring(V3(at.x,0,at.z),0x60ff90,1,20,.8);sx('powerup',1,null,{rate:.7})},update:dt=>{if(WD.e)WD.e.m.anim(WD.e,dt,0)}},
+    {who:'The Warden',text:XL.t2_10,fov:40,cam:()=>({pos:headOf(e.pos,4.2).add(V3(-6,0,8)),look:headOf(e.pos,4)}),update:dt=>{if(WD.e)WD.e.m.anim(WD.e,dt,0)}},
+    {who:'@',text:XL.m3_10,cam:witchShot(1,3.4)}],()=>{e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;wdBarReset();toast('No ravens, no healing. Bring him down.','The Warden',true)})}
+{const _ai=BOSSAI.warden;BOSSAI.warden=function(e,dt,d){_ai(e,dt,d);if(CH2.st!==10||CH2.chase||e.dead||e.invuln)return;const a=e.ai;
+  a.bk=(a.bk==null?7:a.bk)-dt;if(a.bk<=0&&e.busy<=0){a.bk=rand(7,10);const ang=rand(0,TAU);const to=P.pos.clone().add(V3(Math.sin(ang)*16,rand(4,7),Math.cos(ang)*16));wdBlink(e,to);
+    for(let k=0;k<3;k++)after(.5+k*.45,()=>{if(e.dead)return;wdLaser(e,headOf(e.pos,4.2),headOf(P.pos,1).add(V3(rand(-1.5,1.5),0,rand(-1.5,1.5))),maxHP()*.22,.6,{charge:.5,ext:20})})}
+  if(!a.cohort&&e.hp<e.maxhp*.5){a.cohort=1;sx('bats',1);epSay('The Warden',SL.t07);for(let k=0;k<14;k++)after(k*.05,()=>{const b=nzSpawnFly('nbat',P.pos.clone().add(V3(rand(-25,25),rand(2,8),rand(-25,25))));b.maxhp=b.hp=Math.max(5,Math.round(b.maxhp*.35))})}}}
+{const _bo=bossOutro2;bossOutro2=function(type,center,orb){if(type==='warden'&&CH2.st===10)return xiiSilver(center,orb);return _bo.apply(this,arguments)}}
+
+/* ---------- 5. the Crown's silver, and a heartbeat ---------- */
+function xiiSilver(center,orb){const g=NZ.green||V3(222,0,-9862);const sp=V3(center.x,Math.max(2.4,groundAt(center.x,center.z)+2.4),center.z);
+  const sil=new THREE.Group();sil.position.copy(sp);const sm=std({color:0xe8eef8,metalness:1,roughness:.15,emissive:0x8fb0ff,emissiveIntensity:.35});sil.add(new THREE.Mesh(new THREE.TorusGeometry(.55,.08,8,28),sm));for(let k=0;k<7;k++){const a=k/7*TAU;const s=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,5),sm);s.position.set(Math.cos(a)*.55,.18,Math.sin(a)*.55);sil.add(s)}
+  const sg=glowSprite(0xcfe0ff,3,.6);sil.add(sg);NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
+  const kp=()=>KFW.a?KFW.a.g.position:P.pos;
+  playCutscene([{who:'The Warden',text:XL.t2_11,cam:orb,update:()=>SP.emit(V3(center.x+rand(-2,2),center.y+rand(0,4),center.z+rand(-2,2)),{c0:0xc0ff90,c1:0x103010,s0:.6,s1:.1,life:.8,up:2})},
+    {who:'@',text:XL.m3_11,cam:witchShot(-1,3.4)},
+    {who:"Kaen's Spirit",text:XL.k3_09,cut:true,cam:()=>({pos:sp.clone().add(V3(2.4,.6,2.4)),look:sp}),onStart:()=>{sx('ding',.9)}},
+    {dur:2.4,cam:k=>({pos:headOf(P.pos,2).add(V3(4,1,5)),look:headOf(P.pos,1)}),onStart:()=>{const f=V3(Math.sin(P.face),0,Math.cos(P.face));lyraPlace(P.pos.x+f.x*3+1.5,P.pos.z+f.z*3,P.face+Math.PI);flash(headOf(LYR.a?LYR.a.g.position:P.pos,1.2),0xff4050,20);sx('portal',1)}},
+    {who:'Lyra',text:XL.ly40,cut:true,cam:lyS3(1.2)},{who:"Kaen's Spirit",text:XL.k3_10,cut:true,cam:kS3(1.3)},
+    {who:'Lyra',text:XL.ly41,cut:true,cam:lyS3(-1.2),onStart:()=>{const L=LYR.a?LYR.a.g.position:P.pos;const h=glowSprite(0xff3050,1.2,1,false);h.position.copy(headOf(L,1.35));scene.add(h);XII.heart=h;sx('heart',.9)}},
+    {dur:5.2,fov:46,cam:k=>{const c=kp();return{pos:headOf(c,1.6+k*1.5).add(V3(Math.sin(k*2)*6,0,Math.cos(k*2)*6)),look:headOf(c,1.2)}},onStart:()=>{spin.on=0;const c=kp();sx('powerup',1,null,{rate:.8});sx('riser',.8,null,{rate:.7})},
+      update:dt=>{const c=headOf(kp(),1.1);sil.position.lerp(c,Math.min(1,dt*1.2));if(XII.heart)XII.heart.position.lerp(c,Math.min(1,dt*1.1));
+        SP.emit(c.clone().add(V3(rand(-2,2),rand(-1,2),rand(-2,2))),{n:2,c0:0xd0a0ff,c1:0x402060,s0:.35,s1:.04,life:1,speed:-2});if(Math.random()<.4)SP.emit(c,{c0:0xff6080,c1:0x601020,s0:.5,s1:.05,life:.8,speed:3})}},
+    {dur:2.2,fov:44,cam:k=>{const c=kp();return{pos:headOf(c,1.5).add(V3(3.4,0,3.4)),look:headOf(c,1.2)}},onStart:()=>{const c=headOf(kp(),1.1);flash(c,0xffffff,40);SP.emit(c,{n:300,c0:0xffffff,c1:0xd0a0ff,speed:14,life:1.4});P.shake=1.5;sx('impact',1,null,{rate:.6});NZ.g.remove(sil);if(XII.heart){scene.remove(XII.heart);XII.heart=null}kfSolidify()}},
+    {who:'Kaen',text:XL.kb_01,cut:true,cam:kS3(1.2,1.6),onStart:()=>{try{KFW.a.setBase('Idle_Loop',.3)}catch(x){}}},{who:'Lyra',text:XL.ly42,cam:lyS3(1.2)},{who:'Kaen',text:XL.kb_02,cut:true,cam:kS3(-1.3,1.6)},{who:'@',text:XL.m3_12,cam:witchShot(1,3.2)},
+    {who:'Kaen',text:XL.kb_03,fov:50,cam:k=>({pos:V3(g.x-10,6+k*14,g.z+30),look:V3(232,30,-9866)})}],
+    ()=>{if(sil.parent)sil.parent.remove(sil);spin.on=0;if(XII.heart){scene.remove(XII.heart);XII.heart=null}if(!XII.solid)kfSolidify();CH2.st=Math.max(CH2.st,11);ch2Save();writeSave();beaten.add('warden');toast('Kaen has his body back. Chapter XIII is coming.','Chapter XII complete',true)})}
+for(const k of['kb_01','kb_02','kb_03'])VO_SPIRIT.delete(k);
+
+/* ---------- chapter select ---------- */
+CHAPTERS.push({id:'silver',n:'XII',title:'Ash and Silver',desc:'The ash, the long way back to London, six ravens, and a heartbeat.'});
+{const _cb=chapBoss;chapBoss=function(c){if(c.id==='silver')return null;return _cb(c)}}
+{const _ac=applyChapter;applyChapter=function(id){if(id!=='silver')return _ac.apply(this,arguments);_ac.call(this,'escape');CH2.st=8;ch2Save();XII.lazy=1;XII.rv=[0,0,0,0,0,0];XII.solid=0;XII.wd=0;XII.said={};xiiSave();WD.esc=1;if(WD.e&&!WD.e.dead){WD.e.dead=true;WD.e.m.g.visible=false}WD.e=null;nzEnter('calais');CH2.obj=nzObj}}
+{const _rc=renderChapters;renderChapters=function(){_rc();const list=$('chapList');const el=list&&list.children[chapIndexOf('silver')];if(el){const done=CH2.st>=11,cur=started&&CH2.st>=7&&CH2.st<11;el.className='chap'+(done?' done':'')+(cur?' cur':'')}}}
+{const _wl=wdLaser;wdLaser=function(e,from,to,dmg,w,o){if(CH2.st===10&&!CH2.chase)dmg*=.55;return _wl.call(this,e,from,to,dmg,w,o)}}
