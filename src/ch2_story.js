@@ -128,7 +128,7 @@ function buildWarden(){const a=makeCHActor('m',{skin:0xe8fff0,hair:'hairBuzz',ha
   const anim=(e,dt,mv)=>{e.t+=dt;if(a)try{a.update(dt)}catch(x){}aura.material.opacity=.24+Math.sin(e.t*5)*.07;if(Math.random()<.5)SM.emit(V3(e.pos.x+rand(-1,1),e.pos.y+rand(0,1),e.pos.z+rand(-1,1)),{c0:0x40ff80,c1:0x02140a,s0:.8,s1:2.4,life:1,a:.3,up:-1.2,speed:.5})};
   return{g,body,anim,actor:a,head:null}}
 ETYPES.warden={name:'The Warden, Spirit of the Tower',boss:true,lvl:58,hp:3200,speed:0,dmg:30,range:0,cd:9,xp:3500,r:1.6,h:4.6,fly:1,ghost:true,noCalm:true,build:buildWarden};
-if(typeof BTH!=='undefined')BTH.warden='mus_greyfang';
+
 function wdSpawn(at,still){if(WD.e&&!WD.e.dead)return WD.e;const e=spawnEnemy('warden',V3(at.x,0,at.z));e.pos.y=at.y;e.aggro=true;e.hpFloor=.55;e.invuln=!!still;e.m.g.children.forEach(c=>{if(c.material&&c.material.map===scorchTex)c.visible=false});WD.e=e;WD.t=0;WD.lasT=3;WD.orbT=6;return e}
 function wdFight(){KFW.go=1;const e=WD.e||wdSpawn(V3(224,8,-9862));e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;toast('Avoid the green lasers. They are far too strong to take.','The Warden',true)}
 function wdLaser(e,from,to,dmg,w){const mid=from.clone().lerp(to,.5);const L=from.distanceTo(to);const tg=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,L,6,1,true),new THREE.MeshBasicMaterial({color:0x9affb0,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));
