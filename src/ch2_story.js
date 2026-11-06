@@ -91,7 +91,7 @@ function kfBuild(){if(KFW.a)return KFW.a;const a=makeCHActor('m',{skin:0xfff0ea,
   const gm=new THREE.MeshBasicMaterial({color:0x9ad8ff,transparent:true,opacity:.42,blending:THREE.AdditiveBlending,depthWrite:false,skinning:true});a.g.traverse(o=>{if(o.isMesh){o.material=gm;o.castShadow=false}});
   const gl=glowSprite(0x9ad8ff,3.4,.35);gl.position.y=1.1;a.g.add(gl);scene.add(a.g);a.g.position.copy(CH2.zone==='north'&&NZ.green?V3(NZ.green.x,P.pos.y,NZ.green.z):P.pos);KFW.a=a;KFW.gm=gm;try{a.setBase('Idle_Loop');a.update(.3)}catch(x){}return a}
 function kfwOn(){return MODE!=='open'&&(CH2.st>=7||(CH2.st===6&&KFW.go))&&!KFW.off}
-{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started)return;const on=kfwOn();if(!on){if(KFW.a)KFW.a.g.visible=false;return}const a=kfBuild();if(!a)return;a.g.visible=W.g.visible!==false;
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started)return;const on=kfwOn();if(!on){if(KFW.a)KFW.a.g.visible=false;return}const a=kfBuild();if(!a)return;a.g.visible=W.g.visible!==false;if(KFW.pin){try{a.update(dt)}catch(x){}return}
   if(NZ.ghost&&CH2.zone==='north')NZ.ghost.g.visible=false;
   const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);const ride=P.flying||!!CH2.chase;let tgt,ry=P.face;
   if(ride){if(KFW.mode!=='ride'){KFW.mode='ride';KFW.an='';try{a.setBase('Sitting_Idle_Loop',.3)}catch(x){a.setBase('Crouch_Idle_Loop',.3)}}const wr=W.g.rotation.y,wf=V3(Math.sin(wr),0,Math.cos(wr)),sc=W.g.scale.y||1,by=W.broom?W.broom.position.y:.95;a.g.position.copy(W.g.position).addScaledVector(wf,(.1+SBR.seat)*sc);a.g.position.y+=(by+.07)*sc-(KFW.hip||.68)*a.g.scale.y;ry=wr;a.g.rotation.y=wr;
@@ -452,7 +452,7 @@ const lyS3=(sd)=>()=>{const g=LYR.a?LYR.a.g.position:P.pos;const d=V3(P.pos.x-g.
 {const _kb=kfBuild;kfBuild=function(){if(!XII.solid||KFW.a)return _kb.apply(this,arguments);const a=makeCHActor('m',{skin:0xf2d8c8,hair:'hairPart',hairTex:'1',hairCol:0x0b0a10,brow:0x0b0a10,keepReg:[5,6,9],wear:[['long',0x121016],['trousers',0x0f0d13],['shoes',0x0a0a0c]]});if(!a)return null;
   scene.add(a.g);a.g.position.copy(P.pos);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;try{a.setBase('Idle_Loop');a.update(.3)}catch(x){}return a}}
 function kfSolidify(){if(KFW.a){scene.remove(KFW.a.g);KFW.a=null}KFW.kp=null;KFW.mode='';XII.solid=1;xiiSave();kfBuild()}
-{const _mt=muTick;muTick=function(dt){_mt(dt);if(!XII.solid||!KFW.a||!KFW.a.g.visible||KFW.mode==='ride'||P.flying||CH2.chase)return;const a=KFW.a,f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(KFW.pin||!XII.solid||!KFW.a||!KFW.a.g.visible||KFW.mode==='ride'||P.flying||CH2.chase)return;const a=KFW.a,f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
   const t=P.pos.clone().addScaledVector(f,-1.3).addScaledVector(r,-1.3);const gy=groundAt(a.g.position.x,a.g.position.z);a.g.position.y=gy;const sp=Math.hypot(t.x-a.g.position.x,t.z-a.g.position.z)*3.5;const an=sp>6?'Sprint_Loop':sp>1.2?'Walk_Loop':'Idle_Loop';
   if(KFW.an!==an){KFW.an=an;try{a.setBase(an,.3)}catch(x){}}}}
 

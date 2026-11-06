@@ -385,7 +385,7 @@ function x3Intro(){if(CS.active)return;X3.said={};const sp=V3(36,46.2,-9894);con
     {who:'Vesper',text:XL3.vp_03,fov:40,cam:k=>({pos:headOf(e.pos,3.4).add(V3(-4.5,.5+k,5)),look:look()}),onStart:()=>{e.ai.cast=4}},
     {dur:1.4,fov:70,cam:k=>({pos:headOf(P.pos,2+k*6).add(V3(3,0,3)),look:headOf(P.pos,1)}),onStart:()=>{x3KFx();for(let k=0;k<30;k++)SM.emit(V3(P.pos.x+rand(-4,4),P.pos.y+rand(0,4),P.pos.z+rand(-4,4)),{c0:0x2a1840,c1:0x020104,s0:2,s1:6,life:1.4,a:.8,up:2});sx('portal',1,null,{rate:.6})}}],
     x3Arena)}
-function x3Arena(){x3Build();const C=X3.C;const e=X3.e;P.pos.set(C.x,C.y,C.z+20);P.vy=0;P.flying=false;P.face=Math.PI;yaw=0;camera.position.set(C.x,C.y+5,C.z+31);P.invuln=2;
+function x3Arena(){x3Build();if(LYR.a)LYR.a.g.visible=false;if(LYF.g)LYF.g.g.visible=false;const C=X3.C;const e=X3.e;P.pos.set(C.x,C.y,C.z+20);P.vy=0;P.flying=false;P.face=Math.PI;yaw=0;camera.position.set(C.x,C.y+5,C.z+31);P.invuln=2;
   if(KFW.a){KFW.a.g.position.set(C.x+2,C.y,C.z+22)}if(e){e.pos.set(C.x,C.y+.4,C.z-6);e.invuln=false;e.hpFloor=.5;e.ai.ph='A';e.ai.b=3;e.ai.g=6;e.ai.s=11;bossRef=e;$('boss').classList.remove('hidden');
     $('bossName').innerHTML=`${e.def.name} <span style="color:#ff4050">· Lv ${e.lvl}</span>`}
   X3.phase=1;CH2.st=Math.max(CH2.st,12);after(1.2,()=>epSay('Kaen',XL3.k6_03,1));after(.5,()=>toast('The Shadow Court, above St Paul\'s. There is no way down but through him.','Vesper',true))}
@@ -406,12 +406,14 @@ function x3Finish(){kmEnd();x3Shatter();x3Drop();X3.phase=0;X3.trap=null;x3Strug
 
 /* ---------- Kaen flies beside you, Lyra rides a guardian ---------- */
 const LYF={g:null,an:''};
-{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CH2.st<13||KM.on)return;
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CH2.st<11||KM.on)return;
   const a=KFW.a;if(a&&a.g.visible&&KFW.gear&&P.flying&&!CS.active){const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);const tg=P.pos.clone().addScaledVector(r,2.4).addScaledVector(f,-.8);tg.y=P.pos.y+.3+Math.sin(time*1.8)*.2;
     a.g.position.copy(tg);a.g.rotation.y=P.face;try{a.setBase('NinjaJump_Idle_Loop',.3)}catch(x){}KFW.an='';if(Math.random()<.6)SP.emit(V3(a.g.position.x,a.g.position.y+.2,a.g.position.z),{c0:0xe0c8ff,c1:0x5010c0,s0:.35,s1:.04,life:.5,speed:1})}
-  if(LYR.mk)LYR.mk.visible=!!LYR.home;if(CH2.zone!=='north'){if(LYF.g)LYF.g.g.visible=false;return}if(!LYR.a){lyraPlace(P.pos.x-2,P.pos.z+2,P.face);LYR.home=false}const L=LYR.a;if(!L||CS.active)return;L.g.visible=true;
+  if(LYR.mk)LYR.mk.visible=!!LYR.home;if(CH2.zone!=='north'||CH2.st<13&&(CH2.st<11||X3.phase||X3.trap||KM.on||X3.e)){if(LYF.g)LYF.g.g.visible=false;return}if(!LYR.a){lyraPlace(P.pos.x-2,P.pos.z+2,P.face);LYR.home=false}const L=LYR.a;if(!L||CS.active)return;L.g.visible=true;
   const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
-  if(P.flying){if(!LYF.g){const m=buildGuardian();m.g.scale.setScalar(.26);scene.add(m.g);LYF.g=m;LYF.t=0}const m=LYF.g;m.g.visible=true;LYF.t+=dt;
+  if(P.flying&&CH2.st<13){if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,-2.6).addScaledVector(f,-1.2);tg.y=P.pos.y+.2+Math.sin(time*1.7)*.2;L.g.position.lerp(tg,Math.min(1,dt*5));L.g.rotation.y=lerpAngle(L.g.rotation.y,P.face,Math.min(1,dt*5));
+    if(LYF.an!=='fly'){LYF.an='fly';try{L.setBase('NinjaJump_Idle_Loop',.3)}catch(x){}}if(Math.random()<.6)SP.emit(V3(L.g.position.x,L.g.position.y+.3,L.g.position.z),{c0:0xffd0d0,c1:0xff3040,s0:.35,s1:.04,life:.5,speed:1})}
+  else if(P.flying){if(!LYF.g){const m=buildGuardian();m.g.scale.setScalar(.26);scene.add(m.g);LYF.g=m;LYF.t=0}const m=LYF.g;m.g.visible=true;LYF.t+=dt;
     const tg=P.pos.clone().addScaledVector(r,-2.8).addScaledVector(f,-1.4);tg.y=P.pos.y-1.6+Math.sin(time*1.5)*.25;m.g.position.lerp(tg,Math.min(1,dt*4.5));m.g.rotation.y=lerpAngle(m.g.rotation.y,P.face,Math.min(1,dt*5));try{guardAnim({m,t:LYF.t,ai:{slam:0},pos:m.g.position},dt,0,0)}catch(x){}
     L.g.position.copy(m.g.position).add(V3(0,2.55,0));L.g.rotation.y=m.g.rotation.y;if(LYF.an!=='sit'){LYF.an='sit';try{L.setBase('Sitting_Idle_Loop',.3)}catch(x){}}}
   else{if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,-1.5).addScaledVector(f,-1.5);tg.y=groundAt(tg.x,tg.z);const dd=Math.hypot(tg.x-L.g.position.x,tg.z-L.g.position.z);
@@ -470,21 +472,6 @@ function x3Transfer(lp,kp,dur){const lpos=()=>lp(),kpos2=()=>kp();runeFlash(lpos
     ()=>{const B=headOf(kpos2(),1.15);flash(B,0xffffff,40);SP.emit(B,{n:320,c0:0xffffff,c1:0xc070ff,speed:15,life:1.3,s0:.8,s1:.08});ring(V3(B.x,B.y-1.1,B.z),0xd090ff,1,14,.6);P.shake=1.2;sx('impact',1,null,{rate:.7});
       for(const o of[beam,core,la,ka]){scene.remove(o);if(o.geometry)o.geometry.dispose()}if(LYR.a)LYR.a.g.position.y=ly0})}
 
-/* ---------- wrong way: an elegant compass that points you home on the crossings ---------- */
-const WW={el:null,t:0,ok:0,on:0,last:null,acc:0,shown:0};
-function wwEl(){if(WW.el)return WW.el;const st=document.createElement('style');st.textContent='#wrongWay{position:fixed;left:50%;top:56px;transform:translate(-50%,-8px) scale(.96);z-index:35;pointer-events:none;text-align:left;display:flex;align-items:center;gap:12px;padding:6px 18px 6px 6px;border-radius:999px;background:linear-gradient(90deg,rgba(14,8,30,.7),rgba(14,8,30,.35));border:1px solid rgba(242,210,122,.22);backdrop-filter:blur(6px);opacity:0;transition:opacity .5s ease,transform .5s cubic-bezier(.2,.8,.2,1);color:#f3ead6;font:500 12px Outfit,system-ui,sans-serif}#wrongWay.on{opacity:1;transform:translate(-50%,0) scale(1)}#wrongWay .ring{position:relative;flex:none;width:60px;height:60px;margin:0;border-radius:50%;background:radial-gradient(circle,rgba(20,12,40,.55) 55%,rgba(20,12,40,0) 72%);box-shadow:0 0 0 1px rgba(242,210,122,.28) inset,0 0 26px rgba(242,180,90,.18)}#wrongWay .ring:before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px dashed rgba(242,210,122,.25);animation:wwSpin 14s linear infinite}#wrongWay svg{position:absolute;inset:0;width:100%;height:100%;transition:transform .18s linear;filter:drop-shadow(0 0 8px rgba(255,200,110,.7))}#wrongWay .k{letter-spacing:.34em;text-transform:uppercase;font-size:10.5px;color:#e7c27a;opacity:.85}#wrongWay .m{font:italic 500 17px Fraunces,Georgia,serif;margin-top:3px;text-shadow:0 2px 10px rgba(0,0,0,.8)}#wrongWay .d{font-size:11.5px;opacity:.65;margin-top:2px;font-variant-numeric:tabular-nums}@keyframes wwSpin{to{transform:rotate(360deg)}}@keyframes wwPulse{0%,100%{opacity:.85}50%{opacity:1}}#wrongWay.on svg{animation:wwPulse 1.4s ease-in-out infinite}';document.head.appendChild(st);
-  const d=document.createElement('div');d.id='wrongWay';d.innerHTML='<div class="ring"><svg viewBox="0 0 86 86"><defs><linearGradient id="wwG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3d0"/><stop offset="1" stop-color="#d9973c"/></linearGradient></defs><path d="M43 12 L58 44 L46.5 39.5 L46.5 66 L39.5 66 L39.5 39.5 L28 44 Z" fill="url(#wwG)"/><circle cx="43" cy="43" r="3" fill="#fff3d0" opacity=".6"/></svg></div><div><div class="k">Wrong way</div><div class="m"></div><div class="d"></div></div>';document.body.appendChild(d);WW.el=d;return d}
-function wwTarget(){if(MODE==='open'||!started||CH2.zone!=='north'||CS.active||(bossRef&&!CH2.chase))return null;const st=CH2.st,z=P.pos.z;
-  const south=st===7||(CH2.chase&&st<8);if(south)return z<CAL_SHORE-10?{p:V3(34,0,-2146),n:'Calais'}:null;
-  if(st===2||st===3||st===8){if(z>CAL_SHORE+40)return null;if(z>CLIFF_Z+30)return{p:V3(0,0,CLIFF_Z),n:'England'};if(z>LON_Z)return{p:V3(nzRiverX(Math.max(LON_Z,z-300)),0,Math.max(LON_Z,z-300)),n:'London',far:V3(0,0,LON_Z)}}return null}
-{const _mt=muTick;muTick=function(dt){_mt(dt);const T=wwTarget();const el=WW.el;if(!T){if(WW.on&&el){el.classList.remove('on');WW.on=0}WW.last=null;WW.acc=0;return}
-  const p=P.pos;if(!WW.last){WW.last=p.clone();return}const mv=V3(p.x-WW.last.x,0,p.z-WW.last.z);WW.last.copy(p);const sp=mv.length()/Math.max(dt,1e-3);
-  const to=V3(T.p.x-p.x,0,T.p.z-p.z);const dist=to.length();to.normalize();const dot=sp>2?mv.normalize().dot(to):1;
-  if(dot<-.3)WW.acc=Math.min(4,WW.acc+dt);else if(dot>.25)WW.acc=Math.max(0,WW.acc-dt*2.2);
-  const want=WW.acc>1.6;if(want&&!WW.on){wwEl().classList.add('on');WW.on=1;WW.shown=0;try{sfx.blip&&sfx.blip()}catch(x){}}if(!want&&WW.on&&WW.acc<.4){el.classList.remove('on');WW.on=0}
-  if(WW.on){WW.shown+=dt;const f=camForward(),r=V3(-f.z,0,f.x);const ang=Math.atan2(to.dot(r),to.dot(f));const e=wwEl();e.querySelector('svg').style.transform=`rotate(${ang}rad)`;
-    const fd=T.far?Math.hypot(T.far.x-p.x,T.far.z-p.z):dist;e.querySelector('.m').textContent=`${T.n} is this way`;e.querySelector('.d').textContent=`${Math.round(fd)} m`;if(WW.shown>9&&dot>-.1){e.classList.remove('on');WW.on=0;WW.acc=0}}}}
-
 /* ---------- the Tower's questions: a fair middle ground, scaled by difficulty ---------- */
 const TQX={easy:[['How many ravens must be kept at the Tower, or the kingdom falls?',['Six','Three','Nine','Twelve']],['Which river runs past the Tower of London?',['The Thames','The Severn','The Mersey','The Trent']],
     ['What is kept in the Jewel House?',['The Crown Jewels','The Magna Carta','The Rosetta Stone','The Domesday Book']],['What is the nickname of the Tower\'s Yeoman Warders?',['Beefeaters','Redcoats','Bobbies','Grenadiers']],
@@ -506,3 +493,113 @@ epQuiz=function(){if(NZQ.quiz)return;if(typeof TUT!=='undefined'&&TUT.on)try{tut
 Object.assign(BTH,{kitsune:'mus_b_fox',warden:'mus_b_warden',vesper:'mus_b_vesper',greyfang:'mus_greyfang'});
 Object.assign(MU.gain,{mus_b_fox:1.8,mus_b_warden:1.8,mus_b_vesper:1.8});if(MU.keys)MU.keys.push('mus_b_fox','mus_b_warden','mus_b_vesper');
 {let pt=2;const _mt=muTick;muTick=function(dt){_mt(dt);pt-=dt;if(pt>0||!started||MODE==='open')return;pt=8;try{if(!beaten.has('kitsune'))bmTrack('mus_b_fox');const st=CH2.st;if(CH2.zone==='north'&&(st===7||(st>=9&&st<=10)))bmTrack('mus_b_warden');if(CH2.zone==='north'&&st>=11&&st<13)bmTrack('mus_b_vesper')}catch(x){}}}
+
+/* ---------- wrong way, quietly: the screen edges warm up for a moment and a small arrow nudges you round ---------- */
+const WW={el:null,on:0,last:null,acc:0,cool:0,roll:null};
+function wwEl(){if(WW.el)return WW.el;const st=document.createElement('style');st.textContent='#wwEdge{position:fixed;inset:0;pointer-events:none;z-index:33;opacity:0;transition:opacity .9s ease;background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 58%,rgba(70,30,10,.38) 85%,rgba(150,70,20,.5) 100%)}#wwEdge.on{opacity:1}#wwEdge.soft{opacity:.45}#wwArr{position:fixed;left:50%;top:64px;width:34px;height:34px;margin-left:-17px;pointer-events:none;z-index:34;opacity:0;transition:opacity .5s ease}#wwArr.on{opacity:.9}#wwArr svg{width:100%;height:100%;filter:drop-shadow(0 0 6px rgba(255,170,80,.75));transition:transform .15s linear}#wwArr i{position:absolute;left:50%;top:38px;transform:translateX(-50%);white-space:nowrap;font:italic 500 13px Fraunces,Georgia,serif;color:#f6dcae;text-shadow:0 1px 6px rgba(0,0,0,.8);opacity:.85}';document.head.appendChild(st);
+  const e=document.createElement('div');e.id='wwEdge';document.body.appendChild(e);const a=document.createElement('div');a.id='wwArr';a.innerHTML='<svg viewBox="0 0 34 34"><path d="M17 4 L27 20 L19.5 17.5 L19.5 29 L14.5 29 L14.5 17.5 L7 20 Z" fill="#ffd9a0"/></svg><i></i>';document.body.appendChild(a);WW.el={e,a};return WW.el}
+function wwTarget(){if(MODE==='open'||!started||CH2.zone!=='north'||CS.active||(bossRef&&!CH2.chase))return null;const st=CH2.st,z=P.pos.z;
+  const south=st===7||(CH2.chase&&st<8);if(south)return z<CAL_SHORE-10?{p:V3(34,0,-2146),n:'Calais'}:null;
+  if(st===2||st===3||st===8){if(z>CAL_SHORE+40)return null;if(z>CLIFF_Z+30)return{p:V3(0,0,CLIFF_Z),n:'England'};if(z>LON_Z)return{p:V3(nzRiverX(Math.max(LON_Z,z-300)),0,Math.max(LON_Z,z-300)),n:'London'}}return null}
+{const _mt=muTick;muTick=function(dt){_mt(dt);WW.cool=Math.max(0,WW.cool-dt);const T=wwTarget();const hide=()=>{if(WW.on){const E=wwEl();E.e.classList.remove('on','soft');E.a.classList.remove('on');WW.on=0;WW.cool=25}};
+  if(!T){hide();WW.last=null;WW.acc=0;WW.roll=null;return}const p=P.pos;if(!WW.last){WW.last=p.clone();return}const mv=V3(p.x-WW.last.x,0,p.z-WW.last.z);WW.last.copy(p);const sp=mv.length()/Math.max(dt,1e-3);
+  const to=V3(T.p.x-p.x,0,T.p.z-p.z).normalize();const cosA=sp>2?mv.normalize().dot(to):1;const wrong=cosA<Math.cos(50*Math.PI/180);
+  if(wrong)WW.acc+=dt;else WW.acc=Math.max(0,WW.acc-dt*3);
+  if(!WW.on){if(WW.acc>3.5&&!WW.cool){if(WW.roll==null)WW.roll=Math.random()<.5;if(WW.roll){const E=wwEl();E.e.classList.add('on');E.a.classList.add('on');E.a.querySelector('i').textContent=T.n;WW.on=1;WW.t=0}else{WW.cool=12;WW.roll=null;WW.acc=0}}return}
+  WW.t+=dt;const E=wwEl();if(WW.t>1.3)E.e.classList.replace('on','soft');const f=camForward(),r=V3(-f.z,0,f.x);E.a.querySelector('svg').style.transform=`rotate(${Math.atan2(to.dot(r),to.dot(f))}rad)`;
+  const face=V3(Math.sin(P.face),0,Math.cos(P.face));if(face.dot(to)>Math.cos(40*Math.PI/180)||(!wrong&&WW.acc<.5)){hide();WW.roll=null;WW.acc=0}}}
+
+/* ---------- low life: a red edge that deepens as you fall, and blood under 9% ---------- */
+const LH={el:null,v:0,b:0};
+function lhEl(){if(LH.el)return LH.el;const st=document.createElement('style');st.textContent='#lhVig,#lhBlood{position:fixed;inset:0;pointer-events:none;z-index:32;opacity:0}#lhVig{background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 52%,rgba(120,0,8,.55) 82%,rgba(70,0,4,.85) 100%);mix-blend-mode:multiply}#lhGlow{position:fixed;inset:0;pointer-events:none;z-index:32;opacity:0;box-shadow:inset 0 0 70px 16px rgba(200,10,20,.55)}#lhBlood{background-size:100% 100%;background-repeat:no-repeat}';document.head.appendChild(st);
+  const v=document.createElement('div');v.id='lhVig';const g=document.createElement('div');g.id='lhGlow';const b=document.createElement('div');b.id='lhBlood';
+  const c=document.createElement('canvas');c.width=1024;c.height=640;const x=c.getContext('2d');const blot=(cx,cy,r)=>{const gr=x.createRadialGradient(cx,cy,0,cx,cy,r);gr.addColorStop(0,'rgba(110,0,6,.95)');gr.addColorStop(.6,'rgba(90,0,4,.75)');gr.addColorStop(1,'rgba(60,0,0,0)');x.fillStyle=gr;x.beginPath();
+    for(let k=0;k<=20;k++){const a=k/20*TAU,rr=r*(.7+Math.random()*.45);x.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr)}x.fill();for(let k=0;k<9;k++){const a=Math.random()*TAU,d=r*(.9+Math.random()*.9);x.fillStyle='rgba(100,0,5,'+(.5+Math.random()*.4)+')';x.beginPath();x.arc(cx+Math.cos(a)*d,cy+Math.sin(a)*d,2+Math.random()*r*.12,0,TAU);x.fill()}};
+  const edge=(cx,cy,n,s)=>{for(let k=0;k<n;k++)blot(cx+(Math.random()-.5)*s,cy+(Math.random()-.5)*s,20+Math.random()*55)};edge(0,0,9,220);edge(1024,0,8,220);edge(0,640,9,220);edge(1024,640,9,220);edge(512,640,3,300);edge(0,320,3,200);edge(1024,320,3,200);
+  for(let k=0;k<6;k++){const sx=Math.random()<.5?Math.random()*160:1024-Math.random()*160;x.strokeStyle='rgba(95,0,5,.8)';x.lineWidth=3+Math.random()*4;x.beginPath();x.moveTo(sx,0);x.lineTo(sx+(Math.random()-.5)*20,40+Math.random()*110);x.stroke()}
+  b.style.backgroundImage=`url(${c.toDataURL()})`;document.body.appendChild(v);document.body.appendChild(g);document.body.appendChild(b);LH.el={v,g,b};return LH.el}
+{const _mt=muTick;muTick=function(dt){_mt(dt);const E=lhEl();let tv=0,tb=0;if(started&&!CS.active&&P.alive){const r=P.hp/Math.max(1,maxHP());if(r<.3)tv=Math.min(1,(.3-r)/.27);if(r<.09)tb=Math.min(1,(.09-r)/.06*.7+.3)}else if(started&&!P.alive)tv=.6;
+  LH.v+=(tv-LH.v)*Math.min(1,dt*(tv>LH.v?4:1.5));LH.b+=(tb-LH.b)*Math.min(1,dt*(tb>LH.b?3:1));const beat=LH.v>.5?(.88+.12*Math.max(0,Math.sin(time*(5+LH.v*3)))):1;
+  E.v.style.opacity=(LH.v*.75*beat).toFixed(3);E.g.style.opacity=(LH.v*.5*beat).toFixed(3);E.b.style.opacity=(LH.b*.8).toFixed(3)}}
+
+/* ---------- Paris, after Kaen is back: Lyra only offers the door when you ask ---------- */
+let LYH=null;
+function lyHint(on){if(!LYH){const st=document.createElement('style');st.textContent='#lyHint{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:36;display:none;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(14,8,30,.66);border:1px solid rgba(255,150,150,.3);color:#f6e6e0;font:500 13px Outfit,system-ui,sans-serif;cursor:pointer}#lyHint.on{display:flex}#lyHint kbd{font:600 11px Outfit,sans-serif;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2)}';document.head.appendChild(st);
+    LYH=document.createElement('div');LYH.id='lyHint';LYH.innerHTML=(typeof isTouch!=='undefined'&&isTouch?'':'<kbd>E</kbd>')+'Ask Lyra for the door to Calais';LYH.addEventListener('pointerdown',e=>{e.preventDefault();lyraPanel()});document.body.appendChild(LYH)}
+  LYH.classList.toggle('on',!!on&&!CS.active)}
+addEventListener('keydown',e=>{if(e.code==='KeyE'&&LYH&&LYH.classList.contains('on')&&!CS.active){lyraPanel();LYH.classList.remove('on')}});
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(LYH&&LYH.classList.contains('on')&&(CH2.zone!=='paris'||!LYR.a||!LYR.home||CS.active||Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)>3.6))LYH.classList.remove('on')}}
+
+/* ---------- cutscene voices are never cut off: a shot waits for its line to finish ---------- */
+{const _ns=nextShot;let hold=0,forced=false;nextShot=function(){if(CS.active&&!CS.skipping&&!forced&&VO.src&&CS.shots[CS.i]&&CS.shots[CS.i].who){if(!hold)hold=performance.now();if(performance.now()-hold<2600)return}hold=0;forced=false;return _ns.apply(this,arguments)};
+  cineEl.addEventListener('pointerdown',()=>{forced=true;setTimeout(()=>{forced=false},350)},true)}
+
+/* ---------- the Warden, heartless: he closes in, strikes, and gets out ---------- */
+{const _ai=BOSSAI.warden;BOSSAI.warden=function(e,dt,d){_ai(e,dt,d);if(CH2.st!==10||CH2.chase||e.dead||e.invuln||!XHT.spawned||xhtAlive()||CS.active)return;const a=e.ai;
+  a.cq=(a.cq==null?3:a.cq)-dt;if(a.cq>0||a.cqOn)return;a.cqOn=1;const n=Math.random()<.35?3:Math.random()<.5?2:1;let i=0;
+  const strike=()=>{if(e.dead||CS.active){a.cqOn=0;a.cq=4;return}const ang=rand(0,TAU);const at=P.pos.clone().add(V3(Math.sin(ang)*2.6,.6,Math.cos(ang)*2.6));wdBlink(e,at);e.m.g.rotation.y=Math.atan2(P.pos.x-at.x,P.pos.z-at.z);
+    try{e.m.actor&&e.m.actor.fire('Punch_Cross',.5)}catch(x){}const c=V3(at.x,P.pos.y,at.z);const rg=new THREE.Mesh(new THREE.RingGeometry(.2,4.3,40),new THREE.MeshBasicMaterial({color:0x60ff90,transparent:true,opacity:.0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));rg.rotation.x=-Math.PI/2;rg.position.set(c.x,c.y+.15,c.z);
+    addFx(rg,.42,(f,k)=>{rg.material.opacity=.15+k*.45;rg.scale.setScalar(.5+k*.5);if(Math.random()<.8)SP.emit(headOf(at,rand(1,4)),{c0:0xffffff,c1:0x30ff70,s0:.4,s1:.05,life:.3,speed:-4})},()=>{scene.remove(rg);rg.geometry.dispose();
+      if(e.dead)return;const hitP=Math.hypot(P.pos.x-c.x,P.pos.z-c.z)<4.6&&Math.abs(P.pos.y-c.y)<4;flash(headOf(at,2),0x9affb0,16);P.shake=Math.max(P.shake,.6);ring(V3(c.x,c.y,c.z),0x9affb0,.5,5.5,.25);sx('impact',.8,null,{rate:1.3});
+      SP.emit(headOf(at,2),{n:70,c0:0xffffff,c1:0x30ff70,speed:12,life:.5});if(hitP)damagePlayer(maxHP()*.11);
+      after(.35,()=>{if(e.dead)return;i++;if(i<n&&!CS.active)strike();else{const ba=rand(0,TAU);wdBlink(e,P.pos.clone().add(V3(Math.sin(ba)*18,rand(5,8),Math.cos(ba)*18)));a.cqOn=0;a.cq=rand(5,8)}})})};
+  strike()}}
+
+/* ---------- a better Warden beam: spiralling rings, a heat line, a scorched impact ---------- */
+{const _wl=wdLaser;wdLaser=function(e,from,to,dmg,w,o){const r=_wl.apply(this,arguments);o=o||{};w=w||.7;const tc=o.charge||.7;const f0=from.clone(),t0=to.clone();
+  after(tc,()=>{if(e&&e.dead)return;const dir=t0.clone().sub(f0).normalize();const end=f0.clone().addScaledVector(dir,f0.distanceTo(t0)+(o.ext==null?30:o.ext));const L=f0.distanceTo(end);const q=new THREE.Quaternion().setFromUnitVectors(V3(0,0,1),dir);
+    const rings=[];for(let k=0;k<5;k++){const m=new THREE.Mesh(new THREE.TorusGeometry(w*1.6,.05,6,32),new THREE.MeshBasicMaterial({color:k%2?0xffffff:0x80ffb0,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));m.quaternion.copy(q);scene.add(m);rings.push({m,u:k/5})}
+    const imp=t0.clone();const gy=groundAt(imp.x,imp.z);const nearG=imp.y-gy<3;let ph=0;
+    addFx(null,o.dur||.62,(f,k)=>{ph+=.016*16;for(const R of rings){R.u=(R.u+.03)%1;R.m.position.copy(f0).addScaledVector(dir,R.u*L);const s=(1-k*.6)*(1+Math.sin(R.u*12+ph)*.2);R.m.scale.setScalar(s);R.m.material.opacity=.75*(1-k)}
+      for(let n=0;n<3;n++){const u=Math.random();const a=ph+u*20;const side=V3(1,0,0).applyQuaternion(q),up=V3(0,1,0).applyQuaternion(q);const p=f0.clone().addScaledVector(dir,u*L).addScaledVector(side,Math.cos(a)*w*1.3).addScaledVector(up,Math.sin(a)*w*1.3);SP.emit(p,{c0:0xffffff,c1:0x40ff80,s0:.35,s1:.04,life:.35})}
+      if(Math.random()<.6)SP.emit(imp.clone().add(V3(rand(-1,1),rand(0,1.5),rand(-1,1))),{c0:0xffffff,c1:0x30ff70,s0:.6,s1:.05,life:.5,speed:6,grav:6})},
+      ()=>{for(const R of rings){scene.remove(R.m);R.m.geometry.dispose();R.m.material.dispose()}});
+    ring(V3(imp.x,nearG?gy:imp.y,imp.z),0x9affb0,.4,w*7,.35);if(nearG){try{groundMark(scorchTex,V3(imp.x,gy,imp.z),0x103010,w*5,4,false,.7)}catch(x){}SM.emit(V3(imp.x,gy+.5,imp.z),{n:12,c0:0x60a070,c1:0x0a1a0a,s0:1.5,s1:4,life:1.2,a:.5,up:1.5})}});
+  return r}}
+
+/* ---------- the silver, Lyra through a portal, a heartbeat, and Kaen made flesh again ---------- */
+XL.ly48='I can finally be here with you, in London. No more whispering in your head. The Tower and its Warden can\'t feed on me anymore.';XL.ly49='But the Crown can always feed. On any of us. So we stay careful. Me too.';VO_MAP[XL.ly48]='ly48';VO_MAP[XL.ly49]='ly49';
+xiiSilver=function(center,orb){const sp=V3(center.x,Math.max(2.4,groundAt(center.x,center.z)+2.4),center.z);
+  const sil=new THREE.Group();sil.position.copy(sp);const sm=std({color:0xe8eef8,metalness:1,roughness:.15,emissive:0x8fb0ff,emissiveIntensity:.35});sil.add(new THREE.Mesh(new THREE.TorusGeometry(.55,.08,8,28),sm));for(let k=0;k<7;k++){const a=k/7*TAU;const s=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,5),sm);s.position.set(Math.cos(a)*.55,.18,Math.sin(a)*.55);sil.add(s)}
+  sil.add(glowSprite(0xcfe0ff,3,.6));NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
+  {const G=NZ.green||V3(222,0,-9862);const tw=V3(232-G.x,0,-9876-G.z).normalize();const st=G.clone().addScaledVector(tw,-3);P.pos.set(st.x,groundAt(st.x,st.z),st.z);P.vy=0;P.flying=false;P.face=Math.atan2(tw.x,tw.z);yaw=P.face+Math.PI;
+    if(KFW.a){const kq=P.pos.clone().add(V3(-tw.z*1.4,0,tw.x*1.4)).addScaledVector(tw,-.6);KFW.a.g.position.set(kq.x,P.pos.y+.35,kq.z);KFW.a.g.rotation.y=P.face}}
+  const kp=()=>KFW.a?KFW.a.g.position:P.pos;const f=V3(Math.sin(P.face),0,Math.cos(P.face)),rt=V3(f.z,0,-f.x);
+  const pp=P.pos.clone().addScaledVector(f,5.2).addScaledVector(rt,-1.6);pp.y=groundAt(pp.x,pp.z);const toM=V3(P.pos.x-pp.x,0,P.pos.z-pp.z).normalize();const stand=pp.clone().addScaledVector(toM,2.4);let portal=null,heart=null,ghost=null,flesh=null,mats=[];
+  const L=()=>LYR.a?LYR.a.g.position:stand;const lyAnim=n=>{try{LYR.a.setBase(n,.35)}catch(x){}};
+  const lyCam=(sd,ds,h)=>()=>{const g=L();const d=V3(P.pos.x-g.x,0,P.pos.z-g.z).normalize();const r=V3(d.z,0,-d.x);return{pos:headOf(g,h||1.6).addScaledVector(d,ds||2.6).addScaledVector(r,sd||1.1),look:headOf(g,1.5)}};
+  const pair=()=>{const a=L(),b=kp();return{a,b,m:a.clone().lerp(b,.5)}};
+  playCutscene([{who:'The Warden',text:XL.t2_11,cam:orb,update:()=>SP.emit(V3(center.x+rand(-2,2),center.y+rand(0,4),center.z+rand(-2,2)),{c0:0xc0ff90,c1:0x103010,s0:.6,s1:.1,life:.8,up:2})},
+    {who:'@',text:XL.m3_11,cam:witchShot(-1,3.4)},
+    {who:"Kaen's Spirit",text:XL.k3_09,cut:true,cam:()=>({pos:sp.clone().add(V3(2.4,.6,2.4)),look:sp}),onStart:()=>{sx('ding',.9)}},
+    {dur:4.2,fov:50,cut:true,cam:k=>({pos:pp.clone().addScaledVector(toM,6.8-k*1.2).addScaledVector(V3(toM.z,0,-toM.x),2.6).add(V3(0,2.4,0)),look:headOf(pp,1.6)}),
+      onStart:()=>{portal=nzPortal(pp.clone());portal.rotation.y=Math.atan2(toM.x,toM.z);portal.scale.setScalar(.01);sx('portal',1,null,{rate:.85});flash(headOf(pp,2),0xff4050,22);lyraPlace(pp.x-toM.x*1.4,pp.z-toM.z*1.4,Math.atan2(toM.x,toM.z));LYR.home=false;if(LYR.mk)LYR.mk.visible=false;LYR.a.g.visible=false},
+      update:(dt,k)=>{if(!portal)return;portal.userData.tick(dt);const open=k<.25?k/.25:k>.85?Math.max(.01,1-(k-.85)/.15):1;portal.scale.setScalar(open*(1+Math.sin(k*30)*.02));
+        if(k>.3&&LYR.a){LYR.a.g.visible=true;const u=Math.min(1,(k-.3)/.45);const from=pp.clone().addScaledVector(toM,-1.4);LYR.a.g.position.copy(from.lerp(stand,u));LYR.a.g.position.y=groundAt(LYR.a.g.position.x,LYR.a.g.position.z);lyAnim(u<1?'Walk_Loop':'Idle_Loop');
+          if(u<1&&Math.random()<.6)SP.emit(headOf(LYR.a.g.position,rand(.2,1.8)),{c0:0xffd0d0,c1:0xff3040,s0:.35,s1:.04,life:.6})}
+        if(k>.98&&portal){scene.remove(portal);portal=null;flash(headOf(pp,2),0xff4050,12)}}},
+    {who:'Lyra',text:XL.ly48,cut:true,cam:lyCam(1.1,2.8),onStart:()=>{if(portal){scene.remove(portal);portal=null}lyAnim('Idle_Loop')}},
+    {who:'Lyra',text:XL.ly49,cam:lyCam(-1.2,2.4)},
+    {who:'Lyra',text:XL.ly40,cut:true,cam:()=>{const P2=pair();const r=V3(P2.b.z-P2.a.z,0,-(P2.b.x-P2.a.x)).normalize();return{pos:headOf(P2.m,2).addScaledVector(r,6),look:headOf(P2.m,1.3)}}},
+    {who:"Kaen's Spirit",text:XL.k3_10,cut:true,cam:kS3(1.3)},
+    {who:'Lyra',text:XL.ly41,cut:true,cam:lyCam(-1,2.2,1.45),onStart:()=>{lyAnim('Spell_Simple_Idle_Loop');heart=glowSprite(0xff3050,.4,1,false);heart.position.copy(headOf(L(),1.3));scene.add(heart);sx('heart',.9)},
+      update:(dt,k)=>{if(heart){heart.position.copy(headOf(L(),1.3)).add(V3(0,0,0));const b=.4+k*.9+Math.max(0,Math.sin(time*7))*.25;heart.scale.setScalar(b);if(Math.random()<.4)SP.emit(heart.position,{c0:0xffd0e0,c1:0xff2050,s0:.3,s1:.03,life:.5,speed:1})}}},
+    {dur:3.4,fov:44,cut:true,cam:k=>{const P2=pair();const r=V3(P2.b.z-P2.a.z,0,-(P2.b.x-P2.a.x)).normalize();return{pos:headOf(P2.m,1.7+k*.4).addScaledVector(r,4.6-k*1.2),look:headOf(P2.m,1.35)}},
+      onStart:()=>{KFW.pin=1;ghost=KFW.a;lyAnim('Walk_Loop')},
+      update:(dt,k)=>{if(!LYR.a||!ghost)return;const b=ghost.g.position;const a=LYR.a.g.position;const d=V3(b.x-a.x,0,b.z-a.z);const dl=d.length();if(dl>.5){a.addScaledVector(d.normalize(),Math.min(dl-.5,dt*1.6));a.y=groundAt(a.x,a.z)}else lyAnim('Spell_Simple_Idle_Loop');
+        LYR.a.g.rotation.y=Math.atan2(b.x-a.x,b.z-a.z);ghost.g.rotation.y=Math.atan2(a.x-b.x,a.z-b.z);try{ghost.setBase(dl>.6?'Idle_Loop':'Spell_Simple_Idle_Loop',.4)}catch(x){}if(heart)heart.position.copy(headOf(a,1.3));sil.position.lerp(headOf(b,2.3),Math.min(1,dt*1.2));spin.on=0;sil.rotation.y+=dt*2}},
+    {dur:6,fov:40,cut:true,title:['Kaen Kuroshiba','Flesh and blood'],cam:k=>{const b=kp();const a=k*1.6+.4;return{pos:headOf(b,1.3+k*.9).add(V3(Math.sin(a)*(3-k*.6),0,Math.cos(a)*(3-k*.6))),look:headOf(b,1.15)}},
+      onStart:()=>{const g=ghost||KFW.a;flesh=makeCHActor('m',{skin:0xf2d8c8,hair:'hairPart',hairTex:'1',hairCol:0x0b0a10,brow:0x0b0a10,keepReg:[5,6,9],wear:[['long',0x121016],['trousers',0x0f0d13],['shoes',0x0a0a0c]]});
+        if(flesh){flesh.g.traverse(o=>{if(o.isMesh&&o.material){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=0;mats.push(o.material)}});flesh.g.position.copy(g.g.position);flesh.g.rotation.y=g.g.rotation.y;flesh.g.scale.copy(g.g.scale);scene.add(flesh.g);try{flesh.setBase('Spell_Simple_Idle_Loop');flesh.update(.2)}catch(x){}}
+        sx('powerup',1,null,{rate:.75});sx('riser',.9,null,{rate:.6})},
+      update:(dt,k)=>{const b=kp();const c=headOf(b,1.1);const u=Math.min(1,Math.max(0,(k-.1)/.75));if(flesh){flesh.update(dt);flesh.g.position.copy(b);if(ghost)flesh.g.rotation.y=ghost.g.rotation.y;for(const m of mats)m.opacity=u*u}
+        if(KFW.gm)KFW.gm.opacity=.42*(1-u);if(ghost)ghost.g.traverse(o=>{if(o.isMesh&&o.material&&o.material.blending===THREE.AdditiveBlending)o.material.opacity=.42*(1-u)});
+        if(heart){heart.position.lerp(c,Math.min(1,dt*1.3));heart.scale.setScalar(1.2*(1-u*.6))}sil.position.lerp(c,Math.min(1,dt*(.3+u*1.5)));sil.scale.setScalar(1-u*.7);
+        const ry=b.y+u*2.2;for(let q=0;q<3;q++){const a=rand(0,TAU);SP.emit(V3(b.x+Math.cos(a)*.55,ry+rand(-.1,.1),b.z+Math.sin(a)*.55),{c0:0xffffff,c1:q%2?0xff6080:0xb0c8ff,s0:.35,s1:.03,life:.5,up:.5})}
+        if(Math.random()<.5)SP.emit(c.clone().add(V3(rand(-2.5,2.5),rand(-1,2.5),rand(-2.5,2.5))),{c0:0xd0e0ff,c1:0x6040c0,s0:.3,s1:.03,life:1,speed:-2.4});if(Math.random()<dt*2)flash(c,0xffd0e0,6)}},
+    {dur:2.4,fov:44,cam:k=>{const c=kp();return{pos:headOf(c,1.5).add(V3(3.2,0,3.2)),look:headOf(c,1.2)}},onStart:()=>{const c=headOf(kp(),1.1);flash(c,0xffffff,40);SP.emit(c,{n:320,c0:0xffffff,c1:0xd0a0ff,speed:14,life:1.4});ring(V3(c.x,c.y-1.1,c.z),0xffd0e0,1,10,.6);P.shake=1.5;sx('impact',1,null,{rate:.6});
+        NZ.g.remove(sil);if(heart){scene.remove(heart);heart=null}const pos=kp().clone(),ry=ghost?ghost.g.rotation.y:0;kfSolidify();if(KFW.a){KFW.a.g.position.copy(pos);KFW.a.g.rotation.y=ry}if(flesh){scene.remove(flesh.g);flesh=null}lyAnim('Idle_Loop')}},
+    {who:'Kaen',text:XL.kb_01,cut:true,cam:kS3(1.2,1.6),onStart:()=>{try{KFW.a.setBase('Idle_Loop',.3)}catch(x){}}},{who:'Lyra',text:XL.ly42,cam:lyCam(1.2,2.6)},{who:'Kaen',text:XL.kb_02,cut:true,cam:kS3(-1.3,1.6)},{who:'@',text:XL.m3_12,cam:witchShot(1,3.2)},
+    {who:'Kaen',text:XL.kb_03,fov:50,cam:k=>{const g=NZ.green||V3(222,0,-9862);return{pos:V3(g.x-10,6+k*14,g.z+30),look:V3(232,30,-9866)}}}],
+    ()=>{KFW.pin=0;if(portal)scene.remove(portal);if(flesh)scene.remove(flesh.g);if(sil.parent)sil.parent.remove(sil);spin.on=0;if(heart)scene.remove(heart);if(XII.heart){scene.remove(XII.heart);XII.heart=null}if(!XII.solid)kfSolidify();
+      CH2.st=Math.max(CH2.st,11);ch2Save();writeSave();beaten.add('warden');toast('Kaen has his body back, and Lyra can finally walk London with you.','Chapter XII complete',true)})};
