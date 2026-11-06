@@ -7,7 +7,7 @@ function voLoad(k){if(CLIP.buf[k])return Promise.resolve(CLIP.buf[k]);if(CLIP.re
   CLIP.req[k]=voRaw(k).then(b=>new Promise(res=>{if(!b)return res(null);const go=()=>{if(!AC){setTimeout(go,300);return}try{const p=AC.decodeAudioData(b.slice(0),x=>{CLIP.buf[k]=x;res(x)},()=>res(null));if(p&&p.catch)p.catch(()=>{})}catch(e){res(null)}};go()}));return CLIP.req[k]}
 function voPrefetchAll(){if(VO.pre)return;VO.pre=true;const ks=[...new Set(Object.values(VO_MAP))];let i=0;const nx=()=>{if(i>=ks.length)return;voRaw(ks[i++]).then(()=>setTimeout(nx,60))};nx()}
 function voKey(who,text){if(!text||!who)return null;if(who==='@'&&HERO.g!=='f')return null;return VO_MAP[text]||null}
-function voStop(fade){if(!VO.src||!AC)return;try{const t=AC.currentTime;VO.g.gain.cancelScheduledValues(t);VO.g.gain.setTargetAtTime(0,t,fade||.04);VO.src.stop(t+(fade||.04)*5)}catch(e){}VO.src=null}
+function voStop(fade){if(!VO.src||!AC)return;try{const t=AC.currentTime;VO.g.gain.cancelScheduledValues(t);VO.g.gain.setTargetAtTime(0,t,fade||.06);VO.src.stop(t+(fade||.06)*5)}catch(e){}VO.src=null}
 function voPrefetch(shots){if(!shots)return;for(const s of shots){const k=voKey(s.who,s.text);if(k)voLoad(k)}}
 function voPlay(who,text,shot){const k=voKey(who,text);if(!k||!AC||muted||CS.skipping)return;voStop();
   const go=b=>{if(!b||muted)return;if(shot&&(!CS.active||CS.shots[CS.i]!==shot))return;const sp=VO_SPIRIT.has(k);

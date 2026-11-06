@@ -203,7 +203,7 @@ const TQ=[['How many ravens must stay at the Tower, or the kingdom falls?',['Six
     for(const l of NZQ.links){l.material=l.material.clone();l.userData.p0=l.position.clone()}if(CH2.st>=6)epFreeKaen(true)}return a}}
 {const _no=nzObj;nzObj=function(){if(CH2.zone==='north'&&CH2.st>=6)return 'Kaen is free · Lyra\'s red door by the Tower gate leads home';if(CH2.zone==='north'&&CH2.st===5&&NZ.green){const d=Math.round(Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z));
     return NZQ.stage>=1?`Answer <b>the Tower's questions</b> beside Kaen · ${d}m`:`Break the Crown's <b>chains</b> holding Kaen · ${d}m`}return _no.apply(this,arguments)}}
-function epTowerSpirit(){if(NZQ.spirit)return NZQ.spirit;const g=new THREE.Group();g.position.set(226,-12,-4824);NZ.g.add(g);
+function epTowerSpirit(){if(NZQ.spirit)return NZQ.spirit;const g=new THREE.Group();g.position.set(226,-12,-10224);NZ.g.add(g);
   const gm=new THREE.MeshBasicMaterial({color:0x22d070,transparent:true,opacity:.5,depthWrite:false,side:THREE.DoubleSide});const dk=new THREE.MeshBasicMaterial({color:0x02140a,transparent:true,opacity:.7,depthWrite:false});
   const head=new THREE.Mesh(new THREE.SphereGeometry(3,28,20),gm);head.scale.set(1,1.2,.95);g.add(head);const jaw=new THREE.Mesh(new THREE.BoxGeometry(3.2,1.6,2.6),gm);jaw.position.set(0,-2.8,.6);g.add(jaw);
   const helm=new THREE.Mesh(new THREE.CylinderGeometry(3.3,3.1,1.4,28,1,true),gm);helm.position.y=1.6;g.add(helm);for(let k=0;k<10;k++){const a=k/10*TAU;const sp=new THREE.Mesh(new THREE.ConeGeometry(.35,2.4,6),gm);sp.position.set(Math.sin(a)*3.1,3.3,Math.cos(a)*3.1);g.add(sp)}
@@ -213,7 +213,7 @@ function epTowerSpirit(){if(NZQ.spirit)return NZQ.spirit;const g=new THREE.Group
     g.rotation.y=Math.atan2(P.pos.x-g.position.x,P.pos.z-g.position.z)*.6;gm.opacity=.45+Math.sin(t*3)*.08;mouth.scale.y=1+Math.max(0,Math.sin(t*9))*(VO.src?1.6:0);
     for(const e of eyes){e.scale.setScalar(2.2+sp.charge*5+Math.sin(t*20)*sp.charge*.6)}if(g.visible&&Math.random()<.35)SM.emit(V3(g.position.x+rand(-3,3),g.position.y-3,g.position.z+rand(-2,2)),{c0:0x60ff90,c1:0x02140a,s0:1.5,s1:4,life:1.4,a:.25,up:-1,speed:.6})});
   NZQ.spirit=sp;return sp}
-const epEyes=()=>{const s=NZQ.spirit;return s?s.g.position.clone().add(V3(0,.1,2.6)):V3(226,14,-4822)};
+const epEyes=()=>{const s=NZQ.spirit;return s?s.g.position.clone().add(V3(0,.1,2.6)):V3(226,14,-10222)};
 function epChains(){if(NZQ.stage>=1||CS.active)return;NZQ.stage=1;const c=NZ.green;const kS=sd=>()=>({pos:headOf(c,1.3).add(V3(sd||2.2,.2,3.2)),look:headOf(c,.9)});const gk=a=>{try{if(NZ.ghost)NZ.ghost.setBase(a,.3)}catch(x){}};let sq=0;
   const squeeze=dt=>{sq=Math.min(1,sq+dt*.8);for(const l of NZQ.links){const p0=l.userData.p0;if(!p0)continue;l.position.lerpVectors(p0,V3(c.x,p0.y-.2,c.z+.1),.35*sq+Math.sin(time*30)*.01);l.material.emissive&&l.material.emissive.setHex(0x40ff80);l.material.emissiveIntensity=sq*1.5}};
   for(const p of projs)p.life=0;
@@ -223,8 +223,8 @@ function epChains(){if(NZQ.stage>=1||CS.active)return;NZQ.stage=1;const c=NZ.gre
     {who:'@',text:EPL.drink,cam:witchShot(1,3),update:squeeze},
     {who:"Kaen's Spirit",text:EPL.clue,cut:true,cam:kS(1.6),onStart:()=>{for(const l of NZQ.links){if(l.userData.p0)l.position.copy(l.userData.p0);l.material.emissiveIntensity=.3}}},
     {who:'@',text:EPL.quiz,cam:witchShot(-1,3.2)},
-    {dur:3,fov:54,cut:true,cam:k=>({pos:V3(202,2.5+k*2,-4806),look:V3(226,4+k*10,-4824)}),onStart:()=>{const s=epTowerSpirit();s.y=-12;s.ty=14;sx('garg',.9,null,{rate:.55,wet:.5});sx('riser',.8,null,{rate:.6});flash(V3(226,10,-4824),0x60ff90,30);P.shake=1.4}},
-    {who:'The Tower',text:EPL.sp1,fov:38,cam:k=>({pos:V3(204-k*2,2.6+k,-4806),look:epEyes()})}
+    {dur:3,fov:54,cut:true,cam:k=>({pos:V3(202,2.5+k*2,-10206),look:V3(226,4+k*10,-10224)}),onStart:()=>{const s=epTowerSpirit();s.y=-12;s.ty=14;sx('garg',.9,null,{rate:.55,wet:.5});sx('riser',.8,null,{rate:.6});flash(V3(226,10,-10224),0x60ff90,30);P.shake=1.4}},
+    {who:'The Tower',text:EPL.sp1,fov:38,cam:k=>({pos:V3(204-k*2,2.6+k,-10206),look:epEyes()})}
   ],()=>{epQuiz()})}
 function epQuiz(){if(NZQ.quiz)return;if(typeof TUT!=='undefined'&&TUT.on)try{tutEnd(true)}catch(x){}const hard=DIFF==='hard';const pool=(hard?TQ:TQE).slice().sort(()=>Math.random()-.5).slice(0,hard?5:3);NZQ.quiz={i:0,pool};P.invuln=99;for(const e of enemies)if(!e.dead)removeEnemy(e);epAsk()}
 function epAsk(){const Q=NZQ.quiz;if(!Q)return;const [q,opts]=Q.pool[Q.i];const order=opts.map((t,k)=>[t,k]).sort(()=>Math.random()-.5);
@@ -232,7 +232,7 @@ function epAsk(){const Q=NZQ.quiz;if(!Q)return;const [q,opts]=Q.pool[Q.i];const 
   c.onclick=ev=>{const b=ev.target.closest('[data-a]');if(!b||!NZQ.quiz)return;tutHide();if(b.dataset.a==='0'){sx('ding',1,()=>{try{sfx.gem()}catch(x){}});flash(epEyes(),0x9affb0,6);Q.i++;if(Q.i>=Q.pool.length)epPass();else setTimeout(epAsk,650)}else epFail()}}
 function epFail(){NZQ.quiz=null;const sp=epTowerSpirit();let beam=null;
   playCutscene([
-    {who:'The Tower',text:EPL.sp2,fov:40,cut:true,cam:()=>({pos:V3(205,2.6,-4806),look:epEyes()}),onStart:()=>{tutHide();sp.charge=.4;sx('garg',.7,null,{rate:.5})}},
+    {who:'The Tower',text:EPL.sp2,fov:40,cut:true,cam:()=>({pos:V3(205,2.6,-10206),look:epEyes()}),onStart:()=>{tutHide();sp.charge=.4;sx('garg',.7,null,{rate:.5})}},
     {who:'@',text:EPL.ohno,cam:witchShot(1,2.6),update:dt=>{sp.charge=Math.min(1,sp.charge+dt*.6);const e=epEyes();for(let n=0;n<3;n++){const a=Math.random()*TAU;SP.emit(e.clone().add(V3(Math.sin(a)*4,rand(-3,3),Math.cos(a)*4)),{c0:0xc0ffd0,c1:0x10a040,s0:.6,s1:.05,life:.5,speed:-8})}}},
     {dur:2.4,fov:50,cut:true,cam:k=>{const e=epEyes();const d=V3(e.x-P.pos.x,0,e.z-P.pos.z).normalize();return{pos:headOf(P.pos,2.2+k).addScaledVector(d,-4.5).addScaledVector(V3(d.z,0,-d.x),2.2),look:headOf(P.pos,1.2).lerp(e,.35)}},onStart:()=>{sx('laser',1.5,()=>{try{sfx.boom()}catch(x){}},{wet:.3,duck:4});
         const a=epEyes(),b=headOf(P.pos,1.1);const L=a.distanceTo(b);beam=new THREE.Group();const m1=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,L,20,1,true),new THREE.MeshBasicMaterial({color:0x60ff90,transparent:true,opacity:.45,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
@@ -242,7 +242,7 @@ function epFail(){NZQ.quiz=null;const sp=epTowerSpirit();let beam=null;
   ],()=>{if(beam)scene.remove(beam);sp.charge=0;P.heroAnim=null;P.invuln=0;NZQ.cardT=6;die()})}
 function epPass(){NZQ.quiz=null;const c=NZ.green;const sp=epTowerSpirit();
   playCutscene([
-    {who:'The Tower',text:EPL.sp3,fov:44,cut:true,cam:()=>({pos:V3(205,2.6,-4806),look:epEyes()}),onStart:()=>tutHide()},
+    {who:'The Tower',text:EPL.sp3,fov:44,cut:true,cam:()=>({pos:V3(205,2.6,-10206),look:epEyes()}),onStart:()=>tutHide()},
     {dur:2.6,fov:42,cut:true,cam:k=>({pos:headOf(c,1.4).add(V3(3.4-k,.4,3.2)),look:headOf(c,1)}),onStart:()=>{epFreeKaen(false);sx('shbreak',1.2,()=>{try{sfx.shatter()}catch(x){}});sx('ding',.9,null,{delay:.3});sx('powerup',.8,null,{delay:.5});flash(headOf(c,1.2),0xd0f0ff,16);P.shake=1;sp.ty=-14}},
     {who:'@',text:EPL.full,cam:witchShot(1,3)},
     {who:"Kaen's Spirit",text:EPL.free,cut:true,cam:()=>({pos:headOf(c,1.6).add(V3(1.6,.1,2.6)),look:headOf(c,1.5)})}
