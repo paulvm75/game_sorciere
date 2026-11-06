@@ -206,7 +206,7 @@ function kaenClash(e,finish){const act=e.m.actor;e.invuln=true;e.busy=99;e.m.loc
 /* ---------- Bilel falls: Kaen feeds on it (+15% health) ---------- */
 {const _wa=witchAwaken;witchAwaken=function(e){if(MODE==='open'||!e||e.dead)return _wa.apply(this,arguments);const act=e.m.actor;const c=e.pos.clone();e.invuln=true;e.busy=99;e.m.lock=99;let T=0;
   const upd=dt=>{T+=dt;e.t+=dt;try{kaenFx(e,dt);act.update(dt)}catch(x){}};
-  playCutscene([{dur:2.8,fov:36,cut:true,title:['Kaen Kuroshiba','Void surge · +15%'],cam:k=>{const a=e.m.g.rotation.y+.4+k*.8;return{pos:V3(c.x+Math.sin(a)*5.5,c.y+1+k*1.2,c.z+Math.cos(a)*5.5),look:headOf(c,1.7)}},
+  playCutscene([{dur:2.8,fov:36,cut:true,title:['','Void surge · +15%'],cam:k=>{const a=e.m.g.rotation.y+.4+k*.8;return{pos:V3(c.x+Math.sin(a)*5.5,c.y+1+k*1.2,c.z+Math.cos(a)*5.5),look:headOf(c,1.7)}},
     onStart:()=>{try{act.setBase('Spell_Simple_Idle_Loop',.2)}catch(x){}e.hp=Math.min(e.maxhp,e.hp+Math.round(e.maxhp*.15));flash(c,0xa050ff,14);runeFlash(c,0xa050ff,8,2);for(let i=0;i<3;i++)after(i*.3,()=>ring(c,0xc090ff,1,6+i*4,.7));DR.riser(1.4);setTimeout(()=>{try{sfx.void&&sfx.void()}catch(x){}DR.sub(1.6,.3)},900);P.shake=.8;
       floatText(headOf(c,3.2),'+15%','#c090ff',true)},
     update:dt=>{upd(dt);if(Math.random()<.9)SP.emit(V3(c.x+rand(-1.4,1.4),c.y+rand(0,.5),c.z+rand(-1.4,1.4)),{c0:0xe0c0ff,c1:0x4010a0,s0:.6,s1:.05,life:1,up:6,speed:.5})}}],

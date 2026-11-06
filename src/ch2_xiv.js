@@ -1,7 +1,7 @@
 /* ================= CHAPTER XIV · The Smoke of Portobello ================= */
 /* st 13: after Vesper · 14: find Alfred · 15: Alfred met, step outside · 16: Alfred is dead, Desmond waits · 17: done */
 const NH={x0:-690,built:false,g:null,pubG:null,shown:false,said:{},fac:null,alf:null,lamp:null,dome:null};
-const X4={e:null,fight:0,t13:0,smokes:[],walls:[],serp:[],said:{},haze:0,fogK:0,re:0,cmp:{k:4,l:3}};
+const X4={e:null,fight:0,t13:0,smokes:[],walls:[],serp:[],said:{},haze:0,fogK:0,re:0};
 const nhPrX=z=>-482+6*Math.sin((z+9852)/30);
 const NHR={gate:-9852,chep:-9912,west:-9974,lad:-604,pem:-410,z1:-10028};
 const NH_PUB=(()=>{const fx=nhPrX(-9945)-5.4,z=-9945;return{fx,z,x:fx-6,door:V3(fx+.8,0,z+7.3),side:V3(fx-6,0,z+7),box:[fx-13.2,fx+.4,z-6.4,z+9]}})();
@@ -242,7 +242,7 @@ function x4Explain(){if(CS.active)return;const c=V3(36,0,-9866);x4Stage(c,Math.P
     ()=>{for(const s of sg)scene.remove(s);KFW.pin=0;P.heroAnim=null;x4Talk('');X4.cc=null;CH2.st=Math.max(CH2.st,14);ch2Save();nhOpen();CH2.obj=nzObj;
       after(3.2,()=>x4Say('Kaen','k9_03'));after(.6,()=>toast('London grows west. Follow Notting Hill Gate to Portobello Road.','Notting Hill is open',true))})}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CS.active||!P.alive||CH2.zone!=='north')return;
-  if(CH2.st===13&&!X3.phase&&(!X3.e||X3.e.dead)){X4.t13+=dt;if(X4.t13>5&&!SAYQ.on&&!SAYQ.q.length)x4Explain()}
+  if(CH2.st===13&&(!X3.e||X3.e.dead)&&!KM.on&&!X3.trap){X4.t13+=dt;if(X4.t13>2.5||X4.goT){X4.goT=0;sayHush();x4Explain()}}
   if(CH2.st===14&&NH.shown&&P.pos.x>NH_PUB.fx-11.6&&P.pos.x<NH_PUB.fx-.6&&Math.abs(P.pos.z-NH_PUB.z)<5.6)x4Pub();
   if(CH2.st===15&&P.pos.z<-9855&&Math.abs(P.pos.x-nhPrX(P.pos.z))<3.6&&Math.abs(P.pos.z-NH_PUB.z)<26)x4Brother();
   if(CH2.st===16&&!X4.fight&&!X4.e&&Math.hypot(P.pos.x-NH_PUB.door.x,P.pos.z-NH_PUB.door.z)<40){X4.re+=dt;if(X4.re>1.5)x4Rematch()}}}
@@ -350,12 +350,51 @@ const x4HazeEl=document.createElement('div');x4HazeEl.id='x4haze';document.body.
   X4.smokes=X4.smokes.filter(S=>S.t<S.life);X4.haze=Math.max(inS*.85,X4.haze-dt*.5);x4HazeEl.style.opacity=(CS.active?0:X4.haze).toFixed(3);
   if(scene.fog&&CH2.zone==='north'){X4.fogK=lerp(X4.fogK,X4.haze,Math.min(1,dt*3));if(X4.fogK>.01)scene.fog.density=Math.max(scene.fog.density,(NZ.fogD||.008)+X4.fogK*.05)}}}
 /* Kaen and Lyra fight beside you */
-{const _mt=muTick;muTick=function(dt){_mt(dt);if(!X4.fight||!X4.e||X4.e.dead||CS.active||!P.alive)return;const e=X4.e;const tgt=()=>{const w=enemies.find(o=>!o.dead&&o.dw);return w||e};
-  X4.cmp.k-=dt;X4.cmp.l-=dt;
-  if(X4.cmp.k<=0&&KFW.a&&KFW.a.g.visible){X4.cmp.k=rand(6,8.5);const t=tgt(),kp=KFW.a.g.position;const dir=V3(t.pos.x-kp.x,0,t.pos.z-kp.z);const L=dir.length();dir.normalize();x4Face(KFW.a,t.pos);try{KFW.a.fire('Melee_Hook',.7)}catch(x){}
-    crescentFx(V3(kp.x,kp.y,kp.z),dir,Math.min(L,22),0xb070ff);after(Math.min(.5,L/40),()=>{if(!t.dead){damageEnemy(t,t.maxhp*(t.dw?.18:.011),'#c8a0ff');SP.emit(eCenter(t),{n:30,c0:0xffffff,c1:0x9050ff,speed:6,life:.5})}})}
-  if(X4.cmp.l<=0&&LYR.a&&LYR.a.g.visible){X4.cmp.l=rand(4.5,6);const t=tgt(),A=headOf(LYR.a.g.position,1.3);const o=glowSprite(0xffd070,2.6,.95);o.position.copy(A);scene.add(o);try{LYR.a.fire&&LYR.a.fire('Spell_Simple_Shoot',.5)}catch(x){}
-    addFx(o,.55,(f,k)=>{o.position.lerpVectors(A,eCenter(t),k);SP.emit(o.position,{c0:0xfff0c0,c1:0x80e050,s0:.4,s1:.05,life:.4})},()=>{scene.remove(o);if(!t.dead){damageEnemy(t,t.maxhp*(t.dw?.12:.007),'#ffe090');flash(eCenter(t),0xd8ff90,6)}})}}}
+/* ---------- Kaen and Lyra fight Desmond beside you ---------- */
+const X4C={k:{cd:2.4,ang:.9,busy:0,an:'',n:0},l:{cd:3.4,ang:-2.3,busy:0,an:'',n:0},dealt:0,on:0};
+const x4CmpCapF=()=>({easy:.24,medium:.18,hard:.12})[DIFF]||.18;
+function x4CmpOn(){X4C.on=1;X4C.dealt=0;X4C.k.cd=2.4;X4C.l.cd=3.6;X4C.k.busy=X4C.l.busy=0;X4C.k.an=X4C.l.an='';KFW.pin=1;LYR.pin=1}
+function x4CmpOff(){if(!X4C.on)return;X4C.on=0;KFW.pin=0;LYR.pin=0;try{LYF.an=''}catch(x){}}
+/* damage that respects the cap: easy 24%, medium 18%, hard 12% of his life; glyphs not counted */
+function x4CmpHit(t,f,col){if(!t||t.dead)return;if(t.dw){damageEnemy(t,t.maxhp*f*9,col);return}const e=X4.e;if(t!==e)return;const cap=e.maxhp*x4CmpCapF();const left=cap-X4C.dealt;
+  if(left<=1||e.hp<e.maxhp*.04){SP.emit(eCenter(e),{n:10,c0:0xffffff,c1:0x9a9aa8,speed:3,life:.3});return}
+  const h0=e.hp;damageEnemy(e,Math.min(e.maxhp*f*(x4CmpCapF()/.18),left),col);let got=Math.max(0,h0-e.hp);if(got>left){e.hp+=got-left;got=left}X4C.dealt+=got}
+function x4CmpAnim(c,a,n){if(c.an!==n){c.an=n;try{a.setBase(n,.25)}catch(x){}}}
+const x4CmpTgt=()=>{const w=enemies.filter(o=>!o.dead&&o.dw);if(w.length&&Math.random()<.7)return w[(Math.random()*w.length)|0];return X4.e};
+/* stay around him, out of the smoke, never on top of you */
+function x4CmpMove(c,a,dt,R,run){const e=X4.e,g=a.g.position;c.ang+=dt*(.16+.05*Math.sin(time*.7+R));let tx=e.pos.x+Math.sin(c.ang)*R,tz=e.pos.z+Math.cos(c.ang)*R;
+  for(const S of X4.smokes){const d=Math.hypot(tx-S.p.x,tz-S.p.z);if(d<S.r+1){const k=(S.r+1-d)/(d||1);tx+=(tx-S.p.x)*k;tz+=(tz-S.p.z)*k}}
+  const dp=Math.hypot(tx-P.pos.x,tz-P.pos.z);if(dp<3.5){tx+=(tx-P.pos.x)/(dp||1)*(3.5-dp);tz+=(tz-P.pos.z)/(dp||1)*(3.5-dp)}
+  tx=clamp(tx,X4FB.x0+2,X4FB.x1-2);tz=clamp(tz,X4FB.z0+2,X4FB.z1-2);const dx=tx-g.x,dz=tz-g.z,L=Math.hypot(dx,dz);const v=Math.min(L,dt*(L>6?run:run*.55));
+  if(L>.05){g.x+=dx/L*v;g.z+=dz/L*v}g.y=groundAt(g.x,g.z);if(L>2.2){a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*8));return L>6?'Sprint_Loop':'Walk_Loop'}
+  a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(e.pos.x-g.x,e.pos.z-g.z),Math.min(1,dt*6));return null}
+/* Kaen: sword wave, dash cut, void ring */
+function x4KWave(a,t){const kp=a.g.position;const dir=V3(t.pos.x-kp.x,0,t.pos.z-kp.z);const L=dir.length();dir.normalize();x4Face(a,t.pos);try{a.fire('Melee_Hook',.7)}catch(x){}
+  after(.18,()=>{crescentFx(V3(kp.x,kp.y,kp.z),dir,Math.min(L,24),0xb070ff);sx('clash',.22,null,{rate:rand(1.3,1.6)});after(Math.min(.45,L/45),()=>{x4CmpHit(t,.009,'#c8a0ff');SP.emit(eCenter(t),{n:30,c0:0xffffff,c1:0x9050ff,speed:6,life:.5});flash(eCenter(t),0xa070ff,5)})})}
+function x4KDash(a,t,c){const g=a.g.position,from=g.clone();const dir=V3(t.pos.x-g.x,0,t.pos.z-g.z);const L=dir.length();dir.normalize();const to=from.clone().addScaledVector(dir,Math.max(0,L-1.6));x4Face(a,t.pos);c.busy=1.2;
+  try{a.fire('Melee_Hook',.85)}catch(x){}try{sfx.blink&&sfx.blink()}catch(x){}
+  addFx(null,.22,(f,k)=>{g.lerpVectors(from,to,k*k);g.y=groundAt(g.x,g.z);SP.emit(V3(g.x,g.y+1,g.z),{n:3,c0:0xe0c8ff,c1:0x5020c0,s0:.6,s1:.05,life:.4,speed:1})},()=>{
+    const m=new THREE.Mesh(new THREE.TorusGeometry(1.8,.09,6,30,Math.PI*1.6),new THREE.MeshBasicMaterial({color:0xd0b0ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.position.set(g.x,g.y+1.1,g.z);m.rotation.set(Math.PI/2+.35,0,Math.atan2(dir.x,dir.z));
+    addFx(m,.35,(f,k)=>{m.rotation.z+=.45;m.scale.setScalar(1+k*.6);m.material.opacity=1-k},()=>{scene.remove(m);m.geometry.dispose()});x4CmpHit(t,.011,'#e0c8ff');sx('impact',.3,null,{rate:1.3});SP.emit(eCenter(t),{n:40,c0:0xffffff,c1:0x8040ff,speed:8,life:.5});P.shake=Math.max(P.shake,.12);
+    after(.35,()=>{const b=g.clone();addFx(null,.35,(f,k)=>{g.lerpVectors(b,from,k);g.y=groundAt(g.x,g.z)})})})}
+function x4KVoid(a,t){x4Face(a,t.pos);try{a.fire('Spell_Simple_Shoot',.7)}catch(x){}const p=V3(t.pos.x,groundAt(t.pos.x,t.pos.z),t.pos.z);runeFlash(p,0x9050ff,5.2,1.1);ring(p,0x8040ff,5,.6,.6);
+  for(let k=0;k<20;k++){const an=k/20*TAU;SP.emit(V3(p.x+Math.sin(an)*2.6,p.y+.3,p.z+Math.cos(an)*2.6),{c0:0xd0b0ff,c1:0x3010a0,s0:.5,s1:.05,life:.7,up:2})}try{sfx.void&&sfx.void()}catch(x){}
+  after(.6,()=>{x4CmpHit(t,.01,'#b080ff');flash(p,0x7030ff,8);SP.emit(V3(p.x,p.y+1.2,p.z),{n:50,c0:0xf0e0ff,c1:0x4010c0,speed:7,life:.6,up:3})})}
+/* Lyra: small energy balls, and wind that blows the smoke away */
+function x4LBalls(a,t){x4Face(a,t.pos);try{a.fire('Spell_Simple_Shoot',.55)}catch(x){}
+  for(let i=0;i<3;i++)after(i*.16,()=>{if(t.dead)return;const A=headOf(a.g.position,1.25).add(V3(rand(-.3,.3),rand(-.2,.2),rand(-.3,.3)));const o=glowSprite(i%2?0xc8ff80:0xffd070,1.3,.95);o.position.copy(A);scene.add(o);const sd=rand(-2.5,2.5),up=rand(.6,1.8);
+    addFx(o,.5,(f,k)=>{const B=eCenter(t);o.position.lerpVectors(A,B,k);const r=V3(B.z-A.z,0,-(B.x-A.x)).normalize();o.position.addScaledVector(r,Math.sin(k*Math.PI)*sd);o.position.y+=Math.sin(k*Math.PI)*up;SP.emit(o.position,{c0:0xfff0c0,c1:0x80e050,s0:.3,s1:.04,life:.35})},
+      ()=>{scene.remove(o);x4CmpHit(t,.0035,'#ffe090');SP.emit(eCenter(t),{n:14,c0:0xffffd0,c1:0x90e060,speed:4,life:.35});flash(eCenter(t),0xd8ff90,3)})});sx('kame',.15,null,{rate:1.7})}
+function x4LWind(a,t,c){const g=a.g.position;const aim=t?t.pos:P.pos;const dir=V3(aim.x-g.x,0,aim.z-g.z);const L=Math.max(1,dir.length());dir.normalize();x4Face(a,aim);c.busy=1;try{a.fire('OverhandThrow',.6)}catch(x){}sx('wind',.45,null,{rate:1.25});
+  addFx(null,.9,(f,k)=>{const d=k*Math.min(L+4,22);const q=g.clone().addScaledVector(dir,d);for(let i=0;i<5;i++){const an=f.t*14+i*1.26,r=.6+k*2.2;SP.emit(V3(q.x+Math.cos(an)*r*dir.z,q.y+1+Math.sin(an)*r*.6,q.z-Math.cos(an)*r*dir.x),{c0:0xffffff,c1:0xa0e8d0,s0:.5,s1:.05,life:.45,speed:.6})}
+    for(const S of X4.smokes){if(Math.hypot(S.p.x-q.x,S.p.z-q.z)<S.r+2.5){S.t=Math.max(S.t,S.life*.93);S.p.addScaledVector(dir,.6)}}X4.haze=Math.max(0,X4.haze-.02)},
+    ()=>{if(t&&!t.dead&&t.pos.distanceTo(g)<26){x4CmpHit(t,.004,'#c8fff0');SP.emit(eCenter(t),{n:20,c0:0xffffff,c1:0x90e0c0,speed:6,life:.4})}})}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!X4C.on)return;if(!X4.fight||!X4.e||X4.e.dead){x4CmpOff();return}if(CS.active)return;
+  const K=KFW.a,Ly=LYR.a;if(K){K.g.visible=true;const c=X4C.k;c.busy=Math.max(0,c.busy-dt);c.cd-=dt;if(!c.busy){const an=x4CmpMove(c,K,dt,9.5,8.5);x4CmpAnim(c,K,an||'Idle_Loop');
+      if(c.cd<=0&&!an&&P.alive){const t=x4CmpTgt();c.cd=rand(3.6,5.2);c.n++;const r=c.n%3;c.an='';if(r===0)x4KDash(K,t,c);else if(r===1)x4KWave(K,t);else x4KVoid(K,t);c.busy=Math.max(c.busy,.7)}}}
+  if(Ly){Ly.g.visible=true;const c=X4C.l;c.busy=Math.max(0,c.busy-dt);c.cd-=dt;if(!c.busy){const an=x4CmpMove(c,Ly,dt,12,7.5);x4CmpAnim(c,Ly,an||'Spell_Simple_Idle_Loop');
+      if(c.cd<=0&&!an&&P.alive){c.cd=rand(2.6,3.6);c.n++;c.an='';const sm=X4.smokes.find(S=>Math.hypot(P.pos.x-S.p.x,P.pos.z-S.p.z)<S.r);
+        if(sm)x4LWind(Ly,null,c);else if(c.n%3===0)x4LWind(Ly,x4CmpTgt(),c);else x4LBalls(Ly,x4CmpTgt());c.busy=Math.max(c.busy,.6)}}}}}
 /* keep the fight on the street */
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!X4.fight||CS.active)return;const p=P.pos;const cx=clamp(p.x,X4FB.x0,X4FB.x1),cz=clamp(p.z,X4FB.z0,X4FB.z1);if(cx!==p.x||cz!==p.z){p.x=cx;p.z=cz;for(let k=0;k<2;k++)SM.emit(V3(p.x+rand(-2,2),p.y+rand(0,3),p.z+rand(-2,2)),{c0:0x76726a,c1:0x24221e,s0:2,s1:5,life:1.4,a:.5,up:.5});if(!X4.said.wall){X4.said.wall=1;toast('Desmond\'s smoke closes the street behind you.','No way out',false)}}}}
 
@@ -376,13 +415,13 @@ function x4Brother(){if(CS.active||X4.bro)return;X4.bro=1;const a=NH.alf;const d
     {who:'Alfred',text:XL3.al_08,fov:34,cam:()=>({pos:headOf(ap(),.5).add(V3(1.4,.5,1.2)),look:headOf(ap(),.25)}),onStart:()=>{P.heroAnim='Fixing_Kneeling'}},
     {who:'Desmond',text:XL3.de_03,fov:40,title:['Desmond Mumbash','The Smoke of Portobello'],cam:k=>({pos:headOf(e.pos,1.4).add(V3(2-k,0,-4.6+k)),look:headOf(e.pos,2)}),onStart:()=>{P.heroAnim=null;e.m.g.rotation.y=Math.atan2(P.pos.x-e.pos.x,P.pos.z-e.pos.z);flash(e.pos,0xb0ff70,14)},update:()=>{for(let i=0;i<3;i++)SM.emit(V3(e.pos.x+rand(-2,2),rand(0,3),e.pos.z+rand(-2,2)),{c0:0x6e6a62,c1:0x1c1a18,s0:2,s1:5,life:2,a:.5,up:1})}}],
     ()=>{if(ser)scene.remove(ser);KFW.pin=0;P.heroAnim=null;x4Talk('');X4.cc=null;CH2.st=Math.max(CH2.st,16);ch2Save();x4Fight()})}
-function x4Fight(){const e=X4.e;if(!e)return;e.m.g.visible=true;e.invuln=false;e.busy=0;e.ai.on=1;e.pos.y=0;X4.fight=1;X4.said.wall=0;bossRef=e;$('boss').classList.remove('hidden');$('bossName').innerHTML=`${e.def.name} <span style="color:#ff4050">· Lv ${e.lvl}</span>`;P.invuln=2;
+function x4Fight(){const e=X4.e;if(!e)return;x4CmpOn();e.m.g.visible=true;e.invuln=false;e.busy=0;e.ai.on=1;e.pos.y=0;X4.fight=1;X4.said.wall=0;bossRef=e;$('boss').classList.remove('hidden');$('bossName').innerHTML=`${e.def.name} <span style="color:#ff4050">· Lv ${e.lvl}</span>`;P.invuln=2;
   if(KFW.a)KFW.a.g.visible=true;after(.6,()=>toast('He hides behind wards, fills the street with smoke and grows when he is hurt. Kaen and Lyra will help.','Desmond',true))}
 function x4Rematch(){X4.re=0;if(CS.active)return;const dp=V3(nhPrX(-9922),0,-9922);const e=spawnEnemy('desmond',dp.clone());e.lvl=P.level;e.aggro=true;e.quest=true;X4.e=e;e.ai.on=0;e.invuln=true;e.busy=999;
   playCutscene([{who:'Desmond',text:XL3.de_03,fov:42,cam:()=>({pos:headOf(e.pos,1.6).add(V3(2.2,0,-4)),look:headOf(e.pos,1.9)}),onStart:()=>{e.m.g.rotation.y=Math.atan2(P.pos.x-e.pos.x,P.pos.z-e.pos.z);flash(e.pos,0xb0ff70,14)}}],x4Fight)}
-{const _rv=revive;revive=function(){const was=X4.fight;X4.fight=0;X4.e=null;for(const W of X4.walls)scene.remove(W.m);X4.walls=[];X4.smokes=[];X4.haze=0;ETYPES.desmond.r=1;ETYPES.desmond.h=2.4;const r=_rv.apply(this,arguments);if(was){X4.re=-6;after(1.2,()=>toast('Desmond is still on Portobello Road. Go back when you are ready.','Retreat',true))}return r}}
+{const _rv=revive;revive=function(){const was=X4.fight;X4.fight=0;x4CmpOff();X4.e=null;for(const W of X4.walls)scene.remove(W.m);X4.walls=[];X4.smokes=[];X4.haze=0;ETYPES.desmond.r=1;ETYPES.desmond.h=2.4;const r=_rv.apply(this,arguments);if(was){X4.re=-6;after(1.2,()=>toast('Desmond is still on Portobello Road. Go back when you are ready.','Retreat',true))}return r}}
 {const _bo=bossOutro;bossOutro=function(type,c){if(type==='desmond')return x4End(c);return _bo.apply(this,arguments)}}
-function x4End(c){X4.fight=0;for(const W of X4.walls)scene.remove(W.m);X4.walls=[];X4.smokes=[];for(const o of enemies)if(!o.dead&&o.dw)removeEnemy(o);const a=NH.alf;const ap=()=>a?a.g.position:NH_PUB.door;ETYPES.desmond.r=1;ETYPES.desmond.h=2.4;
+function x4End(c){X4.fight=0;x4CmpOff();for(const W of X4.walls)scene.remove(W.m);X4.walls=[];X4.smokes=[];for(const o of enemies)if(!o.dead&&o.dw)removeEnemy(o);const a=NH.alf;const ap=()=>a?a.g.position:NH_PUB.door;ETYPES.desmond.r=1;ETYPES.desmond.h=2.4;
   const al=ap().clone(),st=V3(nhPrX(al.z)-al.x,0,0).normalize();const cand=[];let lit=false;
   const light=()=>{if(lit)return;lit=true;for(let k=0;k<9;k++){const t=k/9*TAU;const p=al.clone().add(V3(Math.cos(t)*1.25,0,Math.sin(t)*1.25));nzCyl(scene,.035,.04,.16+Math.random()*.08,p.x,.02,p.z,std({color:0xf0e8d0}),6);cand.push(nzGlow(scene,0xffc070,.7,.9,p.x,.3,p.z))}runeFlash(al,0xffd070,4.5,9)};
   playCutscene([{who:'Desmond',text:XL3.de_07,fov:48,cam:k=>({pos:V3(c.x+Math.sin(k*.9+.4)*11,c.y+3.4,c.z+Math.cos(k*.9+.4)*11),look:V3(c.x,c.y+1.2,c.z)}),update:()=>{for(let i=0;i<4;i++)SM.emit(V3(c.x+rand(-1.5,1.5),c.y+rand(-1,2),c.z+rand(-1.5,1.5)),{c0:0x76726a,c1:0x24221e,s0:2,s1:5,life:2,a:.6,up:2.5})}},
@@ -392,16 +431,16 @@ function x4End(c){X4.fight=0;for(const W of X4.walls)scene.remove(W.m);X4.walls=
     {who:'Kaen',text:XL3.k8_06,fov:52,cam:k=>{const K=x4K();return{pos:headOf(K,1.8).add(V3(st.x*6.8,.9,4.2-k*.6)),look:headOf(K,1)}},onStart:()=>{P.heroAnim='Idle_Loop';x4Talk('Kaen')}},
     {who:'Lyra',text:XL3.ly54,fov:52,cam:k=>{const L=x4L();return{pos:headOf(L,1.7).add(V3(st.x*6.4,.9,-4.4+k*.6)),look:headOf(L,1)}},onStart:()=>{x4Talk('Lyra')},update:()=>{if(Math.random()<.35&&LYR.a)SP.emit(headOf(LYR.a.g.position,1.1),{c0:0xfff0c0,c1:0x90e060,s0:.35,s1:.04,life:.9,up:.9})}},
     {dur:5,fov:58,cam:k=>({pos:al.clone().add(st.clone().multiplyScalar(9+k*12)).add(V3(0,4+k*14,8+k*10)),look:V3(al.x,1+k*2,al.z)}),onStart:()=>{x4Talk('')},update:()=>{for(const g2 of cand)g2.material.opacity=.75+Math.random()*.25;if(Math.random()<.4)SP.emit(V3(al.x+rand(-1,1),.6,al.z+rand(-1,1)),{c0:0xfff0c0,c1:0xffa040,s0:.25,s1:.03,life:1.6,up:1.2})}}],x4Finish)}
-function x4Finish(){KFW.pin=0;P.heroAnim=null;x4Talk('');X4.cc=null;X4.e=null;CH2.st=Math.max(CH2.st,17);ch2Save();beaten.add('desmond');writeSave();$('boss').classList.add('hidden');bossRef=null;
+function x4Finish(){x4CmpOff();KFW.pin=0;LYR.pin=0;P.heroAnim=null;x4Talk('');X4.cc=null;X4.e=null;CH2.st=Math.max(CH2.st,17);ch2Save();beaten.add('desmond');writeSave();$('boss').classList.add('hidden');bossRef=null;
   toast('Desmond is gone, and so is Alfred. The last vessel waits at Westminster.','Chapter XIV complete',true);after(9,()=>toast('Chapter XV is coming.','Sorcière',true))}
 
 /* ---------- objectives, Lyra's own wings, chapter select ---------- */
 {const _xo=xiiObj;xiiObj=function(){const st=CH2.st;if(st<13)return _xo.apply(this,arguments);if(CH2.zone==='paris')return 'Ask <b>Lyra</b> for the door to Calais, then fly back to London';
-  if(st===13)return 'Talk with Kaen and Lyra';if(st===14){const d=Math.round(Math.hypot(P.pos.x-NH_PUB.door.x,P.pos.z-NH_PUB.door.z));return `Find <b>Alfred Mumbash</b> on Portobello Road · ${d}m`}
+  if(st===13)return 'Talk with Kaen and Lyra · press <b>E</b>';if(st===14){const d=Math.round(Math.hypot(P.pos.x-NH_PUB.door.x,P.pos.z-NH_PUB.door.z));return `Find <b>Alfred Mumbash</b> on Portobello Road · ${d}m`}
   if(st===15)return 'Step back out onto <b>Portobello Road</b>';if(st===16)return X4.fight?'Defeat <b>Desmond Mumbash</b>':`Return to <b>Portobello Road</b> · ${Math.round(Math.hypot(P.pos.x-NH_PUB.door.x,P.pos.z-NH_PUB.door.z))}m`;return 'Chapter XV is coming'}}
 CHAPTERS.push({id:'smoke',n:'XIV',title:'The Smoke of Portobello',desc:'What the Crown really is, an old man in a cloaked pub, and a brother made of smoke.'});
 {const _cb=chapBoss;chapBoss=function(c){if(c.id==='smoke')return null;return _cb(c)}}
-function x4Reset(){if(X4.e&&!X4.e.dead)removeEnemy(X4.e);for(const o of enemies)if(!o.dead&&o.dw)removeEnemy(o);X4.e=null;X4.fight=0;X4.t13=0;X4.pub=0;X4.bro=0;X4.hitA=0;X4.re=0;X4.said={};for(const W of X4.walls)scene.remove(W.m);X4.walls=[];X4.smokes=[];X4.haze=0;ETYPES.desmond.r=1;ETYPES.desmond.h=2.4;
+function x4Reset(){x4CmpOff();if(X4.e&&!X4.e.dead)removeEnemy(X4.e);for(const o of enemies)if(!o.dead&&o.dw)removeEnemy(o);X4.e=null;X4.fight=0;X4.t13=0;X4.pub=0;X4.bro=0;X4.hitA=0;X4.re=0;X4.said={};for(const W of X4.walls)scene.remove(W.m);X4.walls=[];X4.smokes=[];X4.haze=0;ETYPES.desmond.r=1;ETYPES.desmond.h=2.4;
   nhSeatAlf();for(const A of NHAREAS)A.seen=0}
 {const _ac=applyChapter;applyChapter=function(id){x4Reset();if(id!=='smoke')return _ac.apply(this,arguments);_ac.call(this,'escape');
   CH2.st=13;ch2Save();XII.lazy=1;XII.rv=[1,1,1,1,1,1];XII.solid=1;XII.wd=1;XII.said={fk:1,lon:1};xiiSave();WD.esc=1;if(WD.e&&!WD.e.dead){WD.e.dead=true;WD.e.m.g.visible=false}WD.e=null;beaten.add('vesper');
@@ -423,7 +462,7 @@ function kmBlades(t){const n=6,bm=std({color:0x2a1050,emissive:0xa060ff,emissive
       if(t&&!t.dead&&g.position.distanceTo(tgt)<1.2+t.def.r){hit=true;damageEnemy(t,kmDmg(t,.0075),'#e8c8ff');flash(g.position,0xb070ff,9);SP.emit(g.position,{n:26,c0:0xffffff,c1:0xa050ff,speed:9,life:.45});hitStop=Math.max(hitStop,.03);KM.en=Math.min(100,KM.en+2);sx('clash',.35,null,{rate:rand(1.3,1.7)})}},
       ()=>{scene.remove(g)})}}
 {const _ku=kmUse;kmUse=function(i){if(i!==7)return _ku.apply(this,arguments);if(!KM.on||CS.active||!P.alive||KM.cd[7]>0)return;if(KM.en<KM_COST[7]){toast('Not enough strength yet. Land a few sword hits.');return}
-  const t=kmLock(48);KM.en-=KM_COST[7];KM.cd[7]=KM_CD[7];if(t)P.face=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);try{KM.a.fire('Spell_Simple_Shoot',.6)}catch(x){}kmBlades(t);if(!KM.said.pb||Math.random()<.35){KM.said.pb=1;x3Bark('Kaen','kc_11')}}}
+  const t=kmLock(120);KM.en-=KM_COST[7];KM.cd[7]=KM_CD[7];if(t)P.face=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z);try{KM.a.fire('Spell_Simple_Shoot',.6)}catch(x){}kmBlades(t);if(!KM.said.pb||Math.random()<.35){KM.said.pb=1;x3Bark('Kaen','kc_11')}}}
 Object.assign(XL3,{kc_01:'Take this!',kc_02:"Argh! You'll regret that.",kc_03:"Not yet... I'm not done yet.",kc_04:"Who's next?",kc_05:'Stay down!',kc_06:'Ten years I waited for this.',kc_07:'Come on then, shadow!',kc_08:'Too slow, Vesper!',kc_09:'That one stung.',kc_10:'Feel that?!',kc_11:'Blades... rise!'});
 for(const k of['kc_01','kc_02','kc_03','kc_04','kc_05','kc_06','kc_07','kc_08','kc_09','kc_10','kc_11'])VO_MAP[XL3[k]]=k;
 /* while Kaen fights, Maëlle's own battle and broom chatter is his instead */
@@ -490,3 +529,65 @@ for(const k of['m9_01','k9_01','m9_02','k9_02','m9_03','k9_03'])VO_MAP[XL3[k]]=k
 /* every boss with its own theme plays only that theme: no generic boss track while it loads */
 {const _bw=bmWant;bmWant=function(){if(started&&MODE!=='open'&&bossRef&&!bossRef.dead&&BTH[bossRef.type]){bmTrack(BTH[bossRef.type]);return null}return _bw.apply(this,arguments)}}
 {const _mw=muWant;muWant=function(){if(started&&MODE!=='open'&&bossRef&&!bossRef.dead&&BTH[bossRef.type]){const k=BTH[bossRef.type];return bmTrack(k).ok?k:null}return _mw.apply(this,arguments)}}
+
+/* ================= main menu music ================= */
+const MMU={t:null,v:0,arm:0};
+function mmuArm(){if(MMU.arm||started)return;MMU.arm=1;try{initAudio()}catch(x){}MMU.t=bmTrack('mus_menu')}
+addEventListener('pointerdown',()=>{if(!started)mmuArm()},true);addEventListener('keydown',()=>{if(!started)mmuArm()},true);
+function mmuTick(dt){const t=MMU.t;if(!t||!AC)return;dt=Math.min(dt,.1);const want=!started&&!muted&&musicOn?.36:0;
+  if(want>0&&t.ok&&!t.playing){bmStart(t);MMU.v=0}if(!t.playing||!t.g)return;MMU.v+=(want-MMU.v)*Math.min(1,dt*(want>MMU.v?.45:2.4));t.g.gain.value=MMU.v;if(!want&&MMU.v<.004){bmStop(t);MMU.v=0;if(started)MMU.t=null}}
+{let last=0;const loop=now=>{const dt=last?(now-last)/1000:0;last=now;try{mmuTick(dt)}catch(x){}if(!started||MMU.t)requestAnimationFrame(loop)};requestAnimationFrame(loop)}
+
+/* ================= Maëlle never says "Hang on, Kaen" once he is back ================= */
+{const _bp=bkPick;bkPick=function(who,cat){let r=_bp.apply(this,arguments);if(who==='@'&&r&&r[0]==='mz09'&&(CH2.st>=11||(typeof XII!=='undefined'&&XII.solid))){for(let i=0;i<4&&r&&r[0]==='mz09';i++)r=_bp.apply(this,arguments);if(r&&r[0]==='mz09')r=null}return r}}
+
+/* ================= while you play Kaen, only Kaen talks (Maëlle's cage callouts aside) ================= */
+{const _es=epSay;epSay=function(who,text,prio){if(KM.on&&(who==='@'||who===HERO.name||who==='Maëlle')){const k=VO_MAP[text]||'';if(!/^m7_/.test(k))return}return _es.apply(this,arguments)}}
+{const _bo=banterOk;banterOk=function(){if(KM.on||X4C.on)return false;return _bo.apply(this,arguments)}}
+Object.assign(XL3,{kc_12:'Is that all the Crown gave you?',kc_13:'Void... swallow him!',kc_14:"You won't touch me.",kc_15:'Too slow!',kc_16:'Cut through!',kc_17:'Guardians, with me!',kc_18:"Maëlle, hold on. I'm getting you out of there.",kc_19:'Feel ten years of fury!',kc_20:'Spin... and break!',kc_21:'You hide behind a cage, Vesper. Coward.'});
+for(let i=12;i<=21;i++){const k='kc_'+i;VO_MAP[XL3[k]]=k}
+Object.assign(KCB,{charge:['kc_01','kc_10','kc_16','kc_12'],start:['kc_06','kc_07','kc_21'],low:['kc_03','kc_18'],combo:['kc_04','kc_08','kc_05','kc_15'],lb:['kf_08','kc_19']});
+const KMV={kf_06:['kf_06','kc_16','kc_16'],kf_09:['kf_09','kc_13','kc_13'],kf_10:['kf_10','kc_14','kc_14'],kf_11:['kf_11','kc_15','kc_15'],kf_01:['kf_01','kc_17','kc_17'],kf_08:['kf_08','kc_19'],kf_03:['kf_03','kc_04','kc_05']};
+{const _xb=x3Bark;x3Bark=function(who,k){if(KM.on&&who==='Kaen'&&KMV[k]){const L=KMV[k];k=L[(Math.random()*L.length)|0]}return _xb.call(this,who,k)}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!KM.on||CS.active||!P.alive||X3.phase!==2)return;KM.tt=(KM.tt==null?14:KM.tt)-dt;if(KM.tt>0)return;if(SAYQ.on||SAYQ.q.length){KM.tt=3;return}
+  const L=['kc_12','kc_18','kc_21','kc_06','kc_07','kc_12','kc_21'].filter(k=>k!==KM.tl);const k=L[(Math.random()*L.length)|0];KM.tl=k;KM.tt=rand(15,23);epSay('Kaen',XL3[k])}}
+
+/* ================= keys 8 and 9 always reach Kaen's skills ================= */
+{const _sk=slotOfKey;slotOfKey=function(e){if(KM.on&&!(e.ctrlKey||e.metaKey||e.altKey)){const k=SLOTCODE[e.code];return k===undefined||k>=KM_AB.length?-1:k}return _sk.apply(this,arguments)}}
+
+/* ================= Kaen's ninth skill: Crescent Storm ================= */
+KM_AB.push(['Crescent Storm','M12 2a10 10 0 1 0 10 10h-3a7 7 0 1 1-7-7zM12 7l1.5 3.5L17 12l-3.5 1.5L12 17l-1.5-3.5L7 12l3.5-1.5z']);KM_COST.push(35);KM_CD.push(18);KM.cd.push(0);
+function kmStormBlade(a0,t,dl){after(dl,()=>{if(!KM.on)return;const m=new THREE.Mesh(new THREE.TorusGeometry(1.1,.1,6,24,Math.PI),new THREE.MeshBasicMaterial({color:0xd0b0ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  const p=headOf(P.pos,1.2);m.position.copy(p);scene.add(m);const v=V3(Math.sin(a0),.3,Math.cos(a0)).multiplyScalar(18);let done=false;
+  addFx(m,1.9,(f,k)=>{if(done){f.t=f.dur;return}if(t&&!t.dead&&f.t>.22){const to=eCenter(t).sub(p);const L=to.length();if(L<1.6+t.def.r*.6){done=true;damageEnemy(t,kmDmg(t,.007),'#e8d0ff');SP.emit(eCenter(t),{n:30,c0:0xffffff,c1:0x9050ff,speed:9,life:.5});flash(eCenter(t),0xa050ff,8);hitStop=Math.max(hitStop,.03);sx('clash',.25,null,{rate:rand(1.5,1.9)});return}v.lerp(to.normalize().multiplyScalar(36),.14)}
+    p.addScaledVector(v,.016);m.position.copy(p);m.rotation.x=Math.PI/2;m.rotation.z+=.7;m.material.opacity=1-Math.max(0,k-.8)*5;SP.emit(p,{c0:0xffffff,c1:0x8a40ff,s0:.35,s1:.04,life:.3})},()=>{scene.remove(m);m.geometry.dispose()})})}
+function kmStorm(){const A=KM.a;try{A.fire('Melee_Hook',.5)}catch(x){}P.invuln=Math.max(P.invuln,.7);sx('riser',.6,null,{rate:1.5});sx('kame',.45,null,{rate:1.1});flash(P.pos,0xb070ff,22);P.shake=Math.max(P.shake,.6);
+  const g=new THREE.Group();for(let k=0;k<3;k++){const m=new THREE.Mesh(new THREE.TorusGeometry(2.4+k*.9,k?.05:.14,6,40,Math.PI*1.3),new THREE.MeshBasicMaterial({color:k?0xd8c0ff:0x8a40ff,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=Math.PI/2;m.rotation.z=k*2.1;g.add(m)}
+  g.position.set(P.pos.x,P.pos.y+1.1,P.pos.z);scene.add(g);let tick=0;
+  addFx(g,1.3,(f,k)=>{g.position.set(P.pos.x,P.pos.y+1.1,P.pos.z);g.children.forEach((m,j)=>{m.rotation.z+=(.5+j*.12)*(j%2?-1:1);m.material.opacity=.9*(1-Math.max(0,k-.7)/.3)});g.scale.setScalar(1+k*.8);
+    for(let q=0;q<2;q++){const an=rand(0,TAU),r=rand(1.5,4.5);SP.emit(V3(P.pos.x+Math.sin(an)*r,P.pos.y+rand(.3,2),P.pos.z+Math.cos(an)*r),{c0:0xffffff,c1:0x9050ff,s0:.5,s1:.05,life:.4,speed:3})}
+    tick-=.016;if(tick<=0){tick=.22;for(const e of enemies){if(e.dead)continue;const d=Math.hypot(e.pos.x-P.pos.x,e.pos.z-P.pos.z);if(d<5.5+e.def.r&&Math.abs(eCenter(e).y-P.pos.y)<5){damageEnemy(e,kmDmg(e,.0045),'#e0c0ff');SP.emit(eCenter(e),{n:16,c0:0xffffff,c1:0xa050ff,speed:7,life:.4})}}}},
+    ()=>{scene.remove(g);g.traverse(o=>{if(o.geometry)o.geometry.dispose()})});
+  after(.85,()=>{if(!KM.on)return;const t=kmLock(120);for(let j=0;j<6;j++)kmStormBlade(P.face+j/6*TAU,t,j*.05);sx('impact',.5,null,{rate:1.2});ring(V3(P.pos.x,P.pos.y,P.pos.z),0xc080ff,1,10,.4)})}
+{const _ku=kmUse;kmUse=function(i){if(i!==8)return _ku.apply(this,arguments);if(!KM.on||CS.active||!P.alive||KM.cd[8]>0)return;if(KM.en<KM_COST[8]){toast('Not enough strength yet. Land a few sword hits.');return}
+  KM.en-=KM_COST[8];KM.cd[8]=KM_CD[8];kmStorm();x3Bark('Kaen','kc_20')}}
+
+/* ================= the Void Shield you can actually see: hex dome, ripples, BLOCKED ================= */
+kmShieldFx=function(){if(KM.shM){KM.shM.visible=true;KM.shM.scale.setScalar(.3);return}
+  const tex=new THREE.CanvasTexture(mkCanvas(256,128,(x,w,h)=>{x.strokeStyle='#fff';x.lineWidth=2.5;const R=w/18,hh=R*Math.sqrt(3);for(let r=-1;r<h/(hh/2)+2;r++)for(let q=-1;q<7;q++){const cx=q*R*3+(r%2?R*1.5:0),cy=r*hh/2;x.beginPath();for(let a=0;a<6;a++){const t=a/6*TAU;x.lineTo(cx+Math.cos(t)*R*.92,cy+Math.sin(t)*R*.92)}x.closePath();x.stroke()}}));
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  const mat=new THREE.ShaderMaterial({uniforms:{map:{value:tex},t:{value:0},hit:{value:0},fade:{value:1},col:{value:new THREE.Color(0x9a66ff)}},
+    vertexShader:'varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){vUv=uv;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+    fragmentShader:'uniform sampler2D map;uniform float t,hit,fade;uniform vec3 col;varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){float f=pow(1.-abs(dot(vN,vV)),2.);float hx=texture2D(map,vUv*vec2(4.,2.)+vec2(t*.03,0.)).r;float band=pow(max(0.,1.-abs(fract(vUv.y*1.2-t*.45)-.5)*7.),2.);float a=(f*.85+hx*(.2+f*.75)+band*hx*.7+hit*(.35+hx*.9))*fade;gl_FragColor=vec4(mix(col,vec3(1.),hit*.55+f*.2)*(1.15+hit*.8),clamp(a,0.,1.));}',
+    transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  const m=new THREE.Mesh(new THREE.SphereGeometry(1.85,40,28),mat);
+  const s=new THREE.Mesh(new THREE.SphereGeometry(1.7,24,16),new THREE.MeshBasicMaterial({color:0x5a28c0,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));m.add(s);
+  const gr=decal(runeTex,0xa070ff,4.4,true,.8);gr.position.y=-1.1;m.add(gr);m.position.y=1.15;m.scale.setScalar(.3);KM.shM=m;KM.a.g.add(m)};
+{const _mt=muTick;muTick=function(dt){_mt(dt);const m=KM.shM;if(!m||!m.visible||!m.material.uniforms)return;const U=m.material.uniforms;U.t.value+=dt;U.hit.value=Math.max(0,U.hit.value-dt*3.2);U.fade.value=KM.sh<1.2?.55+.45*Math.sin(time*22):1;if(m.children[1])m.children[1].rotation.z+=dt*1.2;
+  if(Math.random()<.35){const a=rand(0,TAU),y=rand(-.6,1.6);SP.emit(V3(P.pos.x+Math.sin(a)*1.8,P.pos.y+1.15+y,P.pos.z+Math.cos(a)*1.8),{c0:0xe8dcff,c1:0x7040e0,s0:.25,s1:.03,life:.45,up:.6})}}}
+{const _dp=damagePlayer;damagePlayer=function(a){const sh=KM.on&&KM.sh>0&&P.alive&&!CS.active&&P.invuln<=0&&a>0&&KM.shM;const r=_dp.apply(this,arguments);
+  if(sh&&KM.shM.material.uniforms){KM.shM.material.uniforms.hit.value=1;KM.shM.scale.setScalar(1.2);SP.emit(headOf(P.pos,1.2),{n:20,c0:0xffffff,c1:0x9a60ff,speed:6,life:.35});
+    if(!KM.blkT||time>KM.blkT){KM.blkT=time+.4;floatText(headOf(P.pos,2.7),'BLOCKED','#d4b8ff',true);sx('shield',.35,null,{rate:rand(1.5,1.9)});ring(V3(P.pos.x,P.pos.y,P.pos.z),0xb090ff,1,3.4,.25)}}return r}}
+
+/* ================= after Vesper: E or Enter starts the talk right away ================= */
+addEventListener('keydown',e=>{if(!started||MODE==='open'||CS.active||CH2.st!==13||KM.on||e.repeat)return;if(e.code==='KeyE'||e.code==='Enter'||e.code==='NumpadEnter'){X4.goT=1}},true);

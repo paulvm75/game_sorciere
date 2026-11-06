@@ -68,7 +68,9 @@ function updateFloats(dt){for(let i=floats.length-1;i>=0;i--){const f=floats[i];
   if(projV.z>1){f.el.style.opacity=0;continue}const x=(projV.x*.5+.5)*innerWidth,y=(-projV.y*.5+.5)*innerHeight;
   const s=f.t<.12?1+(.12-f.t)*5:1;f.el.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%) scale(${s})`;f.el.style.opacity=f.t>.6?(1-f.t)/.4:1}}
 const toastEl=$('toast');let toastT=0;
-function toast(msg,title,boss){toastEl.innerHTML=(title?`<span class="t">${title}</span>`:'')+(msg||'');toastEl.classList.toggle('boss',!!boss);toastEl.classList.add('show');toastT=title?3:2}
+const TCS=(()=>{try{return new Set(JSON.parse(localStorage.getItem('sorc_tc')||'[]'))}catch(x){return new Set()}})();
+function tcSeen(n){if(!n)return true;const had=TCS.has(n);if(!had){TCS.add(n);try{localStorage.setItem('sorc_tc',JSON.stringify([...TCS]))}catch(x){}}return had}
+function toast(msg,title,boss){if(title&&typeof MODE!=='undefined'&&MODE!=='open'&&/^Chapter [IVXL]+\b/.test(title)&&tcSeen('T:'+title))title='';toastEl.innerHTML=(title?`<span class="t">${title}</span>`:'')+(msg||'');toastEl.classList.toggle('boss',!!boss);toastEl.classList.add('show');toastT=title?3:2}
 
 
 /* ---------- cutscenes ---------- */
@@ -81,7 +83,7 @@ function playCutscene(shots,done){if(typeof voPrefetch==='function')voPrefetch(s
 function nextShot(){CS.i++;if(CS.i>=CS.shots.length){endCutscene();return}const s=CS.shots[CS.i];CS.t=0;CS.typed=0;
   if(s.onStart)s.onStart();
   if(s.cut||CS.i===0){fadeEl.style.transition='none';fadeEl.style.opacity='1';void fadeEl.offsetWidth;fadeEl.style.transition='opacity .6s';fadeEl.style.opacity='0';CS.snapNext=true}
-  if(s.title){tcName.textContent=s.title[0];tcSub.textContent=s.title[1];titleCard.classList.add('show');setTimeout(()=>titleCard.classList.remove('show'),2800)}
+  if(s.title){const st0=MODE!=='open';const nm=String(s.title[0]||''),sb=String(s.title[1]||'');const seen=st0&&tcSeen(nm);const skip=seen&&(/^Chapter /.test(nm)||!sb);if(!skip){tcName.textContent=seen?'':nm;tcName.style.display=seen?'none':'';tcSub.textContent=sb;tcSub.style.display=sb?'':'none';titleCard.classList.remove('show');void titleCard.offsetWidth;titleCard.classList.add('show');clearTimeout(titleCard._t);titleCard._t=setTimeout(()=>titleCard.classList.remove('show'),2600)}}
   if(s.who){dlg.classList.add('show');dlgWho.textContent=s.who==='@'?HERO.name:s.who;dlgWho.style.color=SPEAKER[s.who]||'#f2a541';dlgText.textContent='';dlgPortrait(s.who)}else dlg.classList.remove('show');
   s._dur=Math.max(s.dur||2,s.text?s.text.length/42+1.4:0);if(s.who&&s.text&&typeof voPlay==='function')voPlay(s.who,s.text,s)}
 function endCutscene(){if(!CS.active)return;W.talking=false;W.g.visible=true;CS.active=false;camera.fov=60;camera.updateProjectionMatrix();if(bokehPass)bokehPass.enabled=false;titleCard.classList.remove('show');cineEl.classList.remove('on');dlg.classList.remove('show');$('hud').style.opacity='';setTimeout(()=>{if(!CS.active)cineEl.classList.add('hidden')},600);

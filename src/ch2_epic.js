@@ -131,7 +131,7 @@ kaenTransform=function(e){BM.finalFor=e;const K=e.m.K,act=e.m.actor;e.invuln=tru
       update:(dt,k)=>{idle(dt);bk+=dt;P.shake=Math.max(P.shake,.1+k*.9);e.lb=Math.min(.6,k*.6);
         for(let n=0;n<4;n++){const a=Math.random()*TAU,r=rand(2,6);SP.emit(V3(c.x+Math.sin(a)*r,c.y+rand(0,3.5),c.z+Math.cos(a)*r),{c0:0xd0a0ff,c1:0x30106a,s0:.45,s1:.05,life:.55,speed:-r*1.9})}
         if(Math.random()<dt*(1+k*9))lightning(V3(c.x+rand(-3,3),c.y+rand(3,7),c.z+rand(-3,3)),eCenter(e),0xc890ff);if(Math.random()<dt*3)ring(c,0x9040ff,1,2+k*6,.5)}},
-    {dur:3.6,fov:52,cut:true,title:['Kaen Kuroshiba','Limit Breaker'],cam:orbit(10,3,.6,-.6),onStart:()=>{K.setTorn();e.lb=20;e._klb=1;e.hp=Math.min(e.maxhp,e.hp+Math.round(e.maxhp*.135));act.setBase('Spell_Simple_Idle_Loop',.2);
+    {dur:3.6,fov:52,cut:true,title:['','Limit Breaker'],cam:orbit(10,3,.6,-.6),onStart:()=>{K.setTorn();e.lb=20;e._klb=1;e.hp=Math.min(e.maxhp,e.hp+Math.round(e.maxhp*.135));act.setBase('Spell_Simple_Idle_Loop',.2);
         sx('ktf',1.5,()=>{try{sfx.roar()}catch(x){}},{wet:.35,duck:5});sx('boss',.7,null,{delay:.15});sx('impact',1.1,null,{rate:.6});epVoidPillar(c,0x8a30ff);flash(c,0xffffff,26);flash(c,0xa050ff,22);P.shake=2.2;vib([80,40,240]);
         for(let k=0;k<4;k++)after(k*.12,()=>ring(c,k%2?0xe0c0ff:0x8a30ff,1,14+k*7,.9));runeFlash(c,0x9a40ff,22,2.8);
         SP.emit(V3(c.x,c.y+1.5,c.z),{n:300,c0:0xffffff,c1:0x7020e0,speed:20,life:1.4,s0:.9,s1:.1,grav:1});SM.emit(V3(c.x,c.y+1,c.z),{n:46,c0:0x6030a0,c1:0x100420,s0:3,s1:10,speed:7,life:2.2,a:.6,up:2});
