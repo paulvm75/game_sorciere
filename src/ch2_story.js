@@ -33,8 +33,20 @@ function epVoice(text,vol){const k=VO_MAP[text];if(!k||muted||!AC)return 0;const
     if(verbIn){const w=AC.createGain();w.gain.value=sp?.4:.14;g.connect(w);w.connect(verbIn)}s.start(0);CLIP.duckT=Math.max(CLIP.duckT,b.duration)};if(CLIP.buf[k])go(CLIP.buf[k]);else voLoad(k).then(go);return CLIP.buf[k]?CLIP.buf[k].duration:2.6}
 {const _cl=cineLine;cineLine=function(who,text){_cl.apply(this,arguments);if(!CS.active)epVoice(text)}}
 // a little queue so lines in flight never talk over each other
-const SAYQ={q:[],free:0};function epSay(who,text,prio){if(prio)SAYQ.q.unshift([who,text]);else if(SAYQ.q.length<4)SAYQ.q.push([who,text])}
-{const _mt=muTick;muTick=function(dt){_mt(dt);const now=performance.now()*.001;if(!SAYQ.q.length||now<SAYQ.free||CS.active)return;const [w,t]=SAYQ.q.shift();cineLine(w,t);const k=VO_MAP[t];const d=k&&CLIP.buf[k]?CLIP.buf[k].duration:3;SAYQ.free=now+d+.5}}
+const SAYQ={q:[],free:0,on:0,until:0,wait:0,src:null};function epSay(who,text,prio){if(prio)SAYQ.q.unshift([who,text]);else if(SAYQ.q.length<8)SAYQ.q.push([who,text]);const k=VO_MAP[text];if(k&&!CLIP.buf[k])try{voLoad(k)}catch(x){}}
+/* one line at a time: the next line only starts once the voice has really finished */
+const sayEl=(()=>{const st=document.createElement('style');st.textContent='#sayLine{position:fixed;left:50%;bottom:150px;transform:translate(-50%,6px);max-width:min(680px,90vw);padding:9px 18px;border-radius:12px;background:rgba(8,6,18,.55);backdrop-filter:blur(6px);color:#f3ead6;font:500 16.5px/1.4 Outfit,system-ui,sans-serif;text-align:center;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:40;text-shadow:0 1px 3px rgba(0,0,0,.7)}#sayLine.on{opacity:1;transform:translate(-50%,0)}#sayLine b{font:italic 600 16px Fraunces,Georgia,serif;margin-right:8px}@media (max-width:760px){#sayLine{bottom:190px;font-size:14.5px}}';document.head.appendChild(st);const d=document.createElement('div');d.id='sayLine';document.body.appendChild(d);return d})();
+function sayLine(who,text,dur){const nm=who==='@'?(HERO.name||'Maëlle'):who;sayEl.innerHTML=`<b style="color:${SPEAKER[who]||'#c9a6ff'}">${nm}</b>${text}`;sayEl.classList.add('on');clearTimeout(sayEl._t);sayEl._t=setTimeout(()=>sayEl.classList.remove('on'),(dur+.5)*1000)}
+function sayVoice(k,b){if(!AC||muted)return;const s=AC.createBufferSource();s.buffer=b;const sp=VO_SPIRIT.has(k);if(sp)s.playbackRate.value=.94;const g=AC.createGain();g.gain.value=1.35;s.connect(g);g.connect(master);if(verbIn){const w=AC.createGain();w.gain.value=sp?.35:.1;g.connect(w);w.connect(verbIn)}s.start(0);SAYQ.src=s;CLIP.duckT=Math.max(CLIP.duckT,b.duration);s.onended=()=>{if(SAYQ.src===s){SAYQ.src=null;SAYQ.until=Math.min(SAYQ.until,performance.now()*.001+.05)}}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);const now=performance.now()*.001;if(SAYQ.on){if(now<SAYQ.until)return;SAYQ.on=0;SAYQ.free=now+.45}if(!SAYQ.q.length||now<SAYQ.free||CS.active)return;
+  const [w,t]=SAYQ.q[0];const k=VO_MAP[t];const live=AC&&!muted;if(k&&live&&!CLIP.buf[k]){if(!SAYQ.wait){SAYQ.wait=now;try{voLoad(k)}catch(x){}}if(now-SAYQ.wait<3)return}SAYQ.wait=0;SAYQ.q.shift();
+  const b=k&&live?CLIP.buf[k]:null;const d=b?b.duration/(VO_SPIRIT.has(k)?.94:1):Math.max(1.8,t.length/14);sayLine(w,t,d);SAYQ.on=1;SAYQ.until=now+d+(b?1.2:0);if(b)sayVoice(k,b);
+  for(const n of SAYQ.q.slice(0,2)){const kk=VO_MAP[n[1]];if(kk&&!CLIP.buf[kk])try{voLoad(kk)}catch(x){}}}}
+/* companions never talk over the queue */
+{const _cl=cineLine;cineLine=function(who,text){if(!CS.active&&started&&MODE!=='open'&&(VO_MAP[text]||who==='@'||/Kaen|Lyra|Warden|Vesper/.test(who))){epSay(who,text);return}return _cl.apply(this,arguments)}}
+/* a cutscene takes the stage: the line in flight fades out instead of talking over it */
+function sayHush(){const s=SAYQ.src;SAYQ.src=null;if(s&&AC)try{s.stop(AC.currentTime+.12)}catch(x){}SAYQ.on=0;SAYQ.q.length=0;SAYQ.free=performance.now()*.001+.6;sayEl.classList.remove('on');BAN.busy=0}
+{const _pc=playCutscene;playCutscene=function(){sayHush();return _pc.apply(this,arguments)}}
 
 /* ---------- Lyra hands over the sea-glass gem at Calais ---------- */
 {const _pc=playCutscene;playCutscene=function(shots,done){try{const i=shots.findIndex(s=>s.who==='Lyra'&&s.text===LY.ly15);if(i>=0&&!shots.some(s=>s.text===LY.ly33)){const cam=shots[i].cam;
@@ -428,11 +440,12 @@ const XL={ly35:'Stop moaning, both of you. I will open a door to Calais. From th
   ly38:"I can feel them. The clock tower, the great wheel, the dome of Saint Paul's, the bridge, the glass spire, and Westminster.",ly39:'The silver is in the vault beneath the White Tower. He will be waiting.',ly40:"Ash from where he fell. The Crown's own silver. And the last thing is mine to give.",ly41:'Not all of it, brother. Just one beat. A heart that still beats for you.',ly42:'Welcome back, Kaen.',
   m3_02:'One of three. Ash, done. The silver is in London. Again.',m3_03:'I just flew that whole sea with a ghost on my back. My arms are jelly. Can we not?',m3_04:'A turbo broom. Okay. I take it back. I love this job.',m3_05:'Folkestone. Dover is just east along the cliffs. London is a long way north.',
   m3_06:'The ravens? The old legend? If the ravens leave the Tower, the kingdom falls?',m3_07:'Six ravens. Fine. Raven hunting it is.',m3_08:'One less chain. Fly away, little bird.',m3_09:'Big bird. Bad bird.',m3_10:'You can try. You will not like how it ends.',m3_11:'Not today.',m3_12:"Three. Bilel's counts too. Make it worth it.",
-  k3_03:'She complains more than Bilel did. And Bilel complained about everything.',k3_04:'Follow the river. It runs all the way to the city.',k3_05:'Look at the Tower. The Warden is healing. As long as the ravens stay, he cannot die.',k3_06:'Not a legend. Six ravens, six chains of the Crown. Free them, and he bleeds like anyone.',
-  k3_07:'I felt that one break. Keep going!',k3_08:'That was the last one. His chains are gone. He can bleed now.',k3_09:"The Crown's silver. I spent ten years in chains of this.",k3_10:'Lyra, no. Not your heart.',
-  kb_01:'I can feel the cold. I can feel my hands.',kb_02:'Maëlle. I owe you a life. Two, maybe.',kb_03:'The Crown is not finished with us. I can still hear it. Far away.',
+  k3_03:'She complains more than Bilel did. And Bilel complained about everything.',k3_04:"Follow the river. It'll take us all the way to the city.",k3_05:'Look at the Tower. The Warden is healing. As long as the ravens stay, he cannot die.',k3_06:'Not a legend. Six ravens, six chains of the Crown. Free them, and he bleeds like anyone.',
+  k3_07:"I felt that one break. Keep going, we're nearly there!",k3_08:'That was the last one. His chains are gone. He can bleed now.',k3_09:"The Crown's silver. I spent ten years in chains of this.",k3_10:'Lyra, no. Not your heart.',
+  kb_01:'I can feel the cold again. I can feel my hands.',kb_02:'Maëlle... I owe you a life. Maybe two.',kb_03:"The Crown isn't finished with us. I can still hear it, far away.",
   t2_09:'Leave my ravens alone, witch!',t2_10:'You took my ravens. Then I will take your heart instead!',t2_11:'London... always... collects...'};
 for(const k in XL){VO_MAP[XL[k]]=k;if(/^k3_/.test(k))VO_SPIRIT.add(k)}
+VO_MAP[XL.k3_04]='kj5_20';VO_MAP[XL.k3_07]='kj5_21';VO_MAP[XL.kb_01]='kb2_01';VO_MAP[XL.kb_02]='kb2_02';VO_MAP[XL.kb_03]='kb2_03';
 const kS3=(sd,h)=>()=>{const a=KFW.a?KFW.a.g.position:P.pos;const d=V3(P.pos.x-a.x,0,P.pos.z-a.z);if(d.lengthSq()<.01)d.set(0,0,1);d.normalize();const r=V3(d.z,0,-d.x);return{pos:headOf(a,h||1.6).addScaledVector(d,2.8).addScaledVector(r,sd||1.4),look:headOf(a,1.5)}};
 const lyS3=(sd)=>()=>{const g=LYR.a?LYR.a.g.position:P.pos;const d=V3(P.pos.x-g.x,0,P.pos.z-g.z);if(d.lengthSq()<.01)d.set(0,0,1);d.normalize();const r=V3(d.z,0,-d.x);return{pos:headOf(g,1.6).addScaledVector(d,2.6).addScaledVector(r,sd||1.2),look:headOf(g,1.5)}};
 /* Kaen, solid again */
@@ -477,18 +490,6 @@ function xiiLondon(){const T=V3(224,10,-9862);
     {who:'Lyra',text:XL.ly38,cam:k=>({pos:V3(-30+k*30,70,-9700),look:V3(0,30,-9830)}),onStart:()=>{xiiPerches();for(const r of RVP())flash(r.p,0x60ff80,14)}},
     {who:'@',text:XL.m3_07,cam:witchShot(-1,3.4)}],
     ()=>{CH2.st=Math.max(CH2.st,9);ch2Save();xiiPerches();toast('Six ravens hold the Warden\'s chains. Find them on London\'s landmarks and set them free.','The Ravens',true)})}
-function buildRaven(s){const g=new THREE.Group(),body=new THREE.Group();g.add(body);const I=new THREE.Group();I.scale.setScalar(s);body.add(I);
-  const fm=std({color:0x0e0e16,roughness:.45,metalness:.35,emissive:0x041008,emissiveIntensity:.6});const bm=std({color:0x202024,roughness:.35,metalness:.6});
-  const b=new THREE.Mesh(new THREE.SphereGeometry(.5,14,10),fm);b.scale.set(.78,.74,1.45);b.position.y=1;I.add(b);const hd=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),fm);hd.position.set(0,1.38,.62);I.add(hd);
-  const bk=new THREE.Mesh(new THREE.ConeGeometry(.085,.5,6),bm);bk.rotation.x=Math.PI/2;bk.position.set(0,1.34,1.02);I.add(bk);
-  for(const q of[-1,1]){const e=glowSprite(0x80ff90,.22,1,false);e.position.set(q*.15,1.45,.82);I.add(e)}
-  const tl=new THREE.Mesh(new THREE.ConeGeometry(.3,1,4),fm);tl.rotation.x=-Math.PI/2-.25;tl.scale.set(1.5,1,.28);tl.position.set(0,.92,-1.05);I.add(tl);
-  const wings=[];for(const q of[-1,1]){const w=new THREE.Group();w.position.set(q*.32,1.12,.1);I.add(w);w.userData.q=q;for(let k=0;k<5;k++){const f=new THREE.Mesh(new THREE.BoxGeometry(1.5-k*.12,.05,.34+k*.04),fm);f.position.set(q*(.7-k*.04),0,-.05-k*.17);f.rotation.y=q*(-.05-k*.14);w.add(f)}wings.push(w)}
-  for(const q of[-1,1]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.5,5),bm);l.position.set(q*.16,.5,.05);I.add(l)}
-  const cm=std({color:0x1a3a20,emissive:0x40ff70,emissiveIntensity:1,metalness:.7,roughness:.3});for(let k=0;k<7;k++){const c=new THREE.Mesh(new THREE.TorusGeometry(.09,.025,4,8),cm);c.position.set(0,.3-k*.17,.05);c.rotation.y=k*Math.PI/2;I.add(c)}
-  const au=glowSprite(0x50ff80,4.5,.18);au.position.y=1.1;I.add(au);
-  return{g,body,wings,anim:(e,dt,mv,fold)=>{const t=e.t||0;if(fold){for(const w of wings){w.rotation.set(0,w.userData.q*-1.38,w.userData.q*-.28+Math.sin(t*2)*.02)}body.position.y=0;hd.rotation.y=Math.sin(t*.7)*.6}
-    else{const f=Math.sin(t*7.5);for(const w of wings){w.rotation.y=w.userData.q*-.12;w.rotation.z=w.userData.q*(.35+f*.7)}body.position.y=Math.sin(t*3.6)*.25*s;I.rotation.x=.1}au.material.opacity=.14+Math.sin(t*4)*.05}}}
 function xiiPerches(){if(XII.perch||!NZ.g)return;XII.perch=RVP().map((r,i)=>{if(XII.rv[i])return null;const m=buildRaven(2.2);m.g.position.copy(r.p);m.g.rotation.y=rand(0,TAU);NZ.g.add(m.g);const o={t:rand(0,9)};
   const pil=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,160,8,1,true),nzM().glow(0x60ff90,.12));pil.position.set(r.p.x,r.p.y+80,r.p.z);NZ.g.add(pil);
   NZ.anim.push(dt=>{o.t+=dt;if(m.g.visible)m.anim(o,dt,0,true);pil.material.opacity=.08+Math.sin(o.t*2)*.04});return{m,pil}})}
@@ -512,7 +513,7 @@ function xiiRavensDone(){const T=V3(224,14,-9862);
     ()=>{CH2.st=Math.max(CH2.st,10);ch2Save();toast('The chains are broken. Go to the Tower and take the Crown\'s silver from the Warden.','The Vault',true)})}
 
 /* ---------- 4. the Warden, mortal at last ---------- */
-function xiiWarden(){XII.wd=1;const at=V3(224,8,-9862);const e=wdSpawn(at,true);e.pos.copy(at);e.invuln=true;e.dead=false;WD.esc=1;WD.said=1;e.hpFloor=0;e.lvl=60;e.maxhp=e.hp=Math.round(e.maxhp*1.35);XII.wdE=e;
+function xiiWarden(){XII.wd=1;const at=V3(224,8,-9862);const e=wdSpawn(at,true);e.pos.copy(at);e.invuln=true;e.dead=false;WD.esc=1;WD.said=1;e.hpFloor=0;e.lvl=60;e.maxhp=e.hp=Math.round(e.maxhp*2);XII.wdE=e;
   playCutscene([{dur:2.6,fov:50,title:['The Warden','Mortal now'],cam:k=>({pos:V3(204,3+k*2,-9844),look:V3(at.x,at.y+2,at.z)}),onStart:()=>{flash(at,0x60ff90,26);ring(V3(at.x,0,at.z),0x60ff90,1,20,.8);sx('powerup',1,null,{rate:.7})},update:dt=>{if(WD.e)WD.e.m.anim(WD.e,dt,0)}},
     {who:'The Warden',text:XL.t2_10,fov:40,cam:()=>({pos:headOf(e.pos,4.2).add(V3(-6,0,8)),look:headOf(e.pos,4)}),update:dt=>{if(WD.e)WD.e.m.anim(WD.e,dt,0)}},
     {who:'@',text:XL.m3_10,cam:witchShot(1,3.4)}],()=>{e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;wdBarReset();toast('No ravens, no healing. Bring him down.','The Warden',true)})}
@@ -547,7 +548,7 @@ CHAPTERS.push({id:'silver',n:'XII',title:'Ash and Silver',desc:'The ash, the lon
 {const _cb=chapBoss;chapBoss=function(c){if(c.id==='silver')return null;return _cb(c)}}
 {const _ac=applyChapter;applyChapter=function(id){if(id!=='silver')return _ac.apply(this,arguments);_ac.call(this,'escape');CH2.st=8;ch2Save();XII.lazy=1;XII.rv=[0,0,0,0,0,0];XII.solid=0;XII.wd=0;XII.said={};xiiSave();WD.esc=1;if(WD.e&&!WD.e.dead){WD.e.dead=true;WD.e.m.g.visible=false}WD.e=null;nzEnter('calais');CH2.obj=nzObj}}
 {const _rc=renderChapters;renderChapters=function(){_rc();const list=$('chapList');const el=list&&list.children[chapIndexOf('silver')];if(el){const done=CH2.st>=11,cur=started&&CH2.st>=7&&CH2.st<11;el.className='chap'+(done?' done':'')+(cur?' cur':'')}}}
-{const _wl=wdLaser;wdLaser=function(e,from,to,dmg,w,o){if(CH2.st===10&&!CH2.chase)dmg*=.55;return _wl.call(this,e,from,to,dmg,w,o)}}
+{const _wl=wdLaser;wdLaser=function(e,from,to,dmg,w,o){if(CH2.st===10&&!CH2.chase)dmg*=.7;return _wl.call(this,e,from,to,dmg,w,o)}}
 
 /* ---------- Lyra's door in Calais: the only way home to Paris ---------- */
 {const _nb=nzBuild;nzBuild=function(){const was=NZ.built;const r=_nb.apply(this,arguments);if(!was&&NZ.g&&!NZ.calDoor){const d=nzPortal(V3(34,0,-2146));NZ.g.add(d);NZ.calDoor=d;NZ.anim.push(dt=>{if(d.visible)d.userData.tick(dt)});NZ.mapP.push([34,-2146])}return r}}
@@ -558,17 +559,21 @@ CHAPTERS.push({id:'silver',n:'XII',title:'Ash and Silver',desc:'The ash, the lon
 const BAN={t:24,i:0,busy:0,said:{}};
 const BL={m4_01:"Can I ask you something? Why don't you and Lyra have the same accent?",m4_02:'Okay. I see.',m4_03:"I thought fighting you... I mean, your body... was the hardest thing ever. But this Tower thing is insane. Does he have unlimited stamina?",m4_04:'Great. A ghost with a phone charger.',
   m4_05:'When you get your body back, what is the first thing you do?',m4_06:'Bold of you to assume this week will let you sleep.',m4_07:'Do ghosts get cold up here?',m4_08:'He would have complained the whole way.',m4_09:"It's called hygiene, Kaen. Look it up.",m4_10:'I am not singing.',m4_11:'Does it ever stop raining in England?',m4_12:"You'll get used to it.",m4_13:'So. Kaen with a body. Any plans?',m4_14:'In that order?',
-  k4_01:'Well, she is only my half sister. I grew up across the pond, in New England.',k4_02:'She grew up in the real England for a while, before she joined me.',k4_03:'Actually, I think her accent is a bit... transatlantic. Ugh. Never mind.',k4_04:'No. Not if he is cut off from the Tower.',
-  k4_05:'Right now he feeds as he fights. He siphons the Tower while he fights, even miles away from it. For a while, at least.',k4_06:'Eat. A real croissant. Warm. Then sleep for a week.',k4_07:'I feel nothing. Which is worse than cold, trust me.',k4_08:"Bilel would have loved this. Flying over the sea on a witch's broom.",
-  k4_09:'And loved every second of it.',k4_10:'Your broom smells like lavender.',k4_11:'Lyra used to sing on long trips. Very badly.',k4_12:'Good. Thank you.',k4_13:'Once. In nineteen seventy six. People still talk about it.',kc_01:'It is strange. Walking. I forgot how heavy feet are.',kc_02:'I hope not. I like feeling them.',kc_03:'Stay away from crowns. Learn to cook. Apologise to Paris.'};
-for(const k in BL){VO_MAP[BL[k]]=k;if(/^k4_/.test(k))VO_SPIRIT.add(k)}
-const BCONV=[{id:'accent',c:s=>s>=7&&s<11,l:['m4_01','k4_01','k4_02','k4_03','m4_02']},{id:'stamina',c:s=>s>=8&&s<10,l:['m4_03','k4_04','k4_05','m4_04']},{id:'croissant',c:s=>s>=7&&s<11,l:['m4_05','k4_06','m4_06']},
-  {id:'cold',c:s=>s>=7&&s<11,fly:1,l:['m4_07','k4_07']},{id:'bilel',c:s=>s>=7&&s<11,fly:1,l:['k4_08','m4_08','k4_09']},{id:'broom',c:s=>s>=7&&s<11,fly:1,l:['k4_10','m4_09']},{id:'sing',c:s=>s>=7,l:['k4_11','m4_10','k4_12']},
-  {id:'rain',c:s=>s>=7,l:['m4_11','k4_13']},{id:'feet',c:s=>s>=11,l:['kc_01','m4_12','kc_02']},{id:'plans',c:s=>s>=11,l:['m4_13','kc_03','m4_14']}];
+  m6_01:'Then we make it right. One night at a time.',m6_02:"Don't make it weird, Kaen.",m6_09:'Kaen, flying without a broom? Show off.',ly47:'Your guardian is very comfortable, by the way.',
+  kj5_01:"Ah. That's because she's only my half sister.",kj5_02:'I grew up across the pond, in New England. Lyra grew up in the real England for a few years, before she came to live with me.',kj5_03:"Honestly, I think her accent's gone a little bit transatlantic. Ugh. Never mind. Don't tell her I said that.",
+  kj5_04:"No, he doesn't. Not once he's cut off from the Tower.",kj5_05:"Right now he feeds while he fights. He pulls power from the Tower, even from miles away. He just can't keep it up forever.",kj5_06:"Honestly? A real croissant, still warm. And then I'm going to sleep for a whole week.",
+  kj5_07:"I don't feel anything at all. And believe me, that's worse than being cold.",kj5_08:"You know, Bilel would have loved this. Flying over the sea on a witch's broom.",kj5_09:"He would have. And he'd have loved every second of it.",kj5_10:'Is it just me, or does your broom smell like lavender?',
+  kj5_11:'When we were kids, Lyra used to sing on long trips. She was terrible at it.',kj5_12:'Good. Thank you. Really.',kj5_13:'It did once, back in nineteen seventy six. People still talk about it.',kj5_14:'Can I tell you something? Some nights I can still hear the people I hurt in Paris.',
+  kj5_15:'Thank you for not giving up on me. You had every reason to.',kj5_16:"It feels strange to walk again. I'd forgotten how heavy my own feet are.",kj5_17:"I hope I don't. I like feeling them.",kj5_18:'Stay away from crowns, learn how to cook, and apologise to Paris.',kj5_19:'I feel naked without my sword. Ten years, and I still reach for it.'};
+for(const k in BL)VO_MAP[BL[k]]=k;
+const BCONV=[{id:'accent',c:s=>s>=7&&s<11,l:['m4_01','kj5_01','kj5_02','kj5_03','m4_02']},{id:'stamina',c:s=>s>=8&&s<10,l:['m4_03','kj5_04','kj5_05','m4_04']},{id:'croissant',c:s=>s>=7&&s<11,l:['m4_05','kj5_06','m4_06']},
+  {id:'cold',c:s=>s>=7&&s<11,fly:1,l:['m4_07','kj5_07']},{id:'bilel',c:s=>s>=7&&s<11,fly:1,l:['kj5_08','m4_08','kj5_09']},{id:'guilt',c:s=>s>=8,l:['kj5_14','m6_01']},{id:'broom',c:s=>s>=7&&s<13,fly:1,l:['kj5_10','m4_09']},{id:'sing',c:s=>s>=7,l:['kj5_11','m4_10','kj5_12']},
+  {id:'rain',c:s=>s>=7,l:['m4_11','kj5_13']},{id:'feet',c:s=>s>=11,l:['kj5_16','m4_12','kj5_17']},{id:'sword',c:s=>s>=11&&s<13,l:['kj5_19']},{id:'thanks',c:s=>s>=9,l:['kj5_15','m6_02']},{id:'plans',c:s=>s>=11,l:['m4_13','kj5_18','m4_14']},
+  {id:'showoff',c:s=>s>=13,fly:1,l:['m6_09','ly47']}];
 function banterOk(){if(MODE==='open'||!started||CS.active||!P.alive||CH2.chase||bossRef||!kfwOn()||!KFW.a||!KFW.a.g.visible)return false;if(SAYQ.q.length)return false;
   return !enemies.some(e=>!e.dead&&e.aggro&&Math.hypot(e.pos.x-P.pos.x,e.pos.z-P.pos.z)<45)}
-{const _mt=muTick;muTick=function(dt){_mt(dt);if(BAN.busy){if(!SAYQ.q.length&&performance.now()*.001>SAYQ.free)BAN.busy=0;return}if(!banterOk()){BAN.t=Math.max(BAN.t,8);return}BAN.t-=dt;if(BAN.t>0)return;
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(BAN.busy){if(!SAYQ.q.length&&!SAYQ.on&&performance.now()*.001>SAYQ.free)BAN.busy=0;return}if(!banterOk()){BAN.t=Math.max(BAN.t,8);return}BAN.t-=dt;if(BAN.t>0)return;
   const s=CH2.st,opts=BCONV.filter(c=>!BAN.said[c.id]&&c.c(s)&&(!c.fly||P.flying));if(!opts.length){BAN.t=40;return}const c=opts[0];BAN.said[c.id]=1;BAN.t=rand(55,85);BAN.busy=1;
-  for(const k of c.l){const kaen=k[0]==='k';SAYQ.q.push([kaen?(XII.solid?'Kaen':"Kaen's Spirit"):'@',BL[k]])}}}
+  for(const k of c.l){const kaen=k[0]==='k';SAYQ.q.push([kaen?(XII.solid?'Kaen':"Kaen's Spirit"):k.startsWith('ly')?'Lyra':'@',BL[k]]);try{voLoad(VO_MAP[BL[k]])}catch(x){}}}}
 /* Maëlle's solo barks step aside for the conversation, and stay quieter while Kaen is with her */
-{const _bk=bark;bark=function(who,cat,prio,cd,chance){if(who==='@'&&MODE!=='open'&&started){if(BAN.busy)return false;if(kfwOn()&&(prio||0)<2&&Math.random()<.55)return false}return _bk.apply(this,arguments)}}
+{const _bk=bark;bark=function(who,cat,prio,cd,chance){if(MODE!=='open'&&started&&(SAYQ.on||SAYQ.q.length||BAN.busy)&&(who==='@'||(prio||0)<3))return false;if(who==='@'&&MODE!=='open'&&started){if(kfwOn()&&(prio||0)<2&&Math.random()<.55)return false}return _bk.apply(this,arguments)}}
