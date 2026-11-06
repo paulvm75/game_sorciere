@@ -576,4 +576,4 @@ function banterOk(){if(MODE==='open'||!started||CS.active||!P.alive||CH2.chase||
   const s=CH2.st,opts=BCONV.filter(c=>!BAN.said[c.id]&&c.c(s)&&(!c.fly||P.flying));if(!opts.length){BAN.t=40;return}const c=opts[0];BAN.said[c.id]=1;BAN.t=rand(55,85);BAN.busy=1;
   for(const k of c.l){const kaen=k[0]==='k';SAYQ.q.push([kaen?(XII.solid?'Kaen':"Kaen's Spirit"):k.startsWith('ly')?'Lyra':'@',BL[k]]);try{voLoad(VO_MAP[BL[k]])}catch(x){}}}}
 /* Maëlle's solo barks step aside for the conversation, and stay quieter while Kaen is with her */
-{const _bk=bark;bark=function(who,cat,prio,cd,chance){if(MODE!=='open'&&started&&(SAYQ.on||SAYQ.q.length||BAN.busy)&&(who==='@'||(prio||0)<3))return false;if(who==='@'&&MODE!=='open'&&started){if(kfwOn()&&(prio||0)<2&&Math.random()<.55)return false}return _bk.apply(this,arguments)}}
+{const _bk=bark;bark=function(who,cat,prio,cd,chance){if(MODE!=='open'&&started&&(SAYQ.on||SAYQ.q.length||BAN.busy)&&(who==='@'||(prio||0)<3))return false;return _bk.apply(this,arguments)}}
