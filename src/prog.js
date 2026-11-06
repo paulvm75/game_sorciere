@@ -169,3 +169,31 @@ Object.assign(CAST,{
       for(let n=0;n<4;n++){const a=rand(0,TAU),r=rand(8,16);const p=V3(at.x+Math.sin(a)*r,at.y+rand(1,8),at.z+Math.cos(a)*r);SP.emit(p,{c0:0xffc0d0,c1:0x5a0020,s0:.5,s1:.1,life:.5,dir:V3(at.x-p.x,at.y+5-p.y,at.z-p.z).multiplyScalar(2),dirJ:1})}},
       ()=>{explode(V3(at.x,at.y,at.z),18,260*power(),0xff5a7a,true);flash(at,0xff5a7a,20);P.shake=1.5;ring(at,0xff9ab0,1,22,.7)})}
 });
+
+/* ---------- the cape remembers how far she has come: silver thread at 60, silver and bordeaux at 100 ---------- */
+function capeTierU(){return capeTierU.U||(capeTierU.U={uSil:{value:0},uTier:{value:0}})}
+function capeTierPatch(mat){if(!mat||mat.userData.ctp)return;mat.userData.ctp=1;const U=capeTierU();const prev=mat.onBeforeCompile;const pk=mat.customProgramCacheKey;
+  mat.onBeforeCompile=(sh,r)=>{if(prev)prev.call(mat,sh,r);sh.uniforms.uSil=U.uSil;sh.uniforms.uTier=U.uTier;
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec2 vCtUv;').replace('#include <begin_vertex>','#include <begin_vertex>\nvCtUv=uv;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec2 vCtUv;uniform float uSil;uniform float uTier;float vCtS=0.;')
+      .replace('#include <color_fragment>',`#include <color_fragment>
+{vec2 u=vCtUv;float sil=0.;
+ vec2 g=u*vec2(7.,11.);vec2 id=floor(g),f=fract(g)-.5;float hs=fract(sin(dot(id,vec2(127.1,311.7)))*43758.5453);float r=length(f),an=atan(f.y,f.x);
+ float arc=smoothstep(.045,.0,abs(r-.27))*step(.15,sin(an*2.+hs*6.283));float curl=smoothstep(.04,.0,abs(r-(.12+.05*(an+3.1416)/3.1416)))*step(.35,hs);float motif=max(arc,curl);
+ if(uSil>.5){float trim=smoothstep(.04,.03,u.x)+smoothstep(.96,.97,u.x)+smoothstep(.955,.965,u.y)+smoothstep(.012,0.,abs(u.y-.93));
+   float collar=smoothstep(.012,.0,abs(u.y-.07))+smoothstep(.008,.0,abs(u.y-.1));
+   sil=clamp(trim+collar+motif*(1.-smoothstep(.14,.42,u.y))*step(.1,u.y)*.9,0.,1.);}
+ if(uTier>.5){vec3 bord=vec3(.1,.006,.018);diffuseColor.rgb=mix(bord,vec3(.012,.008,.01),smoothstep(.4,1.,u.y)*.78);
+   float lin=clamp(smoothstep(.05,.045,u.x)*step(.035,u.x)+smoothstep(.95,.955,u.x)*step(u.x,.965)+step(.9,u.y)*step(u.y,.92),0.,1.);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.012,.01,.012),lin);
+   float star=smoothstep(.06,.0,r)*step(.86,hs)*step(.3,u.y);sil=clamp(sil+motif*step(.3,hs)*step(.1,u.y)*(.5+.5*smoothstep(.6,.85,u.y))+star,0.,1.);}
+ diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.8,.82,.88),sil);vCtS=sil;}`)
+      .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.22,vCtS);')
+      .replace('#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\nmetalnessFactor=mix(metalnessFactor,.92,vCtS);')
+      .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=vec3(.55,.6,.72)*vCtS*.14;')};
+  mat.customProgramCacheKey=()=>(pk?pk.call(mat):'')+'|ct';mat.needsUpdate=true}
+function capeLv(){return started?P.level:Math.max(P.level||1,(typeof save!=='undefined'&&save&&save.level)||1)}
+function capeTierSync(){const U=capeTierU(),lv=capeLv();U.uSil.value=lv>=60?1:0;U.uTier.value=lv>=100?1:0;if(W&&W.capeM&&W.evolved){const e=lv>=100?0x14020a:0x300006;if(W.capeM.emissive.getHex()!==e)W.capeM.emissive.setHex(e)}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);capeTierSync()}}
+{const _lu=onLevelUp;onLevelUp=function(){_lu.apply(this,arguments);if(MODE==='open'&&false)return;
+  const tier=P.level===60?1:P.level===100?2:0;if(!tier)return;after(1.4,()=>{const col=tier===2?0xd8dce8:0xc8ccd6;for(let k=0;k<4;k++)after(k*.16,()=>{ring(P.pos,col,1,6+k*4,.6);runeFlash(P.pos,col,8+k*4,1.2)});flash(P.pos,col,16);SP.emit(V3(P.pos.x,P.pos.y+1.2,P.pos.z),{n:220,c0:0xffffff,c1:col,speed:14,life:1.2,s0:.8,s1:.1,grav:2});try{sfx.level()}catch(x){}
+    toast(tier===2?'Level 100. Your cape turns silver and bordeaux, edged in black. No witch of Paris has climbed higher.':'Level 60. Silver thread runs through your crimson cape, one stitch for every night you survived.',tier===2?'The Silver Witch':'Silver Thread',true)})}}

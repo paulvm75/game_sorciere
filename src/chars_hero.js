@@ -94,6 +94,6 @@ function makeHeroCH(gender){const sx=gender==='f'?'f':'m';const src=CH.src['body
     if(st.punch&&!ST.punchLock){fireUpper(Math.random()<.5?'Punch_Jab':'Punch_Cross',.4);ST.punchLock=true}if(!st.punch)ST.punchLock=false;
     if(ST.upper){ST.ut-=dt;if(ST.ut<=0){ST.upper.fadeOut(.15);ST.upper=null}}
     mixer.update(dt)};
-  W2.update(0,{mv:0});if(typeof lbPatchHero==='function')lbPatchHero(W2,{capeM,hairM,skinM,wm});
+  W2.update(0,{mv:0});if(typeof lbPatchHero==='function')lbPatchHero(W2,{capeM,hairM,skinM,wm});capeTierPatch(capeM);
   return W2}
 function G_shard(){const g=new THREE.OctahedronGeometry(.05,0);g.scale(1,1.6,1);return g}

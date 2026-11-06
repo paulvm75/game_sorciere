@@ -15,13 +15,13 @@ if(isTouch)document.body.classList.add('touch');
 const PRE=await (async()=>{const msg=document.getElementById('loadMsg');const set=t=>{if(msg)msg.textContent=t};const out={gltf:{},tex:{},city:null,err:null};
   const files=['body_f','body_m','hair_long','hair_buns','hair_buzzed','hair_buzzedfemale','hair_simpleparted','hair_beard','wizard_f','wizard_m','hood_f','hood_m','anims'];
   const texs=['skin_f','skin_m','skin_f_n','skin_m_n','skin_f_r','skin_m_r','hair1','hair1_n','hair2','hair2_n','eye','wizard','wizard_n','wizard_orm','ranger','ranger_n'];
-  let done=0;const total=files.length+texs.length+(MODE==='open'?1:0);const tick=()=>{done++;set(`Loading Paris… ${Math.round(done/total*100)}%`)};set('Loading Paris… 0%');
+  let done=0;const total=files.length+texs.length+(MODE==='open'?1:0);const tick=()=>{done++;set(`Loading Paris… ${Math.round(done/total*100)}%`);if(window.BOOT)window.BOOT.p(.1+.72*done/total,done/total<.5?'Gathering the night':'Dressing the witch')};set('Loading Paris… 0%');if(window.BOOT)window.BOOT.p(.1,'Gathering the night');
   try{const L=new THREE.GLTFLoader();if(window.MeshoptDecoder)L.setMeshoptDecoder(MeshoptDecoder);const TL=new THREE.TextureLoader();
     const jobs=files.map(f=>new Promise(r=>L.load('assets/'+f+'.wasm',g=>{out.gltf[f]=g;tick();r()},undefined,e=>{out.err=e;tick();r()})));
     for(const t of texs)jobs.push(new Promise(r=>TL.load('assets/'+t+'.webp',x=>{x.flipY=false;if(!/_n$|_r$|_orm$/.test(t))x.encoding=THREE.sRGBEncoding;x.anisotropy=4;out.tex[t]=x;tick();r()},undefined,e=>{tick();r()})));
     if(MODE==='open')jobs.push(fetch('assets/paris.wasm').then(r=>r.ok?r.arrayBuffer():null).then(b=>{out.city=b;tick()}).catch(e=>{out.err=e;tick()}));
     await Promise.all(jobs)}catch(e){out.err=e}
-  set(out.err?'Some assets failed to load. Playing with fallbacks.':'');if(msg&&!out.err)msg.classList.add('hidden');return out})();
+  set(out.err?'Some assets failed to load. Playing with fallbacks.':'');if(window.BOOT)window.BOOT.p(.86,out.err?'Some pieces are missing. Carrying on':'Raising the city');if(msg&&!out.err)msg.classList.add('hidden');return out})();
 
 /* ---------- save ---------- */
 const SAVE_KEY='sorciere-paris-v3';
