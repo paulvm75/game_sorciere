@@ -244,8 +244,7 @@ function epPass(){NZQ.quiz=null;const c=NZ.green;const sp=epTowerSpirit();
   playCutscene([
     {who:'The Tower',text:EPL.sp3,fov:44,cut:true,cam:()=>({pos:V3(205,2.6,-9846),look:epEyes()}),onStart:()=>tutHide()},
     {dur:2.6,fov:42,cut:true,cam:k=>({pos:headOf(c,1.4).add(V3(3.4-k,.4,3.2)),look:headOf(c,1)}),onStart:()=>{epFreeKaen(false);sx('shbreak',1.2,()=>{try{sfx.shatter()}catch(x){}});sx('ding',.9,null,{delay:.3});sx('powerup',.8,null,{delay:.5});flash(headOf(c,1.2),0xd0f0ff,16);P.shake=1;sp.ty=-14}},
-    {who:'@',text:EPL.full,cam:witchShot(1,3)},
-    {who:"Kaen's Spirit",text:EPL.free,cut:true,cam:()=>({pos:headOf(c,1.6).add(V3(1.6,.1,2.6)),look:headOf(c,1.5)})}
+    {who:'@',text:EPL.full,cam:witchShot(1,3)}
   ],()=>{CH2.st=Math.max(CH2.st,6);ch2Save();P.invuln=2;writeSave();stAfterQuiz()})}
 function epFreeKaen(silent){for(const l of NZQ.links){if(silent){l.visible=false;continue}const v=V3(rand(-4,4),rand(2,6),rand(-4,4));addFx(l,1.4,(f,k)=>{l.position.addScaledVector(v,1/60);v.y-=.2;l.rotation.x+=.3;l.scale.setScalar(1-k)},()=>{l.visible=false})}
   try{if(NZ.ghost)NZ.ghost.setBase('Idle_Loop',.6)}catch(x){}}

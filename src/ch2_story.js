@@ -118,7 +118,7 @@ function buildWarden(){const a=makeCHActor('m',{skin:0xe8fff0,hair:'hairBuzz',ha
 ETYPES.warden={name:'The Warden, Spirit of the Tower',boss:true,lvl:58,hp:3200,speed:0,dmg:30,range:0,cd:9,xp:3500,r:1.6,h:4.6,fly:1,ghost:true,noCalm:true,build:buildWarden};
 if(typeof BTH!=='undefined')BTH.warden='mus_greyfang';
 function wdSpawn(at,still){if(WD.e&&!WD.e.dead)return WD.e;const e=spawnEnemy('warden',V3(at.x,0,at.z));e.pos.y=at.y;e.aggro=true;e.hpFloor=.55;e.invuln=!!still;e.m.g.children.forEach(c=>{if(c.material&&c.material.map===scorchTex)c.visible=false});WD.e=e;WD.t=0;WD.lasT=3;WD.orbT=6;return e}
-function wdFight(){KFW.go=1;const e=WD.e||wdSpawn(V3(224,8,-9862));e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;toast('Avoid the green lasers. They are far too strong to take.','The Warden',true);after(4,()=>epSay("Kaen's Spirit",SL.k03))}
+function wdFight(){KFW.go=1;const e=WD.e||wdSpawn(V3(224,8,-9862));e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');P.invuln=2;toast('Avoid the green lasers. They are far too strong to take.','The Warden',true)}
 function wdLaser(e,from,to,dmg,w){const mid=from.clone().lerp(to,.5);const L=from.distanceTo(to);const tg=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,L,6,1,true),new THREE.MeshBasicMaterial({color:0x9affb0,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));
   tg.position.copy(mid);tg.lookAt(to);tg.rotateX(Math.PI/2);scene.add(tg);sx('riser',.5,null,{rate:1.6});
   addFx(tg,.9,(f,k)=>{tg.material.opacity=.3+Math.sin(f.t*40)*.2;tg.scale.set(1+k*3,1,1+k*3)},()=>{scene.remove(tg);if(e.dead)return;sx('laser',1.1,()=>{try{sfx.boom()}catch(x){}},{wet:.2});
@@ -213,7 +213,7 @@ function epAshPlace(){if(ASH.g||CH2.st>=8)return;const at=V3(-118,0,-128);at.y=g
 
 /* ---------- the Tower door stays shut while the Warden is loose; a reload resumes at the Tower ---------- */
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE==='open'||CH2.zone!=='north'||!started)return;
-  if(NZ.home){const hide=CH2.st===6;if(hide&&!NZ.home.userData.moved){NZ.home.userData.moved=1;NZ.home.position.x+=10000}else if(!hide&&NZ.home.userData.moved){NZ.home.userData.moved=0;NZ.home.position.x-=10000}}
+  if(false&&NZ.home){const hide=CH2.st===6;if(hide&&!NZ.home.userData.moved){NZ.home.userData.moved=1;NZ.home.position.x+=10000}else if(!hide&&NZ.home.userData.moved){NZ.home.userData.moved=0;NZ.home.position.x-=10000}}
   if(CH2.st===6&&!CH2.chase&&!CS.active&&P.alive&&NZ.green&&(!WD.e||WD.e.dead)&&!WD.esc&&Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z)<30){epFreeKaen(true);
     const e=wdSpawn(V3(224,8,-9862));epSay('The Warden',SL.t08,1);after(.5,wdFight)}
   if(CH2.st===6&&WD.esc&&!CH2.chase&&!CS.active&&(!WD.e||WD.e.dead))WD.esc=0}}
@@ -444,7 +444,7 @@ function kfSolidify(){if(KFW.a){scene.remove(KFW.a.g);KFW.a=null}KFW.kp=null;KFW
   if(KFW.an!==an){KFW.an=an;try{a.setBase(an,.3)}catch(x){}}}}
 
 /* ---------- 1. Paris: the ash is in hand, and Maëlle does not want to fly again ---------- */
-function xiiObj(){const st=CH2.st;if(CH2.zone==='paris'){if(st===8&&!XII.lazy)return `Talk to <b>Lyra</b> at the Trocadéro · ${LYR.a?Math.round(Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)):0}m`;if(st>=8&&st<11)return 'Go back to <b>London</b> through Lyra\'s door';return st>=11?'Next: <b>Chapter XIII</b>':null}
+function xiiObj(){const st=CH2.st;if(CH2.zone==='paris'){if(st===8&&!XII.lazy)return `Talk to <b>Lyra</b> at the Trocadéro · ${LYR.a?Math.round(Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)):0}m`;if(st>=8&&st<11)return 'Ask <b>Lyra</b> at the Trocadéro for the door to Calais';return st>=11?'Next: <b>Chapter XIII</b>':null}
   if(st===8)return P.pos.z>CLIFF_Z?`Cross the Channel to <b>Folkestone</b> · ${Math.max(0,Math.round(P.pos.z-CLIFF_Z))}m`:`Follow the river to <b>London</b> · ${Math.max(0,Math.round(P.pos.z-LON_Z))}m`;
   if(st===9){const n=XII.rv.filter(Boolean).length;let best=null;RVP().forEach((r,i)=>{if(XII.rv[i])return;const d=Math.hypot(P.pos.x-r.p.x,P.pos.z-r.p.z);if(!best||d<best[1])best=[r.n,d]});return `Free the <b>ravens</b> · ${n}/6`+(best?` · nearest: ${best[0]} ${Math.round(best[1])}m`:'')}
   if(st===10){const g=NZ.green||V3(222,0,-9862);return `Face <b>the Warden</b> at the Tower · ${Math.round(Math.hypot(P.pos.x-g.x,P.pos.z-g.z))}m`}
@@ -459,7 +459,7 @@ function xiiLazy(){if(XII.lazy||CS.active)return;const L=LYR.a;if(L){const d=V3(
     ()=>{XII.lazy=1;xiiSave();CH2.st=Math.max(CH2.st,8);ch2Save();nzEnter('calais');CH2.obj=nzObj;after(.6,()=>toast('Fly back across the Channel and up the river to London. Your broom has a new trick: <b>B</b>.','Chapter XII · Ash and Silver',true))})}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CS.active)return;
   if(CH2.zone==='paris'&&CH2.st===8&&!XII.lazy&&LYR.a&&LYR.a.g.visible){CH2.obj=xiiObj;if(Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)<7)xiiLazy()}
-  if(CH2.zone==='paris'&&CH2.st>=8&&CH2.st<11&&XII.lazy&&LYR.a&&LYR.a.g.visible&&!P.flying&&Math.hypot(P.pos.x-LYR.a.g.position.x,P.pos.z-LYR.a.g.position.z)<4){if(!XII.dT||time-XII.dT>6){XII.dT=time;flash(headOf(P.pos,1),0xff4050,18);sx('portal',.8);nzEnter(CH2.st>=9?'london':'calais');CH2.obj=nzObj}}}}
+}}
 
 /* ---------- 2. the crossing: Folkestone, then the long way north ---------- */
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CH2.zone!=='north'||CS.active||!P.alive)return;const z=P.pos.z;
@@ -548,3 +548,27 @@ CHAPTERS.push({id:'silver',n:'XII',title:'Ash and Silver',desc:'The ash, the lon
 {const _ac=applyChapter;applyChapter=function(id){if(id!=='silver')return _ac.apply(this,arguments);_ac.call(this,'escape');CH2.st=8;ch2Save();XII.lazy=1;XII.rv=[0,0,0,0,0,0];XII.solid=0;XII.wd=0;XII.said={};xiiSave();WD.esc=1;if(WD.e&&!WD.e.dead){WD.e.dead=true;WD.e.m.g.visible=false}WD.e=null;nzEnter('calais');CH2.obj=nzObj}}
 {const _rc=renderChapters;renderChapters=function(){_rc();const list=$('chapList');const el=list&&list.children[chapIndexOf('silver')];if(el){const done=CH2.st>=11,cur=started&&CH2.st>=7&&CH2.st<11;el.className='chap'+(done?' done':'')+(cur?' cur':'')}}}
 {const _wl=wdLaser;wdLaser=function(e,from,to,dmg,w,o){if(CH2.st===10&&!CH2.chase)dmg*=.55;return _wl.call(this,e,from,to,dmg,w,o)}}
+
+/* ---------- Lyra's door in Calais: the only way home to Paris ---------- */
+{const _nb=nzBuild;nzBuild=function(){const was=NZ.built;const r=_nb.apply(this,arguments);if(!was&&NZ.g&&!NZ.calDoor){const d=nzPortal(V3(34,0,-2146));NZ.g.add(d);NZ.calDoor=d;NZ.anim.push(dt=>{if(d.visible)d.userData.tick(dt)});NZ.mapP.push([34,-2146])}return r}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!NZ.calDoor)return;const on=MODE!=='open'&&CH2.st>=2&&CH2.st!==6&&!CH2.chase;NZ.calDoor.visible=on;
+  if(on&&CH2.zone==='north'&&started&&!CS.active&&Math.hypot(P.pos.x-34,P.pos.z+2146)<9&&!NZ.calTold){NZ.calTold=1;toast('Lyra\'s door. Step through to go home to Paris.','Calais')}if(Math.hypot(P.pos.x-34,P.pos.z+2146)>20)NZ.calTold=0}}
+
+/* ---------- banter: Maëlle and Kaen talk while they travel ---------- */
+const BAN={t:24,i:0,busy:0,said:{}};
+const BL={m4_01:"Can I ask you something? Why don't you and Lyra have the same accent?",m4_02:'Okay. I see.',m4_03:"I thought fighting you... I mean, your body... was the hardest thing ever. But this Tower thing is insane. Does he have unlimited stamina?",m4_04:'Great. A ghost with a phone charger.',
+  m4_05:'When you get your body back, what is the first thing you do?',m4_06:'Bold of you to assume this week will let you sleep.',m4_07:'Do ghosts get cold up here?',m4_08:'He would have complained the whole way.',m4_09:"It's called hygiene, Kaen. Look it up.",m4_10:'I am not singing.',m4_11:'Does it ever stop raining in England?',m4_12:"You'll get used to it.",m4_13:'So. Kaen with a body. Any plans?',m4_14:'In that order?',
+  k4_01:'Well, she is only my half sister. I grew up across the pond, in New England.',k4_02:'She grew up in the real England for a while, before she joined me.',k4_03:'Actually, I think her accent is a bit... transatlantic. Ugh. Never mind.',k4_04:'No. Not if he is cut off from the Tower.',
+  k4_05:'Right now he feeds as he fights. He siphons the Tower while he fights, even miles away from it. For a while, at least.',k4_06:'Eat. A real croissant. Warm. Then sleep for a week.',k4_07:'I feel nothing. Which is worse than cold, trust me.',k4_08:"Bilel would have loved this. Flying over the sea on a witch's broom.",
+  k4_09:'And loved every second of it.',k4_10:'Your broom smells like lavender.',k4_11:'Lyra used to sing on long trips. Very badly.',k4_12:'Good. Thank you.',k4_13:'Once. In nineteen seventy six. People still talk about it.',kc_01:'It is strange. Walking. I forgot how heavy feet are.',kc_02:'I hope not. I like feeling them.',kc_03:'Stay away from crowns. Learn to cook. Apologise to Paris.'};
+for(const k in BL){VO_MAP[BL[k]]=k;if(/^k4_/.test(k))VO_SPIRIT.add(k)}
+const BCONV=[{id:'accent',c:s=>s>=7&&s<11,l:['m4_01','k4_01','k4_02','k4_03','m4_02']},{id:'stamina',c:s=>s>=8&&s<10,l:['m4_03','k4_04','k4_05','m4_04']},{id:'croissant',c:s=>s>=7&&s<11,l:['m4_05','k4_06','m4_06']},
+  {id:'cold',c:s=>s>=7&&s<11,fly:1,l:['m4_07','k4_07']},{id:'bilel',c:s=>s>=7&&s<11,fly:1,l:['k4_08','m4_08','k4_09']},{id:'broom',c:s=>s>=7&&s<11,fly:1,l:['k4_10','m4_09']},{id:'sing',c:s=>s>=7,l:['k4_11','m4_10','k4_12']},
+  {id:'rain',c:s=>s>=7,l:['m4_11','k4_13']},{id:'feet',c:s=>s>=11,l:['kc_01','m4_12','kc_02']},{id:'plans',c:s=>s>=11,l:['m4_13','kc_03','m4_14']}];
+function banterOk(){if(MODE==='open'||!started||CS.active||!P.alive||CH2.chase||bossRef||!kfwOn()||!KFW.a||!KFW.a.g.visible)return false;if(SAYQ.q.length)return false;
+  return !enemies.some(e=>!e.dead&&e.aggro&&Math.hypot(e.pos.x-P.pos.x,e.pos.z-P.pos.z)<45)}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(BAN.busy){if(!SAYQ.q.length&&performance.now()*.001>SAYQ.free)BAN.busy=0;return}if(!banterOk()){BAN.t=Math.max(BAN.t,8);return}BAN.t-=dt;if(BAN.t>0)return;
+  const s=CH2.st,opts=BCONV.filter(c=>!BAN.said[c.id]&&c.c(s)&&(!c.fly||P.flying));if(!opts.length){BAN.t=40;return}const c=opts[0];BAN.said[c.id]=1;BAN.t=rand(55,85);BAN.busy=1;
+  for(const k of c.l){const kaen=k[0]==='k';SAYQ.q.push([kaen?(XII.solid?'Kaen':"Kaen's Spirit"):'@',BL[k]])}}}
+/* Maëlle's solo barks step aside for the conversation, and stay quieter while Kaen is with her */
+{const _bk=bark;bark=function(who,cat,prio,cd,chance){if(who==='@'&&MODE!=='open'&&started){if(BAN.busy)return false;if(kfwOn()&&(prio||0)<2&&Math.random()<.55)return false}return _bk.apply(this,arguments)}}

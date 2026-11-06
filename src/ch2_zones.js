@@ -298,20 +298,20 @@ function nzEnter(where){nzBuild();if(CH2.zone==='paris'){CH2.parisWB={x0:WB.x0,x
   camera.position.set(p.x,P.pos.y+5,p.z+12);if(CH2.st>=5)nzAfter();CH2.obj=nzObj;ch2Save()}
 function nzLeave(){nzClear();sxStop('wind',1);CH2.zone='paris';if(NZ.g)NZ.g.visible=false;for(const o of NZ.hid)o.visible=true;NZ.hid=[];Object.assign(WB,CH2.parisWB||{x0:-430,x1:430,z0:-330,z1:300});drawWorldMap();
   setDawn(STATS.won?.55:dawnK);SPAWN.set(-100,0,22);CH2.flySpd=0;lyraToTroca();const p=V3(-126,0,-100);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;yaw=Math.PI;P.face=0;camera.position.set(p.x,P.pos.y+5,p.z-12);
-  flash(headOf(P.pos,1.2),0xff4050,8);toast('Back in Paris. Lyra can open the door to London again.','Paris',true);ch2Save()}
+  flash(headOf(P.pos,1.2),0xff4050,8);toast('Back in Paris. Lyra can open the door to Calais again.','Paris',true);ch2Save()}
 function ch2Depart(back){if(CS.active)return;const L=LYR.a?LYR.a.g.position.clone():P.pos.clone();const fw=V3(Math.sin(LYR.a?LYR.a.g.rotation.y:0),0,Math.cos(LYR.a?LYR.a.g.rotation.y:0));const door=L.clone().addScaledVector(V3(fw.z,0,-fw.x),2.6);let portal=null;
   const lyS=d=>()=>{const g=LYR.a?LYR.a.g.position:P.pos;const dv=V3(P.pos.x-g.x,0,P.pos.z-g.z).normalize();return{pos:headOf(g,1.6).addScaledVector(dv,d||2.6).addScaledVector(V3(dv.z,0,-dv.x),.6),look:headOf(g,1.55)}};
-  const shots=[{dur:3.4,fov:44,title:back?null:['Chapter 2','The Crossing'],cam:k=>({pos:headOf(door,2).add(V3(6-k*2,0,6)),look:headOf(door,2)}),onStart:()=>{if(!portal)portal=nzPortal(door);sx('portal',1,()=>{try{sfx.blink()}catch(e){}},{wet:.4});try{LYR.a.fire('Spell_Simple_Shoot',.8)}catch(e){}},update:dt=>{if(portal)portal.userData.tick(dt)}},
+  const shots=[{dur:3.4,fov:44,title:back||CH2.st>=3?null:['Chapter 2','The Crossing'],cam:k=>({pos:headOf(door,2).add(V3(6-k*2,0,6)),look:headOf(door,2)}),onStart:()=>{if(!portal)portal=nzPortal(door);sx('portal',1,()=>{try{sfx.blink()}catch(e){}},{wet:.4});try{LYR.a.fire('Spell_Simple_Shoot',.8)}catch(e){}},update:dt=>{if(portal)portal.userData.tick(dt)}},
     {dur:1.2,cam:k=>({pos:headOf(door,2.2).add(V3(0,0,3-k*2.4)),look:headOf(door,2.4)}),onStart:()=>{flash(headOf(door,2.4),0xff5060,12);sx('portal',.8,null,{rate:.8})}}];
   if(back)shots.push({dur:5,fov:50,cut:true,title:['London','Lyra\'s door holds'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('london')},cam:k=>({pos:V3(-150+k*40,40-k*10,-9680),look:V3(-90,30,-9800)})});
-  else shots.push({dur:6,fov:50,cut:true,title:['Calais','The edge of French waters'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('calais');lyraPlace(60,-2186,0);LYR.home=false},cam:k=>({pos:V3(110-k*36,24-k*6,-2268+k*8),look:V3(-30,14,-2120)})},
-    {who:'Lyra',text:LY.ly14,cut:true,cam:lyS(2.4)},{who:'Lyra',text:LY.ly15,cam:lyS(2)},{who:'@',text:'Don\'t wait up.',cut:true,cam:witchShot(1,3.4)});
+  else shots.push({dur:6,fov:50,cut:true,title:['Calais','The edge of French waters'],onStart:()=>{if(portal){scene.remove(portal);portal=null}nzEnter('calais');if(CH2.st<3){lyraPlace(60,-2186,0);LYR.home=false}},cam:k=>({pos:V3(110-k*36,24-k*6,-2268+k*8),look:V3(-30,14,-2120)})},
+    ...(CH2.st>=3?[]:[{who:'Lyra',text:LY.ly14,cut:true,cam:lyS(2.4)},{who:'Lyra',text:LY.ly15,cam:lyS(2)},{who:'@',text:'Don\'t wait up.',cut:true,cam:witchShot(1,3.4)}]));
   playCutscene(shots,()=>{if(portal)scene.remove(portal);if(!back){CH2.st=Math.max(CH2.st,2);ch2Save();toast('Take off and fly north. Lyra\'s sea-glass gem keeps your broom alive over water. Over land it tires like always.','The Channel',true)}})}
 function nzObj(){if(CH2.zone==='paris')return LYR.a&&LYR.home?`Meet <b>Lyra</b> at the Trocadéro · ${Math.round(Math.hypot(P.pos.x+126,P.pos.z+112))}m`:null;const z=P.pos.z;
   if(CH2.st<3)return z>CLIFF_Z?`Fly north across the <b>Channel</b> · ${Math.round(z-CLIFF_Z)}m`:`Follow the river to <b>London</b> · ${Math.round(z-LON_Z)}m`;
   if(CH2.st===3&&NZ.bb)return `Something waits on <b>Big Ben</b> · ${Math.round(Math.hypot(P.pos.x-NZ.bb.x,P.pos.z-NZ.bb.z))}m`;
   if(CH2.st===4&&NZ.green)return `Find Kaen in the <b>Tower of London</b> · ${Math.round(Math.hypot(P.pos.x-NZ.green.x,P.pos.z-NZ.green.z))}m`;
-  return 'Break the Crown\'s chains · Lyra\'s red door by the Tower leads home'}
+  return 'Break the Crown\'s chains · Lyra\'s door in Calais leads home'}
 {const _lt=lyraToTroca;lyraToTroca=function(){_lt();CH2.obj=nzObj}}
 {const _rv=revive;revive=function(){const r=_rv.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='north'){const c=NZ.cp;P.pos.set(c.x,groundAt(c.x,c.z),c.z);P.flying=false;NZ.bossCd=25}return r}}
 
@@ -393,7 +393,7 @@ function nzCrown(at){const g=new THREE.Group();g.position.copy(at);NZ.g.add(g);c
   const gl=glowSprite(0x60ff80,30,.35);g.add(gl);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.6,1.4,1,10,1,true),nzM().glow(0x60ff90,.25));NZ.g.add(beam);
   NZ.anim.push(dt=>{g.rotation.y+=dt*.25;g.position.y=at.y+Math.sin(performance.now()*.0008)*1.2;if(Math.random()<.6)FL.emit(V3(at.x+rand(-7,7),g.position.y+rand(0,4),at.z+rand(-7,7)),{c0:0xc0ff90,c1:0x0a3010,s0:1.4,s1:.2,life:.9,up:3});
     const A=g.position,Bp=NZ.green;const L=Math.hypot(A.x-Bp.x,A.y-1,A.z-Bp.z);beam.position.set((A.x+Bp.x)/2,(A.y+1)/2,(A.z+Bp.z)/2);beam.scale.set(1,L,1);beam.lookAt(A);beam.rotateX(Math.PI/2)});return g}
-function nzAfter(){if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));NZ.home=nzPortal(V3(222,0,-9834));NZ.g.add(NZ.home);NZ.anim.push(dt=>NZ.home.userData.tick(dt))}
+function nzAfter(){if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));}
 function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const kS=(sd)=>()=>({pos:headOf(c,1.3).add(V3(sd||2.2,.2,3.2)),look:headOf(c,.9)});const crS=()=>({pos:V3(c.x-6,6,c.z+16),look:V3(232,34,-9876)});
   const gk=a=>{try{if(NZ.ghost)NZ.ghost.setBase(a,.5)}catch(e){}};
   playCutscene([{dur:4.2,fov:46,title:['The Tower of London','Where the Crown keeps its prisoners'],cam:k=>({pos:V3(c.x-24+k*8,15-k*5,c.z+30),look:V3(c.x+10,8,c.z-12)}),onStart:()=>{NZ.scatter=1;sx('cackle',.6);sx('bats',.5)}},
@@ -411,7 +411,7 @@ function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const
     {who:'The Hollow Crown',text:'Another sister. Another bargain. London always collects its debts, little witch.',cam:crS},
     {who:'@',text:'Then I am the debt you will never collect.',cam:witchShot(1,3.6)},
     {dur:4.5,fov:40,cam:k=>({pos:V3(c.x,30+k*20,c.z+50+k*20),look:V3(232,22,-9876)})}],
-    ()=>{nzAfter();toast('Kaen is still chained to the Crown. Lyra\'s red door by the Tower gate leads back to Paris.','The Tower',true);writeSave()})}
+    ()=>{nzAfter();toast('Kaen is still chained to the Crown. To reach Paris, fly back across the Channel and take Lyra\'s door in Calais.','The Tower',true);writeSave()})}
 
 /* ---------- the tick ---------- */
 function nzFog(c,d,dt){NZ.fogC.lerp(c,Math.min(1,dt*.6));NZ.fogD=lerp(NZ.fogD,d,Math.min(1,dt*.6));scene.fog.color.copy(NZ.fogC);scene.fog.density=NZ.fogD}
@@ -436,7 +436,7 @@ function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);
   if(lon&&!T.london&&CH2.st<3){T.london=1;nzArrive();return}
   NZ.bossCd-=dt;if(CH2.st===3&&NZ.bb&&!beaten.has('greyfang')&&(!NZ.boss||NZ.boss.dead)&&NZ.bossCd<=0&&Math.hypot(P.pos.x-NZ.bb.x,z-NZ.bb.z)<75){nzGreyfang();return}
   if(CH2.st===4&&tw<20){nzTowerEnd();return}
-  if(CH2.st>=5&&NZ.home&&Math.hypot(P.pos.x-NZ.home.position.x,z-NZ.home.position.z)<2.4){nzLeave();return}
+  if(CH2.st>=2&&CH2.st!==6&&!CH2.chase&&NZ.calDoor&&Math.hypot(P.pos.x-NZ.calDoor.position.x,z-NZ.calDoor.position.z)<2.4&&P.pos.y<groundAt(P.pos.x,z)+3){nzLeave();return}
   if(lon&&CH2.st>=3&&!bossRef){NZ.tollT-=dt;if(NZ.tollT<=0){NZ.tollT=rand(55,90);nzToll(1)}NZ.lt-=dt;if(NZ.lt<=0){NZ.lt=4.5;if(enemies.filter(e=>!e.dead).length<6){const s=findSpot(P.pos.x,P.pos.z,26,46);if(s){if(Math.random()<.5)spawnEnemy('demon',s);else nzSpawnFly('nbat',V3(s.x,P.pos.y+rand(2,6),s.z))}}}}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(MODE!=='open'&&CH2.zone==='north')nzTick(Math.min(dt,.05))}}
 /* Maëlle's chapter 2 lines, voiced */
