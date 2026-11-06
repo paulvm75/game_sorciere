@@ -24,10 +24,11 @@ function nzLand(x,z){let h=nzRaw(x,z);
 function nzGround(x,z){const l=lotAt(x,z);if(l)return roofH(l,x,z);
   if(z>CAL_SHORE)return z>-2158?0:lerp(0,-.35,(-2158-z)/34);
   if(z>CLIFF_Z){if(Math.abs(x-60)<4.2&&z>-2292)return 1.2;return z<CLIFF_Z+15?-.3:-.85}
-  if(z>LON_Z-2)return nzLand(x,z);
+  if(z>LON_Z-2){const h=nzLand(x,z);return nzRivW(x,z)?Math.max(h,-.7):h}
   if(Math.abs(z-TH_Z)<TH_W)return LBR.some(b=>Math.abs(x-b)<5)?.5:-.85;return 0}
-function nzWater(x,z){if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-2292);
-  if(z<=CLIFF_Z&&z>LON_Z-2)return (nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)-.3)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<13;
+function nzRivW(x,z){return (nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)+1.4)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<13.5}
+function nzWater(x,z){if(lotAt(x,z))return false;if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-2292);
+  if(z<=CLIFF_Z&&z>LON_Z-2)return nzRivW(x,z);
   if(z<=LON_Z-2)return Math.abs(z-TH_Z)<TH_W-.15&&!LBR.some(b=>Math.abs(x-b)<5);return false}
 {const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&z<-1500)return nzGround(x,z);return _g.apply(this,arguments)}}
 {const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&z<-1500)return nzWater(x,z);return _w(x,z)}}
@@ -66,9 +67,24 @@ function nzHouses(G,list){const M=nzM();if(!list.length)return;const bg=new THRE
       const along=h.w>h.d;o.position.set(h.x,(h.y||0)+h.h,h.z);o.rotation.y=along?Math.PI/2:0;o.scale.set((along?h.d:h.w)+.7,h.rh,(along?h.w:h.d)+.7);o.updateMatrix();R.setMatrixAt(i,o.matrix);R.setColorAt(i,col.setHex(h.rc));
       boxes.push({x0:h.x-h.w/2,x1:h.x+h.w/2,z0:h.z-h.d/2,z1:h.z+h.d/2,h:(h.y||0)+h.h+h.rh*.6,nz:1});nzLot(h.x-h.w/2-.3,h.x+h.w/2+.3,h.z-h.d/2-.3,h.z+h.d/2+.3,h.h,h.y||0,'tile',h.rh);NZ.mapR.push([h.x-h.w/2,h.z-h.d/2,h.w,h.d])});
     B.instanceMatrix.needsUpdate=R.instanceMatrix.needsUpdate=true;B.castShadow=B.receiveShadow=R.castShadow=true;G.add(B);G.add(R)}}
-function nzTrees(G,list){if(!list.length)return;const lm=std({color:0x2e4a30,roughness:.9}),tm=std({color:0x3a2a20,roughness:1});CITY_PARENT=G;
-  instanced(new THREE.CylinderGeometry(.18,.3,2.8,6),tm,list,(o,t)=>{o.position.set(t[0],t[3]+1.4*t[2],t[1]);o.scale.setScalar(t[2])});
-  for(const off of[[0,3.8,0,1],[.8,3.3,.3,.72],[-.6,4.2,-.4,.68]])instanced(new THREE.IcosahedronGeometry(1.9,1),lm,list,(o,t)=>{o.position.set(t[0]+off[0]*t[2],t[3]+off[1]*t[2],t[1]+off[2]*t[2]);o.scale.setScalar(t[2]*off[3])});CITY_PARENT=null}
+function nzBlob(r,d,det){const g=new THREE.IcosahedronGeometry(r,det==null?2:det);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const n=1+d*(Math.sin(x*3.1/r+y*2.3/r)*.5+Math.sin(z*4.7/r-x*1.3/r)*.35+Math.sin(y*5.9/r+z*2.1/r)*.25);p.setXYZ(i,x*n,y*n*.88,z*n)}g.computeVertexNormals();return g}
+function nzTrees(G,list){if(!list.length)return;const hsh=(x,z,k)=>{const v=Math.sin(x*12.9898+z*78.233+(k||0)*37.719)*43758.5453;return v-Math.floor(v)};
+  const fm=std({color:0xffffff,roughness:.9,envMapIntensity:.25}),tm=std({color:0x4a3628,roughness:1}),bm=std({color:0xd8d4cc,roughness:.8,map:(()=>{const t=new THREE.CanvasTexture(mkCanvas(32,64,x=>{x.fillStyle='#e4e0d6';x.fillRect(0,0,32,64);x.fillStyle='#2a2622';for(let k=0;k<26;k++)x.fillRect(rand(0,32),rand(0,64),rand(3,9),rand(1,2.2))}));return rep(t,2,1)})()});
+  const cat=t=>{const h=hsh(t[0],t[1]);return h<.38?'O':h<.56?'B':h<.68?'P':h<.8?'N':h<.9?'W':'A'};
+  const SP={O:{th:2.5,tr:1,bl:[[0,3.9,0,1.15],[.95,3.4,.35,.82],[-.85,3.6,-.5,.84],[.1,4.7,-.2,.78],[-.3,3.2,.95,.72]],r:1.6,c:[.27,.42,.18]},
+    B:{th:3.3,tr:.95,bl:[[0,4.8,0,1.3],[.65,5.7,.25,.92],[-.6,4.1,.45,.95],[.3,4.2,-.7,.8]],r:1.5,c:[.24,.5,.24]},
+    P:{th:1.6,tr:.75,bl:[[0,4.9,0,1]],sc:[.72,2.5,.72],r:1.4,c:[.26,.46,.2]},
+    N:{th:1.9,tr:.85,cone:[[2.7,1],[3.95,.8],[5.05,.6],[5.95,.38]],c:[.4,.32,.13]},
+    W:{th:3.8,tr:.6,birch:1,bl:[[.35,4.3,0,.66],[-.35,4.95,.2,.6],[0,3.7,-.35,.56],[.1,5.5,.1,.45]],r:1.4,c:[.2,.52,.32]},
+    A:{th:2.5,tr:1,bl:[[0,3.9,0,1.15],[.95,3.4,.35,.82],[-.85,3.6,-.5,.84],[.1,4.7,-.2,.78]],r:1.6,c:[.075,.62,.33]}};
+  const blob=nzBlob(1,.14),cone=new THREE.ConeGeometry(1.7,2.6,8),trunk=new THREE.CylinderGeometry(.15,.27,1,7);trunk.translate(0,.5,0);
+  const col=new THREE.Color();CITY_PARENT=G;
+  for(const k in SP){const L=list.filter(t=>cat(t)===k);if(!L.length)continue;const D=SP[k];
+    instanced(trunk,D.birch?bm:tm,L,(o,t)=>{o.position.set(t[0],t[3],t[1]);o.scale.set(t[2]*D.tr,t[2]*(D.th+.6),t[2]*D.tr);o.rotation.set(rand(-.05,.05),0,rand(-.05,.05))});
+    const paint=(im,shift)=>{L.forEach((t,i)=>{const h=hsh(t[0],t[1],3);im.setColorAt(i,col.setHSL(D.c[0]+(h-.5)*.05,D.c[1]+(hsh(t[0],t[1],5)-.5)*.12,D.c[2]*(.82+h*.36)*(shift||1)))});im.instanceColor.needsUpdate=true};
+    if(D.cone)D.cone.forEach((c,ci)=>paint(instanced(cone,fm,L,(o,t)=>{o.position.set(t[0],t[3]+c[0]*t[2],t[1]);o.scale.setScalar(t[2]*c[1]);o.rotation.y=hsh(t[0],t[1],ci)*TAU}),1-ci*.04));
+    else D.bl.forEach((b,bi)=>paint(instanced(blob,fm,L,(o,t)=>{const a=hsh(t[0],t[1],7)*TAU,ca=Math.cos(a),sa=Math.sin(a),s=t[2];o.position.set(t[0]+(b[0]*ca-b[2]*sa)*s,t[3]+b[1]*s,t[1]+(b[0]*sa+b[2]*ca)*s);const r=D.r*b[3]*s*(.9+hsh(t[0],t[1],bi)*.2);if(D.sc)o.scale.set(r*D.sc[0],r*D.sc[1],r*D.sc[2]);else o.scale.setScalar(r);o.rotation.y=a+bi}),bi===0?.92:1+bi*.035))}
+  CITY_PARENT=null}
 function nzMistWall(G,z,col,H){const mat=new THREE.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:new THREE.Color(col)}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false,
     vertexShader:'varying vec2 vU;varying vec3 vW;void main(){vU=uv;vW=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader:'uniform float uT;uniform vec3 uC;varying vec2 vU;varying vec3 vW;void main(){float n=sin(vW.x*.09+uT*.7)*sin(vW.y*.13-uT*.5)+sin(vW.x*.031-uT*.3+vW.y*.05);float a=(.18+.12*n)*smoothstep(0.,.15,vU.y)*(1.-smoothstep(.35,1.,vU.y))*(.25+.75*exp(-pow(distance(vW,cameraPosition)*.006,2.)));gl_FragColor=vec4(uC*(1.+n*.4),a);}'});
@@ -153,19 +169,20 @@ function nzCountry(G){const M=nzM();const Z0=CLIFF_Z,Z1=LON_Z-2;
       for(let k=0;k<9000;k++){x.fillStyle=Math.random()<.5?'rgba(255,255,220,.05)':'rgba(0,0,0,.07)';x.fillRect(rand(0,TW),rand(0,TH),1,1)}
       for(const T of NZTOWNS){if(T.z>za+T.r||T.z<zb-T.r)continue;const g=x.createRadialGradient(U(T.x),V(T.z),2,U(T.x),V(T.z),T.r*px);g.addColorStop(0,'rgba(86,120,58,1)');g.addColorStop(.75,'rgba(70,104,48,.9)');g.addColorStop(1,'rgba(62,94,44,0)');x.fillStyle=g;x.beginPath();x.arc(U(T.x),V(T.z),T.r*px,0,TAU);x.fill()}
       const path=(fx,w,col,z0,z1)=>{x.strokeStyle=col;x.lineWidth=w*px;x.lineCap='round';x.lineJoin='round';x.beginPath();let first=true;for(let z=Math.min(z0,za+8);z>Math.max(z1,zb-8);z-=4){const q=fx(z);if(first){x.moveTo(U(q),V(z));first=false}else x.lineTo(U(q),V(z))}x.stroke()};
-      path(nzRiverX,(nzRiverHW(Z0-1400)+6)*2,'#4a4230',RIV_Z0+4,LON_Z+4);path(nzRiverX,nzRiverHW(Z0-1400)*2,'#1e3650',RIV_Z0+2,LON_Z+4);
+      const band=(ex,col)=>{const zs=[];for(let z=Math.min(RIV_Z0+4,za+8);z>Math.max(LON_Z+4,zb-8);z-=4)zs.push(z);if(zs.length<2)return;x.fillStyle=col;x.beginPath();zs.forEach((z,i)=>{const q=nzRiverX(z)+nzRiverHW(z)+ex;i?x.lineTo(U(q),V(z)):x.moveTo(U(q),V(z))});for(let i=zs.length-1;i>=0;i--){const z=zs[i];x.lineTo(U(nzRiverX(z)-nzRiverHW(z)-ex),V(z))}x.closePath();x.fill()};
+      band(8,'#47502e');band(5.5,'#5a5236');band(3.4,'#3a3a2a');band(1,'#1e3650');{const px0=U(nzRiverX(RIV_Z0)),pz0=V(RIV_Z0+6);if(pz0>-40&&pz0<TH+40){x.fillStyle='#5a5236';x.beginPath();x.arc(px0,pz0,19*px,0,TAU);x.fill();x.fillStyle='#1e3650';x.beginPath();x.arc(px0,pz0,15*px,0,TAU);x.fill()}}
       path(nzRoadX,7,'#5e5a4c',Z0-4,LON_Z);path(nzRoadX,4.8,'#3e3c38',Z0-4,LON_Z)});
     const t=new THREE.CanvasTexture(tex);t.anisotropy=8;
     const tg=new THREE.PlaneGeometry(540,CD+2,135,Math.round(CD/4));tg.rotateX(-Math.PI/2);tg.translate(0,0,zc);const pa=tg.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,nzLand(pa.getX(i),pa.getZ(i)));tg.computeVertexNormals();
-    const tm=new THREE.Mesh(tg,std({map:t,roughness:.95,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.13}));tm.receiveShadow=true;tm.name='nzLand';G.add(tm)}
+    const tm=new THREE.Mesh(tg,nzDetailMat(std({map:t,roughness:.95,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.13})));tm.receiveShadow=true;tm.name='nzLand';G.add(tm)}
   /* ---- the river: a proper ribbon of water, a spring pond, reeds ---- */
   {const wt=waterN.clone();wt.needsUpdate=true;wt.wrapS=wt.wrapT=THREE.RepeatWrapping;const rm=std({color:0x2c4862,roughness:.06,metalness:.75,normalMap:wt,normalScale:new THREE.Vector2(.55,.55),emissive:0x081624,transparent:true,opacity:.93});
-    const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=RIV_Z0+4;z>LON_Z+3;z-=3){const x=nzRiverX(z),w=nzRiverHW(z)+1.2;if(lx!=null)len+=Math.hypot(x-lx,3);lx=x;rp.push(x-w,.2,z,x+w,.2,z);uv.push(0,len/12,1,len/12);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}
+    const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=RIV_Z0+4;z>LON_Z+3;z-=3){const x=nzRiverX(z),w=nzRiverHW(z)+3.2;if(lx!=null)len+=Math.hypot(x-lx,3);lx=x;rp.push(x-w,.2,z,x+w,.2,z);uv.push(0,len/12,1,len/12);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}
     const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));rg.setIndex(ri);rg.computeVertexNormals();
     const rmesh=new THREE.Mesh(rg,rm);rmesh.name='nzRiver';rmesh.renderOrder=1;G.add(rmesh);
-    const pond=new THREE.Mesh(new THREE.CircleGeometry(15,28),rm);pond.rotation.x=-Math.PI/2;pond.position.set(nzRiverX(RIV_Z0),.2,RIV_Z0+6);G.add(pond);
+    const pond=new THREE.Mesh(new THREE.CircleGeometry(16.5,36),rm);pond.rotation.x=-Math.PI/2;pond.position.set(nzRiverX(RIV_Z0),.2,RIV_Z0+6);G.add(pond);
     NZ.anim.push(dt=>{wt.offset.y-=dt*.05;wt.offset.x+=dt*.01});
-    const R=[];for(let z=RIV_Z0;z>LON_Z+10;z-=2.6)for(const s of[-1,1]){if(Math.random()<.45)continue;const x=nzRiverX(z)+s*(nzRiverHW(z)+rand(.4,2.4));if(inTown(x,z,-40))continue;R.push([x,z,rand(.7,1.4)])}
+    const R=[];for(let z=RIV_Z0;z>LON_Z+10;z-=2.6)for(const s of[-1,1]){if(Math.random()<.45)continue;const x=nzRiverX(z)+s*(nzRiverHW(z)+rand(3,4.6));if(inTown(x,z,-40))continue;R.push([x,z,rand(.7,1.4)])}
     CITY_PARENT=G;instanced(new THREE.ConeGeometry(.12,1.6,4),std({color:0x5a6a34,roughness:1}),R,(o,r)=>{o.position.set(r[0],nzLand(r[0],r[1])+.7*r[2],r[1]);o.scale.set(1,r[2],1);o.rotation.set(rand(-.2,.2),0,rand(-.2,.2))});CITY_PARENT=null}
   /* ---- the road: a country lane over the hills ---- */
   {const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=Z0-6;z>LON_Z;z-=3){const x=nzRoadX(z);if(nearRiver(x,z,1)&&!inTown(x,z,0))continue;if(lx!=null)len+=3;lx=x;for(const s of[-1,1]){const xx=x+s*2.4;rp.push(xx,nzLand(xx,z)+.07,z)}uv.push(0,len/6,1,len/6);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}
@@ -211,12 +228,64 @@ function nzCountry(G){const M=nzM();const Z0=CLIFF_Z,Z1=LON_Z-2;
       if(s%20===0&&Math.abs(s)<90){const lx=rx+5.2,ly=nzLand(lx,z);nzCyl(G,.08,.1,3.8,lx,ly,z,M.stone,6);nzGlow(G,0xffd890,2,.85,lx,ly+4,z)}}
     {const cx=V.x+34,cz=V.z-36,y=nzLand(cx,cz)-.3;nzBox(G,8,8,18,cx,y,cz,M.plain,true);nzBox(G,5,14,5,cx,y,cz+10,M.plain,true);nzCone(G,3.6,12,cx,y+14,cz+10,M.slate);nzGlow(G,0xffd080,5,.6,cx,y+6,cz-9.2);NZ.mapP.push([cx,cz])}
     {const px=nzRoadX(V.z+48)-12,pz=V.z+48,y=nzLand(px,pz)-.25;H.push({x:px,z:pz,w:10,d:7,h:5,rh:3,y,c:0xf0e8d0,rc:0x2e2a2a});nzGlow(G,0xffb050,4,.9,px+5.4,y+3.4,pz);V.pub=pubs[vi]}});
-  nzHouses(G,H);nzTrees(G,T);
+  const HK=[];for(const h of H){let ok=true;for(let a=0;a<=4&&ok;a++)for(let b=0;b<=4&&ok;b++){const x=h.x+(a/4-.5)*(h.w+1.6),z=h.z+(b/4-.5)*(h.d+1.6);if(z<Z0-2&&z>LON_Z-2&&Math.abs(x-nzRoadX(z))<4.4)ok=false;else if(nearRiver(x,z,2.5))ok=false}
+    if(ok)for(const q of HK)if(Math.abs(q.x-h.x)<(q.w+h.w)/2+1.2&&Math.abs(q.z-h.z)<(q.d+h.d)/2+1.2){ok=false;break}if(ok)HK.push(h)}
+  const inH=(x,z,m)=>HK.some(h=>Math.abs(x-h.x)<h.w/2+m&&Math.abs(z-h.z)<h.d/2+m);
+  nzHouses(G,HK);nzTrees(G,T.filter(t=>!inH(t[0],t[1],2.2)));nzCountryMore(G,{HK,inH,nearRiver,nearRoad,inTown,cells,Z0,Z1});
   /* ---- the Crown stones: a ring that still hums, out on the downs ---- */
   {const cx=150,cz=Z0-1300,y=nzLand(cx,cz);NZ.stones=V3(cx,y,cz);const sm=std({color:0x6a6a70,roughness:.95});for(let k=0;k<12;k++){const a=k/12*TAU;const s=nzBox(G,1.6,5.2,1,cx+Math.cos(a)*11,y-.4,cz+Math.sin(a)*11,sm,false);s.rotation.y=-a}
     for(let k=0;k<6;k++){const a=k/6*TAU+.26;c2box(G,1.4,.9,5,cx+Math.cos(a)*11,y+4.8,cz+Math.sin(a)*11,sm,false).rotation.y=-a+Math.PI/2}const gl=nzGlow(G,0x50ff8a,20,.4,cx,y+3,cz);const rn=decal(runeTex,0x50ff8a,16,true,.6);rn.position.set(cx,y+.2,cz);G.add(rn);NZ.anim.push(dt=>{rn.rotation.z+=dt*.3;gl.material.opacity=.3+Math.sin(performance.now()*.002)*.12});NZ.mapP.push([cx,cz])}
   /* where the river meets the city: a stone arch */
   {const z=LON_Z+8,x=nzRiverX(z);const a=new THREE.Mesh(new THREE.TorusGeometry(nzRiverHW(z)+1,1.2,8,20,Math.PI),M.stone);a.position.set(x,-.6,z);G.add(a)}}
+
+/* ---------- the countryside, richer: willows, oast houses, windmills, telegraph lines, flowers ---------- */
+function nzCountryMore(G,o){const M=nzM();const{inH,nearRiver,nearRoad,inTown,Z0,Z1}=o;CITY_PARENT=G;
+  /* willows on the banks */
+  {const W=[];for(let z=RIV_Z0-10;z>LON_Z+14;z-=rand(9,17)){const s=Math.random()<.5?-1:1;const x=nzRiverX(z)+s*(nzRiverHW(z)+rand(5.2,8));if(inTown(x,z,-35)||inH(x,z,3)||nearRoad(x,z,5))continue;W.push([x,z,rand(.9,1.35),nzLand(x,z)-.15])}
+    const tm=std({color:0x4a3a2c,roughness:1}),fm=std({color:0xffffff,roughness:.85});const tr=new THREE.CylinderGeometry(.22,.4,3,7);tr.translate(0,1.5,0);instanced(tr,tm,W,(o,t)=>{o.position.set(t[0],t[3],t[1]);o.scale.setScalar(t[2]);o.rotation.z=rand(-.12,.12)});
+    const dome=nzBlob(1,.1,2);const cur=new THREE.CylinderGeometry(1.9,2.7,3.4,14,3,true);{const p=cur.attributes.position;for(let i=0;i<p.count;i++){const a=Math.atan2(p.getZ(i),p.getX(i));const k=1+.12*Math.sin(a*7)+.06*Math.sin(a*13);p.setX(i,p.getX(i)*k);p.setZ(i,p.getZ(i)*k);if(p.getY(i)<0)p.setY(i,p.getY(i)-Math.abs(Math.sin(a*9))*.5)}cur.computeVertexNormals()}
+    const col=new THREE.Color();const a=instanced(dome,fm,W,(o,t)=>{o.position.set(t[0],t[3]+4.1*t[2],t[1]);o.scale.set(2.3*t[2],1.3*t[2],2.3*t[2])});const b=instanced(cur,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.85,side:THREE.DoubleSide}),W,(o,t)=>{o.position.set(t[0],t[3]+2.6*t[2],t[1]);o.scale.setScalar(t[2]);o.rotation.y=t[0]});
+    W.forEach((t,i)=>{a.setColorAt(i,col.setHSL(.2+rand(-.02,.02),.42,.3+rand(-.04,.04)));b.setColorAt(i,col.setHSL(.19+rand(-.02,.02),.45,.34+rand(-.04,.04)))});a.instanceColor.needsUpdate=b.instanceColor.needsUpdate=true}
+  /* Kentish oast houses beside some farms */
+  {const brick=M.brick,white=std({color:0xeeeae0,roughness:.7}),tile=std({color:0x7a3a28,roughness:.8});let n=0;
+    for(const h of o.HK){if(h.rc!==0x4a3a2c||n>=18||Math.random()<.45)continue;for(const sx of[-1,1]){const x=h.x+sx*(h.w/2+5.2),z=h.z+rand(-1.5,1.5);if(inH(x,z,3.4)||nearRoad(x,z,7)||nearRiver(x,z,6))continue;const y=nzLand(x,z)-.3;
+      nzCyl(G,2.5,2.7,6.2,x,y,z,brick,14);nzCone(G,2.95,4.6,x,y+6.2,z,tile,14,0);const cw=c2box(G,1,1.7,1.4,x,y+10.4,z,white,false);cw.rotation.y=rand(0,TAU);c2box(G,.5,.9,.06,x,y+11.4,z+.72,white,false).rotation.x=-.5;
+      boxes.push({x0:x-2.7,x1:x+2.7,z0:z-2.7,z1:z+2.7,h:y+8,nz:1});nzLot(x-2.7,x+2.7,z-2.7,z+2.7,6.2,y,'flat');NZ.mapR.push([x-2.7,z-2.7,5.4,5.4]);n++;break}}}
+  /* windmills on the high downs */
+  {const cand=[];for(let k=0;k<400;k++){const x=rand(-240,240),z=rand(Z0-300,Z1+120);if(nearRoad(x,z,22)||nearRiver(x,z,30)||inTown(x,z,10)||inH(x,z,10))continue;cand.push([x,z,nzLand(x,z)])}cand.sort((a,b)=>b[2]-a[2]);const pick=[];for(const c of cand){if(pick.length>=4)break;if(pick.every(p=>Math.hypot(p[0]-c[0],p[1]-c[1])>380))pick.push(c)}
+    const wm=std({color:0xe8e4da,roughness:.75}),dk=std({color:0x2a2622,roughness:.8}),sl=std({color:0xd8d0c0,roughness:.8});
+    for(const[x,z,y0]of pick){const y=y0-.4;nzCyl(G,1.7,2.7,10,x,y,z,Math.random()<.5?wm:dk,12);const cap=new THREE.Mesh(new THREE.SphereGeometry(2,12,8,0,TAU,0,Math.PI/2),dk);cap.position.set(x,y+10,z);cap.scale.set(1,.8,1.25);G.add(cap);
+      boxes.push({x0:x-2.4,x1:x+2.4,z0:z-2.4,z1:z+2.4,h:y+12,nz:1});nzLot(x-2.4,x+2.4,z-2.4,z+2.4,10,y,'flat');NZ.mapP.push([x,z]);
+      const hub=new THREE.Group();hub.position.set(x,y+10.2,z+2.3);hub.rotation.y=0;G.add(hub);for(let k=0;k<4;k++){const arm=new THREE.Group();arm.rotation.z=k*Math.PI/2;hub.add(arm);const sp=new THREE.Mesh(new THREE.BoxGeometry(.22,8.4,.22),dk);sp.position.y=4.2;arm.add(sp);
+        for(let q=0;q<7;q++){const r=new THREE.Mesh(new THREE.BoxGeometry(1.6,.07,.05),sl);r.position.set(.9,1.6+q*1,0);arm.add(r)}const sail=new THREE.Mesh(new THREE.PlaneGeometry(1.5,6.4),new THREE.MeshStandardMaterial({color:0xcfc6b0,roughness:.9,side:THREE.DoubleSide,transparent:true,opacity:.85}));sail.position.set(.9,4.7,-.03);arm.add(sail)}
+      const sp=rand(.35,.6);NZ.anim.push(dt=>{hub.rotation.z-=dt*sp})}}
+  /* telegraph poles and sagging wires along the lane */
+  {const P=[];for(let z=Z0-30;z>LON_Z+20;z-=34){const x=nzRoadX(z)+6.2;if(nearRiver(x,z,4)||inH(x,z,1.5))continue;P.push([x,z,nzLand(x,z)])}const wd=std({color:0x3a2c22,roughness:1});
+    instanced(new THREE.CylinderGeometry(.1,.14,7.2,6),wd,P,(o,p)=>{o.position.set(p[0],p[2]+3.6,p[1])});instanced(new THREE.BoxGeometry(1.5,.12,.12),wd,P,(o,p)=>{o.position.set(p[0],p[2]+6.7,p[1])});
+    const v=[];for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i];if(Math.abs(a[1]-b[1])>40)continue;for(const off of[-.6,.6]){for(let q=0;q<10;q++){const t0=q/10,t1=(q+1)/10;const f=t=>[lerp(a[0],b[0],t)+off,lerp(a[2],b[2],t)+6.8-Math.sin(t*Math.PI)*.75,lerp(a[1],b[1],t)];v.push(...f(t0),...f(t1))}}}
+    const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(v,3));G.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x1a1614,transparent:true,opacity:.7})))}
+  CITY_PARENT=null}
+/* close-up meadow: tufts of grass and wildflowers that wrap around you as you walk the countryside */
+const GF={im:null,fl:null,pts:null,lx:1e9,lz:1e9,D:90,uT:{value:0}};
+function gfBuild(){const N=3200,NF=700;const tex=new THREE.CanvasTexture(mkCanvas(64,64,x=>{for(let k=0;k<11;k++){const bx=rand(6,58),h=rand(30,62),lean=rand(-9,9),w=rand(2.2,4);const g=x.createLinearGradient(0,64,0,64-h);g.addColorStop(0,'#2e4a1e');g.addColorStop(1,Math.random()<.3?'#a8b860':'#6e9a3e');x.fillStyle=g;x.beginPath();x.moveTo(bx-w,64);x.quadraticCurveTo(bx+lean*.3,64-h*.5,bx+lean,64-h);x.lineTo(bx+w*.6,64);x.closePath();x.fill()}}));
+  const m=std({map:tex,alphaTest:.45,side:THREE.DoubleSide,roughness:1,envMapIntensity:.2});m.onBeforeCompile=sh=>{sh.uniforms.uT=GF.uT;sh.vertexShader='uniform float uT;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\nfloat ph=instanceMatrix[3].x*.31+instanceMatrix[3].z*.23;transformed.x+=sin(uT*1.9+ph)*.16*position.y;transformed.z+=cos(uT*1.4+ph)*.1*position.y;\n#endif')};
+  const g1=new THREE.PlaneGeometry(1.1,.8),g2=g1.clone();g2.rotateY(Math.PI/2);const g3=g1.clone();g3.rotateY(Math.PI/4);const geo=gfMerge([g1,g2,g3]);geo.translate(0,.4,0);{const n=geo.attributes.normal;for(let i=0;i<n.count;i++)n.setXYZ(i,0,1,0)}
+  GF.im=new THREE.InstancedMesh(geo,m,N);GF.im.frustumCulled=false;GF.fl=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.075,0),std({color:0xffffff,roughness:.6,emissive:0x222222}),NF);GF.fl.frustumCulled=false;
+  GF.pts=[];for(let i=0;i<N;i++)GF.pts.push([rand(0,GF.D),rand(0,GF.D),rand(.7,1.5),rand(0,TAU),rand(0,1)]);GF.fp=[];for(let i=0;i<NF;i++)GF.fp.push([rand(0,GF.D),rand(0,GF.D),rand(.8,1.3),(Math.random()*5)|0]);
+  const col=new THREE.Color();for(let i=0;i<N;i++)GF.im.setColorAt(i,col.setHSL(.22+GF.pts[i][4]*.07,.35+GF.pts[i][4]*.2,.62+GF.pts[i][4]*.22));const FC=[0xf4f0e0,0xf0d040,0xd02a20,0x9a70d0,0xf6f6ff];for(let i=0;i<NF;i++)GF.fl.setColorAt(i,col.setHex(FC[GF.fp[i][3]]));
+  scene.add(GF.im);scene.add(GF.fl)}
+function gfMerge(gs){const pos=[],nor=[],uv=[];for(const g of gs){const n=g.index?g.toNonIndexed():g;pos.push(...n.attributes.position.array);nor.push(...n.attributes.normal.array);uv.push(...n.attributes.uv.array)}const o=new THREE.BufferGeometry();o.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));o.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));o.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));return o}
+function gfOk(x,z){return z<CLIFF_Z-6&&z>LON_Z+6&&!nzRivW(x,z)&&Math.abs(x-nzRoadX(z))>3.8&&!lotAt(x,z)&&Math.abs(x)<268&&!NZTOWNS.some(T=>T.f&&Math.hypot(x-nzRoadX(z),0)<11&&Math.abs(z-T.z)<T.r)}
+function gfPlace(px,pz){const D=GF.D,o=new THREE.Object3D(),wrap=(v,p)=>p-D/2+(((v-(p-D/2))%D)+D)%D;let i=0;
+  for(const p of GF.pts){const x=wrap(p[0],px),z=wrap(p[1],pz);if(gfOk(x,z)){o.position.set(x,nzLand(x,z)-.05,z);o.rotation.set(0,p[3],0);o.scale.set(p[2],p[2]*(.8+p[4]*.6),p[2])}else{o.position.set(0,-999,0);o.scale.setScalar(0)}o.updateMatrix();GF.im.setMatrixAt(i++,o.matrix)}
+  i=0;for(const p of GF.fp){const x=wrap(p[0],px),z=wrap(p[1],pz);if(gfOk(x,z)){o.position.set(x,nzLand(x,z)+.42*p[2],z);o.scale.setScalar(p[2])}else{o.position.set(0,-999,0);o.scale.setScalar(0)}o.rotation.set(0,0,0);o.updateMatrix();GF.fl.setMatrixAt(i++,o.matrix)}
+  GF.im.instanceMatrix.needsUpdate=GF.fl.instanceMatrix.needsUpdate=true;GF.lx=px;GF.lz=pz}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open')return;const on=CH2.zone==='north'&&P.pos.z<CLIFF_Z+20&&P.pos.z>LON_Z-30&&P.pos.y-groundAt(P.pos.x,P.pos.z)<9;
+  if(!on){if(GF.im)GF.im.visible=GF.fl.visible=false;return}if(!GF.im)gfBuild();GF.im.visible=GF.fl.visible=true;GF.uT.value+=dt;if(Math.hypot(P.pos.x-GF.lx,P.pos.z-GF.lz)>6)gfPlace(P.pos.x,P.pos.z)}}
+/* close-up grain on the painted fields */
+function nzDetailMat(m){m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;').replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvWP=(modelMatrix*vec4(transformed,1.)).xyz;');
+  sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;\nfloat dh(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}\nfloat dn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(dh(i),dh(i+vec2(1,0)),f.x),mix(dh(i+vec2(0,1)),dh(i+vec2(1,1)),f.x),f.y);}')
+   .replace('#include <map_fragment>','#include <map_fragment>\n{float fd=clamp(1.-length(vWP-cameraPosition)/90.,0.,1.);float g=dn(vWP.xz*2.3)*.55+dn(vWP.xz*7.1)*.3+dn(vWP.xz*.6)*.4;diffuseColor.rgb*=mix(1.,.72+g*.42,fd);}')};return m}
 
 /* ---------- London ---------- */
 function nzLondon(G){const M=nzM();c2plane(G,560,440,0,-.02,-9815,nzGroundMat(560,440));

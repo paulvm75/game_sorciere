@@ -282,7 +282,7 @@ function x3Kinetic(){const m=(X3.mPos||P.pos).clone(),k=kpos().clone();let swapp
 /* ---------- playing as Kaen ---------- */
 const KM={on:0,a:null,fe:null,en:100,cd:[0,0,0,0,0,0,0],sh:0,dash:null,combo:0,lb:0,g:[],said:{},hud:null,lunge:null};
 function x3GearKaen(){const old=KFW.a;const pos=old?old.g.position.clone():P.pos.clone(),ry=old?old.g.rotation.y:0;if(old)scene.remove(old.g);const ill=buildIllusion();if(!ill||!ill.actor){KFW.a=old;if(old)scene.add(old.g);return}
-  const a=ill.actor;a.ill=ill;ill.K.eyes.forEach(s=>s.material.color.setHex(0xc8b0ff));a.g.position.copy(pos);a.g.rotation.y=ry;scene.add(a.g);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;KFW.mode='';KFW.an='';KFW.gear=1;try{a.setBase('Idle_Loop');a.update(.2)}catch(x){}return a}
+  const a=ill.actor;a.ill=ill;try{const K=ill.K;if(K.cloak&&K.cloak.parent)K.cloak.parent.remove(K.cloak);K.cloak=a.sk(cloakGeo(a.S,a.bones,{w0:.2,w1:.34,top:.1,back:.1,flare:.08,wrap:.16,bottom:a.S.SK.calf_l.y-.05}),K.cloakM)}catch(x){}ill.K.eyes.forEach(s=>s.material.color.setHex(0xc8b0ff));a.g.position.copy(pos);a.g.rotation.y=ry;scene.add(a.g);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;KFW.mode='';KFW.an='';KFW.gear=1;try{a.setBase('Idle_Loop');a.update(.2)}catch(x){}return a}
 {const _kb=kfBuild;kfBuild=function(){if(KFW.a||!(XII.solid&&(CH2.st>=13||KFW.gear)))return _kb.apply(this,arguments);KFW.a=null;const a=x3GearKaen();return a||_kb.apply(this,arguments)}}
 function kmStart(){if(KM.on)return;const a=KFW.a&&KFW.gear?KFW.a:x3GearKaen();KFW.a=null;KFW.off=1;KM.a=a;KM.on=1;KM.fe={m:a.ill,t:0,lb:0,pos:a.g.position,def:{h:2.4},ai:{}};
   P.pos.copy(a.g.position);P.pos.y=X3.C.y;P.vy=0;P.flying=false;const e=X3.e;if(e){P.face=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);yaw=P.face+Math.PI}
@@ -402,7 +402,7 @@ function x3SwapBack(){const kp=P.pos.clone();kmEnd();P.heroAnim=null;if(X3.mPos)
 function x3Finish(){kmEnd();x3Shatter();x3Drop();X3.phase=0;X3.trap=null;x3StrugUI(false);P.heroAnim=null;const g=V3(36,0,-9866);P.pos.set(g.x,groundAt(g.x,g.z),g.z);P.vy=0;P.flying=false;P.face=Math.PI;yaw=0;camera.position.set(g.x,P.pos.y+5,g.z+11);
   if(KFW.a)KFW.a.g.position.set(g.x+1.4,P.pos.y,g.z+1.4);lyraPlace(g.x-1.6,g.z+1.6,Math.PI);LYR.home=false;X3.mPos=null;
   CH2.st=Math.max(CH2.st,13);ch2Save();beaten.add('vesper');writeSave();$('boss').classList.add('hidden');bossRef=null;
-  toast('Kaen has his sword and his guardians back. Lyra gave everything she had, so for now she travels with you.','Chapter XIII complete',true);after(9,()=>toast('Chapter XIV is coming.','Sorcière',true))}
+  toast('Kaen has his sword and his guardians back. Lyra gave everything she had, so for now she travels with you.','Chapter XIII complete',true)}
 
 /* ---------- Kaen flies beside you, Lyra rides a guardian ---------- */
 const LYF={g:null,an:''};
@@ -411,12 +411,12 @@ const LYF={g:null,an:''};
     a.g.position.copy(tg);a.g.rotation.y=P.face;try{a.setBase('NinjaJump_Idle_Loop',.3)}catch(x){}KFW.an='';if(Math.random()<.6)SP.emit(V3(a.g.position.x,a.g.position.y+.2,a.g.position.z),{c0:0xe0c8ff,c1:0x5010c0,s0:.35,s1:.04,life:.5,speed:1})}
   if(LYR.mk)LYR.mk.visible=!!LYR.home;if(CH2.zone!=='north'||CH2.st<13&&(CH2.st<11||X3.phase||X3.trap||KM.on||X3.e)){if(LYF.g)LYF.g.g.visible=false;return}if(!LYR.a){lyraPlace(P.pos.x-2,P.pos.z+2,P.face);LYR.home=false}const L=LYR.a;if(!L||CS.active)return;L.g.visible=true;
   const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
-  if(P.flying&&CH2.st<13){if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,-2.6).addScaledVector(f,-1.2);tg.y=P.pos.y+.2+Math.sin(time*1.7)*.2;L.g.position.lerp(tg,Math.min(1,dt*5));L.g.rotation.y=lerpAngle(L.g.rotation.y,P.face,Math.min(1,dt*5));
+  if(P.flying&&(CH2.st<13||CH2.st>=15)){if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,-2.6).addScaledVector(f,-1.2);tg.y=P.pos.y+.2+Math.sin(time*1.7)*.2;L.g.position.lerp(tg,Math.min(1,dt*5));L.g.rotation.y=lerpAngle(L.g.rotation.y,P.face,Math.min(1,dt*5));
     if(LYF.an!=='fly'){LYF.an='fly';try{L.setBase('NinjaJump_Idle_Loop',.3)}catch(x){}}if(Math.random()<.6)SP.emit(V3(L.g.position.x,L.g.position.y+.3,L.g.position.z),{c0:0xffd0d0,c1:0xff3040,s0:.35,s1:.04,life:.5,speed:1})}
   else if(P.flying){if(!LYF.g){const m=buildGuardian();m.g.scale.setScalar(.26);scene.add(m.g);LYF.g=m;LYF.t=0}const m=LYF.g;m.g.visible=true;LYF.t+=dt;
     const tg=P.pos.clone().addScaledVector(r,-2.8).addScaledVector(f,-1.4);tg.y=P.pos.y-1.6+Math.sin(time*1.5)*.25;m.g.position.lerp(tg,Math.min(1,dt*4.5));m.g.rotation.y=lerpAngle(m.g.rotation.y,P.face,Math.min(1,dt*5));try{guardAnim({m,t:LYF.t,ai:{slam:0},pos:m.g.position},dt,0,0)}catch(x){}
     L.g.position.copy(m.g.position).add(V3(0,2.55,0));L.g.rotation.y=m.g.rotation.y;if(LYF.an!=='sit'){LYF.an='sit';try{L.setBase('Sitting_Idle_Loop',.3)}catch(x){}}}
-  else{if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,-1.5).addScaledVector(f,-1.5);tg.y=groundAt(tg.x,tg.z);const dd=Math.hypot(tg.x-L.g.position.x,tg.z-L.g.position.z);
+  else{if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,1.7).addScaledVector(f,-1.6);{const ka=KFW.a&&KFW.a.g.visible?KFW.a.g.position:null;if(ka){const dx=tg.x-ka.x,dz=tg.z-ka.z,dk=Math.hypot(dx,dz);if(dk<1.3){const k=(1.3-dk)/(dk||1);tg.x+=dx*k+(dk?0:r.x*1.3);tg.z+=dz*k+(dk?0:r.z*1.3)}}const dl=Math.hypot(L.g.position.x-P.pos.x,L.g.position.z-P.pos.z);if(dl<1.1){L.g.position.x+=(L.g.position.x-P.pos.x)/(dl||1)*(1.1-dl);L.g.position.z+=(L.g.position.z-P.pos.z)/(dl||1)*(1.1-dl)}}tg.y=groundAt(tg.x,tg.z);const dd=Math.hypot(tg.x-L.g.position.x,tg.z-L.g.position.z);
     if(dd>40)L.g.position.copy(tg);else{L.g.position.lerp(tg,Math.min(1,dt*3.5));L.g.position.y=tg.y}const sp=dd*3.5;const an=sp>6?'Sprint_Loop':sp>1.2?'Walk_Loop':'Idle_Loop';if(LYF.an!==an){LYF.an=an;try{L.setBase(an,.3)}catch(x){}}
     if(dd>.4)L.g.rotation.y=lerpAngle(L.g.rotation.y,Math.atan2(tg.x-L.g.position.x,tg.z-L.g.position.z)*0+P.face,Math.min(1,dt*3))}}}
 {const _lv=nzLeave;nzLeave=function(){const r=_lv.apply(this,arguments);if(LYF.g)LYF.g.g.visible=false;LYF.an='';return r}}
