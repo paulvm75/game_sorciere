@@ -303,23 +303,23 @@ function kmSlashFx(dir,big,col){const o=P.pos;const n=big?3:2;for(let k=0;k<n;k+
     addFx(m,.28,(f,kk)=>{m.position.set(o.x+dir.x*(1.2+kk*1.4),y,o.z+dir.z*(1.2+kk*1.4));m.material.opacity=(1-kk)*(k?1:.85);m.scale.setScalar(.7+kk*.6);m.rotation.z+=(KM.combo%2?.25:-.25)},()=>{scene.remove(m);m.geometry.dispose();m.material.dispose()})}
   for(let k=0;k<14;k++)SP.emit(V3(o.x+dir.x*rand(1,3.4),o.y+rand(.6,1.8),o.z+dir.z*rand(1,3.4)),{c0:0xffffff,c1:col,s0:.4,s1:.04,life:.35,speed:5})}
 function kmHitCone(range,half,f,col){const o=P.pos,dir=V3(Math.sin(P.face),0,Math.cos(P.face));let n=0;for(const e of enemies){if(e.dead)continue;if(inCone(eCenter(e),V3(o.x,o.y,o.z),dir,range+e.def.r,half)){damageEnemy(e,kmDmg(e,f),col||'#c9a0ff');n++;const c=eCenter(e);SP.emit(c,{n:18,c0:0xffffff,c1:0xb070ff,speed:8,life:.45});flash(c,0xb070ff,6)}}return n}
-function kmUse(i){if(!KM.on||CS.active||!P.alive||i<0||i>6)return;if(KM.cd[i]>0)return;if(KM.en<KM_COST[i]){toast('Not enough strength yet. Land a few sword hits.');return}const A=KM.a;
-  const t=kmTarget(i===0?12:i===5?32:45);if(i===5&&!t){toast('No one to strike.');return}KM.en-=KM_COST[i];KM.cd[i]=KM_CD[i]*(KM.lb>0&&(i===0||i===1)?.7:1);if(t){P.face=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z)}
+function kmUse(i){if(!KM.on||CS.active||!P.alive||i<0||i>=KM_AB.length)return;const face0=P.face;if(KM.cd[i]>0)return;if(KM.en<KM_COST[i]){toast('Not enough strength yet. Land a few sword hits.');return}const A=KM.a;
+  const t=i===1||i===2||i===7?kmLock(48):kmTarget(i===0?12:i===5?32:45);if(i===5&&!t){toast('No one to strike.');return}KM.en-=KM_COST[i];KM.cd[i]=KM_CD[i]*(KM.lb>0&&(i===0||i===1)?.7:1);if(t){P.face=Math.atan2(t.pos.x-P.pos.x,t.pos.z-P.pos.z)}
   const glow=()=>{try{KM.a.ill.K.glows.forEach(g=>g.scale.setScalar(1.4))}catch(x){}};
   if(i===0){KM.combo=(KM.combo+1)%3;const heavy=KM.combo===2;try{A.fire(['Melee_Hook','Punch_Cross','OverhandThrow'][KM.combo],heavy?.45:.34)}catch(x){}glow();
     if(t){const d=Math.hypot(t.pos.x-P.pos.x,t.pos.z-P.pos.z);if(d>2.6&&d<10)KM.lunge={t:.14,v:V3(t.pos.x-P.pos.x,0,t.pos.z-P.pos.z).normalize().multiplyScalar((d-2.2)/.14)}}
     try{sfx.blink()}catch(x){}after(heavy?.18:.12,()=>{const dir=V3(Math.sin(P.face),0,Math.cos(P.face));kmSlashFx(dir,heavy,KM.lb>0?0xd060ff:0xa070ff);
       const n=heavy?kmHitCone(5+(KM.lb>0?1.5:0),Math.PI,.009):kmHitCone(3.8+(KM.lb>0?1.5:0),1.1,.0062);if(heavy){ring(V3(P.pos.x,P.pos.y,P.pos.z),0xb070ff,.6,5.5,.3);P.shake=Math.max(P.shake,.45)}
       if(n){KM.en=Math.min(100,KM.en+(heavy?10:6));sx('clash',.5,null,{rate:rand(1,1.3)});hitStop=Math.max(hitStop,heavy?.07:.035);KM.hits=(KM.hits||0)+1;if(Math.random()<.05)x3Bark('Kaen','kf_03')}})}
-  else if(i===1){try{A.fire('OverhandThrow',.42)}catch(x){}glow();after(.14,()=>kmWave());if(!KM.said.c||Math.random()<.15){KM.said.c=1;x3Bark('Kaen','kf_06')}}
-  else if(i===2){try{A.fire('Spell_Simple_Shoot',.5)}catch(x){}const p=t?V3(t.pos.x,X3.arena?X3.C.y:t.pos.y,t.pos.z):P.pos.clone().addScaledVector(V3(Math.sin(P.face),0,Math.cos(P.face)),9);kmVoidTrap(p);if(!KM.said.vt||Math.random()<.3){KM.said.vt=1;x3Bark('Kaen','kf_09')}}
+  else if(i===1){const aim=kmAim(t,face0,{easy:.16,medium:.38,hard:.59}[DIFF]||.38);if(aim)P.face=Math.atan2(aim.dir.x,aim.dir.z);try{A.fire('OverhandThrow',.42)}catch(x){}glow();after(.14,()=>kmWave(aim));if(!KM.said.c||Math.random()<.15){KM.said.c=1;x3Bark('Kaen','kf_06')}}
+  else if(i===2){try{A.fire('Spell_Simple_Shoot',.5)}catch(x){}let p=t?V3(t.pos.x,X3.arena?X3.C.y:t.pos.y,t.pos.z):P.pos.clone().addScaledVector(V3(Math.sin(P.face),0,Math.cos(P.face)),9);{const aim=kmAim(t,face0,.25);if(aim&&aim.miss){const r=V3(aim.dir.z,0,-aim.dir.x);p.addScaledVector(r,(Math.random()<.5?-1:1)*rand(6.5,8.5))}}kmVoidTrap(p);if(!KM.said.vt||Math.random()<.3){KM.said.vt=1;x3Bark('Kaen','kf_09')}}
   else if(i===3){try{A.fire('Spell_Simple_Shoot',.6)}catch(x){}kmGuardians();x3Bark('Kaen','kf_01')}
   else if(i===4){KM.sh=5;kmShieldFx();sx('shield',1);x3Bark('Kaen','kf_10');toast('Void Shield: 65% less damage for 5 seconds.')}
   else if(i===5){kmDash(t);if(!KM.said.ds||Math.random()<.35){KM.said.ds=1;x3Bark('Kaen','kf_11')}}
   else if(i===6){KM.lb=8;KM.fe.lb=8;P.invuln=Math.max(P.invuln,1);try{A.fire('Spell_Simple_Shoot',.7)}catch(x){}const c=P.pos.clone();flash(c,0xa050ff,30);P.shake=1.4;sx('powerup',1,null,{rate:.7});sx('impact',1);
     SP.emit(headOf(c,1),{n:260,c0:0xffffff,c1:0x7020e0,speed:16,life:1.1,s0:.8,s1:.1});ring(V3(c.x,c.y,c.z),0xc080ff,1,9,.5);for(const e of enemies)if(!e.dead&&e.pos.distanceTo(c)<8)damageEnemy(e,kmDmg(e,.035),'#e0b0ff');
     if(!KM.said.lb){KM.said.lb=1;x3Bark('Kaen','kf_08')}else if(Math.random()<.5)x3Bark('Kaen','kf_03')}}
-function kmWave(){const dir=V3(Math.sin(P.face),0,Math.cos(P.face));const t=kmTarget(45);let dy=0;if(t){const dd=Math.hypot(t.pos.x-P.pos.x,t.pos.z-P.pos.z)||1;dy=(eCenter(t).y-(P.pos.y+1.2))/dd}
+function kmWave(aim){const dir=aim?aim.dir.clone():V3(Math.sin(P.face),0,Math.cos(P.face));const t=aim?aim.t:kmTarget(45);let dy=aim?aim.dy:0;if(!aim&&t){const dd=Math.hypot(t.pos.x-P.pos.x,t.pos.z-P.pos.z)||1;dy=(eCenter(t).y-(P.pos.y+1.2))/dd}
   const g=new THREE.Group();const mk=(r,tube,col,op)=>{const m=new THREE.Mesh(new THREE.TorusGeometry(r,tube,6,36,Math.PI),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));g.add(m);return m};
   const outer=mk(2.6,.34,0x7a30ff,.7),mid=mk(2.4,.16,0xc090ff,.95),core=mk(2.35,.06,0xffffff,1);const gl=glowSprite(0xb070ff,9,.6,false);g.add(gl);
   const p=headOf(P.pos,1.2).addScaledVector(dir,1.2);g.position.copy(p);g.rotation.set(0,Math.atan2(dir.x,dir.z),0);g.rotateZ(Math.PI/2);scene.add(g);const hit=new Set();sx('kame',.6,null,{rate:1.4});flash(p,0xa050ff,12);
@@ -369,7 +369,7 @@ function kmClearGuards(){for(const o of KM.g)scene.remove(o.m.g);KM.g.length=0}
   const air=P.flying||!P.onGround;const mv=P.moveAmt||0;const base=air?(P.flying?'NinjaJump_Idle_Loop':'Jump_Loop'):mv>.75?'Sprint_Loop':mv>.12?'Jog_Fwd_Loop':KM.lb>0?'Spell_Simple_Idle_Loop':'Idle_Loop';
   try{A.setBase(base,.2,base==='Jog_Fwd_Loop'?.9+mv*.4:1)}catch(x){}A.update(dt);KM.fe.t+=dt;if(KM.lb>0){KM.lb-=dt;KM.fe.lb=Math.max(0,KM.lb)}else KM.fe.lb=0;try{kaenFx(KM.fe,dt)}catch(x){}
   if(P.flying&&Math.random()<.7)SP.emit(V3(P.pos.x+rand(-.3,.3),P.pos.y+rand(0,.4),P.pos.z+rand(-.3,.3)),{c0:0xe0c8ff,c1:0x5010c0,s0:.4,s1:.04,life:.6,speed:1});
-  for(let i=0;i<7;i++)KM.cd[i]=Math.max(0,KM.cd[i]-dt);if(KM.sh>0){KM.sh-=dt;if(KM.shM){KM.shM.visible=KM.sh>0;KM.shM.rotation.y+=dt*1.5;KM.shM.scale.lerp(V3(1,1,1),Math.min(1,dt*6));KM.shM.children[0].material.opacity=.12+(KM.sh<1.2?Math.sin(time*20)*.06:0)}}kmCallouts(dt);KM.en=Math.min(100,KM.en+dt*(KM.lb>0?9:5));kmGuardTick(dt);
+  for(let i=0;i<KM.cd.length;i++)KM.cd[i]=Math.max(0,KM.cd[i]-dt);if(KM.sh>0){KM.sh-=dt;if(KM.shM){KM.shM.visible=KM.sh>0;KM.shM.rotation.y+=dt*1.5;KM.shM.scale.lerp(V3(1,1,1),Math.min(1,dt*6));KM.shM.children[0].material.opacity=.12+(KM.sh<1.2?Math.sin(time*20)*.06:0)}}kmCallouts(dt);KM.en=Math.min(100,KM.en+dt*(KM.lb>0?9:5));kmGuardTick(dt);
   if(KM.hud){KM.hud.querySelector('.en i').style.transform=`scaleX(${KM.en/100})`;KM.hud.querySelectorAll('button').forEach((b,i)=>{b.querySelector('s').style.height=(KM.cd[i]/KM_CD[i]*100)+'%';b.querySelector('u').textContent=KM.cd[i]>1.5?Math.ceil(KM.cd[i]):'';b.classList.toggle('lo',KM.en<KM_COST[i]);b.classList.toggle('lb',i===3&&KM.lb>0)})}}}
 function kmEnd(){if(!KM.on)return;KM.on=0;if(KM.shM){if(KM.shM.parent)KM.shM.parent.remove(KM.shM);KM.shM=null}KM.sh=0;KM.dash=null;kmClearGuards();kmHud(false);const a=KM.a;KM.a=null;if(a){KFW.a=a;KFW.off=0;KFW.mode='';KFW.an='';KFW.kp=null;KFW.gm=new THREE.MeshBasicMaterial()}}
 
@@ -407,8 +407,6 @@ function x3Finish(){kmEnd();x3Shatter();x3Drop();X3.phase=0;X3.trap=null;x3Strug
 /* ---------- Kaen flies beside you, Lyra rides a guardian ---------- */
 const LYF={g:null,an:''};
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CH2.st<11||KM.on)return;
-  const a=KFW.a;if(a&&a.g.visible&&KFW.gear&&P.flying&&!CS.active){const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);const tg=P.pos.clone().addScaledVector(r,2.4).addScaledVector(f,-.8);tg.y=P.pos.y+.3+Math.sin(time*1.8)*.2;
-    a.g.position.copy(tg);a.g.rotation.y=P.face;try{a.setBase('NinjaJump_Idle_Loop',.3)}catch(x){}KFW.an='';if(Math.random()<.6)SP.emit(V3(a.g.position.x,a.g.position.y+.2,a.g.position.z),{c0:0xe0c8ff,c1:0x5010c0,s0:.35,s1:.04,life:.5,speed:1})}
   if(LYR.mk)LYR.mk.visible=!!LYR.home;if(CH2.zone!=='north'||CH2.st<13&&(CH2.st<11||X3.phase||X3.trap||KM.on||X3.e)){if(LYF.g)LYF.g.g.visible=false;return}if(!LYR.a){lyraPlace(P.pos.x-2,P.pos.z+2,P.face);LYR.home=false}const L=LYR.a;if(!L||CS.active)return;L.g.visible=true;
   const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
   if(P.flying&&(CH2.st<13||CH2.st>=15)){if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,-2.6).addScaledVector(f,-1.2);tg.y=P.pos.y+.2+Math.sin(time*1.7)*.2;L.g.position.lerp(tg,Math.min(1,dt*5));L.g.rotation.y=lerpAngle(L.g.rotation.y,P.face,Math.min(1,dt*5));
@@ -446,7 +444,7 @@ for(const k of['k7_01','k7_02','k7_03','k7_04','k7_05','k7_06','k7_07','k7_08','
 /* one voice for Kaen: every line is the legacy voice now, no pitch shifting */
 for(const k of[...VO_SPIRIT])if(/^(k2_|k3_|kx|kz_)/.test(k))VO_SPIRIT.delete(k);
 /* the crossing: Kaen and Maëlle talk over the water */
-const XCR=[{z:-2330,l:[['@','m7_01'],['k','k7_01']]},{z:-3050,l:[['k','k7_02'],['@','m7_02']]},{z:-3950,l:[['@','m7_03'],['k','k7_03']]},{z:-4950,l:[['k','k7_04'],['@','m7_04']]},{z:CURSE_Z+160,l:[['k','k7_05'],['@','m7_05']]}];
+const XCR=[{z:-2205,l:[['@','m7_01'],['k','k7_01']]},{z:-2620,l:[['k','k7_02'],['@','m7_02']]},{z:-3250,l:[['@','m7_03'],['k','k7_03']]},{z:-3980,l:[['k','k7_04'],['@','m7_04']]},{z:CURSE_Z+520,l:[['k','k7_05'],['@','m7_05']]}];
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CS.active||CH2.zone!=='north'||CH2.st!==8||!P.alive||CH2.chase)return;const z=P.pos.z;if(z>CAL_SHORE||z<CLIFF_Z)return;
   for(let i=0;i<XCR.length;i++){const c=XCR[i];const key='cr'+i;if(XII.said[key]||z>c.z)continue;XII.said[key]=1;BAN.t=Math.max(BAN.t,30);for(const [w,k] of c.l)epSay(w==='k'?(XII.solid?'Kaen':"Kaen's Spirit"):'@',XL3[k]);break}}}
 /* Maëlle shouts from her cage while Kaen fights */
