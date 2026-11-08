@@ -597,3 +597,41 @@ function nzTowerRestore(){const g=NZ.ghost;if(g){g.g.visible=true;g.g.scale.setS
   for(const l of NZQ.links){l.visible=true;l.scale.setScalar(1);l.rotation.x=0;if(l.userData.p0)l.position.copy(l.userData.p0);if(l.material&&'emissiveIntensity' in l.material)l.material.emissiveIntensity=.3}NZQ.dead=0;NZQ.hits=0;if(NZQ.spirit)NZQ.spirit.ty=-12}
 {const _ac=applyChapter;applyChapter=function(id){const r=_ac.apply(this,arguments);if(MODE==='open')return r;if(CH2.st===5&&CH2.zone==='north')nzTowerRestore();if(CH2.st<5){if(NZ.ghost)NZ.ghost.g.visible=false;for(const l of NZQ.links)l.visible=false;if(NZ.crown)NZ.crown.visible=false;NZ.afterDone=0}
   if(LYR.a){const want=(CH2.zone==='paris'&&LYR.home)||(CH2.zone==='north'&&CH2.st>=11);if(!want)LYR.a.g.visible=false}LYR.pin=0;KFW.pin=0;X4.haze=0;return r}}
+
+/* ================= the Warden catches up: CAST ANY SPELL, QUICK! ================= */
+{const _tc=tryCast;tryCast=function(i){const m0=P.mana;const r=_tc.apply(this,arguments);if(P.mana!==m0)EP_CAST=performance.now();return r}}
+function wdQteWin(first){return ({easy:1500,medium:1100,hard:800}[DIFF]||1100)+(first?700:0)}
+let WQ=null;
+function wdQte(mode,lim){if(!WQ){const st=document.createElement('style');st.textContent=`
+#wdQte{position:fixed;left:0;right:0;top:34%;z-index:45;pointer-events:none;display:none;flex-direction:column;align-items:center;gap:10px;font-family:'Bangers',Impact,'Arial Black',sans-serif}
+#wdQte.on{display:flex}
+#wdQte .a{font-size:clamp(40px,7.5vw,88px);letter-spacing:.05em;line-height:.95;color:#eaffef;-webkit-text-stroke:2px #062612;paint-order:stroke fill;text-shadow:4px 4px 0 #19c860,8px 8px 0 rgba(0,20,8,.85),0 0 40px rgba(60,255,140,.75);transform:skew(-9deg);animation:wqIn .32s cubic-bezier(.2,1.7,.4,1) both,wqShake .09s linear .32s infinite}
+#wdQte .b{font-size:clamp(22px,3.4vw,38px);letter-spacing:.14em;color:#fff;-webkit-text-stroke:1.5px #062612;paint-order:stroke fill;text-shadow:3px 3px 0 #0a7a3a;transform:skew(-9deg);animation:wqPulse .28s ease-in-out infinite alternate}
+#wdQte .k{display:flex;gap:6px;font:600 13px Outfit,system-ui,sans-serif;color:#d8ffe4;opacity:.9}
+#wdQte .k kbd{display:inline-block;min-width:20px;padding:2px 6px;border-radius:5px;background:rgba(0,0,0,.55);border:1px solid rgba(120,255,170,.5)}
+#wdQte .bar{width:min(420px,70vw);height:12px;border-radius:99px;background:rgba(0,0,0,.6);box-shadow:0 0 0 2px rgba(120,255,170,.5),0 0 22px rgba(60,255,140,.45);overflow:hidden;transform:skew(-12deg)}
+#wdQte .bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff3a4a,#ffd040 35%,#5dff9a);transform-origin:left center}
+#wdQte.win .a{color:#fff;text-shadow:4px 4px 0 #19c860,0 0 60px #7dffb0;animation:wqBlast .55s cubic-bezier(.1,.8,.2,1) both}
+#wdQte.fail .a{color:#ffe8ea;-webkit-text-stroke:2px #2a0006;text-shadow:4px 4px 0 #e0102e,8px 8px 0 rgba(30,0,4,.85),0 0 46px rgba(255,30,60,.8);animation:wqSlam .5s cubic-bezier(.2,1.6,.4,1) both,wqShake .06s linear .1s 6}
+#wdQte.win .b,#wdQte.fail .b,#wdQte.win .bar,#wdQte.fail .bar,#wdQte.win .k,#wdQte.fail .k{display:none}
+#wdFlash{position:fixed;inset:0;z-index:44;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 45%,rgba(120,255,170,.0) 30%,rgba(10,60,30,.55) 100%)}
+#wdFlash.on{opacity:1;transition:opacity .15s}#wdFlash.red{background:radial-gradient(circle at 50% 50%,rgba(255,40,60,.15),rgba(120,0,10,.7));opacity:1;transition:none}
+@keyframes wqIn{0%{opacity:0;transform:skew(-9deg) scale(2.6) rotate(-4deg)}100%{opacity:1;transform:skew(-9deg) scale(1)}}
+@keyframes wqShake{0%{translate:0 0}25%{translate:3px -2px}50%{translate:-3px 2px}75%{translate:2px 3px}100%{translate:0 0}}
+@keyframes wqPulse{from{transform:skew(-9deg) scale(1)}to{transform:skew(-9deg) scale(1.12)}}
+@keyframes wqBlast{0%{opacity:1;transform:skew(-9deg) scale(1)}100%{opacity:0;transform:skew(-9deg) scale(2.2);filter:blur(4px)}}
+@keyframes wqSlam{0%{opacity:0;transform:skew(-9deg) scale(.4)}100%{opacity:1;transform:skew(-9deg) scale(1)}}`;document.head.appendChild(st);
+    WQ=document.createElement('div');WQ.id='wdQte';WQ.innerHTML='<div class="a"></div><div class="b">QUICK!</div><div class="bar"><i></i></div><div class="k"></div>';document.body.appendChild(WQ);const fl=document.createElement('div');fl.id='wdFlash';document.body.appendChild(fl);WQ.fl=fl}
+  const a=WQ.querySelector('.a'),bar=WQ.querySelector('.bar i'),fl=WQ.fl;clearTimeout(WQ._t);
+  if(mode==='on'){WQ.className='on';a.textContent='CAST ANY SPELL!';WQ.querySelector('.k').innerHTML=typeof isTouch!=='undefined'&&isTouch?'tap any spell':'<kbd>1</kbd>-<kbd>9</kbd> or click';
+    void WQ.offsetWidth;bar.style.transition='none';bar.style.transform='scaleX(1)';void bar.offsetWidth;bar.style.transition=`transform ${lim}ms linear`;bar.style.transform='scaleX(0)';fl.className='on';sx('riser',.5,null,{rate:1.8});return}
+  if(mode==='win'){WQ.className='on win';a.textContent='COUNTERED!';fl.className='';WQ._t=setTimeout(()=>{WQ.className=''},600);return}
+  if(mode==='fail'){WQ.className='on fail';a.textContent='TOO SLOW!';fl.className='red';setTimeout(()=>{fl.style.transition='opacity .6s';fl.className='';setTimeout(()=>fl.style.transition='',650)},120);WQ._t=setTimeout(()=>{WQ.className=''},1100);return}
+  WQ.className='';fl.className=''}
+/* a hit that hurts: easy 450 (never kills), medium 550, hard 650 */
+function wdSurgeHit(){if(!P.alive)return;let a=({easy:450,medium:550,hard:650}[DIFF]||550);if(DIFF==='easy')a=Math.min(a,maxHP()*.6);
+  if(P.shield>0){const ab=Math.min(P.shield,a*.5);P.shield-=ab;a-=ab}P.hp-=a;if(DIFF==='easy'&&P.hp<1)P.hp=1;a=Math.round(a);
+  P.lastHit=time;P.shake=1.5;try{sfx.hit()}catch(x){}try{vib(80)}catch(x){}vig.classList.remove('hit');void vig.offsetWidth;vig.classList.add('hit');floatText(V3(P.pos.x,P.pos.y+3.4,P.pos.z),`-${a}`,'#ff3a50',true);
+  SP.emit(headOf(P.pos,1),{n:70,c0:0xffffff,c1:0x30ff70,speed:10,life:.6});flash(headOf(P.pos,1),0x40ff80,16);sx('impact',1,null,{rate:.6});if(P.hp<=0)die();else P.invuln=Math.max(P.invuln,.8)}
+{const _ae=epArrive;epArrive=function(){if(WQ){WQ.className='';WQ.fl.className=''}return _ae.apply(this,arguments)}}
+{const _rv=revive;revive=function(){if(WQ){WQ.className='';WQ.fl.className=''}return _rv.apply(this,arguments)}}

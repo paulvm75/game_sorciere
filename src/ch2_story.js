@@ -160,7 +160,7 @@ function epEscape(){SAYQ.q.length=0;const e=WD.e;for(const o of enemies)if(!o.de
 let EP_CAST=0;{const _p=projs.push;projs.push=function(){EP_CAST=performance.now();return _p.apply(this,arguments)}}
 function epChaseStart(){const e=WD.e||wdSpawn(V3(P.pos.x,P.pos.y+4,P.pos.z-30));e.invuln=false;e.hpFloor=.2;bossRef=e;$('boss').classList.remove('hidden');
   CH2.chase={t:0,surge:14,lasT:5,batT:8,line:0,lineT:2,tut:0,win:0,ok:0,warned:0,said:{}};P.flying=true;P.flyT=60;NZ.lt=999;
-  toast('Fly south to Calais. When the Warden catches up, counter with any spell.','The Escape',true);epSay("Kaen's Spirit",SL.k05,1);epSay('The Warden',SL.t02)}
+  toast('Fly south to Calais. When the Warden catches up, cast any spell, fast, or he hits hard.','The Escape',true);epSay("Kaen's Spirit",SL.k05,1);epSay('The Warden',SL.t02)}
 function epChaseAbort(){SAYQ.q.length=0;CH2.chase=null;if(WD.e&&!WD.e.dead)removeEnemy(WD.e);WD.e=null;WD.esc=0;WD.t=0;hitStop=0;tutHide()}
 const CHL=[[6,'@','m03'],[13,'The Warden','t03'],[19,"Kaen's Spirit",'k07'],[27,'@','m04'],[33,"Kaen's Spirit",'k06'],[40,'The Warden','t04'],[47,"Kaen's Spirit",'k08'],[54,'@','m05'],[61,'The Warden','t05'],[68,"Kaen's Spirit",'k09'],[76,'The Warden','t08'],[84,"Kaen's Spirit",'k05']];
 function wdChaseAI(e,dt,d){const C=CH2.chase;if(!C)return;const back=C.win?0:(C.ok>0?44:30);
@@ -174,12 +174,11 @@ function wdChaseAI(e,dt,d){const C=CH2.chase;if(!C)return;const back=C.win?0:(C.
   C.lasT-=dt;if(e&&!e.dead&&!C.win&&C.lasT<=0){C.lasT=rand(4.5,6.5);if(!C.warned){C.warned=1;toast('Green laser! Swerve!','Dodge')}wdLaser(e,headOf(e.pos,4),headOf(P.pos,1).add(V3(rand(-1,1),0,rand(2,5))),maxHP()*.3,.6)}
   // he catches up: slow motion, counter or get hit
   C.surge-=dt;if(e&&!e.dead&&!C.win&&C.surge<=0){C.surge=rand(19,27);C.win=performance.now();C.cast0=EP_CAST;epSay("Kaen's Spirit",SL.k11,1);sx('garg',.9,null,{rate:.7});
-    setTimeout(()=>{if(!CH2.chase||!P.alive)return;hitStop=C.tut?1.6:3.2;C.slow=performance.now();if(!C.tut){C.tut=1;const c=tutCard(`<div class="tl">Counter</div><h3>He caught up!</h3><p>Time slows. Cast any spell ${isTouch?'':'(<kbd>1</kbd> to <kbd>9</kbd>) '}right now to blast him back. Miss it and he hits hard.</p>`);setTimeout(()=>tutHide(),3200)}
-      else floatText(headOf(P.pos,2.2),'COUNTER!','#9affb0',true)},700)}
-  if(C.win&&C.slow){const now=performance.now();if(EP_CAST>C.slow-200){C.win=0;C.slow=0;hitStop=0;C.ok=3;tutHide();const c=eCenter(e);flash(c,0xffffff,14);flash(c,0x60ff90,10);sx('impact',1.1,null,{rate:.7});sx('kame',.6,null,{rate:1.4});P.shake=1;
-      SP.emit(c,{n:120,c0:0xffffff,c1:0x30ff70,speed:12,life:.8});damageEnemy(e,power()*40,'#9affb0');floatText(headOf(P.pos,2.4),'COUNTERED','#9affb0',true);epSay("Kaen's Spirit",SL.k19,1);epSay('@',Math.random()<.5?SL.m08:SL.m09)}
-    else if(now-C.slow>(C.tut===1&&!C.tutDone?3200:1700)){C.tutDone=1;C.win=0;C.slow=0;hitStop=0;tutHide();const c=eCenter(e);try{e.m.actor.fire('Spell_Simple_Shoot',.5)}catch(x){}flash(headOf(P.pos,1),0x60ff90,12);sx('laser',.9,null,{rate:1.3});
-      P.invuln=0;damagePlayer(maxHP()*.38);P.shake=1.4;P.vy=-4;epSay("Kaen's Spirit",SL.k05,1);C.ok=2}}
+    setTimeout(()=>{if(!CH2.chase||!P.alive)return;C.win=performance.now();C.cast0=EP_CAST;C.slow=performance.now();C.lim=wdQteWin(!C.tut);C.tut=1;hitStop=C.lim/1000+.25;wdQte('on',C.lim)},450)}
+  if(C.win&&C.slow){const now=performance.now();if(EP_CAST>C.slow-120){C.win=0;C.slow=0;hitStop=0;C.ok=3;wdQte('win');const c=eCenter(e);flash(c,0xffffff,14);flash(c,0x60ff90,10);sx('impact',1.1,null,{rate:.7});sx('kame',.6,null,{rate:1.4});P.shake=1;
+      SP.emit(c,{n:120,c0:0xffffff,c1:0x30ff70,speed:12,life:.8});damageEnemy(e,power()*40,'#9affb0');epSay("Kaen's Spirit",SL.k19,1);epSay('@',Math.random()<.5?SL.m08:SL.m09)}
+    else if(now-C.slow>C.lim){C.win=0;C.slow=0;hitStop=0;wdQte('fail');const c=eCenter(e);try{e.m.actor.fire('Spell_Simple_Shoot',.5)}catch(x){}flash(headOf(P.pos,1),0x60ff90,12);sx('laser',.9,null,{rate:1.3});
+      wdSurgeHit();P.vy=-4;epSay("Kaen's Spirit",SL.k05,1);C.ok=2}}
   // the bats come thick near France
   if(z>-3300){C.batT-=dt;if(C.batT<=0){C.batT=rand(3,5);if(!C.said.bats){C.said.bats=1;epSay('@',SL.m06,1)}const n=enemies.filter(o=>!o.dead&&o.type==='nbat').length;if(n<12)for(let k=0;k<4;k++)nzSpawnFly(Math.random()<.75?'nbat':'pumpkin',V3(P.pos.x+rand(-30,30),P.pos.y+rand(-3,5),P.pos.z+rand(40,70)*(Math.random()<.7?1:-1)))}}
   if(z>-2700&&!C.said.cal){C.said.cal=1;epSay('@',SL.m07,1);after(3.5,()=>{if(CH2.chase)lyraSay('ly34','Lyra, in your head')})}
