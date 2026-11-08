@@ -637,6 +637,9 @@ function wdSurgeHit(){if(!P.alive)return;let a=({easy:450,medium:550,hard:650}[D
 {const _rv=revive;revive=function(){if(WQ){WQ.className='';WQ.fl.className=''}return _rv.apply(this,arguments)}}
 
 /* ================= Resume always works: answers the press itself, whatever is on top ================= */
-{let skipClick=0;const rb=$('resumeBtn');const go=e=>{if(!paused)return;e.preventDefault();e.stopPropagation();skipClick=performance.now();if(typeof tutHide==='function')try{tutHide()}catch(x){}
+{let skipClick=0;const rb=$('resumeBtn');const go=e=>{if(!paused)return;e.preventDefault();e.stopPropagation();skipClick=performance.now();
   if(CS.active||!P.alive){paused=false;$('pause').classList.add('hidden');document.body.classList.remove('isPaused');return}togglePause()};
   rb.addEventListener('pointerup',go);rb.addEventListener('click',e=>{if(performance.now()-skipClick<500){e.stopImmediatePropagation();return}},true)}
+
+/* ================= the Tower's questions always come back (pause, focus loss, anything) ================= */
+{let since=0;setInterval(()=>{if(!started||!NZQ.quiz||CS.active||paused||!P.alive){since=0;return}const c=document.getElementById('tutCard');if(c&&c.classList.contains('on')&&c.querySelector('[data-a]')){since=0;return}const now=performance.now();if(!since){since=now;return}if(now-since>700){since=0;try{epAsk()}catch(x){}}},250)}
