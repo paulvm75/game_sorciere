@@ -635,3 +635,8 @@ function wdSurgeHit(){if(!P.alive)return;let a=({easy:450,medium:550,hard:650}[D
   SP.emit(headOf(P.pos,1),{n:70,c0:0xffffff,c1:0x30ff70,speed:10,life:.6});flash(headOf(P.pos,1),0x40ff80,16);sx('impact',1,null,{rate:.6});if(P.hp<=0)die();else P.invuln=Math.max(P.invuln,.8)}
 {const _ae=epArrive;epArrive=function(){if(WQ){WQ.className='';WQ.fl.className=''}return _ae.apply(this,arguments)}}
 {const _rv=revive;revive=function(){if(WQ){WQ.className='';WQ.fl.className=''}return _rv.apply(this,arguments)}}
+
+/* ================= Resume always works: answers the press itself, whatever is on top ================= */
+{let skipClick=0;const rb=$('resumeBtn');const go=e=>{if(!paused)return;e.preventDefault();e.stopPropagation();skipClick=performance.now();if(typeof tutHide==='function')try{tutHide()}catch(x){}
+  if(CS.active||!P.alive){paused=false;$('pause').classList.add('hidden');document.body.classList.remove('isPaused');return}togglePause()};
+  rb.addEventListener('pointerup',go);rb.addEventListener('click',e=>{if(performance.now()-skipClick<500){e.stopImmediatePropagation();return}},true)}
