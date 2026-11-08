@@ -492,7 +492,7 @@ function xiiLondon(){const T=V3(224,10,-9862);
     ()=>{CH2.st=Math.max(CH2.st,9);ch2Save();xiiPerches();toast('Six ravens hold the Warden\'s chains. Find them on London\'s landmarks and set them free.','The Ravens',true)})}
 function xiiPerches(){if(XII.perch||!NZ.g)return;XII.perch=RVP().map((r,i)=>{if(XII.rv[i])return null;const m=buildRaven(2.2);m.g.position.copy(r.p);m.g.rotation.y=rand(0,TAU);NZ.g.add(m.g);const o={t:rand(0,9)};
   const pil=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,160,8,1,true),nzM().glow(0x60ff90,.12));pil.position.set(r.p.x,r.p.y+80,r.p.z);NZ.g.add(pil);
-  NZ.anim.push(dt=>{o.t+=dt;if(m.g.visible)m.anim(o,dt,0,true);pil.material.opacity=.08+Math.sin(o.t*2)*.04});return{m,pil}})}
+  NZ.anim.push(dt=>{if(!m.g.parent&&!pil.parent)return false;o.t+=dt;if(m.g.visible)m.anim(o,dt,0,true);pil.material.opacity=.08+Math.sin(o.t*2)*.04});return{m,pil}})}
 ETYPES.traven={name:'Raven of the Tower',hp:700,speed:20,dmg:20,range:3.2,cd:1.3,xp:300,r:1.6,h:2.6,fly:1,build:()=>{const m=buildRaven(2.2);return{g:m.g,body:m.body,anim:(e,dt,mv)=>m.anim(e,dt,mv,false)}},
   ai:(e,dt,d)=>{const a=e.ai||(e.ai={});e.t=(e.t||0);nzFlyAI(1.2)(e,dt,d);a.v=(a.v==null?3:a.v)-dt;a.s=(a.s==null?8:a.s)-dt;
     if(a.v<=0&&d<40){a.v=rand(4,5.5);const c=eCenter(e),base=aimAtPlayer(c).normalize();sx('cackle',.5,null,{rate:1.6});for(let k=0;k<7;k++)after(k*.05,()=>{if(e.dead)return;enemyOrb(eCenter(e),base.clone().applyAxisAngle(V3(0,1,0),(k-3)*.12),22,e.dmg*.45,0x1a1a1a,.32,{keepY:false,life:2.4})})}
@@ -526,7 +526,7 @@ function xiiWarden(){XII.wd=1;const at=V3(224,8,-9862);const e=wdSpawn(at,true);
 /* ---------- 5. the Crown's silver, and a heartbeat ---------- */
 function xiiSilver(center,orb){const g=NZ.green||V3(222,0,-9862);const sp=V3(center.x,Math.max(2.4,groundAt(center.x,center.z)+2.4),center.z);
   const sil=new THREE.Group();sil.position.copy(sp);const sm=std({color:0xe8eef8,metalness:1,roughness:.15,emissive:0x8fb0ff,emissiveIntensity:.35});sil.add(new THREE.Mesh(new THREE.TorusGeometry(.55,.08,8,28),sm));for(let k=0;k<7;k++){const a=k/7*TAU;const s=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,5),sm);s.position.set(Math.cos(a)*.55,.18,Math.sin(a)*.55);sil.add(s)}
-  const sg=glowSprite(0xcfe0ff,3,.6);sil.add(sg);NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
+  const sg=glowSprite(0xcfe0ff,3,.6);sil.add(sg);NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return false;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
   const kp=()=>KFW.a?KFW.a.g.position:P.pos;
   playCutscene([{who:'The Warden',text:XL.t2_11,cam:orb,update:()=>SP.emit(V3(center.x+rand(-2,2),center.y+rand(0,4),center.z+rand(-2,2)),{c0:0xc0ff90,c1:0x103010,s0:.6,s1:.1,life:.8,up:2})},
     {who:'@',text:XL.m3_11,cam:witchShot(-1,3.4)},

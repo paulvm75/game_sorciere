@@ -16,8 +16,8 @@ const KI={at:0,ok:false,lead:1.88,hit:.92};
 
 /* ---------- shared card UI (tutorials, advice) ---------- */
 {const st=document.createElement('style');st.textContent=`
-#tutCard{position:absolute;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);width:min(420px,calc(100vw - 32px));padding:14px 16px 12px;border-radius:14px;background:linear-gradient(180deg,rgba(28,19,50,.94),rgba(14,10,28,.94));box-shadow:inset 0 0 0 1px rgba(242,193,96,.3),0 10px 30px rgba(0,0,0,.45);color:#f3e9d4;z-index:40;opacity:0;transition:opacity .35s,transform .35s;pointer-events:auto}
-#tutCard.on{opacity:1;transform:translate(-50%,0)}
+#tutCard{position:absolute;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);width:min(420px,calc(100vw - 32px));padding:14px 16px 12px;border-radius:14px;background:linear-gradient(180deg,rgba(28,19,50,.94),rgba(14,10,28,.94));box-shadow:inset 0 0 0 1px rgba(242,193,96,.3),0 10px 30px rgba(0,0,0,.45);color:#f3e9d4;z-index:40;opacity:0;transition:opacity .35s,transform .35s;pointer-events:none}
+#tutCard.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#pause:not(.hidden)~#tutCard,body.isPaused #tutCard{display:none}#pause{z-index:50}
 #tutCard .tl{font:600 10.5px Outfit,system-ui,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#f2a541;opacity:.85}
 #tutCard h3{margin:4px 0 6px;font:600 19px Cinzel,Georgia,serif;letter-spacing:.5px;color:#fff}
 #tutCard p{margin:0;font:14px/1.45 Georgia,serif;color:#e6dac2}

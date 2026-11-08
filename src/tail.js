@@ -312,7 +312,7 @@ if(MODE==='open'){document.body.classList.add('ow');document.querySelector('#sta
 
 $('continueBtn').addEventListener('click',()=>startGame(true));
 $('reviveBtn').addEventListener('click',revive);
-function togglePause(){if(!started||!P.alive||CS.active)return;paused=!paused;$('pause').classList.toggle('hidden',!paused);if(paused&&MODE==='open'){$('carnetInfo').textContent=`Carnet de Paris: ${OWS.carnet.size.toLocaleString('en')} of ${carnetTotal().toLocaleString('en')} conversations · ${OWS.visited.size}/${LANDMARKS.length} landmarks · ${OWS.qdone.length}/${QUESTS.length} quests`;$('abandonBtn').style.display=OWS.quest?'':'none'}}
+function togglePause(){if(!started||!P.alive||CS.active)return;paused=!paused;$('pause').classList.toggle('hidden',!paused);document.body.classList.toggle('isPaused',paused);if(paused&&MODE==='open'){$('carnetInfo').textContent=`Carnet de Paris: ${OWS.carnet.size.toLocaleString('en')} of ${carnetTotal().toLocaleString('en')} conversations · ${OWS.visited.size}/${LANDMARKS.length} landmarks · ${OWS.qdone.length}/${QUESTS.length} quests`;$('abandonBtn').style.display=OWS.quest?'':'none'}}
 $('pauseBtn').addEventListener('click',togglePause);
 $('autoBtn').addEventListener('click',()=>{autoBolt=!autoBolt;syncAuto()});
 $('resumeBtn').addEventListener('click',togglePause);

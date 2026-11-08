@@ -365,7 +365,7 @@ const x4CmpTgt=()=>{const w=enemies.filter(o=>!o.dead&&o.dw);if(w.length&&Math.r
 function x4CmpMove(c,a,dt,R,run){const e=X4.e,g=a.g.position;c.ang+=dt*(.16+.05*Math.sin(time*.7+R));let tx=e.pos.x+Math.sin(c.ang)*R,tz=e.pos.z+Math.cos(c.ang)*R;
   for(const S of X4.smokes){const d=Math.hypot(tx-S.p.x,tz-S.p.z);if(d<S.r+1){const k=(S.r+1-d)/(d||1);tx+=(tx-S.p.x)*k;tz+=(tz-S.p.z)*k}}
   const dp=Math.hypot(tx-P.pos.x,tz-P.pos.z);if(dp<3.5){tx+=(tx-P.pos.x)/(dp||1)*(3.5-dp);tz+=(tz-P.pos.z)/(dp||1)*(3.5-dp)}
-  tx=clamp(tx,X4FB.x0+2,X4FB.x1-2);tz=clamp(tz,X4FB.z0+2,X4FB.z1-2);const dx=tx-g.x,dz=tz-g.z,L=Math.hypot(dx,dz);const v=Math.min(L,dt*(L>6?run:run*.55));
+  tx=clamp(tx,X4FB.x0+2,X4FB.x1-2);tz=clamp(tz,X4FB.z0+2,X4FB.z1-2);if(Math.hypot(tx-g.x,tz-g.z)>40){g.x=tx;g.z=tz;SP.emit(V3(tx,1,tz),{n:24,c0:0xffffff,c1:0x9a70ff,speed:4,life:.5})}const dx=tx-g.x,dz=tz-g.z,L=Math.hypot(dx,dz);const v=Math.min(L,dt*(L>6?run:run*.55));
   if(L>.05){g.x+=dx/L*v;g.z+=dz/L*v}g.y=groundAt(g.x,g.z);if(L>2.2){a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*8));return L>6?'Sprint_Loop':'Walk_Loop'}
   a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(e.pos.x-g.x,e.pos.z-g.z),Math.min(1,dt*6));return null}
 /* Kaen: sword wave, dash cut, void ring */
@@ -525,18 +525,18 @@ Object.assign(XL3,{m9_01:"Eleven miles of sea, and we're already over Kent. Lond
 for(const k of['m9_01','k9_01','m9_02','k9_02','m9_03','k9_03'])VO_MAP[XL3[k]]=k;
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CS.active||CH2.zone!=='north'||!P.alive||CH2.chase||XII.said.spd)return;if(CH2.st<8||CH2.st>12||!P.flying||P.pos.z>CLIFF_Z-120||P.pos.z<LON_Z+500)return;
   if(SAYQ.on||SAYQ.q.length)return;XII.said.spd=1;const kw=XII.solid?'Kaen':"Kaen's Spirit";epSay('@',XL3.m9_01);epSay(kw,XL3.k9_01);epSay('@',XL3.m9_02);epSay(kw,XL3.k9_02);epSay('@',XL3.m9_03)}}
-{const st=document.createElement('style');st.textContent='@media (max-width:700px){#kmBar .row{gap:4px}#kmBar button{width:42px;height:42px}}';document.head.appendChild(st)}
+{const st=document.createElement('style');st.textContent='@media (max-width:700px){#kmBar .row{gap:4px}#kmBar button{width:42px;height:42px}}@media (max-width:430px){#kmBar .row{gap:3px}#kmBar button{width:37px;height:40px}#kmBar button em{display:none}}';document.head.appendChild(st)}
 /* every boss with its own theme plays only that theme: no generic boss track while it loads */
 {const _bw=bmWant;bmWant=function(){if(started&&MODE!=='open'&&bossRef&&!bossRef.dead&&BTH[bossRef.type]){bmTrack(BTH[bossRef.type]);return null}return _bw.apply(this,arguments)}}
 {const _mw=muWant;muWant=function(){if(started&&MODE!=='open'&&bossRef&&!bossRef.dead&&BTH[bossRef.type]){const k=BTH[bossRef.type];return bmTrack(k).ok?k:null}return _mw.apply(this,arguments)}}
 
 /* ================= main menu music ================= */
 const MMU={t:null,v:0,arm:0};
-function mmuArm(){if(MMU.arm||started)return;MMU.arm=1;try{initAudio()}catch(x){}MMU.t=bmTrack('mus_menu')}
+function mmuArm(){if(started||MMU.t)return;MMU.arm=1;try{initAudio()}catch(x){}MMU.t=bmTrack('mus_menu')}
 addEventListener('pointerdown',()=>{if(!started)mmuArm()},true);addEventListener('keydown',()=>{if(!started)mmuArm()},true);
 function mmuTick(dt){const t=MMU.t;if(!t||!AC)return;dt=Math.min(dt,.1);const want=!started&&!muted&&musicOn?.36:0;
   if(want>0&&t.ok&&!t.playing){bmStart(t);MMU.v=0}if(!t.playing||!t.g)return;MMU.v+=(want-MMU.v)*Math.min(1,dt*(want>MMU.v?.45:2.4));t.g.gain.value=MMU.v;if(!want&&MMU.v<.004){bmStop(t);MMU.v=0;if(started)MMU.t=null}}
-{let last=0;const loop=now=>{const dt=last?(now-last)/1000:0;last=now;try{mmuTick(dt)}catch(x){}if(!started||MMU.t)requestAnimationFrame(loop)};requestAnimationFrame(loop)}
+{let last=0;const loop=now=>{const dt=last?(now-last)/1000:0;last=now;try{mmuTick(dt)}catch(x){}requestAnimationFrame(loop)};requestAnimationFrame(loop)}
 
 /* ================= Maëlle never says "Hang on, Kaen" once he is back ================= */
 {const _bp=bkPick;bkPick=function(who,cat){let r=_bp.apply(this,arguments);if(who==='@'&&r&&r[0]==='mz09'&&(CH2.st>=11||(typeof XII!=='undefined'&&XII.solid))){for(let i=0;i<4&&r&&r[0]==='mz09';i++)r=_bp.apply(this,arguments);if(r&&r[0]==='mz09')r=null}return r}}
@@ -578,7 +578,7 @@ kmShieldFx=function(){if(KM.shM){KM.shM.visible=true;KM.shM.scale.setScalar(.3);
   tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
   const mat=new THREE.ShaderMaterial({uniforms:{map:{value:tex},t:{value:0},hit:{value:0},fade:{value:1},col:{value:new THREE.Color(0x9a66ff)}},
     vertexShader:'varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){vUv=uv;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader:'uniform sampler2D map;uniform float t,hit,fade;uniform vec3 col;varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){float f=pow(1.-abs(dot(vN,vV)),2.);float hx=texture2D(map,vUv*vec2(4.,2.)+vec2(t*.03,0.)).r;float band=pow(max(0.,1.-abs(fract(vUv.y*1.2-t*.45)-.5)*7.),2.);float a=(f*.85+hx*(.2+f*.75)+band*hx*.7+hit*(.35+hx*.9))*fade;gl_FragColor=vec4(mix(col,vec3(1.),hit*.55+f*.2)*(1.15+hit*.8),clamp(a,0.,1.));}',
+    fragmentShader:'uniform sampler2D map;uniform float t,hit,fade;uniform vec3 col;varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){float f=pow(1.-abs(dot(vN,vV)),2.);float hx=texture2D(map,vUv*vec2(4.,2.)+vec2(t*.03,0.)).r;float band=pow(max(0.,1.-abs(fract(vUv.y*1.2-t*.45)-.5)*7.),2.);float a=(f*.85+hx*(.2+f*.75)+band*hx*.7+hit*(.22+hx*.6))*fade;gl_FragColor=vec4(mix(col,vec3(1.),hit*.35+f*.15)*(1.+hit*.4),clamp(a,0.,.9));}',
     transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
   const m=new THREE.Mesh(new THREE.SphereGeometry(1.85,40,28),mat);
   const s=new THREE.Mesh(new THREE.SphereGeometry(1.7,24,16),new THREE.MeshBasicMaterial({color:0x5a28c0,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));m.add(s);
@@ -591,3 +591,9 @@ kmShieldFx=function(){if(KM.shM){KM.shM.visible=true;KM.shM.scale.setScalar(.3);
 
 /* ================= after Vesper: E or Enter starts the talk right away ================= */
 addEventListener('keydown',e=>{if(!started||MODE==='open'||CS.active||CH2.st!==13||KM.on||e.repeat)return;if(e.code==='KeyE'||e.code==='Enter'||e.code==='NumpadEnter'){X4.goT=1}},true);
+
+/* ================= chapter switches restore the Tower: chained Kaen back in place ================= */
+function nzTowerRestore(){const g=NZ.ghost;if(g){g.g.visible=true;g.g.scale.setScalar(1);if(NZ.green){g.g.position.set(NZ.green.x,0,NZ.green.z);g.g.rotation.y=Math.PI*.15}try{g.setBase('Crouch_Idle_Loop',.2);g.update(.3)}catch(x){}}
+  for(const l of NZQ.links){l.visible=true;l.scale.setScalar(1);l.rotation.x=0;if(l.userData.p0)l.position.copy(l.userData.p0);if(l.material&&'emissiveIntensity' in l.material)l.material.emissiveIntensity=.3}NZQ.dead=0;NZQ.hits=0;if(NZQ.spirit)NZQ.spirit.ty=-12}
+{const _ac=applyChapter;applyChapter=function(id){const r=_ac.apply(this,arguments);if(MODE==='open')return r;if(CH2.st===5&&CH2.zone==='north')nzTowerRestore();if(CH2.st<5){if(NZ.ghost)NZ.ghost.g.visible=false;for(const l of NZQ.links)l.visible=false;if(NZ.crown)NZ.crown.visible=false;NZ.afterDone=0}
+  if(LYR.a){const want=(CH2.zone==='paris'&&LYR.home)||(CH2.zone==='north'&&CH2.st>=11);if(!want)LYR.a.g.visible=false}LYR.pin=0;KFW.pin=0;X4.haze=0;return r}}

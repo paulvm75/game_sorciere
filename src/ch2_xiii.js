@@ -559,7 +559,7 @@ addEventListener('keydown',e=>{if(e.code==='KeyE'&&LYH&&LYH.classList.contains('
 XL.ly48='I can finally be here with you, in London. No more whispering in your head. The Tower and its Warden can\'t feed on me anymore.';XL.ly49='But the Crown can always feed. On any of us. So we stay careful. Me too.';VO_MAP[XL.ly48]='ly48';VO_MAP[XL.ly49]='ly49';
 xiiSilver=function(center,orb){const sp=V3(center.x,Math.max(2.4,groundAt(center.x,center.z)+2.4),center.z);
   const sil=new THREE.Group();sil.position.copy(sp);const sm=std({color:0xe8eef8,metalness:1,roughness:.15,emissive:0x8fb0ff,emissiveIntensity:.35});sil.add(new THREE.Mesh(new THREE.TorusGeometry(.55,.08,8,28),sm));for(let k=0;k<7;k++){const a=k/7*TAU;const s=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,5),sm);s.position.set(Math.cos(a)*.55,.18,Math.sin(a)*.55);sil.add(s)}
-  sil.add(glowSprite(0xcfe0ff,3,.6));NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
+  sil.add(glowSprite(0xcfe0ff,3,.6));NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return false;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
   {const G=NZ.green||V3(222,0,-9862);const tw=V3(232-G.x,0,-9876-G.z).normalize();const st=G.clone().addScaledVector(tw,-3);P.pos.set(st.x,groundAt(st.x,st.z),st.z);P.vy=0;P.flying=false;P.face=Math.atan2(tw.x,tw.z);yaw=P.face+Math.PI;
     if(KFW.a){const kq=P.pos.clone().add(V3(-tw.z*1.4,0,tw.x*1.4)).addScaledVector(tw,-.6);KFW.a.g.position.set(kq.x,P.pos.y+.35,kq.z);KFW.a.g.rotation.y=P.face}}
   const kp=()=>KFW.a?KFW.a.g.position:P.pos;const f=V3(Math.sin(P.face),0,Math.cos(P.face)),rt=V3(f.z,0,-f.x);

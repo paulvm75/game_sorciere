@@ -24,7 +24,7 @@ function openChapters(){renderChapters();$('chapters').classList.remove('hidden'
 function closeChapters(){$('chapters').classList.add('hidden')}
 function pickChapter(id){closeChapters();
   if(!started){startGame(!!(save&&save.level),true);applyChapter(id);return}
-  if(paused){paused=false;$('pause').classList.add('hidden')}
+  if(paused){paused=false;$('pause').classList.add('hidden');document.body.classList.remove('isPaused')}
   if(CS.active&&typeof endCutscene==='function')endCutscene();applyChapter(id)}
 function applyChapter(id){const idx=chapIndexOf(id);if(idx<0||MODE==='open')return;const ch=CHAPTERS[idx];
   for(const e of enemies)removeEnemy(e);enemies.length=0;bossRef=null;$('boss').classList.add('hidden');

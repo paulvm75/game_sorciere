@@ -5267,7 +5267,7 @@ function openChapters(){renderChapters();$('chapters').classList.remove('hidden'
 function closeChapters(){$('chapters').classList.add('hidden')}
 function pickChapter(id){closeChapters();
   if(!started){startGame(!!(save&&save.level),true);applyChapter(id);return}
-  if(paused){paused=false;$('pause').classList.add('hidden')}
+  if(paused){paused=false;$('pause').classList.add('hidden');document.body.classList.remove('isPaused')}
   if(CS.active&&typeof endCutscene==='function')endCutscene();applyChapter(id)}
 function applyChapter(id){const idx=chapIndexOf(id);if(idx<0||MODE==='open')return;const ch=CHAPTERS[idx];
   for(const e of enemies)removeEnemy(e);enemies.length=0;bossRef=null;$('boss').classList.add('hidden');
@@ -5843,8 +5843,8 @@ const KI={at:0,ok:false,lead:1.88,hit:.92};
 
 /* ---------- shared card UI (tutorials, advice) ---------- */
 {const st=document.createElement('style');st.textContent=`
-#tutCard{position:absolute;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);width:min(420px,calc(100vw - 32px));padding:14px 16px 12px;border-radius:14px;background:linear-gradient(180deg,rgba(28,19,50,.94),rgba(14,10,28,.94));box-shadow:inset 0 0 0 1px rgba(242,193,96,.3),0 10px 30px rgba(0,0,0,.45);color:#f3e9d4;z-index:40;opacity:0;transition:opacity .35s,transform .35s;pointer-events:auto}
-#tutCard.on{opacity:1;transform:translate(-50%,0)}
+#tutCard{position:absolute;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);width:min(420px,calc(100vw - 32px));padding:14px 16px 12px;border-radius:14px;background:linear-gradient(180deg,rgba(28,19,50,.94),rgba(14,10,28,.94));box-shadow:inset 0 0 0 1px rgba(242,193,96,.3),0 10px 30px rgba(0,0,0,.45);color:#f3e9d4;z-index:40;opacity:0;transition:opacity .35s,transform .35s;pointer-events:none}
+#tutCard.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}#pause:not(.hidden)~#tutCard,body.isPaused #tutCard{display:none}#pause{z-index:50}
 #tutCard .tl{font:600 10.5px Outfit,system-ui,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#f2a541;opacity:.85}
 #tutCard h3{margin:4px 0 6px;font:600 19px Cinzel,Georgia,serif;letter-spacing:.5px;color:#fff}
 #tutCard p{margin:0;font:14px/1.45 Georgia,serif;color:#e6dac2}
@@ -6352,8 +6352,8 @@ function lyraPlace(x,z,face){if(!LYR.a){LYR.a=buildLyra();if(!LYR.a)return;scene
 function lyraToTroca(){lyraPlace(-126,-112,0);LYR.home=true;CH2.obj=()=>CH2.zone==='paris'&&LYR.a&&LYR.home?`Meet <b>Lyra</b> at the Trocadéro · ${Math.round(Math.hypot(P.pos.x+126,P.pos.z+112))}m`:null}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!LYR.a||!LYR.a.g.visible)return;try{LYR.a.update(dt)}catch(e){}if(LYR.mk)LYR.mk.material.opacity=.6+Math.sin(performance.now()*.004)*.3;
   if(!LYR.home||CS.active||!started||CH2.zone!=='paris')return;const g=LYR.a.g.position;const dx=P.pos.x-g.x,dz=P.pos.z-g.z,d=Math.hypot(dx,dz);LYR.a.g.rotation.y=lerpAngle(LYR.a.g.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*3));
-  if(d<1.3){P.pos.x=g.x+dx/d*1.3;P.pos.z=g.z+dz/d*1.3}LYR.panelT-=dt;if(CH2.st>=9){if(typeof lyHint==='function')lyHint(d<3.2&&!bossRef)}else if(d<4&&LYR.panelT<=0&&!bossRef){LYR.panelT=9;lyraPanel()}else if(d>7&&LYR.panelT>1)LYR.panelT=1}}
-function lyraPanel(){const again=CH2.st>=3,back=false;const c=tutCard(`<div class="tl">Lyra</div><h3>The door to Calais</h3><p>${again?(CH2.st>=7?'Calais is as far as my magic reaches. From there it is the sea, the gem and your broom. My door in Calais brings you home.':'Calais is as far as my magic reaches. From there you fly the Channel again. My brother is still in the Tower.'):'From Calais you fly alone, across the cursed water, all the way to London. Ready, witch?'}</p><div class="row"><button class="gh" data-a="no">Not yet</button><button data-a="go">Open the door</button></div>`);
+  if(d<1.3){P.pos.x=g.x+dx/d*1.3;P.pos.z=g.z+dz/d*1.3}LYR.panelT-=dt;if(CH2.st>=3){if(typeof lyHint==='function')lyHint(d<3.2&&!bossRef&&!(CH2.st===8&&!XII.lazy))}else if(d<4&&LYR.panelT<=0&&!bossRef){LYR.panelT=9;lyraPanel()}else if(d>7&&LYR.panelT>1)LYR.panelT=1}}
+function lyraPanel(){if(CH2.st===7&&MODE!=='open'){const c=tutCard(`<div class="tl">Lyra</div><h3>Not yet</h3><p>Kaen's ash is still out there on the Trocadéro. Bring it to me first, then I'll open the door.</p><div class="row"><button data-a="ok">OK</button></div>`);c.onclick=e=>{if(e.target.closest('[data-a]'))tutHide()};return}if(CH2.st===8&&!XII.lazy){xiiLazy();return}const again=CH2.st>=3,back=false;const c=tutCard(`<div class="tl">Lyra</div><h3>The door to Calais</h3><p>${again?(CH2.st>=7?'Calais is as far as my magic reaches. From there it is the sea, the gem and your broom. My door in Calais brings you home.':'Calais is as far as my magic reaches. From there you fly the Channel again. My brother is still in the Tower.'):'From Calais you fly alone, across the cursed water, all the way to London. Ready, witch?'}</p><div class="row"><button class="gh" data-a="no">Not yet</button><button data-a="go">Open the door</button></div>`);
   c.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;tutHide();if(b.dataset.a==='go')ch2Depart(back)}}
 
 /* ---------- the finale of chapter 1 now opens chapter 2 ---------- */
@@ -6863,14 +6863,14 @@ function nzGhostKaen(at){const a=makeCHActor('m',{skin:0xfff0ea,hair:'hairPart',
 function M_ST(){return nzM().stone}
 function nzCrown(at){const g=new THREE.Group();g.position.copy(at);NZ.g.add(g);const m=std({color:0x1a3a20,emissive:0x40ff70,emissiveIntensity:.9,metalness:.7,roughness:.3});
   g.add(new THREE.Mesh(new THREE.TorusGeometry(7,.6,8,40),m));for(let k=0;k<9;k++){const a=k/9*TAU;const sp=new THREE.Mesh(new THREE.ConeGeometry(.9,5,6),m);sp.position.set(Math.cos(a)*7,2.6,Math.sin(a)*7);g.add(sp)}g.rotation.x=.12;
-  const gl=glowSprite(0x60ff80,30,.35);g.add(gl);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.6,1.4,1,10,1,true),nzM().glow(0x60ff90,.25));NZ.g.add(beam);
-  NZ.anim.push(dt=>{g.rotation.y+=dt*.25;g.position.y=at.y+Math.sin(performance.now()*.0008)*1.2;if(Math.random()<.6)FL.emit(V3(at.x+rand(-7,7),g.position.y+rand(0,4),at.z+rand(-7,7)),{c0:0xc0ff90,c1:0x0a3010,s0:1.4,s1:.2,life:.9,up:3});
+  const gl=glowSprite(0x60ff80,30,.35);g.add(gl);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.6,1.4,1,10,1,true),nzM().glow(0x60ff90,.25));NZ.g.add(beam);g.userData.beam=beam;
+  NZ.anim.push(dt=>{beam.visible=g.visible;g.rotation.y+=dt*.25;g.position.y=at.y+Math.sin(performance.now()*.0008)*1.2;if(Math.random()<.6)FL.emit(V3(at.x+rand(-7,7),g.position.y+rand(0,4),at.z+rand(-7,7)),{c0:0xc0ff90,c1:0x0a3010,s0:1.4,s1:.2,life:.9,up:3});
     const A=g.position,Bp=NZ.green;const L=Math.hypot(A.x-Bp.x,A.y-1,A.z-Bp.z);beam.position.set((A.x+Bp.x)/2,(A.y+1)/2,(A.z+Bp.z)/2);beam.scale.set(1,L,1);beam.lookAt(A);beam.rotateX(Math.PI/2)});return g}
-function nzAfter(){if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));}
+function nzAfter(){if(NZ.crown)NZ.crown.visible=true;if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));}
 function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const kS=(sd)=>()=>({pos:headOf(c,1.3).add(V3(sd||2.2,.2,3.2)),look:headOf(c,.9)});const crS=()=>({pos:V3(c.x-6,6,c.z+16),look:V3(232,34,-9876)});
   const gk=a=>{try{if(NZ.ghost)NZ.ghost.setBase(a,.5)}catch(e){}};
   playCutscene([{dur:4.2,fov:46,title:['The Tower of London','Where the Crown keeps its prisoners'],cam:k=>({pos:V3(c.x-24+k*8,15-k*5,c.z+30),look:V3(c.x+10,8,c.z-12)}),onStart:()=>{NZ.scatter=1;sx('cackle',.6);sx('bats',.5)}},
-    {dur:3,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost)NZ.ghost=nzGhostKaen(c);sx('shield',.8)}},
+    {dur:3,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost)NZ.ghost=nzGhostKaen(c);else if(typeof nzTowerRestore==='function')nzTowerRestore();sx('shield',.8)}},
     {who:'@',text:'Kaen?',cam:witchShot(1,3)},
     {who:"Kaen's Spirit",text:'Come to gloat, witch? Or worse... to pity me?',cut:true,cam:kS(),onStart:()=>gk('Idle_Loop')},
     {who:'@',text:'Lyra is free. She sent me.',cam:witchShot(-1,3.2)},
@@ -6880,7 +6880,7 @@ function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const
     {who:"Kaen's Spirit",text:'Bilel... I could not stop it. I watched it wear my hands. I am so sorry...',cam:k=>({pos:headOf(c,.8).add(V3(1.6,.1,2.2-k*.4)),look:headOf(c,.7)}),onStart:()=>{gk('Crouch_Idle_Loop');for(let k=0;k<6;k++)after(k*.4,()=>SP.emit(headOf(c,.9),{n:8,c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:1.4,grav:2}))}},
     {who:'@',text:'Then let us carry it with you. We are taking you home.',cam:witchShot(-1,3.2)},
     {who:"Kaen's Spirit",text:'Then run, witch. These chains are not mine to break. They belong to its crown.',cut:true,cam:kS()},
-    {dur:4.6,fov:56,cut:true,cam:k=>({pos:V3(c.x-10,4+k*5,c.z+24),look:V3(232,24+k*10,-9876)}),onStart:()=>{if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));flash(V3(232,30,-9876),0x60ff80,30);sx('powerup',1,null,{wet:.4});sx('garg',.6,null,{rate:.7,delay:.3});P.shake=1.2}},
+    {dur:4.6,fov:56,cut:true,cam:k=>({pos:V3(c.x-10,4+k*5,c.z+24),look:V3(232,24+k*10,-9876)}),onStart:()=>{if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));NZ.crown.visible=true;flash(V3(232,30,-9876),0x60ff80,30);sx('powerup',1,null,{wet:.4});sx('garg',.6,null,{rate:.7,delay:.3});P.shake=1.2}},
     {who:'The Hollow Crown',text:'Another sister. Another bargain. London always collects its debts, little witch.',cam:crS},
     {who:'@',text:'Then I am the debt you will never collect.',cam:witchShot(1,3.6)},
     {dur:4.5,fov:40,cam:k=>({pos:V3(c.x,30+k*20,c.z+50+k*20),look:V3(232,22,-9876)})}],
@@ -6889,7 +6889,7 @@ function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const
 /* ---------- the tick ---------- */
 function nzFog(c,d,dt){NZ.fogC.lerp(c,Math.min(1,dt*.6));NZ.fogD=lerp(NZ.fogD,d,Math.min(1,dt*.6));scene.fog.color.copy(NZ.fogC);scene.fog.density=NZ.fogD}
 const NZC={cal:new THREE.Color(0x2a2650),fr:new THREE.Color(0x272848),cur:new THREE.Color(0x1e3a38),eng:new THREE.Color(0x2a2a4a),lon:new THREE.Color(0x2e2c3e),tow:new THREE.Color(0x203a2e)};
-function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);if(NZ.seaT){NZ.seaT[0].offset.x+=dt*.01;NZ.seaT[1].offset.x+=dt*.018;NZ.seaT[1].offset.y+=dt*.008}
+function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(let i=NZ.anim.length-1;i>=0;i--){if(NZ.anim[i](dt)===false)NZ.anim.splice(i,1)}if(NZ.seaT){NZ.seaT[0].offset.x+=dt*.01;NZ.seaT[1].offset.x+=dt*.018;NZ.seaT[1].offset.y+=dt*.008}
   const z=P.pos.z,sea=z<CAL_SHORE&&z>CLIFF_Z,cur=sea&&z<CURSE_Z,lon=z<LON_Z;
   const tw=NZ.green?Math.hypot(P.pos.x-NZ.green.x,z-NZ.green.z):999;nzFog(z>CAL_SHORE?NZC.cal:cur?NZC.cur:sea?NZC.fr:!lon?NZC.eng:tw<70?NZC.tow:NZC.lon,cur?.0115:lon?.0105:sea?.0072:.0068,dt);
   NZ.flashK=Math.max(0,NZ.flashK-dt*5);hemi.intensity=.85+dawnK*.6+NZ.flashK*2.2;NZ.bolt.material.opacity=NZ.flashK>.5?NZ.flashK:0;
@@ -7897,7 +7897,7 @@ function xiiLondon(){const T=V3(224,10,-9862);
     ()=>{CH2.st=Math.max(CH2.st,9);ch2Save();xiiPerches();toast('Six ravens hold the Warden\'s chains. Find them on London\'s landmarks and set them free.','The Ravens',true)})}
 function xiiPerches(){if(XII.perch||!NZ.g)return;XII.perch=RVP().map((r,i)=>{if(XII.rv[i])return null;const m=buildRaven(2.2);m.g.position.copy(r.p);m.g.rotation.y=rand(0,TAU);NZ.g.add(m.g);const o={t:rand(0,9)};
   const pil=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,160,8,1,true),nzM().glow(0x60ff90,.12));pil.position.set(r.p.x,r.p.y+80,r.p.z);NZ.g.add(pil);
-  NZ.anim.push(dt=>{o.t+=dt;if(m.g.visible)m.anim(o,dt,0,true);pil.material.opacity=.08+Math.sin(o.t*2)*.04});return{m,pil}})}
+  NZ.anim.push(dt=>{if(!m.g.parent&&!pil.parent)return false;o.t+=dt;if(m.g.visible)m.anim(o,dt,0,true);pil.material.opacity=.08+Math.sin(o.t*2)*.04});return{m,pil}})}
 ETYPES.traven={name:'Raven of the Tower',hp:700,speed:20,dmg:20,range:3.2,cd:1.3,xp:300,r:1.6,h:2.6,fly:1,build:()=>{const m=buildRaven(2.2);return{g:m.g,body:m.body,anim:(e,dt,mv)=>m.anim(e,dt,mv,false)}},
   ai:(e,dt,d)=>{const a=e.ai||(e.ai={});e.t=(e.t||0);nzFlyAI(1.2)(e,dt,d);a.v=(a.v==null?3:a.v)-dt;a.s=(a.s==null?8:a.s)-dt;
     if(a.v<=0&&d<40){a.v=rand(4,5.5);const c=eCenter(e),base=aimAtPlayer(c).normalize();sx('cackle',.5,null,{rate:1.6});for(let k=0;k<7;k++)after(k*.05,()=>{if(e.dead)return;enemyOrb(eCenter(e),base.clone().applyAxisAngle(V3(0,1,0),(k-3)*.12),22,e.dmg*.45,0x1a1a1a,.32,{keepY:false,life:2.4})})}
@@ -7931,7 +7931,7 @@ function xiiWarden(){XII.wd=1;const at=V3(224,8,-9862);const e=wdSpawn(at,true);
 /* ---------- 5. the Crown's silver, and a heartbeat ---------- */
 function xiiSilver(center,orb){const g=NZ.green||V3(222,0,-9862);const sp=V3(center.x,Math.max(2.4,groundAt(center.x,center.z)+2.4),center.z);
   const sil=new THREE.Group();sil.position.copy(sp);const sm=std({color:0xe8eef8,metalness:1,roughness:.15,emissive:0x8fb0ff,emissiveIntensity:.35});sil.add(new THREE.Mesh(new THREE.TorusGeometry(.55,.08,8,28),sm));for(let k=0;k<7;k++){const a=k/7*TAU;const s=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,5),sm);s.position.set(Math.cos(a)*.55,.18,Math.sin(a)*.55);sil.add(s)}
-  const sg=glowSprite(0xcfe0ff,3,.6);sil.add(sg);NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
+  const sg=glowSprite(0xcfe0ff,3,.6);sil.add(sg);NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return false;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
   const kp=()=>KFW.a?KFW.a.g.position:P.pos;
   playCutscene([{who:'The Warden',text:XL.t2_11,cam:orb,update:()=>SP.emit(V3(center.x+rand(-2,2),center.y+rand(0,4),center.z+rand(-2,2)),{c0:0xc0ff90,c1:0x103010,s0:.6,s1:.1,life:.8,up:2})},
     {who:'@',text:XL.m3_11,cam:witchShot(-1,3.4)},
@@ -8543,7 +8543,7 @@ addEventListener('keydown',e=>{if(e.code==='KeyE'&&LYH&&LYH.classList.contains('
 XL.ly48='I can finally be here with you, in London. No more whispering in your head. The Tower and its Warden can\'t feed on me anymore.';XL.ly49='But the Crown can always feed. On any of us. So we stay careful. Me too.';VO_MAP[XL.ly48]='ly48';VO_MAP[XL.ly49]='ly49';
 xiiSilver=function(center,orb){const sp=V3(center.x,Math.max(2.4,groundAt(center.x,center.z)+2.4),center.z);
   const sil=new THREE.Group();sil.position.copy(sp);const sm=std({color:0xe8eef8,metalness:1,roughness:.15,emissive:0x8fb0ff,emissiveIntensity:.35});sil.add(new THREE.Mesh(new THREE.TorusGeometry(.55,.08,8,28),sm));for(let k=0;k<7;k++){const a=k/7*TAU;const s=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,5),sm);s.position.set(Math.cos(a)*.55,.18,Math.sin(a)*.55);sil.add(s)}
-  sil.add(glowSprite(0xcfe0ff,3,.6));NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
+  sil.add(glowSprite(0xcfe0ff,3,.6));NZ.g.add(sil);const spin={on:1};NZ.anim.push(dt=>{if(!spin.on)return false;sil.rotation.y+=dt*1.2;sil.position.y=sp.y+Math.sin(performance.now()*.002)*.15});
   {const G=NZ.green||V3(222,0,-9862);const tw=V3(232-G.x,0,-9876-G.z).normalize();const st=G.clone().addScaledVector(tw,-3);P.pos.set(st.x,groundAt(st.x,st.z),st.z);P.vy=0;P.flying=false;P.face=Math.atan2(tw.x,tw.z);yaw=P.face+Math.PI;
     if(KFW.a){const kq=P.pos.clone().add(V3(-tw.z*1.4,0,tw.x*1.4)).addScaledVector(tw,-.6);KFW.a.g.position.set(kq.x,P.pos.y+.35,kq.z);KFW.a.g.rotation.y=P.face}}
   const kp=()=>KFW.a?KFW.a.g.position:P.pos;const f=V3(Math.sin(P.face),0,Math.cos(P.face)),rt=V3(f.z,0,-f.x);
@@ -8952,7 +8952,7 @@ const x4CmpTgt=()=>{const w=enemies.filter(o=>!o.dead&&o.dw);if(w.length&&Math.r
 function x4CmpMove(c,a,dt,R,run){const e=X4.e,g=a.g.position;c.ang+=dt*(.16+.05*Math.sin(time*.7+R));let tx=e.pos.x+Math.sin(c.ang)*R,tz=e.pos.z+Math.cos(c.ang)*R;
   for(const S of X4.smokes){const d=Math.hypot(tx-S.p.x,tz-S.p.z);if(d<S.r+1){const k=(S.r+1-d)/(d||1);tx+=(tx-S.p.x)*k;tz+=(tz-S.p.z)*k}}
   const dp=Math.hypot(tx-P.pos.x,tz-P.pos.z);if(dp<3.5){tx+=(tx-P.pos.x)/(dp||1)*(3.5-dp);tz+=(tz-P.pos.z)/(dp||1)*(3.5-dp)}
-  tx=clamp(tx,X4FB.x0+2,X4FB.x1-2);tz=clamp(tz,X4FB.z0+2,X4FB.z1-2);const dx=tx-g.x,dz=tz-g.z,L=Math.hypot(dx,dz);const v=Math.min(L,dt*(L>6?run:run*.55));
+  tx=clamp(tx,X4FB.x0+2,X4FB.x1-2);tz=clamp(tz,X4FB.z0+2,X4FB.z1-2);if(Math.hypot(tx-g.x,tz-g.z)>40){g.x=tx;g.z=tz;SP.emit(V3(tx,1,tz),{n:24,c0:0xffffff,c1:0x9a70ff,speed:4,life:.5})}const dx=tx-g.x,dz=tz-g.z,L=Math.hypot(dx,dz);const v=Math.min(L,dt*(L>6?run:run*.55));
   if(L>.05){g.x+=dx/L*v;g.z+=dz/L*v}g.y=groundAt(g.x,g.z);if(L>2.2){a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*8));return L>6?'Sprint_Loop':'Walk_Loop'}
   a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(e.pos.x-g.x,e.pos.z-g.z),Math.min(1,dt*6));return null}
 /* Kaen: sword wave, dash cut, void ring */
@@ -9112,18 +9112,18 @@ Object.assign(XL3,{m9_01:"Eleven miles of sea, and we're already over Kent. Lond
 for(const k of['m9_01','k9_01','m9_02','k9_02','m9_03','k9_03'])VO_MAP[XL3[k]]=k;
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CS.active||CH2.zone!=='north'||!P.alive||CH2.chase||XII.said.spd)return;if(CH2.st<8||CH2.st>12||!P.flying||P.pos.z>CLIFF_Z-120||P.pos.z<LON_Z+500)return;
   if(SAYQ.on||SAYQ.q.length)return;XII.said.spd=1;const kw=XII.solid?'Kaen':"Kaen's Spirit";epSay('@',XL3.m9_01);epSay(kw,XL3.k9_01);epSay('@',XL3.m9_02);epSay(kw,XL3.k9_02);epSay('@',XL3.m9_03)}}
-{const st=document.createElement('style');st.textContent='@media (max-width:700px){#kmBar .row{gap:4px}#kmBar button{width:42px;height:42px}}';document.head.appendChild(st)}
+{const st=document.createElement('style');st.textContent='@media (max-width:700px){#kmBar .row{gap:4px}#kmBar button{width:42px;height:42px}}@media (max-width:430px){#kmBar .row{gap:3px}#kmBar button{width:37px;height:40px}#kmBar button em{display:none}}';document.head.appendChild(st)}
 /* every boss with its own theme plays only that theme: no generic boss track while it loads */
 {const _bw=bmWant;bmWant=function(){if(started&&MODE!=='open'&&bossRef&&!bossRef.dead&&BTH[bossRef.type]){bmTrack(BTH[bossRef.type]);return null}return _bw.apply(this,arguments)}}
 {const _mw=muWant;muWant=function(){if(started&&MODE!=='open'&&bossRef&&!bossRef.dead&&BTH[bossRef.type]){const k=BTH[bossRef.type];return bmTrack(k).ok?k:null}return _mw.apply(this,arguments)}}
 
 /* ================= main menu music ================= */
 const MMU={t:null,v:0,arm:0};
-function mmuArm(){if(MMU.arm||started)return;MMU.arm=1;try{initAudio()}catch(x){}MMU.t=bmTrack('mus_menu')}
+function mmuArm(){if(started||MMU.t)return;MMU.arm=1;try{initAudio()}catch(x){}MMU.t=bmTrack('mus_menu')}
 addEventListener('pointerdown',()=>{if(!started)mmuArm()},true);addEventListener('keydown',()=>{if(!started)mmuArm()},true);
 function mmuTick(dt){const t=MMU.t;if(!t||!AC)return;dt=Math.min(dt,.1);const want=!started&&!muted&&musicOn?.36:0;
   if(want>0&&t.ok&&!t.playing){bmStart(t);MMU.v=0}if(!t.playing||!t.g)return;MMU.v+=(want-MMU.v)*Math.min(1,dt*(want>MMU.v?.45:2.4));t.g.gain.value=MMU.v;if(!want&&MMU.v<.004){bmStop(t);MMU.v=0;if(started)MMU.t=null}}
-{let last=0;const loop=now=>{const dt=last?(now-last)/1000:0;last=now;try{mmuTick(dt)}catch(x){}if(!started||MMU.t)requestAnimationFrame(loop)};requestAnimationFrame(loop)}
+{let last=0;const loop=now=>{const dt=last?(now-last)/1000:0;last=now;try{mmuTick(dt)}catch(x){}requestAnimationFrame(loop)};requestAnimationFrame(loop)}
 
 /* ================= Maëlle never says "Hang on, Kaen" once he is back ================= */
 {const _bp=bkPick;bkPick=function(who,cat){let r=_bp.apply(this,arguments);if(who==='@'&&r&&r[0]==='mz09'&&(CH2.st>=11||(typeof XII!=='undefined'&&XII.solid))){for(let i=0;i<4&&r&&r[0]==='mz09';i++)r=_bp.apply(this,arguments);if(r&&r[0]==='mz09')r=null}return r}}
@@ -9165,7 +9165,7 @@ kmShieldFx=function(){if(KM.shM){KM.shM.visible=true;KM.shM.scale.setScalar(.3);
   tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
   const mat=new THREE.ShaderMaterial({uniforms:{map:{value:tex},t:{value:0},hit:{value:0},fade:{value:1},col:{value:new THREE.Color(0x9a66ff)}},
     vertexShader:'varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){vUv=uv;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader:'uniform sampler2D map;uniform float t,hit,fade;uniform vec3 col;varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){float f=pow(1.-abs(dot(vN,vV)),2.);float hx=texture2D(map,vUv*vec2(4.,2.)+vec2(t*.03,0.)).r;float band=pow(max(0.,1.-abs(fract(vUv.y*1.2-t*.45)-.5)*7.),2.);float a=(f*.85+hx*(.2+f*.75)+band*hx*.7+hit*(.35+hx*.9))*fade;gl_FragColor=vec4(mix(col,vec3(1.),hit*.55+f*.2)*(1.15+hit*.8),clamp(a,0.,1.));}',
+    fragmentShader:'uniform sampler2D map;uniform float t,hit,fade;uniform vec3 col;varying vec3 vN;varying vec3 vV;varying vec2 vUv;void main(){float f=pow(1.-abs(dot(vN,vV)),2.);float hx=texture2D(map,vUv*vec2(4.,2.)+vec2(t*.03,0.)).r;float band=pow(max(0.,1.-abs(fract(vUv.y*1.2-t*.45)-.5)*7.),2.);float a=(f*.85+hx*(.2+f*.75)+band*hx*.7+hit*(.22+hx*.6))*fade;gl_FragColor=vec4(mix(col,vec3(1.),hit*.35+f*.15)*(1.+hit*.4),clamp(a,0.,.9));}',
     transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
   const m=new THREE.Mesh(new THREE.SphereGeometry(1.85,40,28),mat);
   const s=new THREE.Mesh(new THREE.SphereGeometry(1.7,24,16),new THREE.MeshBasicMaterial({color:0x5a28c0,transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));m.add(s);
@@ -9178,6 +9178,12 @@ kmShieldFx=function(){if(KM.shM){KM.shM.visible=true;KM.shM.scale.setScalar(.3);
 
 /* ================= after Vesper: E or Enter starts the talk right away ================= */
 addEventListener('keydown',e=>{if(!started||MODE==='open'||CS.active||CH2.st!==13||KM.on||e.repeat)return;if(e.code==='KeyE'||e.code==='Enter'||e.code==='NumpadEnter'){X4.goT=1}},true);
+
+/* ================= chapter switches restore the Tower: chained Kaen back in place ================= */
+function nzTowerRestore(){const g=NZ.ghost;if(g){g.g.visible=true;g.g.scale.setScalar(1);if(NZ.green){g.g.position.set(NZ.green.x,0,NZ.green.z);g.g.rotation.y=Math.PI*.15}try{g.setBase('Crouch_Idle_Loop',.2);g.update(.3)}catch(x){}}
+  for(const l of NZQ.links){l.visible=true;l.scale.setScalar(1);l.rotation.x=0;if(l.userData.p0)l.position.copy(l.userData.p0);if(l.material&&'emissiveIntensity' in l.material)l.material.emissiveIntensity=.3}NZQ.dead=0;NZQ.hits=0;if(NZQ.spirit)NZQ.spirit.ty=-12}
+{const _ac=applyChapter;applyChapter=function(id){const r=_ac.apply(this,arguments);if(MODE==='open')return r;if(CH2.st===5&&CH2.zone==='north')nzTowerRestore();if(CH2.st<5){if(NZ.ghost)NZ.ghost.g.visible=false;for(const l of NZQ.links)l.visible=false;if(NZ.crown)NZ.crown.visible=false;NZ.afterDone=0}
+  if(LYR.a){const want=(CH2.zone==='paris'&&LYR.home)||(CH2.zone==='north'&&CH2.st>=11);if(!want)LYR.a.g.visible=false}LYR.pin=0;KFW.pin=0;X4.haze=0;return r}}
 /* voice pack: new lines ship as one file */
 const VOPK={idx:{"k2_01":[0,52269],"k2_02":[52269,44781],"k2_03":[97050,48429],"k2_04":[145479,43821],"k2_05":[189300,19053],"k2_06":[208353,20973],"k2_07":[229326,42285],"k2_08":[271611,33069],"k2_09":[304680,20973],"k2_11":[325653,17709],"k2_12":[343362,19245],"k2_13":[362607,45549],"k2_14":[408156,64941],"k2_15":[473097,19629],"k2_16":[492726,20205],"k2_17":[512931,18669],"k2_18":[531600,17133],"k2_19":[548733,18861],"k3_01":[567594,32877],"k3_02":[600471,25005],"k3_03":[625476,39597],"k3_04":[665073,40941],"k3_05":[706014,57837],"k3_06":[763851,60909],"k3_07":[824760,32493],"k3_08":[857253,35757],"k3_09":[893010,40749],"k3_10":[933759,20781],"k6_01":[954540,45741],"k6_02":[1000281,56301],"k6_03":[1056582,53421],"k6_04":[1110003,17709],"k6_05":[1127712,23661],"k6_06":[1151373,15213],"k6_07":[1166586,23277],"k6_08":[1189863,9837],"k6_09":[1199700,24813],"k7_01":[1224513,41325],"k7_02":[1265838,53229],"k7_03":[1319067,48813],"k7_04":[1367880,37677],"k7_05":[1405557,54573],"k7_06":[1460130,60141],"k7_07":[1520271,27501],"k7_08":[1547772,30765],"kb2_01":[1578537,50157],"kb2_02":[1628694,43245],"kb2_03":[1671939,45933],"kf_01":[1717872,14445],"kf_02":[1732317,18477],"kf_03":[1750794,11373],"kf_04":[1762167,18093],"kf_05":[1780260,18669],"kf_06":[1798929,32109],"kf_07":[1831038,12525],"kf_08":[1843563,37101],"kf_09":[1880664,13101],"kf_10":[1893765,10413],"kf_11":[1904178,7917],"kj5_01":[1912095,35181],"kj5_02":[1947276,75885],"kj5_03":[2023161,72429],"kj5_04":[2095590,36909],"kj5_05":[2132499,77229],"kj5_06":[2209728,62829],"kj5_07":[2272557,49965],"kj5_08":[2322522,53613],"kj5_09":[2376135,40173],"kj5_10":[2416308,37293],"kj5_11":[2453601,51501],"kj5_12":[2505102,27117],"kj5_13":[2532219,51693],"kj5_14":[2583912,60909],"kj5_15":[2644821,45741],"kj5_16":[2690562,50157],"kj5_17":[2740719,31341],"kj5_18":[2772060,47469],"kj5_19":[2819529,52845],"kj5_20":[2872374,36141],"kj5_21":[2908515,40749],"kx1":[2949264,33261],"kx2":[2982525,60717],"kx3":[3043242,45741],"kx4":[3088983,53805],"kx5":[3142788,50925],"kz_clue":[3193713,66669],"kz_free":[3260382,35949],"kz_stop":[3296331,41517],"ly43":[3337848,25581],"ly44":[3363429,34605],"ly45":[3398034,28269],"ly46":[3426303,54765],"ly47":[3481068,25197],"ly48":[3506265,67245],"ly49":[3573510,49005],"m6_01":[3622515,31917],"m6_02":[3654432,25197],"m6_03":[3679629,21549],"m6_04":[3701178,33837],"m6_05":[3735015,24813],"m6_06":[3759828,29997],"m6_07":[3789825,27693],"m6_08":[3817518,31917],"m6_09":[3849435,31533],"m7_01":[3880968,53613],"m7_02":[3934581,23277],"m7_03":[3957858,40365],"m7_04":[3998223,34413],"m7_05":[4032636,21165],"m7_06":[4053801,17517],"m7_07":[4071318,19437],"m7_08":[4090755,17709],"m7_09":[4108464,19437],"m7_10":[4127901,21933],"m7_11":[4149834,25581],"m7_12":[4175415,21357],"vp_01":[4196772,39789],"vp_02":[4236561,57837],"vp_03":[4294398,38445],"vp_04":[4332843,34605],"vp_05":[4367448,24621],"vp_06":[4392069,47469],"vp_07":[4439538,39789],"vp_08":[4479327,50157],"vp_09":[4529484,41133],"vp_10":[4570617,24429],"vp_11":[4595046,47277],"m8_01":[4642323,55341],"m8_02":[4697664,39597],"m8_03":[4737261,26733],"m8_04":[4763994,24813],"m8_05":[4788807,59757],"m8_06":[4848564,41517],"m8_07":[4890081,43437],"m8_08":[4933518,16749],"m8_09":[4950267,5229],"m8_10":[4955496,15597],"m8_11":[4971093,27309],"k8_01":[4998402,71469],"k8_02":[5069871,74925],"k8_03":[5144796,105453],"k8_04":[5250249,74157],"k8_05":[5324406,13869],"k8_06":[5338275,51117],"k8_07":[5389392,29805],"k8_08":[5419197,25581],"al_01":[5444778,83757],"al_02":[5528535,74925],"al_03":[5603460,82413],"al_04":[5685873,68397],"al_05":[5754270,48045],"al_06":[5802315,41517],"al_07":[5843832,39021],"al_08":[5882853,29613],"de_01":[5912466,45741],"de_02":[5958207,32685],"de_03":[5990892,36333],"de_04":[6027225,29613],"de_05":[6056838,28269],"de_06":[6085107,34029],"de_07":[6119136,23277],"ly50":[6142413,63213],"ly51":[6205626,74157],"ly52":[6279783,52461],"ly53":[6332244,40749],"ly54":[6372993,54573],"ly55":[6427566,27309],"kc_01":[6454875,8493],"kc_02":[6463368,25773],"kc_03":[6489141,28077],"kc_04":[6517218,8493],"kc_05":[6525711,17517],"kc_06":[6543228,19053],"kc_07":[6562281,13293],"kc_08":[6575574,15597],"kc_09":[6591171,22125],"kc_10":[6613296,7533],"kc_11":[6620829,16173],"m9_01":[6637002,44397],"m9_02":[6681399,62253],"m9_03":[6743652,22509],"k9_01":[6766161,69165],"k9_02":[6835326,39213],"k9_03":[6874539,29037],"kc_12":[6903576,17709],"kc_13":[6921285,20205],"kc_14":[6941490,12909],"kc_15":[6954399,7533],"kc_16":[6961932,13101],"kc_17":[6975033,14637],"kc_18":[6989670,25965],"kc_19":[7015635,21165],"kc_20":[7036800,18477],"kc_21":[7055277,31149]},p:null};
 {const _vr=voRaw;voRaw=function(k){const ix=VOPK.idx[k];if(!ix||VO.raw[k])return _vr(k);if(!VOPK.p)VOPK.p=fetch('assets/vo19.mp3').then(r=>r.ok?r.arrayBuffer():null).catch(()=>null);
@@ -9573,7 +9579,7 @@ if(MODE==='open'){document.body.classList.add('ow');document.querySelector('#sta
 
 $('continueBtn').addEventListener('click',()=>startGame(true));
 $('reviveBtn').addEventListener('click',revive);
-function togglePause(){if(!started||!P.alive||CS.active)return;paused=!paused;$('pause').classList.toggle('hidden',!paused);if(paused&&MODE==='open'){$('carnetInfo').textContent=`Carnet de Paris: ${OWS.carnet.size.toLocaleString('en')} of ${carnetTotal().toLocaleString('en')} conversations · ${OWS.visited.size}/${LANDMARKS.length} landmarks · ${OWS.qdone.length}/${QUESTS.length} quests`;$('abandonBtn').style.display=OWS.quest?'':'none'}}
+function togglePause(){if(!started||!P.alive||CS.active)return;paused=!paused;$('pause').classList.toggle('hidden',!paused);document.body.classList.toggle('isPaused',paused);if(paused&&MODE==='open'){$('carnetInfo').textContent=`Carnet de Paris: ${OWS.carnet.size.toLocaleString('en')} of ${carnetTotal().toLocaleString('en')} conversations · ${OWS.visited.size}/${LANDMARKS.length} landmarks · ${OWS.qdone.length}/${QUESTS.length} quests`;$('abandonBtn').style.display=OWS.quest?'':'none'}}
 $('pauseBtn').addEventListener('click',togglePause);
 $('autoBtn').addEventListener('click',()=>{autoBolt=!autoBolt;syncAuto()});
 $('resumeBtn').addEventListener('click',togglePause);

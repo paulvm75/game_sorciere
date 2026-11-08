@@ -459,14 +459,14 @@ function nzGhostKaen(at){const a=makeCHActor('m',{skin:0xfff0ea,hair:'hairPart',
 function M_ST(){return nzM().stone}
 function nzCrown(at){const g=new THREE.Group();g.position.copy(at);NZ.g.add(g);const m=std({color:0x1a3a20,emissive:0x40ff70,emissiveIntensity:.9,metalness:.7,roughness:.3});
   g.add(new THREE.Mesh(new THREE.TorusGeometry(7,.6,8,40),m));for(let k=0;k<9;k++){const a=k/9*TAU;const sp=new THREE.Mesh(new THREE.ConeGeometry(.9,5,6),m);sp.position.set(Math.cos(a)*7,2.6,Math.sin(a)*7);g.add(sp)}g.rotation.x=.12;
-  const gl=glowSprite(0x60ff80,30,.35);g.add(gl);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.6,1.4,1,10,1,true),nzM().glow(0x60ff90,.25));NZ.g.add(beam);
-  NZ.anim.push(dt=>{g.rotation.y+=dt*.25;g.position.y=at.y+Math.sin(performance.now()*.0008)*1.2;if(Math.random()<.6)FL.emit(V3(at.x+rand(-7,7),g.position.y+rand(0,4),at.z+rand(-7,7)),{c0:0xc0ff90,c1:0x0a3010,s0:1.4,s1:.2,life:.9,up:3});
+  const gl=glowSprite(0x60ff80,30,.35);g.add(gl);const beam=new THREE.Mesh(new THREE.CylinderGeometry(.6,1.4,1,10,1,true),nzM().glow(0x60ff90,.25));NZ.g.add(beam);g.userData.beam=beam;
+  NZ.anim.push(dt=>{beam.visible=g.visible;g.rotation.y+=dt*.25;g.position.y=at.y+Math.sin(performance.now()*.0008)*1.2;if(Math.random()<.6)FL.emit(V3(at.x+rand(-7,7),g.position.y+rand(0,4),at.z+rand(-7,7)),{c0:0xc0ff90,c1:0x0a3010,s0:1.4,s1:.2,life:.9,up:3});
     const A=g.position,Bp=NZ.green;const L=Math.hypot(A.x-Bp.x,A.y-1,A.z-Bp.z);beam.position.set((A.x+Bp.x)/2,(A.y+1)/2,(A.z+Bp.z)/2);beam.scale.set(1,L,1);beam.lookAt(A);beam.rotateX(Math.PI/2)});return g}
-function nzAfter(){if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));}
+function nzAfter(){if(NZ.crown)NZ.crown.visible=true;if(NZ.afterDone)return;NZ.afterDone=1;if(!NZ.ghost)NZ.ghost=nzGhostKaen(NZ.green);if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));}
 function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const kS=(sd)=>()=>({pos:headOf(c,1.3).add(V3(sd||2.2,.2,3.2)),look:headOf(c,.9)});const crS=()=>({pos:V3(c.x-6,6,c.z+16),look:V3(232,34,-9876)});
   const gk=a=>{try{if(NZ.ghost)NZ.ghost.setBase(a,.5)}catch(e){}};
   playCutscene([{dur:4.2,fov:46,title:['The Tower of London','Where the Crown keeps its prisoners'],cam:k=>({pos:V3(c.x-24+k*8,15-k*5,c.z+30),look:V3(c.x+10,8,c.z-12)}),onStart:()=>{NZ.scatter=1;sx('cackle',.6);sx('bats',.5)}},
-    {dur:3,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost)NZ.ghost=nzGhostKaen(c);sx('shield',.8)}},
+    {dur:3,cam:k=>({pos:headOf(c,1.6).add(V3(4-k,.3,5)),look:headOf(c,1.1)}),onStart:()=>{if(!NZ.ghost)NZ.ghost=nzGhostKaen(c);else if(typeof nzTowerRestore==='function')nzTowerRestore();sx('shield',.8)}},
     {who:'@',text:'Kaen?',cam:witchShot(1,3)},
     {who:"Kaen's Spirit",text:'Come to gloat, witch? Or worse... to pity me?',cut:true,cam:kS(),onStart:()=>gk('Idle_Loop')},
     {who:'@',text:'Lyra is free. She sent me.',cam:witchShot(-1,3.2)},
@@ -476,7 +476,7 @@ function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const
     {who:"Kaen's Spirit",text:'Bilel... I could not stop it. I watched it wear my hands. I am so sorry...',cam:k=>({pos:headOf(c,.8).add(V3(1.6,.1,2.2-k*.4)),look:headOf(c,.7)}),onStart:()=>{gk('Crouch_Idle_Loop');for(let k=0;k<6;k++)after(k*.4,()=>SP.emit(headOf(c,.9),{n:8,c0:0xd0f0ff,c1:0x2050a0,s0:.25,s1:.03,life:1.4,grav:2}))}},
     {who:'@',text:'Then let us carry it with you. We are taking you home.',cam:witchShot(-1,3.2)},
     {who:"Kaen's Spirit",text:'Then run, witch. These chains are not mine to break. They belong to its crown.',cut:true,cam:kS()},
-    {dur:4.6,fov:56,cut:true,cam:k=>({pos:V3(c.x-10,4+k*5,c.z+24),look:V3(232,24+k*10,-9876)}),onStart:()=>{if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));flash(V3(232,30,-9876),0x60ff80,30);sx('powerup',1,null,{wet:.4});sx('garg',.6,null,{rate:.7,delay:.3});P.shake=1.2}},
+    {dur:4.6,fov:56,cut:true,cam:k=>({pos:V3(c.x-10,4+k*5,c.z+24),look:V3(232,24+k*10,-9876)}),onStart:()=>{if(!NZ.crown)NZ.crown=nzCrown(V3(232,34,-9876));NZ.crown.visible=true;flash(V3(232,30,-9876),0x60ff80,30);sx('powerup',1,null,{wet:.4});sx('garg',.6,null,{rate:.7,delay:.3});P.shake=1.2}},
     {who:'The Hollow Crown',text:'Another sister. Another bargain. London always collects its debts, little witch.',cam:crS},
     {who:'@',text:'Then I am the debt you will never collect.',cam:witchShot(1,3.6)},
     {dur:4.5,fov:40,cam:k=>({pos:V3(c.x,30+k*20,c.z+50+k*20),look:V3(232,22,-9876)})}],
@@ -485,7 +485,7 @@ function nzTowerEnd(){CH2.st=Math.max(CH2.st,5);ch2Save();const c=NZ.green;const
 /* ---------- the tick ---------- */
 function nzFog(c,d,dt){NZ.fogC.lerp(c,Math.min(1,dt*.6));NZ.fogD=lerp(NZ.fogD,d,Math.min(1,dt*.6));scene.fog.color.copy(NZ.fogC);scene.fog.density=NZ.fogD}
 const NZC={cal:new THREE.Color(0x2a2650),fr:new THREE.Color(0x272848),cur:new THREE.Color(0x1e3a38),eng:new THREE.Color(0x2a2a4a),lon:new THREE.Color(0x2e2c3e),tow:new THREE.Color(0x203a2e)};
-function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(const f of NZ.anim)f(dt);if(NZ.seaT){NZ.seaT[0].offset.x+=dt*.01;NZ.seaT[1].offset.x+=dt*.018;NZ.seaT[1].offset.y+=dt*.008}
+function nzTick(dt){if(!NZ.g||!NZ.g.visible)return;for(let i=NZ.anim.length-1;i>=0;i--){if(NZ.anim[i](dt)===false)NZ.anim.splice(i,1)}if(NZ.seaT){NZ.seaT[0].offset.x+=dt*.01;NZ.seaT[1].offset.x+=dt*.018;NZ.seaT[1].offset.y+=dt*.008}
   const z=P.pos.z,sea=z<CAL_SHORE&&z>CLIFF_Z,cur=sea&&z<CURSE_Z,lon=z<LON_Z;
   const tw=NZ.green?Math.hypot(P.pos.x-NZ.green.x,z-NZ.green.z):999;nzFog(z>CAL_SHORE?NZC.cal:cur?NZC.cur:sea?NZC.fr:!lon?NZC.eng:tw<70?NZC.tow:NZC.lon,cur?.0115:lon?.0105:sea?.0072:.0068,dt);
   NZ.flashK=Math.max(0,NZ.flashK-dt*5);hemi.intensity=.85+dawnK*.6+NZ.flashK*2.2;NZ.bolt.material.opacity=NZ.flashK>.5?NZ.flashK:0;
