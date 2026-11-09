@@ -6,7 +6,7 @@ function cloakGeo(S,bones,o={}){const SKc=S.SK;const bI=nm=>bones.findIndex(b=>b
   const w0=o.w0||.24,w1=o.w1||.46,mant=o.mantle!==undefined?o.mantle:.2;
   for(let r=0;r<=rows;r++){const t=r/rows;const y=lerp(yT,yB,t);const w=t<.15?lerp(w0,w0*1.12,t/.15):lerp(w0*1.12,w1,Math.pow((t-.15)/.85,.85));const zc=zT-.015-t*(o.flare||.2);
     for(let c=0;c<=cols;c++){const u=c/cols;const a=(u-.5)*2;const x=a*w;const wrap=mant*(1-sst(0,.24,t))+(o.wrap||.06)*(1-t*.5);
-      const z=zc+(1-a*a)*(-.025-.03*t)+(a*a)*wrap;const yy=y-(a*a)*.17*(1-sst(0,.22,t));P.push(x,yy,z);N.push(0,0,-1);UV.push(u,t);
+      const a2=a*a;const z=zc+(1-a2)*(-.035-.03*t)+a2*a2*wrap;const yy=y-(a*a)*.17*(1-sst(0,.22,t));P.push(x,yy,z);N.push(0,0,-1);UV.push(u,t);
       let ws;const side=a<0?cr:cl,sd=a*a;
       if(t<.22){const k=t/.22;ws=[[sp3,(1-sd*.75)*(1-k*.5)],[side,sd*.75*(1-k*.5)],[sp2,k*.5]]}
       else if(t<.5){const k=(t-.22)/.28;ws=[[sp2,1-k],[sp1,k]]}
@@ -60,7 +60,7 @@ function buildIllusion(){const M2=mat2();const a=makeCHActor('m',{skin:0xfff0ea,
   // torn cloak (two versions)
   const clothN=kaenClothTex(false,true),clothT=kaenClothTex(true,true,'#1a1620');
   const cloakM=std({map:clothN,color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});
-  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.27,w1:.56,flare:.2,mantle:.22,back:.09,bottom:SK.calf_l.y-.25,wrap:.07}),cloakM);
+  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.35,w1:.6,flare:.2,mantle:.24,back:.18,bottom:SK.calf_l.y-.25,wrap:.08}),cloakM);
   // rope belt, emblem, hanging sash panel, tassels
   const belt=new THREE.Group();for(let k=0;k<3;k++){const t=new THREE.Mesh(new THREE.TorusGeometry(.155,.016,6,40),rope);t.rotation.x=Math.PI/2;t.position.y=k*.024;t.rotation.z=k*.4;belt.add(t)}
   const knot=new THREE.Mesh(G.sphere,rope);knot.scale.set(.035,.03,.025);knot.position.set(.09,.02,.12);belt.add(knot);

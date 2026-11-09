@@ -18,16 +18,23 @@ function nzRaw(x,z){const t=clamp((CLIFF_Z-z)/ENG_L,0,1),b=nzBase(z,x);const amp
 function nzLand(x,z){let h=nzRaw(x,z);
   for(const T of NZTOWNS){if(!T.f)continue;const d=Math.hypot(x-T.x,z-T.z);if(d<T.r){if(T.h==null)T.h=Math.max(1.6,nzRaw(T.x,T.z));h=lerp(h,T.h,1-nzSm(T.r*.55,T.r,d))}}
   if(z<RIV_Z0+60&&z>LON_Z){const hw=nzRiverHW(z),rx=nzRiverX(z),d=Math.abs(x-rx);const pd=Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6);
-    if(d<hw+75||pd<60){const on=nzSm(RIV_Z0+6,RIV_Z0-6,z)*nzSm(LON_Z,LON_Z+12,z);const v=Math.max((1-nzSm(hw-1,hw+14,d))*on,1-nzSm(9,20,pd));const near=Math.max(nzSm(hw+40,hw+14,d)*on,1-nzSm(20,40,pd)),fl=Math.max(nzSm(hw+75,hw+16,d)*on,1-nzSm(24,60,pd));
+    if(d<hw+75||pd<60){const on=nzSm(RIV_Z0+6,RIV_Z0-6,z)*nzSm(LON_Z,LON_Z+12,z);const v=Math.max((1-nzSm(hw+.8,hw+3.6,d))*on,1-nzSm(14.5,17.5,pd));const near=Math.max(nzSm(hw+40,hw+14,d)*on,1-nzSm(20,40,pd)),fl=Math.max(nzSm(hw+75,hw+16,d)*on,1-nzSm(24,60,pd));
       h=lerp(h,1.5+Math.sin(z*.05)*.3,fl);h=lerp(lerp(h,Math.max(h,1.2),near),-1.4,v)}}
   return h}
+/* the height of the terrain exactly as it is drawn (same triangles), so feet, water and swimming match what you see */
+const NZT=[];
+function nzMeshH(x,z){for(const T of NZT){const fj=(z-T.z0)/T.dz;if(fj<0||fj>T.rows)continue;const fi=(x+270)/4;if(fi<0||fi>T.cols)return null;
+    const i=Math.min(T.cols-1,Math.floor(fi)),j=Math.min(T.rows-1,Math.floor(fj)),u=fi-i,v=fj-j,C=T.cols+1,A=T.pa.array,h=(ii,jj)=>A[((jj)*C+ii)*3+1];
+    const h00=h(i,j),h10=h(i+1,j),h01=h(i,j+1),h11=h(i+1,j+1);return u+v<=1?h00+u*(h10-h00)+v*(h01-h00):h11+(1-u)*(h01-h11)+(1-v)*(h10-h11)}return null}
+function nzRivC(x,z){return (nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)+16)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<26}
+function nzLandV(x,z){if(nzRivC(x,z)){const m=nzMeshH(x,z);if(m!==null)return m}return nzLand(x,z)}
 function nzGround(x,z){const l=lotAt(x,z);if(l)return roofH(l,x,z);
   if(z>CAL_SHORE)return z>-2158?0:lerp(0,-.35,(-2158-z)/34);
   if(z>CLIFF_Z){if(Math.abs(x-60)<4.2&&z>-2292)return 1.2;return z<CLIFF_Z+15?-.3:-.85}
-  if(z>LON_Z-2){const h=nzLand(x,z);return nzRivW(x,z)?Math.max(h,-.7):h}
+  if(z>LON_Z-2){const h=nzLandV(x,z);return nzRivW(x,z)?Math.max(h,-.7):h}
   if(Math.abs(z-TH_Z)<TH_W)return LBR.some(b=>Math.abs(x-b)<5)?.5:-.85;return 0}
 /* water is wherever the river bed actually sits under the surface (y .2), so what you see is where you swim */
-function nzRivW(x,z){const inC=(nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)+16)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<26;return inC&&nzLand(x,z)<-.45}
+function nzRivW(x,z){return nzRivC(x,z)&&nzLandV(x,z)<-.12}
 function nzWater(x,z){if(lotAt(x,z))return false;if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-2292);
   if(z<=CLIFF_Z&&z>LON_Z-2)return nzRivW(x,z);
   if(z<=LON_Z-2)return Math.abs(z-TH_Z)<TH_W-.15&&!LBR.some(b=>Math.abs(x-b)<5);return false}
@@ -171,17 +178,17 @@ function nzCountry(G){const M=nzM();const Z0=CLIFF_Z,Z1=LON_Z-2;
       for(const T of NZTOWNS){if(T.z>za+T.r||T.z<zb-T.r)continue;const g=x.createRadialGradient(U(T.x),V(T.z),2,U(T.x),V(T.z),T.r*px);g.addColorStop(0,'rgba(86,120,58,1)');g.addColorStop(.75,'rgba(70,104,48,.9)');g.addColorStop(1,'rgba(62,94,44,0)');x.fillStyle=g;x.beginPath();x.arc(U(T.x),V(T.z),T.r*px,0,TAU);x.fill()}
       const path=(fx,w,col,z0,z1)=>{x.strokeStyle=col;x.lineWidth=w*px;x.lineCap='round';x.lineJoin='round';x.beginPath();let first=true;for(let z=Math.min(z0,za+8);z>Math.max(z1,zb-8);z-=4){const q=fx(z);if(first){x.moveTo(U(q),V(z));first=false}else x.lineTo(U(q),V(z))}x.stroke()};
       const band=(ex,col)=>{const zs=[];for(let z=Math.min(RIV_Z0+4,za+8);z>Math.max(LON_Z+4,zb-8);z-=4)zs.push(z);if(zs.length<2)return;x.fillStyle=col;x.beginPath();zs.forEach((z,i)=>{const q=nzRiverX(z)+nzRiverHW(z)+ex;i?x.lineTo(U(q),V(z)):x.moveTo(U(q),V(z))});for(let i=zs.length-1;i>=0;i--){const z=zs[i];x.lineTo(U(nzRiverX(z)-nzRiverHW(z)-ex),V(z))}x.closePath();x.fill()};
-      band(12,'#47502e');band(9.5,'#5a5236');band(8,'#3a3a2a');band(7,'#1e3650');{const px0=U(nzRiverX(RIV_Z0)),pz0=V(RIV_Z0+6);if(pz0>-40&&pz0<TH+40){x.fillStyle='#5a5236';x.beginPath();x.arc(px0,pz0,19*px,0,TAU);x.fill();x.fillStyle='#1e3650';x.beginPath();x.arc(px0,pz0,15*px,0,TAU);x.fill()}}
+      band(6.5,'#47502e');band(4.5,'#5a5236');band(3.2,'#3a3a2a');band(2.4,'#1e3650');{const px0=U(nzRiverX(RIV_Z0)),pz0=V(RIV_Z0+6);if(pz0>-40&&pz0<TH+40){x.fillStyle='#5a5236';x.beginPath();x.arc(px0,pz0,18.5*px,0,TAU);x.fill();x.fillStyle='#1e3650';x.beginPath();x.arc(px0,pz0,16.2*px,0,TAU);x.fill()}}
       path(nzRoadX,7,'#5e5a4c',Z0-4,LON_Z);path(nzRoadX,4.8,'#3e3c38',Z0-4,LON_Z)});
     const t=new THREE.CanvasTexture(tex);t.anisotropy=8;
-    const tg=new THREE.PlaneGeometry(540,CD+2,135,Math.round(CD/4));tg.rotateX(-Math.PI/2);tg.translate(0,0,zc);const pa=tg.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,nzLand(pa.getX(i),pa.getZ(i)));tg.computeVertexNormals();
+    const tg=new THREE.PlaneGeometry(540,CD+2,135,Math.round(CD/4));tg.rotateX(-Math.PI/2);tg.translate(0,0,zc);const pa=tg.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,nzLand(pa.getX(i),pa.getZ(i)));tg.computeVertexNormals();NZT.push({pa,cols:135,z0:pa.getZ(0),dz:pa.getZ(136)-pa.getZ(0),rows:Math.round(CD/4)});
     const tm=new THREE.Mesh(tg,nzDetailMat(std({map:t,roughness:.95,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.13})));tm.receiveShadow=true;tm.name='nzLand';G.add(tm)}
   /* ---- the river: a proper ribbon of water, a spring pond, reeds ---- */
   {const wt=waterN.clone();wt.needsUpdate=true;wt.wrapS=wt.wrapT=THREE.RepeatWrapping;const rm=std({color:0x2c4862,roughness:.06,metalness:.75,normalMap:wt,normalScale:new THREE.Vector2(.55,.55),emissive:0x081624,transparent:true,opacity:.93});
-    const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=RIV_Z0+4;z>LON_Z+3;z-=3){const x=nzRiverX(z),w=nzRiverHW(z)+13;if(lx!=null)len+=Math.hypot(x-lx,3);lx=x;rp.push(x-w,.2,z,x+w,.2,z);uv.push(0,len/12,1,len/12);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}
+    const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=RIV_Z0+4;z>LON_Z+3;z-=3){const x=nzRiverX(z),w=nzRiverHW(z)+5;if(lx!=null)len+=Math.hypot(x-lx,3);lx=x;rp.push(x-w,.2,z,x+w,.2,z);uv.push(0,len/12,1,len/12);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}
     const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));rg.setIndex(ri);rg.computeVertexNormals();
     const rmesh=new THREE.Mesh(rg,rm);rmesh.name='nzRiver';rmesh.renderOrder=1;G.add(rmesh);
-    const pond=new THREE.Mesh(new THREE.CircleGeometry(24,48),rm);pond.rotation.x=-Math.PI/2;pond.position.set(nzRiverX(RIV_Z0),.2,RIV_Z0+6);G.add(pond);
+    const pond=new THREE.Mesh(new THREE.CircleGeometry(19.5,48),rm);pond.rotation.x=-Math.PI/2;pond.position.set(nzRiverX(RIV_Z0),.2,RIV_Z0+6);G.add(pond);
     NZ.anim.push(dt=>{wt.offset.y-=dt*.05;wt.offset.x+=dt*.01});
     const R=[];for(let z=RIV_Z0;z>LON_Z+10;z-=2.6)for(const s of[-1,1]){if(Math.random()<.45)continue;const x=nzRiverX(z)+s*(nzRiverHW(z)+rand(3,4.6));if(inTown(x,z,-40))continue;R.push([x,z,rand(.7,1.4)])}
     CITY_PARENT=G;instanced(new THREE.ConeGeometry(.12,1.6,4),std({color:0x5a6a34,roughness:1}),R,(o,r)=>{o.position.set(r[0],nzLand(r[0],r[1])+.7*r[2],r[1]);o.scale.set(1,r[2],1);o.rotation.set(rand(-.2,.2),0,rand(-.2,.2))});CITY_PARENT=null}
@@ -355,7 +362,7 @@ function nzKeep(o){return o===SKY||o.isLight||o===moonLight.target||o===W.g||o==
 function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+48;MAPOX=WB.x0-24;MAPOZ=WB.z0-24;const x=worldMap.getContext('2d'),X=v=>v-MAPOX,Z=v=>v-MAPOZ,Wd=worldMap.width;
   x.fillStyle='#1d1935';x.fillRect(0,0,Wd,worldMap.height);x.fillStyle='#2b4b86';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CAL_SHORE)-Z(CLIFF_Z));x.fillStyle='#21584e';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CURSE_Z)-Z(CLIFF_Z));
   x.fillStyle='#8a7a5a';x.fillRect(0,Z(-2158),Wd,Z(CAL_SHORE)-Z(-2158));x.fillStyle='#284332';x.fillRect(0,Z(LON_Z),Wd,Z(CLIFF_Z)-Z(LON_Z));x.fillStyle='#e8e6dc';x.fillRect(0,Z(CLIFF_Z)-2,Wd,4);
-  x.fillStyle='#2b4b86';x.beginPath();x.arc(X(nzRiverX(RIV_Z0)),Z(RIV_Z0+6),20,0,TAU);x.fill();x.strokeStyle='#2b4b86';x.lineWidth=22;x.lineJoin='round';x.beginPath();for(let z=RIV_Z0;z>LON_Z+6;z-=6)z===RIV_Z0?x.moveTo(X(nzRiverX(z)),Z(z)):x.lineTo(X(nzRiverX(z)),Z(z));x.stroke();x.strokeStyle='#8a8070';x.lineWidth=4;x.beginPath();for(let z=CLIFF_Z-6;z>LON_Z;z-=6)z===CLIFF_Z-6?x.moveTo(X(nzRoadX(z)),Z(z)):x.lineTo(X(nzRoadX(z)),Z(z));x.stroke();
+  x.fillStyle='#2b4b86';x.beginPath();x.arc(X(nzRiverX(RIV_Z0)),Z(RIV_Z0+6),16,0,TAU);x.fill();x.strokeStyle='#2b4b86';x.lineWidth=16;x.lineJoin='round';x.beginPath();for(let z=RIV_Z0;z>LON_Z+6;z-=6)z===RIV_Z0?x.moveTo(X(nzRiverX(z)),Z(z)):x.lineTo(X(nzRiverX(z)),Z(z));x.stroke();x.strokeStyle='#8a8070';x.lineWidth=4;x.beginPath();for(let z=CLIFF_Z-6;z>LON_Z;z-=6)z===CLIFF_Z-6?x.moveTo(X(nzRoadX(z)),Z(z)):x.lineTo(X(nzRoadX(z)),Z(z));x.stroke();
   x.fillStyle='#2b4b86';x.fillRect(0,Z(TH_Z-TH_W),Wd,TH_W*2);x.fillStyle='#6b6278';for(const b of LBR)x.fillRect(X(b-5),Z(TH_Z-TH_W),10,TH_W*2);x.fillRect(X(56),Z(-2292),8,100);
   x.fillStyle='#6b6278';for(const r of NZ.mapR)x.fillRect(X(r[0]),Z(r[1]),r[2],r[3]);x.fillStyle='#f2a541';for(const p of NZ.mapP)x.fillRect(X(p[0])-4,Z(p[1])-4,8,8);x.font='bold 20px Georgia,serif';x.textAlign='left';for(const T of NZTOWNS){x.fillStyle='rgba(0,0,0,.6)';x.fillText(T.n,X(T.x)+11,Z(T.z)+1);x.fillStyle='#f0e6c8';x.fillText(T.n,X(T.x)+10,Z(T.z))}}
 {const _dw=drawWorldMap;drawWorldMap=function(){if(MODE!=='open'&&CH2.zone==='north')return nzDrawMap();return _dw.apply(this,arguments)}}

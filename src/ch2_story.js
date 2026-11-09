@@ -449,6 +449,7 @@ const kS3=(sd,h)=>()=>{const a=KFW.a?KFW.a.g.position:P.pos;const d=V3(P.pos.x-a
 const lyS3=(sd)=>()=>{const g=LYR.a?LYR.a.g.position:P.pos;const d=V3(P.pos.x-g.x,0,P.pos.z-g.z);if(d.lengthSq()<.01)d.set(0,0,1);d.normalize();const r=V3(d.z,0,-d.x);return{pos:headOf(g,1.6).addScaledVector(d,2.6).addScaledVector(r,sd||1.2),look:headOf(g,1.5)}};
 /* Kaen, solid again */
 {const _kb=kfBuild;kfBuild=function(){if(!XII.solid||KFW.a)return _kb.apply(this,arguments);const a=makeCHActor('m',{skin:0xf2d8c8,hair:'hairPart',hairTex:'1',hairCol:0x0b0a10,brow:0x0b0a10,keepReg:[5,6,9],wear:[['long',0x121016],['trousers',0x0f0d13],['shoes',0x0a0a0c]]});if(!a)return null;
+  try{const cm=std({map:kaenClothTex(false,true),color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});a.cape=a.sk(cloakGeo(a.S,a.bones,{w0:.35,w1:.6,flare:.2,mantle:.24,back:.18,wrap:.08,bottom:a.S.SK.calf_l.y-.25}),cm)}catch(x){}
   scene.add(a.g);a.g.position.copy(P.pos);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;try{a.setBase('Idle_Loop');a.update(.3)}catch(x){}return a}}
 function kfSolidify(){if(KFW.a){scene.remove(KFW.a.g);KFW.a=null}KFW.kp=null;KFW.mode='';XII.solid=1;xiiSave();kfBuild()}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(KFW.pin||!XII.solid||!KFW.a||!KFW.a.g.visible||KFW.mode==='ride'||P.flying||CH2.chase)return;const a=KFW.a,f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
