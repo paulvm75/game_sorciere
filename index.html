@@ -4705,7 +4705,8 @@ function cloakGeo(S,bones,o={}){const SKc=S.SK;const bI=nm=>bones.findIndex(b=>b
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=r*(cols+1)+c,b=a+1,cc=a+cols+1,d=cc+1;I.push(a,cc,b,b,cc,d)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setAttribute('skinIndex',new THREE.Float32BufferAttribute(SI,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(SW,4));g.setIndex(I);g.computeVertexNormals();g.computeBoundingSphere();return g}
 /* torn cloth texture with a violet sigil; alpha cut-outs make the rags */
-function kaenClothTex(torn,sigil,base){return canvasTex(256,512,(x,w,h)=>{x.fillStyle=base||'#17151b';x.fillRect(0,0,w,h);
+const KCAPE=SK=>({w0:.29,w1:.47,flare:.15,mantle:.18,back:.18,wrap:.06,bottom:SK.calf_l.y-.08});
+function kaenClothTex(torn,sigil,base,worn){return canvasTex(256,512,(x,w,h)=>{x.fillStyle=base||'#17151b';x.fillRect(0,0,w,h);
   for(let k=0;k<(torn?900:260);k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(36,80)|0},${rand(50,100)|0},${rand(.04,torn?.14:.07)})`;x.fillRect(rand(0,w),rand(0,h),rand(1,3),rand(10,60))}
   if(torn)for(let k=0;k<5;k++){x.fillStyle=`rgba(0,0,0,${rand(.15,.3)})`;x.fillRect(rand(0,w),0,rand(6,20),h)}else{const fg=x.createLinearGradient(0,0,w,0);for(let i=0;i<=8;i++)fg.addColorStop(i/8,i%2?'rgba(0,0,0,.16)':'rgba(255,255,255,.03)');x.fillStyle=fg;x.fillRect(0,0,w,h);x.fillStyle='rgba(150,110,210,.5)';x.fillRect(0,0,w,5);x.fillRect(0,0,4,h);x.fillRect(w-4,0,4,h)}
   const hem=torn?rand(250,300):rand(360,400);const g=x.createLinearGradient(0,hem-90,0,h);g.addColorStop(0,'rgba(120,108,140,0)');g.addColorStop(1,'rgba(120,108,140,.55)');x.fillStyle=g;x.fillRect(0,hem-90,w,h);
@@ -4714,6 +4715,9 @@ function kaenClothTex(torn,sigil,base){return canvasTex(256,512,(x,w,h)=>{x.fill
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';
   if(torn)for(let c=0;c<w;c+=rand(8,22)){const d=rand(0,torn?220:110);x.beginPath();x.moveTo(c-rand(4,12),h);x.lineTo(c+rand(-6,6),h-(h-hem)-d*.3-rand(0,40));x.lineTo(c+rand(8,18),h);x.fill()}
   if(torn)for(let k=0;k<26;k++){x.beginPath();x.ellipse(rand(10,w-10),rand(hem-120,h),rand(3,torn?16:8),rand(6,torn?30:14),rand(0,3),0,TAU);x.fill()}
+  if(worn&&!torn){/* canvas top is the cape's hem (the texture is flipped) */for(let c=0;c<w;c+=rand(7,16)){x.beginPath();x.moveTo(c,-1);x.lineTo(c+rand(2,6),rand(6,30));x.lineTo(c+rand(7,14),-1);x.fill()}
+    for(let k=0;k<11;k++){x.beginPath();x.ellipse(rand(18,w-18),rand(30,270),rand(2,5),rand(3,9),rand(0,3),0,TAU);x.fill()}for(let k=0;k<3;k++){x.beginPath();x.ellipse(rand(30,w-30),rand(40,180),rand(5,8),rand(8,15),rand(0,3),0,TAU);x.fill()}
+    for(const s of[0,w])for(let y=rand(10,40);y<300;y+=rand(30,70)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(4,11):w-rand(4,11),y+rand(4,9));x.lineTo(s,y+rand(10,18));x.fill()}}
   if(torn)for(let s of[0,w]){for(let y=hem-40;y<h;y+=rand(10,25)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(6,22):w-rand(6,22),y+rand(5,15));x.lineTo(s,y+rand(15,30));x.fill()}}
   x.globalCompositeOperation='source-over'})}
 function kaenSashTex(){return canvasTex(64,256,(x,w,h)=>{x.fillStyle='#3a2a52';x.fillRect(0,0,w,h);x.strokeStyle='#9a70d8';x.lineWidth=3;for(let y=10;y<h;y+=26){x.beginPath();x.moveTo(w/2,y);x.lineTo(w-10,y+10);x.lineTo(w/2,y+20);x.lineTo(10,y+10);x.closePath();x.stroke()}x.fillStyle='#1a1224';x.fillRect(0,0,6,h);x.fillRect(w-6,0,6,h)})}
@@ -4748,9 +4752,9 @@ function buildIllusion(){const M2=mat2();const a=makeCHActor('m',{skin:0xfff0ea,
   const scarf=new THREE.Group();const sc1=new THREE.Mesh(new THREE.TorusGeometry(.07,.03,8,20),blk);sc1.rotation.x=Math.PI/2;sc1.scale.set(1.08,1.12,1.2);sc1.position.y=-.03;scarf.add(sc1);const sc2=new THREE.Mesh(new THREE.CylinderGeometry(.068,.085,.05,16,1,true),std({color:0x141218,roughness:.8,side:THREE.DoubleSide}));sc2.position.set(0,.005,-.012);scarf.add(sc2);
   a.attach('neck_01',scarf,SK.neck_01.clone().add(V(0,-.01,.0)));
   // torn cloak (two versions)
-  const clothN=kaenClothTex(false,true),clothT=kaenClothTex(true,true,'#1a1620');
+  const clothN=kaenClothTex(false,true,undefined,true),clothT=kaenClothTex(true,true,'#1a1620');
   const cloakM=std({map:clothN,color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});
-  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.35,w1:.6,flare:.2,mantle:.24,back:.18,bottom:SK.calf_l.y-.25,wrap:.08}),cloakM);
+  const cloak=a.sk(cloakGeo(S,a.bones,KCAPE(SK)),cloakM);
   // rope belt, emblem, hanging sash panel, tassels
   const belt=new THREE.Group();for(let k=0;k<3;k++){const t=new THREE.Mesh(new THREE.TorusGeometry(.155,.016,6,40),rope);t.rotation.x=Math.PI/2;t.position.y=k*.024;t.rotation.z=k*.4;belt.add(t)}
   const knot=new THREE.Mesh(G.sphere,rope);knot.scale.set(.035,.03,.025);knot.position.set(.09,.02,.12);belt.add(knot);
@@ -7849,7 +7853,7 @@ const kS3=(sd,h)=>()=>{const a=KFW.a?KFW.a.g.position:P.pos;const d=V3(P.pos.x-a
 const lyS3=(sd)=>()=>{const g=LYR.a?LYR.a.g.position:P.pos;const d=V3(P.pos.x-g.x,0,P.pos.z-g.z);if(d.lengthSq()<.01)d.set(0,0,1);d.normalize();const r=V3(d.z,0,-d.x);return{pos:headOf(g,1.6).addScaledVector(d,2.6).addScaledVector(r,sd||1.2),look:headOf(g,1.5)}};
 /* Kaen, solid again */
 {const _kb=kfBuild;kfBuild=function(){if(!XII.solid||KFW.a)return _kb.apply(this,arguments);const a=makeCHActor('m',{skin:0xf2d8c8,hair:'hairPart',hairTex:'1',hairCol:0x0b0a10,brow:0x0b0a10,keepReg:[5,6,9],wear:[['long',0x121016],['trousers',0x0f0d13],['shoes',0x0a0a0c]]});if(!a)return null;
-  try{const cm=std({map:kaenClothTex(false,true),color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});a.cape=a.sk(cloakGeo(a.S,a.bones,{w0:.35,w1:.6,flare:.2,mantle:.24,back:.18,wrap:.08,bottom:a.S.SK.calf_l.y-.25}),cm)}catch(x){}
+  try{const cm=std({map:kaenClothTex(false,true,undefined,true),color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});a.cape=a.sk(cloakGeo(a.S,a.bones,KCAPE(a.S.SK)),cm)}catch(x){}
   scene.add(a.g);a.g.position.copy(P.pos);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;try{a.setBase('Idle_Loop');a.update(.3)}catch(x){}return a}}
 function kfSolidify(){if(KFW.a){scene.remove(KFW.a.g);KFW.a=null}KFW.kp=null;KFW.mode='';XII.solid=1;xiiSave();kfBuild()}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(KFW.pin||!XII.solid||!KFW.a||!KFW.a.g.visible||KFW.mode==='ride'||P.flying||CH2.chase)return;const a=KFW.a,f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
@@ -8261,7 +8265,7 @@ function x3Kinetic(){const m=(X3.mPos||P.pos).clone(),k=kpos().clone();let swapp
 /* ---------- playing as Kaen ---------- */
 const KM={on:0,a:null,fe:null,en:100,cd:[0,0,0,0,0,0,0],sh:0,dash:null,combo:0,lb:0,g:[],said:{},hud:null,lunge:null};
 function x3GearKaen(){const old=KFW.a;const pos=old?old.g.position.clone():P.pos.clone(),ry=old?old.g.rotation.y:0;if(old)scene.remove(old.g);const ill=buildIllusion();if(!ill||!ill.actor){KFW.a=old;if(old)scene.add(old.g);return}
-  const a=ill.actor;a.ill=ill;try{const K=ill.K;if(K.cloak&&K.cloak.parent)K.cloak.parent.remove(K.cloak);K.cloak=a.sk(cloakGeo(a.S,a.bones,{w0:.35,w1:.6,flare:.2,mantle:.24,back:.18,wrap:.08,bottom:a.S.SK.calf_l.y-.25}),K.cloakM)}catch(x){}ill.K.eyes.forEach(s=>s.material.color.setHex(0xc8b0ff));a.g.position.copy(pos);a.g.rotation.y=ry;scene.add(a.g);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;KFW.mode='';KFW.an='';KFW.gear=1;try{a.setBase('Idle_Loop');a.update(.2)}catch(x){}return a}
+  const a=ill.actor;a.ill=ill;try{const K=ill.K;if(K.cloak&&K.cloak.parent)K.cloak.parent.remove(K.cloak);K.cloak=a.sk(cloakGeo(a.S,a.bones,KCAPE(a.S.SK)),K.cloakM)}catch(x){}ill.K.eyes.forEach(s=>s.material.color.setHex(0xc8b0ff));a.g.position.copy(pos);a.g.rotation.y=ry;scene.add(a.g);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;KFW.mode='';KFW.an='';KFW.gear=1;try{a.setBase('Idle_Loop');a.update(.2)}catch(x){}return a}
 {const _kb=kfBuild;kfBuild=function(){if(KFW.a||!(XII.solid&&(CH2.st>=13||KFW.gear)))return _kb.apply(this,arguments);KFW.a=null;const a=x3GearKaen();return a||_kb.apply(this,arguments)}}
 function kmStart(){if(KM.on)return;const a=KFW.a&&KFW.gear?KFW.a:x3GearKaen();KFW.a=null;KFW.off=1;KM.a=a;KM.on=1;KM.fe={m:a.ill,t:0,lb:0,pos:a.g.position,def:{h:2.4},ai:{}};
   P.pos.copy(a.g.position);P.pos.y=X3.C.y;P.vy=0;P.flying=false;const e=X3.e;if(e){P.face=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);yaw=P.face+Math.PI}
@@ -8940,11 +8944,13 @@ function x4Pub(){if(CS.active||X4.pub)return;X4.pub=1;const a=NH.alf;const cx=NH
 
 /* ---------- Desmond ---------- */
 function nhOld(a,stoop,thin){if(!a||a._old)return;a._old=1;const B=n=>a.bones.find(b=>b.name===n||b.name.endsWith(n));const sp=B('spine_02'),sp3=B('spine_03'),nk=B('neck_01'),ua=[B('upperarm_l'),B('upperarm_r')];const _u=a.update.bind(a);
-  a.update=function(dt){_u(dt);if(a._dying)return;if(sp)sp.rotation.x+=stoop;if(sp3)sp3.rotation.x+=stoop*.6;if(nk)nk.rotation.x-=stoop*1.1;for(const u of ua)if(u)u.scale.set(1,thin,thin)}}
-function buildDesmond(){const a=makeCHActor('m',{skin:0x4a2e20,hair:'hairBuzz',hairCol:0xb4b0a8,brow:0xa8a49c,beard:true,keepReg:[5,6,9],scale:1.04,wear:[['long',0x2a2a22,{roughness:.8}],['jacket',0x2e2238,{roughness:.75}],['witch',0x2e2238,{roughness:.75,side:THREE.DoubleSide}],['hat0',0x1c1622,{roughness:.8}],['trousers',0x14101a,{roughness:.8}],['shoes',0x0a080c,{roughness:.4}]]});
+  const Q=new THREE.Quaternion(),Ax=V3(1,0,0);const bend=(b,v)=>{if(!b)return;if(b.userData.oq&&b.quaternion.equals(b.userData.oq))return;Q.setFromAxisAngle(Ax,v);b.quaternion.multiply(Q);(b.userData.oq||(b.userData.oq=new THREE.Quaternion())).copy(b.quaternion)};
+  a.update=function(dt){_u(dt);if(a._dying)return;bend(sp,stoop);bend(sp3,stoop*.6);bend(nk,-stoop*1.1)}}
+function buildDesmond(){const a=makeCHActor('m',{skin:0x4a2e20,hair:'hairBuzz',hairCol:0xb4b0a8,brow:0xa8a49c,beard:true,keepReg:[5,6,9],scale:1.04,wear:[['long',0x1a1520,{roughness:.8}],['witch',0x2e2238,{roughness:.75,side:THREE.DoubleSide}],['hat0',0x1c1622,{roughness:.8}],['trousers',0x14101a,{roughness:.8}],['shoes',0x0a080c,{roughness:.4}]]});
   if(!a){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.CapsuleGeometry?new THREE.CylinderGeometry(.5,.6,2.2,10):new THREE.CylinderGeometry(.5,.6,2.2,10),std({color:0x1c1424}));b.position.y=1.1;g.add(b);return{g,body:g}}
-  const SK=a.S.SK;const staff=new THREE.Group();const sh=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,1.9,7),std({color:0x2a1a10,roughness:.7}));staff.add(sh);const orb=new THREE.Mesh(new THREE.IcosahedronGeometry(.11,1),new THREE.MeshBasicMaterial({color:0xb8ff90}));orb.position.y=1;staff.add(orb);const og=glowSprite(0x9aff70,1.6,.8);og.position.y=1;staff.add(og);
+  const SK=a.S.SK;const staff=new THREE.Group();const sh=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,1.9,7),std({color:0x2a1a10,roughness:.7}));sh.position.y=.12;staff.add(sh);const orb=new THREE.Mesh(new THREE.IcosahedronGeometry(.11,1),new THREE.MeshBasicMaterial({color:0xb8ff90}));orb.position.y=1.12;staff.add(orb);const og=glowSprite(0x9aff70,1.6,.8);og.position.y=1.12;staff.add(og);
   try{a.attach('hand_r',staff,SK.hand_r.clone().add(V3(-.22,0,.02)),new THREE.Euler(0,0,-Math.PI/2))}catch(x){}
+  {const qp=new THREE.Quaternion(),qg=new THREE.Quaternion();const _u=a.update.bind(a);a.update=function(dt){_u(dt);if(!staff.parent)return;a.g.updateMatrixWorld(true);staff.parent.getWorldQuaternion(qp);a.g.getWorldQuaternion(qg);staff.quaternion.copy(qp.invert().multiply(qg))}}
   nhOld(a,.14,.8);const eyes=[];for(const s of[-1,1]){const e=glowSprite(0xb0ff80,.18,.9);try{a.attach('Head',e,SK.Head.clone().add(V3(s*.034,.075,.1)))}catch(x){}eyes.push(e)}
   const aura=glowSprite(0x6aff50,5,.12);aura.position.y=1.2;a.g.add(aura);const bub=new THREE.Mesh(new THREE.SphereGeometry(1.5,24,16),new THREE.MeshBasicMaterial({color:0xd8ff70,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));bub.position.y=1.1;bub.visible=false;a.g.add(bub);
   try{a.setBase('Idle_Loop',.1);a.update(.1)}catch(x){}

@@ -15,7 +15,8 @@ function cloakGeo(S,bones,o={}){const SKc=S.SK;const bI=nm=>bones.findIndex(b=>b
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=r*(cols+1)+c,b=a+1,cc=a+cols+1,d=cc+1;I.push(a,cc,b,b,cc,d)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setAttribute('skinIndex',new THREE.Float32BufferAttribute(SI,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(SW,4));g.setIndex(I);g.computeVertexNormals();g.computeBoundingSphere();return g}
 /* torn cloth texture with a violet sigil; alpha cut-outs make the rags */
-function kaenClothTex(torn,sigil,base){return canvasTex(256,512,(x,w,h)=>{x.fillStyle=base||'#17151b';x.fillRect(0,0,w,h);
+const KCAPE=SK=>({w0:.29,w1:.47,flare:.15,mantle:.18,back:.18,wrap:.06,bottom:SK.calf_l.y-.08});
+function kaenClothTex(torn,sigil,base,worn){return canvasTex(256,512,(x,w,h)=>{x.fillStyle=base||'#17151b';x.fillRect(0,0,w,h);
   for(let k=0;k<(torn?900:260);k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(36,80)|0},${rand(50,100)|0},${rand(.04,torn?.14:.07)})`;x.fillRect(rand(0,w),rand(0,h),rand(1,3),rand(10,60))}
   if(torn)for(let k=0;k<5;k++){x.fillStyle=`rgba(0,0,0,${rand(.15,.3)})`;x.fillRect(rand(0,w),0,rand(6,20),h)}else{const fg=x.createLinearGradient(0,0,w,0);for(let i=0;i<=8;i++)fg.addColorStop(i/8,i%2?'rgba(0,0,0,.16)':'rgba(255,255,255,.03)');x.fillStyle=fg;x.fillRect(0,0,w,h);x.fillStyle='rgba(150,110,210,.5)';x.fillRect(0,0,w,5);x.fillRect(0,0,4,h);x.fillRect(w-4,0,4,h)}
   const hem=torn?rand(250,300):rand(360,400);const g=x.createLinearGradient(0,hem-90,0,h);g.addColorStop(0,'rgba(120,108,140,0)');g.addColorStop(1,'rgba(120,108,140,.55)');x.fillStyle=g;x.fillRect(0,hem-90,w,h);
@@ -24,6 +25,9 @@ function kaenClothTex(torn,sigil,base){return canvasTex(256,512,(x,w,h)=>{x.fill
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';
   if(torn)for(let c=0;c<w;c+=rand(8,22)){const d=rand(0,torn?220:110);x.beginPath();x.moveTo(c-rand(4,12),h);x.lineTo(c+rand(-6,6),h-(h-hem)-d*.3-rand(0,40));x.lineTo(c+rand(8,18),h);x.fill()}
   if(torn)for(let k=0;k<26;k++){x.beginPath();x.ellipse(rand(10,w-10),rand(hem-120,h),rand(3,torn?16:8),rand(6,torn?30:14),rand(0,3),0,TAU);x.fill()}
+  if(worn&&!torn){/* canvas top is the cape's hem (the texture is flipped) */for(let c=0;c<w;c+=rand(7,16)){x.beginPath();x.moveTo(c,-1);x.lineTo(c+rand(2,6),rand(6,30));x.lineTo(c+rand(7,14),-1);x.fill()}
+    for(let k=0;k<11;k++){x.beginPath();x.ellipse(rand(18,w-18),rand(30,270),rand(2,5),rand(3,9),rand(0,3),0,TAU);x.fill()}for(let k=0;k<3;k++){x.beginPath();x.ellipse(rand(30,w-30),rand(40,180),rand(5,8),rand(8,15),rand(0,3),0,TAU);x.fill()}
+    for(const s of[0,w])for(let y=rand(10,40);y<300;y+=rand(30,70)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(4,11):w-rand(4,11),y+rand(4,9));x.lineTo(s,y+rand(10,18));x.fill()}}
   if(torn)for(let s of[0,w]){for(let y=hem-40;y<h;y+=rand(10,25)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(6,22):w-rand(6,22),y+rand(5,15));x.lineTo(s,y+rand(15,30));x.fill()}}
   x.globalCompositeOperation='source-over'})}
 function kaenSashTex(){return canvasTex(64,256,(x,w,h)=>{x.fillStyle='#3a2a52';x.fillRect(0,0,w,h);x.strokeStyle='#9a70d8';x.lineWidth=3;for(let y=10;y<h;y+=26){x.beginPath();x.moveTo(w/2,y);x.lineTo(w-10,y+10);x.lineTo(w/2,y+20);x.lineTo(10,y+10);x.closePath();x.stroke()}x.fillStyle='#1a1224';x.fillRect(0,0,6,h);x.fillRect(w-6,0,6,h)})}
@@ -58,9 +62,9 @@ function buildIllusion(){const M2=mat2();const a=makeCHActor('m',{skin:0xfff0ea,
   const scarf=new THREE.Group();const sc1=new THREE.Mesh(new THREE.TorusGeometry(.07,.03,8,20),blk);sc1.rotation.x=Math.PI/2;sc1.scale.set(1.08,1.12,1.2);sc1.position.y=-.03;scarf.add(sc1);const sc2=new THREE.Mesh(new THREE.CylinderGeometry(.068,.085,.05,16,1,true),std({color:0x141218,roughness:.8,side:THREE.DoubleSide}));sc2.position.set(0,.005,-.012);scarf.add(sc2);
   a.attach('neck_01',scarf,SK.neck_01.clone().add(V(0,-.01,.0)));
   // torn cloak (two versions)
-  const clothN=kaenClothTex(false,true),clothT=kaenClothTex(true,true,'#1a1620');
+  const clothN=kaenClothTex(false,true,undefined,true),clothT=kaenClothTex(true,true,'#1a1620');
   const cloakM=std({map:clothN,color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});
-  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.35,w1:.6,flare:.2,mantle:.24,back:.18,bottom:SK.calf_l.y-.25,wrap:.08}),cloakM);
+  const cloak=a.sk(cloakGeo(S,a.bones,KCAPE(SK)),cloakM);
   // rope belt, emblem, hanging sash panel, tassels
   const belt=new THREE.Group();for(let k=0;k<3;k++){const t=new THREE.Mesh(new THREE.TorusGeometry(.155,.016,6,40),rope);t.rotation.x=Math.PI/2;t.position.y=k*.024;t.rotation.z=k*.4;belt.add(t)}
   const knot=new THREE.Mesh(G.sphere,rope);knot.scale.set(.035,.03,.025);knot.position.set(.09,.02,.12);belt.add(knot);
