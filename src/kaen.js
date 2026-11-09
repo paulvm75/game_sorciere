@@ -1,24 +1,30 @@
 /* ================= Kaen Kuroshiba: base form, Limit Breaker form, and the witch's own Limit Breaker ================= */
 /* ---------- shared cloak geometry (skinned sheet hanging from the shoulders) ---------- */
 function cloakGeo(S,bones,o={}){const SKc=S.SK;const bI=nm=>bones.findIndex(b=>b.name===nm);const sp3=bI('spine_03'),sp2=bI('spine_02'),sp1=bI('spine_01'),pel=bI('pelvis'),tl=bI('thigh_l'),tr=bI('thigh_r'),cl=bI('clavicle_l'),cr=bI('clavicle_r');
-  const yT=SKc.spine_03.y+(o.top||.14),yB=(o.bottom!==undefined?o.bottom:SKc.calf_l.y-.2),zT=SKc.spine_03.z-(o.back||.13);const rows=16,cols=14;const P=[],N=[],UV=[],SI=[],SW=[],I=[];
-  for(let r=0;r<=rows;r++){const t=r/rows;const y=lerp(yT,yB,t);const w=lerp(o.w0||.22,o.w1||.46,Math.sqrt(t));const zc=zT-.04-t*(o.flare||.22);
-    for(let c=0;c<=cols;c++){const u=c/cols;const a=(u-.5)*2;const x=a*w;const wrap=o.wrap||0;const z=zc+(1-a*a)*(-.06-.03*t)+(a*a)*wrap*(1-t*.5);P.push(x,y,z);N.push(0,0,-1);UV.push(u,t);
-      let ws;if(t<.18)ws=[[sp3,.8-t*2],[a<0?cr:cl,.2],[sp2,t*2]];else if(t<.45)ws=[[sp2,1-(t-.18)*3.7],[sp1,(t-.18)*3.7]];else{const k=(t-.45)/.55;ws=[[pel,1-k*.6],[a<0?tr:tl,k*.6*.7],[a<0?tl:tr,k*.6*.3]]}
-      let sw=0;for(const q of ws)sw+=q[1];while(ws.length<4)ws.push([0,0]);for(const q of ws){SI.push(q[0]);SW.push(q[1]/(sw||1))}}}
+  const sst=(e0,e1,v)=>{const k=clamp((v-e0)/(e1-e0),0,1);return k*k*(3-2*k)};
+  const yT=(SKc.neck_01?Math.max(SKc.spine_03.y+(o.top||.14),SKc.neck_01.y+(o.neckUp!==undefined?o.neckUp:.07)):SKc.spine_03.y+(o.top||.14)),yB=(o.bottom!==undefined?o.bottom:SKc.calf_l.y-.2),zT=SKc.spine_03.z-(o.back||.1);const rows=24,cols=20;const P=[],N=[],UV=[],SI=[],SW=[],I=[];
+  const w0=o.w0||.24,w1=o.w1||.46,mant=o.mantle!==undefined?o.mantle:.2;
+  for(let r=0;r<=rows;r++){const t=r/rows;const y=lerp(yT,yB,t);const w=t<.15?lerp(w0,w0*1.12,t/.15):lerp(w0*1.12,w1,Math.pow((t-.15)/.85,.85));const zc=zT-.015-t*(o.flare||.2);
+    for(let c=0;c<=cols;c++){const u=c/cols;const a=(u-.5)*2;const x=a*w;const wrap=mant*(1-sst(0,.24,t))+(o.wrap||.06)*(1-t*.5);
+      const z=zc+(1-a*a)*(-.025-.03*t)+(a*a)*wrap;const yy=y-(a*a)*.17*(1-sst(0,.22,t));P.push(x,yy,z);N.push(0,0,-1);UV.push(u,t);
+      let ws;const side=a<0?cr:cl,sd=a*a;
+      if(t<.22){const k=t/.22;ws=[[sp3,(1-sd*.75)*(1-k*.5)],[side,sd*.75*(1-k*.5)],[sp2,k*.5]]}
+      else if(t<.5){const k=(t-.22)/.28;ws=[[sp2,1-k],[sp1,k]]}
+      else{const k=(t-.5)/.5;ws=[[sp1,(1-k)*.4],[pel,.6+k*.2],[a<0?tr:tl,k*.13],[a<0?tl:tr,k*.07]]}
+      let sw=0;for(const q of ws)sw+=q[1];while(ws.length<4)ws.push([0,0]);ws.length=4;for(const q of ws){SI.push(q[0]);SW.push(q[1]/(sw||1))}}}
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=r*(cols+1)+c,b=a+1,cc=a+cols+1,d=cc+1;I.push(a,cc,b,b,cc,d)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setAttribute('skinIndex',new THREE.Float32BufferAttribute(SI,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(SW,4));g.setIndex(I);g.computeVertexNormals();g.computeBoundingSphere();return g}
 /* torn cloth texture with a violet sigil; alpha cut-outs make the rags */
 function kaenClothTex(torn,sigil,base){return canvasTex(256,512,(x,w,h)=>{x.fillStyle=base||'#17151b';x.fillRect(0,0,w,h);
-  for(let k=0;k<900;k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(36,80)|0},${rand(50,100)|0},${rand(.05,.14)})`;x.fillRect(rand(0,w),rand(0,h),rand(1,3),rand(10,60))}
-  for(let k=0;k<5;k++){x.fillStyle=`rgba(0,0,0,${rand(.15,.3)})`;x.fillRect(rand(0,w),0,rand(6,20),h)}
+  for(let k=0;k<(torn?900:260);k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(36,80)|0},${rand(50,100)|0},${rand(.04,torn?.14:.07)})`;x.fillRect(rand(0,w),rand(0,h),rand(1,3),rand(10,60))}
+  if(torn)for(let k=0;k<5;k++){x.fillStyle=`rgba(0,0,0,${rand(.15,.3)})`;x.fillRect(rand(0,w),0,rand(6,20),h)}else{const fg=x.createLinearGradient(0,0,w,0);for(let i=0;i<=8;i++)fg.addColorStop(i/8,i%2?'rgba(0,0,0,.16)':'rgba(255,255,255,.03)');x.fillStyle=fg;x.fillRect(0,0,w,h);x.fillStyle='rgba(150,110,210,.5)';x.fillRect(0,0,w,5);x.fillRect(0,0,4,h);x.fillRect(w-4,0,4,h)}
   const hem=torn?rand(250,300):rand(360,400);const g=x.createLinearGradient(0,hem-90,0,h);g.addColorStop(0,'rgba(120,108,140,0)');g.addColorStop(1,'rgba(120,108,140,.55)');x.fillStyle=g;x.fillRect(0,hem-90,w,h);
   if(sigil){x.save();x.translate(w/2,150);x.strokeStyle=torn?'rgba(200,150,255,.95)':'rgba(150,100,210,.85)';x.lineWidth=5;x.shadowColor='#a060ff';x.shadowBlur=torn?16:6;
     x.beginPath();x.moveTo(0,-70);x.lineTo(0,90);x.moveTo(-34,-10);x.lineTo(34,-10);x.moveTo(-18,40);x.lineTo(18,40);x.stroke();x.beginPath();x.arc(0,-40,20,0,TAU);x.stroke();x.beginPath();x.moveTo(0,90);x.lineTo(-12,110);x.moveTo(0,90);x.lineTo(12,110);x.stroke();x.restore()}
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';
-  for(let c=0;c<w;c+=rand(8,22)){const d=rand(0,torn?220:110);x.beginPath();x.moveTo(c-rand(4,12),h);x.lineTo(c+rand(-6,6),h-(h-hem)-d*.3-rand(0,40));x.lineTo(c+rand(8,18),h);x.fill()}
-  for(let k=0;k<(torn?26:10);k++){x.beginPath();x.ellipse(rand(10,w-10),rand(hem-120,h),rand(3,torn?16:8),rand(6,torn?30:14),rand(0,3),0,TAU);x.fill()}
-  for(let s of[0,w]){for(let y=hem-40;y<h;y+=rand(10,25)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(6,22):w-rand(6,22),y+rand(5,15));x.lineTo(s,y+rand(15,30));x.fill()}}
+  if(torn)for(let c=0;c<w;c+=rand(8,22)){const d=rand(0,torn?220:110);x.beginPath();x.moveTo(c-rand(4,12),h);x.lineTo(c+rand(-6,6),h-(h-hem)-d*.3-rand(0,40));x.lineTo(c+rand(8,18),h);x.fill()}
+  if(torn)for(let k=0;k<26;k++){x.beginPath();x.ellipse(rand(10,w-10),rand(hem-120,h),rand(3,torn?16:8),rand(6,torn?30:14),rand(0,3),0,TAU);x.fill()}
+  if(torn)for(let s of[0,w]){for(let y=hem-40;y<h;y+=rand(10,25)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(6,22):w-rand(6,22),y+rand(5,15));x.lineTo(s,y+rand(15,30));x.fill()}}
   x.globalCompositeOperation='source-over'})}
 function kaenSashTex(){return canvasTex(64,256,(x,w,h)=>{x.fillStyle='#3a2a52';x.fillRect(0,0,w,h);x.strokeStyle='#9a70d8';x.lineWidth=3;for(let y=10;y<h;y+=26){x.beginPath();x.moveTo(w/2,y);x.lineTo(w-10,y+10);x.lineTo(w/2,y+20);x.lineTo(10,y+10);x.closePath();x.stroke()}x.fillStyle='#1a1224';x.fillRect(0,0,6,h);x.fillRect(w-6,0,6,h)})}
 /* fresnel ghost material for the spectral demon */
@@ -54,7 +60,7 @@ function buildIllusion(){const M2=mat2();const a=makeCHActor('m',{skin:0xfff0ea,
   // torn cloak (two versions)
   const clothN=kaenClothTex(false,true),clothT=kaenClothTex(true,true,'#1a1620');
   const cloakM=std({map:clothN,color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});
-  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.25,w1:.52,flare:.26,bottom:SK.calf_l.y-.25,wrap:.08}),cloakM);
+  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.27,w1:.56,flare:.2,mantle:.22,back:.09,bottom:SK.calf_l.y-.25,wrap:.07}),cloakM);
   // rope belt, emblem, hanging sash panel, tassels
   const belt=new THREE.Group();for(let k=0;k<3;k++){const t=new THREE.Mesh(new THREE.TorusGeometry(.155,.016,6,40),rope);t.rotation.x=Math.PI/2;t.position.y=k*.024;t.rotation.z=k*.4;belt.add(t)}
   const knot=new THREE.Mesh(G.sphere,rope);knot.scale.set(.035,.03,.025);knot.position.set(.09,.02,.12);belt.add(knot);

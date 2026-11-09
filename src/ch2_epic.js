@@ -86,31 +86,17 @@ function epSacrifice(shots,i){const A=FIN.ally,e=BM.finalFor||bossRef;if(!A||!e)
     update:dt=>{upd(dt);finFaceTo(e.m.g,A.g.position);if(A._k<1){A._k=Math.min(1,A._k+dt/.95);const k=1-Math.pow(1-A._k,2);A.g.position.lerpVectors(aStart,mid,k);finFaceTo(A.g,mid.clone().addScaledVector(toW,-1));
         SP.emit(headOf(A.g.position,1),{n:2,c0:0xffe0a0,c1:0x805010,s0:.4,s1:.05,life:.4});if(A._k>=1){A.setBase('Spell_Simple_Idle_Loop',.12);finFaceTo(A.g,e.pos);SM.emit(V3(mid.x,mid.y+.2,mid.z),{n:10,c0:0x8a8070,c1:0x2a2418,s0:.6,s1:2,speed:3,flat:true,life:.6,a:.4})}}
       else finFaceTo(A.g,e.pos)}};
-  const stand={dur:1.3,fov:36,cut:true,cam:()=>({pos:headOf(mid,1.55).addScaledVector(toW,-1.9).addScaledVector(side,.9),look:headOf(mid,1.5)}),onStart:()=>{A.g.position.copy(mid);finFaceTo(A.g,e.pos);A.setBase('Spell_Simple_Idle_Loop',.1)},update:upd};
-  const pierce={dur:2.6,fov:40,cut:true,cam:k=>{const c=mid.clone().addScaledVector(toW,-.55);return{pos:headOf(c,1.25).addScaledVector(side,4.6-k*1.4).addScaledVector(toW,.4),look:headOf(c,1.15)}},
-    onStart:()=>{CS.speed=.6;e._d=0;hit=0;fz=0;orb=findOrb();act.setBase('Sprint_Loop',.05,2.4);A.g.position.copy(mid);finFaceTo(A.g,e.pos)},
-    update:dt=>{upd(dt);if(!hit){e._d+=dt;const k=Math.min(1,e._d/.34);e.pos.lerpVectors(kp,strike,k*k);finFaceTo(e.m.g,mid);
-        if(orb){orb.position.copy(headOf(e.pos,1.3));orb.scale.multiplyScalar(.9)}for(let n=0;n<3;n++)SP.emit(eCenter(e).add(V3(rand(-.3,.3),rand(-.4,.4),rand(-.3,.3))),{c0:0xffffff,c1:0x6010d0,s0:.6,s1:.05,life:.35,speed:.6});
-        if(k>=1){hit=1;if(orb){scene.remove(orb);orb=null}act.setBase('Idle_Loop',.05);act.once('Melee_Hook',.5);
-          blade=epBlade();blade.position.copy(strike).addScaledVector(toW,.35);blade.position.y+=1.25;blade.lookAt(blade.position.clone().add(toW));blade.scale.z=.01;scene.add(blade);
-          sx('pierce',1.4,()=>{try{sfx.boom()}catch(x){}},{wet:.25});sx('impact',.9,null,{rate:.7,delay:.05});CS.speed=.12;P.shake=1.6;vib([60,40,200]);
-          const c=headOf(mid,1.25);flash(c,0xffffff,14);flash(c,0xa050ff,10);ring(mid,0xc080ff,1,5,.4);A.fire('Hit_Knockback',.25);
-          SP.emit(c.clone().addScaledVector(toW,.3),{n:140,c0:0xffffff,c1:0x8030ff,speed:10,life:.9,s0:.6,s1:.05,dir:toW});SP.emit(c,{n:60,c0:0xfff0c0,c1:0xd09020,speed:6,life:1,s0:.5,s1:.05})}}
-      else{fz+=dt/Math.max(.05,CS.speed);if(fz>.55&&CS.speed<.5)CS.speed=.5;if(blade){blade.scale.z=Math.min(1,blade.scale.z+dt*22);blade.userData.glow.material.opacity=.45+Math.sin(time*40)*.15}
-        if(Math.random()<.5)SP.emit(headOf(mid,1.2).addScaledVector(toW,.5),{c0:0xe0c0ff,c1:0x5010c0,s0:.35,s1:.03,life:.6,speed:1.5})}}};
-  const hold={dur:2,fov:32,cut:true,cam:k=>({pos:headOf(mid,1.6).addScaledVector(side,3.4-k*.3).addScaledVector(toW,.2),look:headOf(mid,1.3).addScaledVector(toW,-.5)}),onStart:()=>{CS.speed=.75;dk=0},
-    update:(dt,k)=>{upd(dt);if(Math.random()<.4)SP.emit(headOf(mid,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.6,speed:.3});
-      if(k>.72&&blade&&!blade.userData.out){blade.userData.out=1;sx('clash',.5,null,{rate:1.3});act.once('OverhandThrow',.4);SP.emit(headOf(mid,1.25),{n:60,c0:0xffffff,c1:0x8030ff,speed:7,life:.6})}
-      if(blade&&blade.userData.out){blade.scale.z=Math.max(0,blade.scale.z-dt*6);if(blade.scale.z<=0){scene.remove(blade);blade=null}}}};
-  const fall={dur:1.4,fov:40,cam:k=>{const c=mid.clone().lerp(land,.5);return{pos:headOf(c,1.5).addScaledVector(side,-4.2).addScaledVector(toW,-.5),look:headOf(c,1.1)}},
-    onStart:()=>{CS.speed=.85;if(blade){scene.remove(blade);blade=null}A._k=0;A.once('Hit_Knockback',1.5);act.setBase('Idle_Loop',.3)},
-    update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/1.3);const k=A._k;A.g.position.lerpVectors(mid,land,k*(2-k));finFaceTo(A.g,e.pos);if(Math.random()<.3)SP.emit(headOf(A.g.position,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.5,speed:.3})}};
-  let ft=0;const down={dur:4,fov:36,cam:k=>({pos:headOf(land,.7+k*.1).addScaledVector(side,3.2-k*.6).addScaledVector(toW,.5),look:headOf(land,.55-k*.2)}),
-    onStart:()=>{CS.speed=.8;ft=0;A._landed=0;A.g.position.copy(land);finFaceTo(A.g,e.pos);A.setBase('Crouch_Idle_Loop',.9)},
-    update:dt=>{upd(dt);ft+=dt;if(ft>3.5)CS.speed=1;finFaceTo(A.g,e.pos);if(ft>1.3&&!A._fell){A._fell=1;A.once('Death01',3)}
-      if(ft>3.4&&!A._landed){A._landed=1;SM.emit(V3(land.x,land.y+.2,land.z),{n:14,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:2.5,flat:true,life:1,a:.4});P.shake=.4;sx('impact',.4,null,{rate:.6})}
-      if(Math.random()<.25)SP.emit(headOf(A.g.position,.8),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:1,up:.8,speed:.2})}};
-  shots.splice(i,3,run,stand,pierce,hold,fall,down)}
+  /* one clean blow: Kaen closes in, a single cut, a breath of violet, Bilel falls where he stood and stays down */
+  const strike2={dur:2.4,fov:40,cut:true,cam:k=>{const c=mid.clone().addScaledVector(toW,-.6);return{pos:headOf(c,1.35).addScaledVector(side,4.8-k*1.2).addScaledVector(toW,.4),look:headOf(c,1.15)}},
+    onStart:()=>{CS.speed=.7;e._d=0;hit=0;orb=findOrb();e.lb=0;if(e.m.K){e.m.K.lbK=0;if(e.m.K.demon)e.m.K.demon.visible=false}act.setBase('Sprint_Loop',.05,2.2);A.g.position.copy(mid);finFaceTo(A.g,e.pos);A.setBase('Spell_Simple_Idle_Loop',.1)},
+    update:dt=>{upd(dt);if(!hit){e._d+=dt;const k=Math.min(1,e._d/.38);const to=mid.clone().addScaledVector(toW,-1.25);e.pos.lerpVectors(kp,to,k*k);finFaceTo(e.m.g,mid);if(orb){orb.position.copy(headOf(e.pos,1.3));orb.scale.multiplyScalar(.9)}
+        if(k>=1){hit=1;if(orb){scene.remove(orb);orb=null}act.setBase('Idle_Loop',.05);act.once('Melee_Hook',.55);
+          after(.18,()=>{const c=headOf(mid,1.2);flash(c,0xa050ff,5);SP.emit(c,{n:40,c0:0xf4e8ff,c1:0x7020e0,speed:4.5,life:.7,s0:.45,s1:.05});sx('clash',.8,null,{rate:.85});sx('impact',.7,null,{rate:.7});P.shake=.8;vib([80,40,160]);CS.speed=.45;A.once('Death01',1.8);A._fell=1;setTimeout(()=>{if(CS.active&&CS.speed<.6)CS.speed=.85},700)})}}
+      else if(A._fell&&Math.random()<.2)SP.emit(headOf(A.g.position,.7),{c0:0xd8b0ff,c1:0x5010c0,s0:.3,s1:.03,life:.9,up:.7,speed:.2})}};
+  const after2={dur:2,fov:42,cam:k=>{const c=mid.clone().addScaledVector(toW,.4);return{pos:headOf(c,1.4+k*.2).addScaledVector(side,-4).addScaledVector(toW,-.4),look:headOf(c,.6)}},
+    onStart:()=>{CS.speed=1;act.setBase('Idle_Loop',.3);SM.emit(V3(mid.x,mid.y+.2,mid.z),{n:10,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:2,flat:true,life:.8,a:.35})},
+    update:dt=>{upd(dt);if(Math.random()<.2)SP.emit(headOf(A.g.position,.5),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:1,up:.8,speed:.2})}};
+  shots.splice(i,3,run,strike2,after2)}
 
 /* ================= 3 · KAEN'S LIMIT BREAKER: the quiet scream, the void, a new theme ================= */
 function epVoidPillar(c,col){const g=new THREE.Group();g.position.copy(c);scene.add(g);const m=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});

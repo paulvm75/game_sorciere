@@ -4691,24 +4691,30 @@ function bqTalk(){const a=BQ.npc;const at=V3(BQ.x,groundAt(BQ.x,BQ.z),BQ.z);cons
 /* ================= Kaen Kuroshiba: base form, Limit Breaker form, and the witch's own Limit Breaker ================= */
 /* ---------- shared cloak geometry (skinned sheet hanging from the shoulders) ---------- */
 function cloakGeo(S,bones,o={}){const SKc=S.SK;const bI=nm=>bones.findIndex(b=>b.name===nm);const sp3=bI('spine_03'),sp2=bI('spine_02'),sp1=bI('spine_01'),pel=bI('pelvis'),tl=bI('thigh_l'),tr=bI('thigh_r'),cl=bI('clavicle_l'),cr=bI('clavicle_r');
-  const yT=SKc.spine_03.y+(o.top||.14),yB=(o.bottom!==undefined?o.bottom:SKc.calf_l.y-.2),zT=SKc.spine_03.z-(o.back||.13);const rows=16,cols=14;const P=[],N=[],UV=[],SI=[],SW=[],I=[];
-  for(let r=0;r<=rows;r++){const t=r/rows;const y=lerp(yT,yB,t);const w=lerp(o.w0||.22,o.w1||.46,Math.sqrt(t));const zc=zT-.04-t*(o.flare||.22);
-    for(let c=0;c<=cols;c++){const u=c/cols;const a=(u-.5)*2;const x=a*w;const wrap=o.wrap||0;const z=zc+(1-a*a)*(-.06-.03*t)+(a*a)*wrap*(1-t*.5);P.push(x,y,z);N.push(0,0,-1);UV.push(u,t);
-      let ws;if(t<.18)ws=[[sp3,.8-t*2],[a<0?cr:cl,.2],[sp2,t*2]];else if(t<.45)ws=[[sp2,1-(t-.18)*3.7],[sp1,(t-.18)*3.7]];else{const k=(t-.45)/.55;ws=[[pel,1-k*.6],[a<0?tr:tl,k*.6*.7],[a<0?tl:tr,k*.6*.3]]}
-      let sw=0;for(const q of ws)sw+=q[1];while(ws.length<4)ws.push([0,0]);for(const q of ws){SI.push(q[0]);SW.push(q[1]/(sw||1))}}}
+  const sst=(e0,e1,v)=>{const k=clamp((v-e0)/(e1-e0),0,1);return k*k*(3-2*k)};
+  const yT=(SKc.neck_01?Math.max(SKc.spine_03.y+(o.top||.14),SKc.neck_01.y+(o.neckUp!==undefined?o.neckUp:.07)):SKc.spine_03.y+(o.top||.14)),yB=(o.bottom!==undefined?o.bottom:SKc.calf_l.y-.2),zT=SKc.spine_03.z-(o.back||.1);const rows=24,cols=20;const P=[],N=[],UV=[],SI=[],SW=[],I=[];
+  const w0=o.w0||.24,w1=o.w1||.46,mant=o.mantle!==undefined?o.mantle:.2;
+  for(let r=0;r<=rows;r++){const t=r/rows;const y=lerp(yT,yB,t);const w=t<.15?lerp(w0,w0*1.12,t/.15):lerp(w0*1.12,w1,Math.pow((t-.15)/.85,.85));const zc=zT-.015-t*(o.flare||.2);
+    for(let c=0;c<=cols;c++){const u=c/cols;const a=(u-.5)*2;const x=a*w;const wrap=mant*(1-sst(0,.24,t))+(o.wrap||.06)*(1-t*.5);
+      const z=zc+(1-a*a)*(-.025-.03*t)+(a*a)*wrap;const yy=y-(a*a)*.17*(1-sst(0,.22,t));P.push(x,yy,z);N.push(0,0,-1);UV.push(u,t);
+      let ws;const side=a<0?cr:cl,sd=a*a;
+      if(t<.22){const k=t/.22;ws=[[sp3,(1-sd*.75)*(1-k*.5)],[side,sd*.75*(1-k*.5)],[sp2,k*.5]]}
+      else if(t<.5){const k=(t-.22)/.28;ws=[[sp2,1-k],[sp1,k]]}
+      else{const k=(t-.5)/.5;ws=[[sp1,(1-k)*.4],[pel,.6+k*.2],[a<0?tr:tl,k*.13],[a<0?tl:tr,k*.07]]}
+      let sw=0;for(const q of ws)sw+=q[1];while(ws.length<4)ws.push([0,0]);ws.length=4;for(const q of ws){SI.push(q[0]);SW.push(q[1]/(sw||1))}}}
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=r*(cols+1)+c,b=a+1,cc=a+cols+1,d=cc+1;I.push(a,cc,b,b,cc,d)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setAttribute('skinIndex',new THREE.Float32BufferAttribute(SI,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(SW,4));g.setIndex(I);g.computeVertexNormals();g.computeBoundingSphere();return g}
 /* torn cloth texture with a violet sigil; alpha cut-outs make the rags */
 function kaenClothTex(torn,sigil,base){return canvasTex(256,512,(x,w,h)=>{x.fillStyle=base||'#17151b';x.fillRect(0,0,w,h);
-  for(let k=0;k<900;k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(36,80)|0},${rand(50,100)|0},${rand(.05,.14)})`;x.fillRect(rand(0,w),rand(0,h),rand(1,3),rand(10,60))}
-  for(let k=0;k<5;k++){x.fillStyle=`rgba(0,0,0,${rand(.15,.3)})`;x.fillRect(rand(0,w),0,rand(6,20),h)}
+  for(let k=0;k<(torn?900:260);k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(36,80)|0},${rand(50,100)|0},${rand(.04,torn?.14:.07)})`;x.fillRect(rand(0,w),rand(0,h),rand(1,3),rand(10,60))}
+  if(torn)for(let k=0;k<5;k++){x.fillStyle=`rgba(0,0,0,${rand(.15,.3)})`;x.fillRect(rand(0,w),0,rand(6,20),h)}else{const fg=x.createLinearGradient(0,0,w,0);for(let i=0;i<=8;i++)fg.addColorStop(i/8,i%2?'rgba(0,0,0,.16)':'rgba(255,255,255,.03)');x.fillStyle=fg;x.fillRect(0,0,w,h);x.fillStyle='rgba(150,110,210,.5)';x.fillRect(0,0,w,5);x.fillRect(0,0,4,h);x.fillRect(w-4,0,4,h)}
   const hem=torn?rand(250,300):rand(360,400);const g=x.createLinearGradient(0,hem-90,0,h);g.addColorStop(0,'rgba(120,108,140,0)');g.addColorStop(1,'rgba(120,108,140,.55)');x.fillStyle=g;x.fillRect(0,hem-90,w,h);
   if(sigil){x.save();x.translate(w/2,150);x.strokeStyle=torn?'rgba(200,150,255,.95)':'rgba(150,100,210,.85)';x.lineWidth=5;x.shadowColor='#a060ff';x.shadowBlur=torn?16:6;
     x.beginPath();x.moveTo(0,-70);x.lineTo(0,90);x.moveTo(-34,-10);x.lineTo(34,-10);x.moveTo(-18,40);x.lineTo(18,40);x.stroke();x.beginPath();x.arc(0,-40,20,0,TAU);x.stroke();x.beginPath();x.moveTo(0,90);x.lineTo(-12,110);x.moveTo(0,90);x.lineTo(12,110);x.stroke();x.restore()}
   x.globalCompositeOperation='destination-out';x.fillStyle='#000';
-  for(let c=0;c<w;c+=rand(8,22)){const d=rand(0,torn?220:110);x.beginPath();x.moveTo(c-rand(4,12),h);x.lineTo(c+rand(-6,6),h-(h-hem)-d*.3-rand(0,40));x.lineTo(c+rand(8,18),h);x.fill()}
-  for(let k=0;k<(torn?26:10);k++){x.beginPath();x.ellipse(rand(10,w-10),rand(hem-120,h),rand(3,torn?16:8),rand(6,torn?30:14),rand(0,3),0,TAU);x.fill()}
-  for(let s of[0,w]){for(let y=hem-40;y<h;y+=rand(10,25)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(6,22):w-rand(6,22),y+rand(5,15));x.lineTo(s,y+rand(15,30));x.fill()}}
+  if(torn)for(let c=0;c<w;c+=rand(8,22)){const d=rand(0,torn?220:110);x.beginPath();x.moveTo(c-rand(4,12),h);x.lineTo(c+rand(-6,6),h-(h-hem)-d*.3-rand(0,40));x.lineTo(c+rand(8,18),h);x.fill()}
+  if(torn)for(let k=0;k<26;k++){x.beginPath();x.ellipse(rand(10,w-10),rand(hem-120,h),rand(3,torn?16:8),rand(6,torn?30:14),rand(0,3),0,TAU);x.fill()}
+  if(torn)for(let s of[0,w]){for(let y=hem-40;y<h;y+=rand(10,25)){x.beginPath();x.moveTo(s,y);x.lineTo(s===0?rand(6,22):w-rand(6,22),y+rand(5,15));x.lineTo(s,y+rand(15,30));x.fill()}}
   x.globalCompositeOperation='source-over'})}
 function kaenSashTex(){return canvasTex(64,256,(x,w,h)=>{x.fillStyle='#3a2a52';x.fillRect(0,0,w,h);x.strokeStyle='#9a70d8';x.lineWidth=3;for(let y=10;y<h;y+=26){x.beginPath();x.moveTo(w/2,y);x.lineTo(w-10,y+10);x.lineTo(w/2,y+20);x.lineTo(10,y+10);x.closePath();x.stroke()}x.fillStyle='#1a1224';x.fillRect(0,0,6,h);x.fillRect(w-6,0,6,h)})}
 /* fresnel ghost material for the spectral demon */
@@ -4744,7 +4750,7 @@ function buildIllusion(){const M2=mat2();const a=makeCHActor('m',{skin:0xfff0ea,
   // torn cloak (two versions)
   const clothN=kaenClothTex(false,true),clothT=kaenClothTex(true,true,'#1a1620');
   const cloakM=std({map:clothN,color:0xffffff,roughness:.85,side:THREE.DoubleSide,alphaTest:.5,skinning:true});
-  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.25,w1:.52,flare:.26,bottom:SK.calf_l.y-.25,wrap:.08}),cloakM);
+  const cloak=a.sk(cloakGeo(S,a.bones,{w0:.27,w1:.56,flare:.2,mantle:.22,back:.09,bottom:SK.calf_l.y-.25,wrap:.07}),cloakM);
   // rope belt, emblem, hanging sash panel, tassels
   const belt=new THREE.Group();for(let k=0;k<3;k++){const t=new THREE.Mesh(new THREE.TorusGeometry(.155,.016,6,40),rope);t.rotation.x=Math.PI/2;t.position.y=k*.024;t.rotation.z=k*.4;belt.add(t)}
   const knot=new THREE.Mesh(G.sphere,rope);knot.scale.set(.035,.03,.025);knot.position.set(.09,.02,.12);belt.add(knot);
@@ -4919,21 +4925,16 @@ function finSacrifice(e){const A=FIN.ally,act=e.m.actor;const upd=finKaenUpd(e);
     {who:'Master Bilel',text:'NOT HER!',fov:52,cut:true,cam:wide(2,8,-1),onStart:()=>{A.setBase('Sprint_Loop',.1,1.5);act.setBase('Sprint_Loop',.1,1.8);sfx.blink&&sfx.blink();A._k=0;e._k=0},
       update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/1.05);e._k=Math.min(1,e._k+dt/1.2);A.g.position.lerpVectors(aStart,mid,A._k);finFaceTo(A.g,kp);e.pos.lerpVectors(kp,strike,e._k*e._k);finFaceTo(e.m.g,P.pos);
         if(orbK)orbK.position.copy(headOf(e.pos,2.2));SP.emit(headOf(A.g.position,1),{n:2,c0:0xffe0a0,c1:0x805010,s0:.4,s1:.05,life:.4});SP.emit(eCenter(e),{n:3,c0:0xe0c0ff,c1:0x5010c0,s0:.7,s1:.1,life:.35})}},
-    // slow motion: the golden barrier, the strike, the shatter
-    {dur:2.4,fov:42,cut:true,cam:k=>{const c=mid.clone().addScaledVector(toW,-.6);return{pos:headOf(c,1.7+k*.4).addScaledVector(side,6.4-k*1.2).addScaledVector(toW,.8),look:headOf(c,1.2)}},
-      onStart:()=>{CS.speed=.4;A.g.position.copy(mid);e.pos.copy(strike);finFaceTo(A.g,e.pos);A.setBase('Spell_Simple_Idle_Loop',.05);act.setBase('Idle_Loop',.1);act.once('Melee_Hook',.9);
-        dome=new THREE.Mesh(new THREE.SphereGeometry(1.5,32,20,0,TAU,0,Math.PI/2),new THREE.MeshBasicMaterial({color:0xffc040,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));dome.position.copy(mid).addScaledVector(toW,-.4);dome.scale.set(1.3,1.5,.7);dome.lookAt(dome.position.clone().addScaledVector(toW,-1));dome.rotateX(Math.PI/2);scene.add(dome);flash(mid,0xffd060,10);ring(mid,0xffd060,1,4,.4);
-        after(.55,()=>{const c=headOf(mid,1.3);flash(c,0xffffff,16);flash(c,0xa050ff,12);crescentFx(strike.clone(),toW,2.2,0xd090ff);if(dome){scene.remove(dome);dome=null}
-          for(let i=0;i<26;i++){const s=new THREE.Mesh(G.shard,new THREE.MeshBasicMaterial({color:i%3?0xffd060:0xfff4c0,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));const sc=rand(.12,.3);s.scale.set(sc,sc*2,sc);s.position.copy(c).add(V3(rand(-.8,.8),rand(-.6,.8),rand(-.8,.8)));const v=V3(rand(-4,4),rand(1,5),rand(-4,4)).addScaledVector(toW,3);scene.add(s);
-            addFx(s,1.6,(f,k)=>{s.position.addScaledVector(v,1/60);v.y-=.12;s.rotation.x+=.2;s.rotation.y+=.15;s.material.opacity=1-k},()=>{scene.remove(s)})}
-          SP.emit(c,{n:180,c0:0xffffff,c1:0xf2c040,speed:13,life:1,s0:.7,s1:.1});SP.emit(c,{n:80,c0:0xe0c0ff,c1:0x6010d0,speed:9,life:.8});ring(mid,0xffd060,1,9,.5);P.shake=1.9;sfx.boom&&sfx.boom();sfx.shatter&&sfx.shatter();sfx.roar();A.once('Hit_Knockback',.9);vib([140,60,220]);if(orbK){scene.remove(orbK);orbK=null}})},
-      update:dt=>{upd(dt);if(dome){dome.material.opacity=.4+Math.sin(time*40)*.15}}},
-    // Bilel is thrown back beside her
-    {dur:1.5,fov:44,cam:wide(1.8,5.5,.5),onStart:()=>{CS.speed=1;A._k=0;act.setBase('Idle_Loop',.3)},update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/.7);const k=A._k;A.g.position.lerpVectors(mid,land,k);A.g.position.y=land.y+Math.sin(k*Math.PI)*1.2;if(k<1)SP.emit(headOf(A.g.position,1),{n:3,c0:0xfff0c0,c1:0xf2a030,s0:.4,s1:.05,life:.6});if(k>=1&&!A._landed){A._landed=1;A.once('Death01',.9);SM.emit(V3(land.x,land.y+.2,land.z),{n:12,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:3,flat:true,life:.8,a:.4});P.shake=.8}}},
+    // one clean blow: Kaen's sword finds Bilel, a breath of violet light, he falls where he stands
+    {dur:2.6,fov:40,cut:true,cam:k=>{const c=mid.clone().addScaledVector(toW,-.5);return{pos:headOf(c,1.5+k*.25).addScaledVector(side,5.6-k*1).addScaledVector(toW,.6),look:headOf(c,1.1)}},
+      onStart:()=>{CS.speed=.6;A.g.position.copy(mid);e.pos.copy(P.pos.clone().addScaledVector(toW,-3.3));e.pos.y=groundAt(e.pos.x,e.pos.z);e.lb=0;if(e.m.K){e.m.K.lbK=0;if(e.m.K.demon)e.m.K.demon.visible=false}finFaceTo(A.g,e.pos);finFaceTo(e.m.g,A.g.position);A.setBase('Spell_Simple_Idle_Loop',.05);act.setBase('Idle_Loop',.1);act.once('Melee_Hook',.75);if(orbK){scene.remove(orbK);orbK=null}
+        after(.45,()=>{const c=headOf(mid,1.25);flash(c,0xa050ff,6);SP.emit(c,{n:46,c0:0xf0e0ff,c1:0x7020e0,speed:5,life:.7,s0:.45,s1:.05});SP.emit(c,{n:14,c0:0xffffff,c1:0xc090ff,speed:2,life:1.2,up:1});sx('clash',.8,null,{rate:.8});sx('impact',.6,null,{rate:.7});P.shake=.7;vib([120,40,160]);A.once('Death01',1.7);A._fell=1})},
+      update:dt=>{upd(dt);if(A._fell&&Math.random()<.25)SP.emit(headOf(A.g.position,.6),{c0:0xd8b0ff,c1:0x5010c0,s0:.3,s1:.03,life:.9,up:.8})}},
+    {dur:1.4,fov:44,cam:wide(1.8,5.5,.5),onStart:()=>{CS.speed=1;act.setBase('Idle_Loop',.3);SM.emit(V3(mid.x,mid.y+.2,mid.z),{n:10,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:2,flat:true,life:.8,a:.35})},update:upd},
     {who:'@',text:'Bilel... no!!!',fov:32,cut:true,cam:face,onStart:()=>{P.heroAnim='Idle_No_Loop';FIN.grief=true;if(!CS.skipping)clipPlay('vo_bilel_no',1.35,3.2);vib([100,50,100])},update:upd},
     {who:'Master Bilel',text:'Heh... always so stubborn... You were stronger than me... all along.',fov:32,cam:bilLow,onStart:()=>{P.heroAnim='Crouch_Idle_Loop'},update:upd},
     {who:'Master Bilel',text:'Finish it... for Paris... for me...',fov:30,cam:bilLow,onStart:()=>{A._fade=1;A.g.traverse(o=>{if(o.isMesh&&o.material&&!o.material.transparent){o.material=o.material.clone();o.material.transparent=true}})},update:dt=>{upd(dt);A._fade=Math.max(.35,A._fade-dt*.15);finAllyFade(A)}},
-    {dur:2.6,fov:44,cam:k=>({pos:headOf(land,1+k*4).addScaledVector(side,4-k).addScaledVector(toW,-1),look:headOf(land,.6+k*3)}),update:dt=>{upd(dt);A._fade=Math.max(0,A._fade-dt*.4);finAllyFade(A);for(let i=0;i<4;i++)SP.emit(V3(land.x+rand(-.8,.8),land.y+rand(0,.6),land.z+rand(-.8,.8)),{c0:0xfff0c0,c1:0xf2a030,s0:.5,s1:.05,life:1.6,up:5,speed:.4})}},
+    {dur:2.6,fov:44,cam:k=>({pos:headOf(mid,1+k*4).addScaledVector(side,4-k).addScaledVector(toW,-1),look:headOf(mid,.6+k*3)}),update:dt=>{upd(dt);A._fade=Math.max(0,A._fade-dt*.4);finAllyFade(A);for(let i=0;i<4;i++)SP.emit(V3(mid.x+rand(-.8,.8),mid.y+rand(0,.6),mid.z+rand(-.8,.8)),{c0:0xfff0c0,c1:0xf2a030,s0:.5,s1:.05,life:1.6,up:5,speed:.4})}},
     {who:'Kaen',text:'Sentiment. That is exactly why you lose.',fov:34,cam:()=>({pos:headOf(e.pos,2).addScaledVector(toW,3).addScaledVector(side,-1),look:headOf(e.pos,2)}),onStart:()=>{scene.remove(A.g);FIN.ally=null;act.setBase('Idle_Loop',.3)},update:upd}
   ],()=>{CS.speed=1;if(orbK)scene.remove(orbK);if(dome)scene.remove(dome);scene.remove(A.g);FIN.ally=null;BQ.dead=true;FIN.sacDone=true;e.invuln=false;e.busy=0;e.m.lock=0;e.lb=20;e.dmgMul=1.35;e.hpFloor=0;P.invuln=2;writeSave();witchAwaken(e)})}
 /* ---------- her awakening: grief, then ki and magic exploding ---------- */
@@ -6430,7 +6431,8 @@ function nzGround(x,z){const l=lotAt(x,z);if(l)return roofH(l,x,z);
   if(z>CLIFF_Z){if(Math.abs(x-60)<4.2&&z>-2292)return 1.2;return z<CLIFF_Z+15?-.3:-.85}
   if(z>LON_Z-2){const h=nzLand(x,z);return nzRivW(x,z)?Math.max(h,-.7):h}
   if(Math.abs(z-TH_Z)<TH_W)return LBR.some(b=>Math.abs(x-b)<5)?.5:-.85;return 0}
-function nzRivW(x,z){return (nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)+1.4)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<13.5}
+/* water is wherever the river bed actually sits under the surface (y .2), so what you see is where you swim */
+function nzRivW(x,z){const inC=(nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)+16)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<26;return inC&&nzLand(x,z)<-.45}
 function nzWater(x,z){if(lotAt(x,z))return false;if(z<=CAL_SHORE&&z>CLIFF_Z+15)return !(Math.abs(x-60)<4.2&&z>-2292);
   if(z<=CLIFF_Z&&z>LON_Z-2)return nzRivW(x,z);
   if(z<=LON_Z-2)return Math.abs(z-TH_Z)<TH_W-.15&&!LBR.some(b=>Math.abs(x-b)<5);return false}
@@ -6555,7 +6557,7 @@ function nzSea(G){const M=nzM();const sea=c2plane(G,600,CAL_SHORE-CLIFF_Z+7,0,.0
 /* ---------- England ---------- */
 function nzCountry(G){const M=nzM();const Z0=CLIFF_Z,Z1=LON_Z-2;
   const inTown=(x,z,pad)=>NZTOWNS.some(T=>Math.hypot(x-T.x,z-T.z)<T.r+(pad||0));
-  const nearRiver=(x,z,p)=>(nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)+p)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<18+p;
+  const nearRiver=(x,z,p)=>(nzRiverOn(z)&&Math.abs(x-nzRiverX(z))<nzRiverHW(z)+6.5+p)||Math.hypot(x-nzRiverX(RIV_Z0),z-RIV_Z0-6)<24+p;
   const nearRoad=(x,z,p)=>Math.abs(x-nzRoadX(z))<p;
   /* ---- the patchwork: rows of fields with hedges between them ---- */
   const FT=[['#466a2e',null,5,'grass'],['#58783a',null,3,'grass'],['#3c5c2a',null,2,'grass'],['#8a7e3e','#a08e46',2,'wheat'],['#5e4a30','#735a3c',1.4,'plough'],['#a8a434','#c4bc40',.6,'rape'],['#25391e',null,1.3,'wood'],['#6e7e3c','#7a8a44',1.4,'barley']];
@@ -6574,17 +6576,17 @@ function nzCountry(G){const M=nzM();const Z0=CLIFF_Z,Z1=LON_Z-2;
       for(const T of NZTOWNS){if(T.z>za+T.r||T.z<zb-T.r)continue;const g=x.createRadialGradient(U(T.x),V(T.z),2,U(T.x),V(T.z),T.r*px);g.addColorStop(0,'rgba(86,120,58,1)');g.addColorStop(.75,'rgba(70,104,48,.9)');g.addColorStop(1,'rgba(62,94,44,0)');x.fillStyle=g;x.beginPath();x.arc(U(T.x),V(T.z),T.r*px,0,TAU);x.fill()}
       const path=(fx,w,col,z0,z1)=>{x.strokeStyle=col;x.lineWidth=w*px;x.lineCap='round';x.lineJoin='round';x.beginPath();let first=true;for(let z=Math.min(z0,za+8);z>Math.max(z1,zb-8);z-=4){const q=fx(z);if(first){x.moveTo(U(q),V(z));first=false}else x.lineTo(U(q),V(z))}x.stroke()};
       const band=(ex,col)=>{const zs=[];for(let z=Math.min(RIV_Z0+4,za+8);z>Math.max(LON_Z+4,zb-8);z-=4)zs.push(z);if(zs.length<2)return;x.fillStyle=col;x.beginPath();zs.forEach((z,i)=>{const q=nzRiverX(z)+nzRiverHW(z)+ex;i?x.lineTo(U(q),V(z)):x.moveTo(U(q),V(z))});for(let i=zs.length-1;i>=0;i--){const z=zs[i];x.lineTo(U(nzRiverX(z)-nzRiverHW(z)-ex),V(z))}x.closePath();x.fill()};
-      band(8,'#47502e');band(5.5,'#5a5236');band(3.4,'#3a3a2a');band(1,'#1e3650');{const px0=U(nzRiverX(RIV_Z0)),pz0=V(RIV_Z0+6);if(pz0>-40&&pz0<TH+40){x.fillStyle='#5a5236';x.beginPath();x.arc(px0,pz0,19*px,0,TAU);x.fill();x.fillStyle='#1e3650';x.beginPath();x.arc(px0,pz0,15*px,0,TAU);x.fill()}}
+      band(12,'#47502e');band(9.5,'#5a5236');band(8,'#3a3a2a');band(7,'#1e3650');{const px0=U(nzRiverX(RIV_Z0)),pz0=V(RIV_Z0+6);if(pz0>-40&&pz0<TH+40){x.fillStyle='#5a5236';x.beginPath();x.arc(px0,pz0,19*px,0,TAU);x.fill();x.fillStyle='#1e3650';x.beginPath();x.arc(px0,pz0,15*px,0,TAU);x.fill()}}
       path(nzRoadX,7,'#5e5a4c',Z0-4,LON_Z);path(nzRoadX,4.8,'#3e3c38',Z0-4,LON_Z)});
     const t=new THREE.CanvasTexture(tex);t.anisotropy=8;
     const tg=new THREE.PlaneGeometry(540,CD+2,135,Math.round(CD/4));tg.rotateX(-Math.PI/2);tg.translate(0,0,zc);const pa=tg.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,nzLand(pa.getX(i),pa.getZ(i)));tg.computeVertexNormals();
     const tm=new THREE.Mesh(tg,nzDetailMat(std({map:t,roughness:.95,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.13})));tm.receiveShadow=true;tm.name='nzLand';G.add(tm)}
   /* ---- the river: a proper ribbon of water, a spring pond, reeds ---- */
   {const wt=waterN.clone();wt.needsUpdate=true;wt.wrapS=wt.wrapT=THREE.RepeatWrapping;const rm=std({color:0x2c4862,roughness:.06,metalness:.75,normalMap:wt,normalScale:new THREE.Vector2(.55,.55),emissive:0x081624,transparent:true,opacity:.93});
-    const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=RIV_Z0+4;z>LON_Z+3;z-=3){const x=nzRiverX(z),w=nzRiverHW(z)+3.2;if(lx!=null)len+=Math.hypot(x-lx,3);lx=x;rp.push(x-w,.2,z,x+w,.2,z);uv.push(0,len/12,1,len/12);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}
+    const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=RIV_Z0+4;z>LON_Z+3;z-=3){const x=nzRiverX(z),w=nzRiverHW(z)+13;if(lx!=null)len+=Math.hypot(x-lx,3);lx=x;rp.push(x-w,.2,z,x+w,.2,z);uv.push(0,len/12,1,len/12);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}
     const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));rg.setIndex(ri);rg.computeVertexNormals();
     const rmesh=new THREE.Mesh(rg,rm);rmesh.name='nzRiver';rmesh.renderOrder=1;G.add(rmesh);
-    const pond=new THREE.Mesh(new THREE.CircleGeometry(16.5,36),rm);pond.rotation.x=-Math.PI/2;pond.position.set(nzRiverX(RIV_Z0),.2,RIV_Z0+6);G.add(pond);
+    const pond=new THREE.Mesh(new THREE.CircleGeometry(24,48),rm);pond.rotation.x=-Math.PI/2;pond.position.set(nzRiverX(RIV_Z0),.2,RIV_Z0+6);G.add(pond);
     NZ.anim.push(dt=>{wt.offset.y-=dt*.05;wt.offset.x+=dt*.01});
     const R=[];for(let z=RIV_Z0;z>LON_Z+10;z-=2.6)for(const s of[-1,1]){if(Math.random()<.45)continue;const x=nzRiverX(z)+s*(nzRiverHW(z)+rand(3,4.6));if(inTown(x,z,-40))continue;R.push([x,z,rand(.7,1.4)])}
     CITY_PARENT=G;instanced(new THREE.ConeGeometry(.12,1.6,4),std({color:0x5a6a34,roughness:1}),R,(o,r)=>{o.position.set(r[0],nzLand(r[0],r[1])+.7*r[2],r[1]);o.scale.set(1,r[2],1);o.rotation.set(rand(-.2,.2),0,rand(-.2,.2))});CITY_PARENT=null}
@@ -6626,7 +6628,7 @@ function nzCountry(G){const M=nzM();const Z0=CLIFF_Z,Z1=LON_Z-2;
   /* ---- three villages where the lane crosses the river ---- */
   const pubs=['The Drowned Hound','The Crow and Crown','The Kingsbridge Arms'];
   NZTOWNS.filter(t=>t.f).forEach((V,vi)=>{const vy=V.h!=null?V.h:nzLand(V.x,V.z);const hw=nzRiverHW(V.z);
-    {const L=hw*2+12;nzBox(G,L,.9,7.2,V.x,vy-.6,V.z,M.stone,true);for(const s of[-1,1])nzBox(G,L,1,.6,V.x,vy+.3,V.z+s*3.3,M.stone,false);const a=new THREE.Mesh(new THREE.TorusGeometry(hw*.95,.9,8,20,Math.PI),M.stone);a.position.set(V.x,-1.2,V.z);G.add(a)}
+    {const L=hw*2+20;nzBox(G,L,.9,7.2,V.x,vy-.6,V.z,M.stone,true);for(const s of[-1,1])nzBox(G,L,1,.6,V.x,vy+.3,V.z+s*3.3,M.stone,false);const a=new THREE.Mesh(new THREE.TorusGeometry(hw*.95,.9,8,20,Math.PI),M.stone);a.position.set(V.x,-1.2,V.z);G.add(a)}
     for(let s=-110;s<=110;s+=10){const z=V.z+s;const rx=nzRoadX(z);for(const side of[-1,1]){if(Math.random()<.3)continue;const x=rx+side*rand(9,13);if(nearRiver(x,z,8))continue;const w=rand(6,8),d=rand(5,6.5);const y=Math.min(nzLand(x-w/2,z),nzLand(x+w/2,z),nzLand(x,z-d/2),nzLand(x,z+d/2))-.25;
       H.push({x,z,w,d,h:rand(3.6,4.8),rh:rand(2.4,3.2),y,c:[0xe8e2d2,0xd4c4a4,0xb0a088,0xe8e0c8][(Math.random()*4)|0],rc:Math.random()<.5?0x5a4a30:0x3a3c46})}
       if(s%20===0&&Math.abs(s)<90){const lx=rx+5.2,ly=nzLand(lx,z);nzCyl(G,.08,.1,3.8,lx,ly,z,M.stone,6);nzGlow(G,0xffd890,2,.85,lx,ly+4,z)}}
@@ -6758,7 +6760,7 @@ function nzKeep(o){return o===SKY||o.isLight||o===moonLight.target||o===W.g||o==
 function nzDrawMap(){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+48;MAPOX=WB.x0-24;MAPOZ=WB.z0-24;const x=worldMap.getContext('2d'),X=v=>v-MAPOX,Z=v=>v-MAPOZ,Wd=worldMap.width;
   x.fillStyle='#1d1935';x.fillRect(0,0,Wd,worldMap.height);x.fillStyle='#2b4b86';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CAL_SHORE)-Z(CLIFF_Z));x.fillStyle='#21584e';x.fillRect(0,Z(CLIFF_Z),Wd,Z(CURSE_Z)-Z(CLIFF_Z));
   x.fillStyle='#8a7a5a';x.fillRect(0,Z(-2158),Wd,Z(CAL_SHORE)-Z(-2158));x.fillStyle='#284332';x.fillRect(0,Z(LON_Z),Wd,Z(CLIFF_Z)-Z(LON_Z));x.fillStyle='#e8e6dc';x.fillRect(0,Z(CLIFF_Z)-2,Wd,4);
-  x.strokeStyle='#2b4b86';x.lineWidth=9;x.beginPath();for(let z=RIV_Z0;z>LON_Z+6;z-=6)z===RIV_Z0?x.moveTo(X(nzRiverX(z)),Z(z)):x.lineTo(X(nzRiverX(z)),Z(z));x.stroke();x.strokeStyle='#8a8070';x.lineWidth=4;x.beginPath();for(let z=CLIFF_Z-6;z>LON_Z;z-=6)z===CLIFF_Z-6?x.moveTo(X(nzRoadX(z)),Z(z)):x.lineTo(X(nzRoadX(z)),Z(z));x.stroke();
+  x.fillStyle='#2b4b86';x.beginPath();x.arc(X(nzRiverX(RIV_Z0)),Z(RIV_Z0+6),20,0,TAU);x.fill();x.strokeStyle='#2b4b86';x.lineWidth=22;x.lineJoin='round';x.beginPath();for(let z=RIV_Z0;z>LON_Z+6;z-=6)z===RIV_Z0?x.moveTo(X(nzRiverX(z)),Z(z)):x.lineTo(X(nzRiverX(z)),Z(z));x.stroke();x.strokeStyle='#8a8070';x.lineWidth=4;x.beginPath();for(let z=CLIFF_Z-6;z>LON_Z;z-=6)z===CLIFF_Z-6?x.moveTo(X(nzRoadX(z)),Z(z)):x.lineTo(X(nzRoadX(z)),Z(z));x.stroke();
   x.fillStyle='#2b4b86';x.fillRect(0,Z(TH_Z-TH_W),Wd,TH_W*2);x.fillStyle='#6b6278';for(const b of LBR)x.fillRect(X(b-5),Z(TH_Z-TH_W),10,TH_W*2);x.fillRect(X(56),Z(-2292),8,100);
   x.fillStyle='#6b6278';for(const r of NZ.mapR)x.fillRect(X(r[0]),Z(r[1]),r[2],r[3]);x.fillStyle='#f2a541';for(const p of NZ.mapP)x.fillRect(X(p[0])-4,Z(p[1])-4,8,8);x.font='bold 20px Georgia,serif';x.textAlign='left';for(const T of NZTOWNS){x.fillStyle='rgba(0,0,0,.6)';x.fillText(T.n,X(T.x)+11,Z(T.z)+1);x.fillStyle='#f0e6c8';x.fillText(T.n,X(T.x)+10,Z(T.z))}}
 {const _dw=drawWorldMap;drawWorldMap=function(){if(MODE!=='open'&&CH2.zone==='north')return nzDrawMap();return _dw.apply(this,arguments)}}
@@ -7210,31 +7212,17 @@ function epSacrifice(shots,i){const A=FIN.ally,e=BM.finalFor||bossRef;if(!A||!e)
     update:dt=>{upd(dt);finFaceTo(e.m.g,A.g.position);if(A._k<1){A._k=Math.min(1,A._k+dt/.95);const k=1-Math.pow(1-A._k,2);A.g.position.lerpVectors(aStart,mid,k);finFaceTo(A.g,mid.clone().addScaledVector(toW,-1));
         SP.emit(headOf(A.g.position,1),{n:2,c0:0xffe0a0,c1:0x805010,s0:.4,s1:.05,life:.4});if(A._k>=1){A.setBase('Spell_Simple_Idle_Loop',.12);finFaceTo(A.g,e.pos);SM.emit(V3(mid.x,mid.y+.2,mid.z),{n:10,c0:0x8a8070,c1:0x2a2418,s0:.6,s1:2,speed:3,flat:true,life:.6,a:.4})}}
       else finFaceTo(A.g,e.pos)}};
-  const stand={dur:1.3,fov:36,cut:true,cam:()=>({pos:headOf(mid,1.55).addScaledVector(toW,-1.9).addScaledVector(side,.9),look:headOf(mid,1.5)}),onStart:()=>{A.g.position.copy(mid);finFaceTo(A.g,e.pos);A.setBase('Spell_Simple_Idle_Loop',.1)},update:upd};
-  const pierce={dur:2.6,fov:40,cut:true,cam:k=>{const c=mid.clone().addScaledVector(toW,-.55);return{pos:headOf(c,1.25).addScaledVector(side,4.6-k*1.4).addScaledVector(toW,.4),look:headOf(c,1.15)}},
-    onStart:()=>{CS.speed=.6;e._d=0;hit=0;fz=0;orb=findOrb();act.setBase('Sprint_Loop',.05,2.4);A.g.position.copy(mid);finFaceTo(A.g,e.pos)},
-    update:dt=>{upd(dt);if(!hit){e._d+=dt;const k=Math.min(1,e._d/.34);e.pos.lerpVectors(kp,strike,k*k);finFaceTo(e.m.g,mid);
-        if(orb){orb.position.copy(headOf(e.pos,1.3));orb.scale.multiplyScalar(.9)}for(let n=0;n<3;n++)SP.emit(eCenter(e).add(V3(rand(-.3,.3),rand(-.4,.4),rand(-.3,.3))),{c0:0xffffff,c1:0x6010d0,s0:.6,s1:.05,life:.35,speed:.6});
-        if(k>=1){hit=1;if(orb){scene.remove(orb);orb=null}act.setBase('Idle_Loop',.05);act.once('Melee_Hook',.5);
-          blade=epBlade();blade.position.copy(strike).addScaledVector(toW,.35);blade.position.y+=1.25;blade.lookAt(blade.position.clone().add(toW));blade.scale.z=.01;scene.add(blade);
-          sx('pierce',1.4,()=>{try{sfx.boom()}catch(x){}},{wet:.25});sx('impact',.9,null,{rate:.7,delay:.05});CS.speed=.12;P.shake=1.6;vib([60,40,200]);
-          const c=headOf(mid,1.25);flash(c,0xffffff,14);flash(c,0xa050ff,10);ring(mid,0xc080ff,1,5,.4);A.fire('Hit_Knockback',.25);
-          SP.emit(c.clone().addScaledVector(toW,.3),{n:140,c0:0xffffff,c1:0x8030ff,speed:10,life:.9,s0:.6,s1:.05,dir:toW});SP.emit(c,{n:60,c0:0xfff0c0,c1:0xd09020,speed:6,life:1,s0:.5,s1:.05})}}
-      else{fz+=dt/Math.max(.05,CS.speed);if(fz>.55&&CS.speed<.5)CS.speed=.5;if(blade){blade.scale.z=Math.min(1,blade.scale.z+dt*22);blade.userData.glow.material.opacity=.45+Math.sin(time*40)*.15}
-        if(Math.random()<.5)SP.emit(headOf(mid,1.2).addScaledVector(toW,.5),{c0:0xe0c0ff,c1:0x5010c0,s0:.35,s1:.03,life:.6,speed:1.5})}}};
-  const hold={dur:2,fov:32,cut:true,cam:k=>({pos:headOf(mid,1.6).addScaledVector(side,3.4-k*.3).addScaledVector(toW,.2),look:headOf(mid,1.3).addScaledVector(toW,-.5)}),onStart:()=>{CS.speed=.75;dk=0},
-    update:(dt,k)=>{upd(dt);if(Math.random()<.4)SP.emit(headOf(mid,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.6,speed:.3});
-      if(k>.72&&blade&&!blade.userData.out){blade.userData.out=1;sx('clash',.5,null,{rate:1.3});act.once('OverhandThrow',.4);SP.emit(headOf(mid,1.25),{n:60,c0:0xffffff,c1:0x8030ff,speed:7,life:.6})}
-      if(blade&&blade.userData.out){blade.scale.z=Math.max(0,blade.scale.z-dt*6);if(blade.scale.z<=0){scene.remove(blade);blade=null}}}};
-  const fall={dur:1.4,fov:40,cam:k=>{const c=mid.clone().lerp(land,.5);return{pos:headOf(c,1.5).addScaledVector(side,-4.2).addScaledVector(toW,-.5),look:headOf(c,1.1)}},
-    onStart:()=>{CS.speed=.85;if(blade){scene.remove(blade);blade=null}A._k=0;A.once('Hit_Knockback',1.5);act.setBase('Idle_Loop',.3)},
-    update:dt=>{upd(dt);A._k=Math.min(1,A._k+dt/1.3);const k=A._k;A.g.position.lerpVectors(mid,land,k*(2-k));finFaceTo(A.g,e.pos);if(Math.random()<.3)SP.emit(headOf(A.g.position,1.2),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:.8,up:.5,speed:.3})}};
-  let ft=0;const down={dur:4,fov:36,cam:k=>({pos:headOf(land,.7+k*.1).addScaledVector(side,3.2-k*.6).addScaledVector(toW,.5),look:headOf(land,.55-k*.2)}),
-    onStart:()=>{CS.speed=.8;ft=0;A._landed=0;A.g.position.copy(land);finFaceTo(A.g,e.pos);A.setBase('Crouch_Idle_Loop',.9)},
-    update:dt=>{upd(dt);ft+=dt;if(ft>3.5)CS.speed=1;finFaceTo(A.g,e.pos);if(ft>1.3&&!A._fell){A._fell=1;A.once('Death01',3)}
-      if(ft>3.4&&!A._landed){A._landed=1;SM.emit(V3(land.x,land.y+.2,land.z),{n:14,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:2.5,flat:true,life:1,a:.4});P.shake=.4;sx('impact',.4,null,{rate:.6})}
-      if(Math.random()<.25)SP.emit(headOf(A.g.position,.8),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:1,up:.8,speed:.2})}};
-  shots.splice(i,3,run,stand,pierce,hold,fall,down)}
+  /* one clean blow: Kaen closes in, a single cut, a breath of violet, Bilel falls where he stood and stays down */
+  const strike2={dur:2.4,fov:40,cut:true,cam:k=>{const c=mid.clone().addScaledVector(toW,-.6);return{pos:headOf(c,1.35).addScaledVector(side,4.8-k*1.2).addScaledVector(toW,.4),look:headOf(c,1.15)}},
+    onStart:()=>{CS.speed=.7;e._d=0;hit=0;orb=findOrb();e.lb=0;if(e.m.K){e.m.K.lbK=0;if(e.m.K.demon)e.m.K.demon.visible=false}act.setBase('Sprint_Loop',.05,2.2);A.g.position.copy(mid);finFaceTo(A.g,e.pos);A.setBase('Spell_Simple_Idle_Loop',.1)},
+    update:dt=>{upd(dt);if(!hit){e._d+=dt;const k=Math.min(1,e._d/.38);const to=mid.clone().addScaledVector(toW,-1.25);e.pos.lerpVectors(kp,to,k*k);finFaceTo(e.m.g,mid);if(orb){orb.position.copy(headOf(e.pos,1.3));orb.scale.multiplyScalar(.9)}
+        if(k>=1){hit=1;if(orb){scene.remove(orb);orb=null}act.setBase('Idle_Loop',.05);act.once('Melee_Hook',.55);
+          after(.18,()=>{const c=headOf(mid,1.2);flash(c,0xa050ff,5);SP.emit(c,{n:40,c0:0xf4e8ff,c1:0x7020e0,speed:4.5,life:.7,s0:.45,s1:.05});sx('clash',.8,null,{rate:.85});sx('impact',.7,null,{rate:.7});P.shake=.8;vib([80,40,160]);CS.speed=.45;A.once('Death01',1.8);A._fell=1;setTimeout(()=>{if(CS.active&&CS.speed<.6)CS.speed=.85},700)})}}
+      else if(A._fell&&Math.random()<.2)SP.emit(headOf(A.g.position,.7),{c0:0xd8b0ff,c1:0x5010c0,s0:.3,s1:.03,life:.9,up:.7,speed:.2})}};
+  const after2={dur:2,fov:42,cam:k=>{const c=mid.clone().addScaledVector(toW,.4);return{pos:headOf(c,1.4+k*.2).addScaledVector(side,-4).addScaledVector(toW,-.4),look:headOf(c,.6)}},
+    onStart:()=>{CS.speed=1;act.setBase('Idle_Loop',.3);SM.emit(V3(mid.x,mid.y+.2,mid.z),{n:10,c0:0x6a6080,c1:0x2a2438,s0:1,s1:3,speed:2,flat:true,life:.8,a:.35})},
+    update:dt=>{upd(dt);if(Math.random()<.2)SP.emit(headOf(A.g.position,.5),{c0:0xfff0c0,c1:0xf2a030,s0:.3,s1:.03,life:1,up:.8,speed:.2})}};
+  shots.splice(i,3,run,strike2,after2)}
 
 /* ================= 3 · KAEN'S LIMIT BREAKER: the quiet scream, the void, a new theme ================= */
 function epVoidPillar(c,col){const g=new THREE.Group();g.position.copy(c);scene.add(g);const m=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
@@ -8265,7 +8253,7 @@ function x3Kinetic(){const m=(X3.mPos||P.pos).clone(),k=kpos().clone();let swapp
 /* ---------- playing as Kaen ---------- */
 const KM={on:0,a:null,fe:null,en:100,cd:[0,0,0,0,0,0,0],sh:0,dash:null,combo:0,lb:0,g:[],said:{},hud:null,lunge:null};
 function x3GearKaen(){const old=KFW.a;const pos=old?old.g.position.clone():P.pos.clone(),ry=old?old.g.rotation.y:0;if(old)scene.remove(old.g);const ill=buildIllusion();if(!ill||!ill.actor){KFW.a=old;if(old)scene.add(old.g);return}
-  const a=ill.actor;a.ill=ill;try{const K=ill.K;if(K.cloak&&K.cloak.parent)K.cloak.parent.remove(K.cloak);K.cloak=a.sk(cloakGeo(a.S,a.bones,{w0:.2,w1:.34,top:.1,back:.1,flare:.08,wrap:.16,bottom:a.S.SK.calf_l.y-.05}),K.cloakM)}catch(x){}ill.K.eyes.forEach(s=>s.material.color.setHex(0xc8b0ff));a.g.position.copy(pos);a.g.rotation.y=ry;scene.add(a.g);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;KFW.mode='';KFW.an='';KFW.gear=1;try{a.setBase('Idle_Loop');a.update(.2)}catch(x){}return a}
+  const a=ill.actor;a.ill=ill;try{const K=ill.K;if(K.cloak&&K.cloak.parent)K.cloak.parent.remove(K.cloak);K.cloak=a.sk(cloakGeo(a.S,a.bones,{w0:.25,w1:.42,top:.1,back:.09,flare:.1,mantle:.22,wrap:.08,bottom:a.S.SK.calf_l.y-.05}),K.cloakM)}catch(x){}ill.K.eyes.forEach(s=>s.material.color.setHex(0xc8b0ff));a.g.position.copy(pos);a.g.rotation.y=ry;scene.add(a.g);KFW.a=a;KFW.gm=new THREE.MeshBasicMaterial();KFW.kp=null;KFW.mode='';KFW.an='';KFW.gear=1;try{a.setBase('Idle_Loop');a.update(.2)}catch(x){}return a}
 {const _kb=kfBuild;kfBuild=function(){if(KFW.a||!(XII.solid&&(CH2.st>=13||KFW.gear)))return _kb.apply(this,arguments);KFW.a=null;const a=x3GearKaen();return a||_kb.apply(this,arguments)}}
 function kmStart(){if(KM.on)return;const a=KFW.a&&KFW.gear?KFW.a:x3GearKaen();KFW.a=null;KFW.off=1;KM.a=a;KM.on=1;KM.fe={m:a.ill,t:0,lb:0,pos:a.g.position,def:{h:2.4},ai:{}};
   P.pos.copy(a.g.position);P.pos.y=X3.C.y;P.vy=0;P.flying=false;const e=X3.e;if(e){P.face=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z);yaw=P.face+Math.PI}
