@@ -286,7 +286,7 @@ function xoMusOn(){return started&&MODE!=='open'&&(CH2.st===21||CH2.st===22)&&XO
 {const _mw=muWant;muWant=function(){if(xoMusOn()){const t=bmTrack('mus_b_crown');return t.ok?'mus_b_crown':null}return _mw.apply(this,arguments)}}
 
 /* the long run, last cavern: the Crown turns and blows smoke back down the lanes; one lane stays clear */
-{const _ct=x5CTick;x5CTick=function(dt,s){_ct.apply(this,arguments);const run=CH2.st===20&&XC.ph===2&&!CS.active;if(!run||s<466||s>556)return;
+{const _ct=x5CTick;x5CTick=function(dt,s){_ct.apply(this,arguments);return;
   XC.ln=(XC.ln===undefined?1.2:XC.ln)-dt;if(XC.ln>0)return;XC.ln=DIFF==='easy'?3.4:DIFF==='hard'?2.2:2.7;const S=uSec(s+8),hw=S.hw,w=hw*2/3,safe=(Math.random()*3)|0,s0=s-6,s1=s+34;
   if(XC.fig){XC.fig.set('claw');XC.fig.burst(.8);after(1.4,()=>{if(XC.fig)XC.fig.set('serpent')})}x5Punch(6,.2);
   for(let L=0;L<3;L++){const lx=-hw+w*(L+.5);if(L===safe){const g=uP(lx,s+8,uFloor(s+8)+.1);ring(g,0xfff0d0,.5,w*.45,.6);continue}
