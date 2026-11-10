@@ -10,7 +10,7 @@ function bmActive(){for(const k in BM.tr){const t=BM.tr[k];if(t.playing&&t.v>.05
 function bmStart(t){if(!AC||!t.buf)return;if(!t.g){t.g=AC.createGain();t.g.gain.value=0;t.g.connect(master)}try{if(t.src)t.src.stop()}catch(e){}
   const s=AC.createBufferSource();s.buffer=t.buf;s.loop=true;s.connect(t.g);s.start(0);t.src=s;t.playing=true}
 function bmStop(t){try{if(t.src)t.src.stop()}catch(e){}t.src=null;t.playing=false}
-function bmTick(dt){if(!BM.pre)return;dt=Math.min(dt,.1);let want=bmWant();if(want==='boss2'&&!bmTrack('boss2').ok)want='boss1';if(want)bmTrack(want);if(bossRef&&bossRef.type==='illusion')bmTrack('boss2');const on=!(muted||!musicOn);if(CLIP.duckT>0){CLIP.duckT-=dt;SFXDUCK=1}{const dg=SFXDUCK?(CLIP.duckT>0?1.6:1):0,dc=BM.duck||0;BM.duck=dg>dc?Math.min(dg,dc+dt*5):Math.max(dg,dc-dt*1.6)}SFXDUCK=0;if(sfxBus){const fight=!!want;const tg=fight?2.3:1.15;sfxBus.gain.value+=(tg-sfxBus.gain.value)*Math.min(1,dt*3)}
+function bmTick(dt){if(!BM.pre)return;dt=Math.min(dt,.1);let want=bmWant();if(want==='boss2'&&!bmTrack('boss2').ok)want='boss1';if(want)bmTrack(want);if(bossRef&&bossRef.type==='illusion')bmTrack('boss2');const on=!(muted||!musicOn);if(CLIP.duckT>0){CLIP.duckT-=dt;SFXDUCK=1}{const dg=SFXDUCK?(CLIP.duckT>0?1.6:1):0,dc=BM.duck||0;BM.duck=dg>dc?Math.min(dg,dc+dt*5):Math.max(dg,dc-dt*1.6)}SFXDUCK=0;if(sfxBus){const fight=!!want;const tg=fight?(CLIP.duckT>0?1.4:2.3):(CLIP.duckT>0?.85:1.15);sfxBus.gain.value+=(tg-sfxBus.gain.value)*Math.min(1,dt*3)}
   for(const k of['boss1','boss2']){const t=BM.tr[k];if(!t)continue;const tgt=want===k&&t.ok?1:0;
     const rate=tgt>t.v?dt/1.0:dt/(want?1.2:3);t.v=tgt>t.v?Math.min(tgt,t.v+rate):Math.max(tgt,t.v-rate);
     if(tgt>0&&!t.playing)bmStart(t);

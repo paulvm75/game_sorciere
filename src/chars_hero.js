@@ -11,7 +11,7 @@ function chWitchMat(opts,purple){const m=std(Object.assign({roughness:.7},opts))
   float br=clamp((texelColor.r-texelColor.b)*3.,0.,1.)*clamp(1.-(texelColor.g-texelColor.b)*4.,0.,1.);texelColor.rgb=mix(texelColor.rgb,vec3(dot(texelColor.rgb,vec3(.33))*.35,dot(texelColor.rgb,vec3(.33))*.28,dot(texelColor.rgb,vec3(.33))*.4),br*.85);diffuseColor*=texelColor;`)};m.customProgramCacheKey=()=>'witch'+(purple?1:0);return m}
 /* ---------- the hero (Maëlle / Lucien) ---------- */
 function makeHeroCH(gender){const sx=gender==='f'?'f':'m';const src=CH.src['body_'+sx];const root=src.scene;root.position.set(0,0,0);root.rotation.set(0,0,0);root.scale.set(1,1,1);
-  const S=CH.sex[sx],G=S.geo,bones=S.bones,T=CH.tex;
+  const S=CH.sex[sx],G=S.geo,bones=S.bones,T=CH.tex;const HP=(CH.heroParts=CH.heroParts||{})[sx]={wiz:[]};
   // hide the original meshes; we rebuild everything in rest space
   root.traverse(o=>{if(o.isMesh&&!o.userData.hp)o.visible=false});const old=[];root.traverse(o=>{if(o.userData.hp)old.push(o)});for(const o of old)o.parent&&o.parent.remove(o);
   const ibm=chRestIBM(bones,root);const skel=new THREE.Skeleton(bones,ibm);
@@ -28,8 +28,8 @@ function makeHeroCH(gender){const sx=gender==='f'?'f':'m';const src=CH.src['body
   root.add(chSkinned(sx==='f'?G.hairLong:G.hairPart,hairM,skel));if(sx==='m'&&G.beard)root.add(chSkinned(G.beard,hairM,skel));
   // wizard outfit, recoloured for Maëlle
   const wz=CH.src['wizard_'+sx];wz.scene.updateMatrixWorld(true);const wm=chWitchMat({map:T.wizard,normalMap:T.wizard_n,roughness:.75,skinning:true},sx==='f');
-  for(const sc of wz.scenes){sc.updateMatrixWorld(true);sc.traverse(o=>{if(o.isSkinnedMesh){if(sx==='f'&&/Legs/.test(o.name))return;const eg=chExtract(o,bones);root.add(chSkinned(eg,wm,skel))}})}
-  let skirt=null;if(sx==='f'){const velvet=std({color:0x1c1422,roughness:.55,skinning:true,side:THREE.DoubleSide});velvet.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\nfloat fr=pow(1.-abs(dot(normalize(vViewPosition),normal)),2.5);totalEmissiveRadiance+=vec3(.35,.2,.6)*fr*.12;')};skirt=chSkinned(G.witch,velvet,skel);root.add(skirt)}
+  for(const sc of wz.scenes){sc.updateMatrixWorld(true);sc.traverse(o=>{if(o.isSkinnedMesh){if(sx==='f'&&/Legs/.test(o.name))return;const eg=chExtract(o,bones);HP.wiz.push(eg);root.add(chSkinned(eg,wm,skel))}})}HP.wm=wm;
+  let skirt=null;if(sx==='f'){const velvet=std({color:0x1c1422,roughness:.55,skinning:true,side:THREE.DoubleSide});velvet.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\nfloat fr=pow(1.-abs(dot(normalize(vViewPosition),normal)),2.5);totalEmissiveRadiance+=vec3(.35,.2,.6)*fr*.12;')};HP.skirtM=velvet;skirt=chSkinned(G.witch,velvet,skel);root.add(skirt)}
   else{const coat=std({color:0x244e92,roughness:.6,skinning:true,side:THREE.DoubleSide});skirt=chSkinned(G.coat,coat,skel);root.add(skirt)}
   // cape (turns crimson / deep purple at level 30)
   const capeU={uT:{value:0},uK:{value:0}};const capeM=std({color:sx==='f'?0x140c18:0x10142a,roughness:.6,skinning:true,side:THREE.DoubleSide,emissive:0x000000});
@@ -42,7 +42,7 @@ function makeHeroCH(gender){const sx=gender==='f'?'f':'m';const src=CH.src['body
       while(ws.length<4)ws.push([0,0]);for(const q of ws){SI.push(q[0]);SW.push(q[1])}}}
     for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const a=r*(cols+1)+c,b=a+1,cc=a+cols+1,d=cc+1;I.push(a,cc,b,b,cc,d)}
     const cg=new THREE.BufferGeometry();cg.setAttribute('position',new THREE.Float32BufferAttribute(Pp,3));cg.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));cg.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));cg.setAttribute('skinIndex',new THREE.Float32BufferAttribute(SI,4));cg.setAttribute('skinWeight',new THREE.Float32BufferAttribute(SW,4));cg.setIndex(I);cg.computeVertexNormals();cg.computeBoundingSphere();
-    root.add(chSkinned(cg,capeM,skel))}
+    HP.cape=cg;HP.capeM=capeM;root.add(chSkinned(cg,capeM,skel))}
   // hat on the head bone (rigid)
   const headB=bones.find(b=>b.name==='Head'),handB=bones.find(b=>b.name==='hand_r'),handL=bones.find(b=>b.name==='hand_l');
   const attach=(bone,obj,restPos,restRot)=>{const i=bones.indexOf(bone);const inv=new THREE.Matrix4().copy(ibm[i]);const m=new THREE.Matrix4().compose(restPos,new THREE.Quaternion().setFromEuler(restRot||new THREE.Euler()),new THREE.Vector3(1,1,1));const loc=new THREE.Matrix4().multiplyMatrices(inv,m);const holder=new THREE.Group();holder.userData.hp=1;holder.matrixAutoUpdate=false;holder.matrix.copy(loc);bone.add(holder);holder.add(obj);return holder};
