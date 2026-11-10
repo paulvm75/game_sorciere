@@ -9480,8 +9480,8 @@ const X5={in:0,built:0,shown:false,ab:null,veil:null,gates:{},torch:[],lights:[]
 const WM={sq:V3(-143,0,-9872),door:V3(-174.6,0,-9872),stair:V3(-167,0,-9890),ab:V3(-194,0,-9872)};
 const U0={x:-160,z:-10120};
 const USEC=[{n:'entry',s0:0,s1:10,hw:4,h:7},{n:'tun',s0:10,s1:96,hw:5.5,h:8.5},{n:'oss',s0:96,s1:136,hw:13,h:12},{n:'p1',s0:136,s1:150,hw:4.5,h:7},
-  {n:'hall',s0:150,s1:206,hw:26,h:22},{n:'p2',s0:206,s1:218,hw:4.5,h:7},{n:'thr',s0:218,s1:262,hw:20,h:20},{n:'esc',s0:262,s1:322,hw:4.5,h:8},{n:'esc',s0:322,s1:392,hw:12,h:15},{n:'esc',s0:392,s1:470,hw:5,h:8.5},{n:'esc',s0:470,s1:562,hw:13,h:17},{n:'esc',s0:562,s1:640,hw:5,h:9}];
-const UE=640;
+  {n:'hall',s0:150,s1:206,hw:26,h:22},{n:'p2',s0:206,s1:218,hw:4.5,h:7},{n:'thr',s0:218,s1:262,hw:20,h:20},{n:'esc',s0:262,s1:322,hw:4.5,h:8},{n:'esc',s0:322,s1:392,hw:12,h:15},{n:'esc',s0:392,s1:450,hw:5,h:8.5},{n:'esc',s0:450,s1:498,hw:13,h:17},{n:'esc',s0:498,s1:520,hw:5,h:9}];
+const UE=520;
 const uS=z=>U0.z-z,uZ=s=>U0.z-s,uX=lx=>U0.x+lx,uP=(lx,s,y)=>V3(U0.x+lx,y||0,U0.z-s);
 function uSec(s){for(const S of USEC)if(s>=S.s0&&s<S.s1)return S;return s<0?USEC[0]:USEC[USEC.length-1]}
 function uFloor(s){return s>264?Math.min(16,(s-264)*16/(UE-270)):0}
