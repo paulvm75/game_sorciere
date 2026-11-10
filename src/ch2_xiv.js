@@ -521,7 +521,7 @@ function x4End(c){X4.fight=0;x4CmpOff();for(const W of X4.walls)scene.remove(W.m
     {who:'Lyra',text:XL3.ly54,fov:52,cam:k=>{const L=x4L();return{pos:headOf(L,1.7).add(V3(st.x*6.4,.9,-4.4+k*.6)),look:headOf(L,1)}},onStart:()=>{x4Talk('Lyra')},update:()=>{if(Math.random()<.35&&LYR.a)SP.emit(headOf(LYR.a.g.position,1.1),{c0:0xfff0c0,c1:0x90e060,s0:.35,s1:.04,life:.9,up:.9})}},
     {dur:5,fov:58,cam:k=>({pos:al.clone().add(st.clone().multiplyScalar(9+k*12)).add(V3(0,4+k*14,8+k*10)),look:V3(al.x,1+k*2,al.z)}),onStart:()=>{x4Talk('')},update:()=>{for(const g2 of cand)g2.material.opacity=.75+Math.random()*.25;if(Math.random()<.4)SP.emit(V3(al.x+rand(-1,1),.6,al.z+rand(-1,1)),{c0:0xfff0c0,c1:0xffa040,s0:.25,s1:.03,life:1.6,up:1.2})}}],x4Finish)}
 function x4Finish(){x4CmpOff();KFW.pin=0;LYR.pin=0;P.heroAnim=null;x4Talk('');X4.cc=null;X4.e=null;CH2.st=Math.max(CH2.st,17);ch2Save();beaten.add('desmond');writeSave();$('boss').classList.add('hidden');bossRef=null;
-  toast('Desmond is gone, and so is Alfred. The last vessel waits at Westminster.','Chapter XIV complete',true);after(9,()=>toast('Chapter XV is coming.','Sorcière',true))}
+  toast('Desmond is gone, and so is Alfred. The last vessel waits at Westminster.','Chapter XIV complete',true);after(9,()=>toast('Fly to <b>Westminster</b>, beside Big Ben.','Chapter XV: Beneath Westminster',true))}
 
 /* ---------- objectives, Lyra's own wings, chapter select ---------- */
 {const _xo=xiiObj;xiiObj=function(){const st=CH2.st;if(st<13)return _xo.apply(this,arguments);if(CH2.zone==='paris')return 'Ask <b>Lyra</b> for the door to Calais, then fly back to London';
