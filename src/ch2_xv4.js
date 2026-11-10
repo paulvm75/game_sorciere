@@ -293,3 +293,8 @@ function xoMusOn(){return started&&MODE!=='open'&&(CH2.st===21||CH2.st===22)&&XO
     const a=uP(lx,s1,uFloor(s1)),b=uP(lx,s0,uFloor(s0));lineTelegraph(a,b,w*.92,1.05,0x7dff9a,()=>{sx('wind',.6,null,{rate:.8});for(let k=0;k<16;k++)after(k*.03,()=>{const q=s1-(s1-s0)*k/15;SM.emit(uP(lx+rand(-w/3,w/3),q,uFloor(q)+rand(.5,2.6)),{n:3,c0:0x2a4a3a,c1:0x050806,s0:2.4,s1:6,life:1.1,a:.65,speed:3})});
       const ps=uS(P.pos.z),plx=P.pos.x-U0.x;if(ps>s0-1&&ps<s1&&Math.abs(plx-lx)<w/2&&P.pos.y<uFloor(ps)+3){damagePlayer(x5Dmg(22));x5Punch(9,.3);P.shake=Math.max(P.shake,.7)}})}
   if(!XC.said.ln){XC.said.ln=1;toast('The smoke comes down the lanes. Find the clear one!')}}}
+
+/* the tunnel always lets you out at the light, whatever state the run is in */
+{const _ct=x5CTick;x5CTick=function(dt,s){_ct.apply(this,arguments);if(!X5.in||CS.active||MODE==='open'||s<UE-6||XC.ph===3)return;
+  if(CH2.st===20){if(XC.ph!==2){XC.ph=2;XC.said=XC.said||{}}if(!XC.fig)xcFig(1);xcExit();return}
+  XC.ph=3;sx('unveil',.9);x5White(.45,.5,()=>{xcFigOff();x5Leave(V3(-126,0,-9872));XC.ph=0;P.face=-Math.PI/2;yaw=Math.PI/2;if(CH2.st===21&&typeof xoBegin==='function'&&!XO.ph)xoBegin(true)})}}
