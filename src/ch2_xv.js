@@ -9,10 +9,11 @@ const X5={in:0,built:0,shown:false,ab:null,veil:null,gates:{},torch:[],lights:[]
 const WM={sq:V3(-143,0,-9872),door:V3(-174.6,0,-9872),stair:V3(-167,0,-9890),ab:V3(-194,0,-9872)};
 const U0={x:-160,z:-10120};
 const USEC=[{n:'entry',s0:0,s1:10,hw:4,h:7},{n:'tun',s0:10,s1:96,hw:5.5,h:8.5},{n:'oss',s0:96,s1:136,hw:13,h:12},{n:'p1',s0:136,s1:150,hw:4.5,h:7},
-  {n:'hall',s0:150,s1:206,hw:26,h:22},{n:'p2',s0:206,s1:218,hw:4.5,h:7},{n:'thr',s0:218,s1:262,hw:20,h:20},{n:'esc',s0:262,s1:372,hw:4.5,h:8}];
+  {n:'hall',s0:150,s1:206,hw:26,h:22},{n:'p2',s0:206,s1:218,hw:4.5,h:7},{n:'thr',s0:218,s1:262,hw:20,h:20},{n:'esc',s0:262,s1:322,hw:4.5,h:8},{n:'esc',s0:322,s1:392,hw:12,h:15},{n:'esc',s0:392,s1:482,hw:5,h:8.5}];
+const UE=482;
 const uS=z=>U0.z-z,uZ=s=>U0.z-s,uX=lx=>U0.x+lx,uP=(lx,s,y)=>V3(U0.x+lx,y||0,U0.z-s);
 function uSec(s){for(const S of USEC)if(s>=S.s0&&s<S.s1)return S;return s<0?USEC[0]:USEC[USEC.length-1]}
-function uFloor(s){return s>264?Math.min(13,(s-264)*.125):0}
+function uFloor(s){return s>264?Math.min(16,(s-264)*.075):0}
 const x5In=()=>X5.in&&MODE!=='open';
 
 Object.assign(XL3,{
@@ -95,14 +96,14 @@ function x5UI(){if(X5UI)return X5UI;const st=document.createElement('style');st.
 #x5ban.on{display:block}
 #x5ban .bar{position:absolute;left:-10%;right:-10%;top:50%;height:clamp(110px,24vh,220px);transform:translateY(-50%) skewY(-4deg) scaleY(0);background:linear-gradient(90deg,transparent,var(--c2,#0a0612) 12%,var(--c2,#0a0612) 88%,transparent);box-shadow:0 0 0 3px var(--c,#7dff9a) inset,0 0 60px var(--c,#7dff9a);opacity:.92}
 #x5ban.on .bar{animation:x5bar var(--d,1.9s) cubic-bezier(.2,.9,.2,1) both}
-#x5ban .tx{position:absolute;left:0;right:0;top:50%;transform:translateY(-58%) skew(-9deg);text-align:center;font:400 clamp(44px,10.5vw,150px)/.9 'Bangers',Impact,sans-serif;letter-spacing:.06em;color:#fff;-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:5px 5px 0 var(--c,#7dff9a),0 0 40px var(--c,#7dff9a);white-space:nowrap}
+#x5ban .tx{position:absolute;left:0;right:0;top:50%;transform:translateY(-58%) skew(-9deg);text-align:center;font:400 clamp(44px,10.5vw,150px)/.9 'Bangers',Impact,sans-serif;letter-spacing:.06em;color:#fff;-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:5px 5px 0 var(--c,#7dff9a),9px 9px 0 #000;white-space:nowrap;will-change:transform;backface-visibility:hidden}
 #x5ban.on .tx{animation:x5tx var(--d,1.9s) cubic-bezier(.15,1.2,.3,1) both}
 #x5ban .sb{position:absolute;left:0;right:0;top:calc(50% + clamp(44px,9vh,96px));text-align:center;transform:skew(-9deg);font:400 clamp(15px,2.4vw,30px) 'Bangers',Impact,sans-serif;letter-spacing:.34em;color:var(--c,#7dff9a);text-shadow:2px 2px 0 #000}
 #x5ban.on .sb{animation:x5sb var(--d,1.9s) ease-out both}
 #x5ban i{position:absolute;height:3px;background:linear-gradient(90deg,transparent,#fff,transparent);opacity:0}
 #x5ban.on i{animation:x5ln .5s linear both}
 @keyframes x5bar{0%{transform:translateY(-50%) skewY(-4deg) scaleY(0)}12%{transform:translateY(-50%) skewY(-4deg) scaleY(1.15)}20%,80%{transform:translateY(-50%) skewY(-4deg) scaleY(1)}100%{transform:translateY(-50%) skewY(-4deg) scaleY(0)}}
-@keyframes x5tx{0%{transform:translate(-120%,-58%) skew(-30deg) scale(1.6);opacity:0;filter:blur(8px)}16%{transform:translate(2%,-58%) skew(-9deg) scale(1.12);opacity:1;filter:none}22%{transform:translate(-1%,-58%) skew(-9deg) scale(1)}78%{transform:translate(1.5%,-58%) skew(-9deg) scale(1.02);opacity:1}100%{transform:translate(120%,-58%) skew(-30deg) scale(.9);opacity:0;filter:blur(6px)}}
+@keyframes x5tx{0%{transform:translate(-120%,-58%) skew(-30deg);opacity:0}14%{transform:translate(2%,-58%) skew(-9deg);opacity:1}20%{transform:translate(-1%,-58%) skew(-9deg)}80%{transform:translate(1.2%,-58%) skew(-9deg);opacity:1}100%{transform:translate(120%,-58%) skew(-30deg);opacity:0}}
 @keyframes x5sb{0%,14%{opacity:0;letter-spacing:1.2em}30%,78%{opacity:1;letter-spacing:.34em}100%{opacity:0}}
 @keyframes x5ln{0%{transform:translateX(-110vw);opacity:.9}100%{transform:translateX(110vw);opacity:0}}
 canvas.x5imp{filter:invert(1) contrast(1.6) saturate(0)!important}
@@ -227,19 +228,23 @@ function uBuild(){if(X5.built)return;X5.built=1;const Q=x5Mats(),G=new THREE.Gro
   USEC.forEach((S,i)=>{const L=S.s1-S.s0,sc=(S.s0+S.s1)/2,esc=S.n==='esc',vault=S.hw<8;
     /* floor (the escape corridor climbs) */
     {const g=new THREE.PlaneGeometry(S.hw*2,L,1,esc?44:1);g.rotateX(-Math.PI/2);if(esc){const p=g.attributes.position;for(let k=0;k<p.count;k++)p.setY(k,uFloor(sc-p.getZ(k)));g.computeVertexNormals()}const m=new THREE.Mesh(g,Q.floor(S.hw/2.5,L/5));m.position.set(U0.x,0,uZ(sc));add(m)}
-    const H=esc?S.h+14:S.h;for(const q of[-1,1])box(2,H+1,L,q*(S.hw+1),-.5,sc,Q.wall(L/7,H/5));
+    const H=esc?S.h+18:S.h;for(const q of[-1,1])box(2,H+1,L,q*(S.hw+1),-.5,sc,Q.wall(L/7,H/5));
     if(vault&&!esc){const g=new THREE.CylinderGeometry(S.hw,S.hw,L,18,1,true,0,Math.PI);g.rotateX(Math.PI/2);g.rotateZ(Math.PI/2);const m=new THREE.Mesh(g,ceilM);m.position.set(U0.x,S.h-S.hw,uZ(sc));add(m);
       for(let s=S.s0+4;s<S.s1-1;s+=8){const r=new THREE.Mesh(new THREE.TorusGeometry(S.hw-.12,.32,6,16,Math.PI),Q.stone);r.position.set(U0.x,S.h-S.hw,uZ(s));add(r)}}
     else{const g=new THREE.PlaneGeometry(S.hw*2,L,1,esc?44:1);g.rotateX(Math.PI/2);if(esc){const p=g.attributes.position;for(let k=0;k<p.count;k++)p.setY(k,uFloor(sc-p.getZ(k)))}const m=new THREE.Mesh(g,Q.dark);m.position.set(U0.x,S.h,uZ(sc));add(m)}
     /* shoulders where the width changes, and a lintel over the narrow mouth */
-    const N=USEC[i+1];if(N){const a=S.hw<N.hw?S:N,b=a===S?N:S,side=a===S?-1:1,w=b.hw-a.hw+1;for(const q of[-1,1])box(w,b.h+1,1.6,q*(a.hw+w/2),-.5,S.s1+side*.8*-1,Q.wall(w/7,b.h/5));
-      if(b.h>a.h)box(a.hw*2+.2,b.h-a.h+3,1.6,0,a.h-(a.hw<8?a.hw*.42:0),S.s1+side*.8*-1,Q.wall(a.hw/3,1))}});
+    const N=USEC[i+1];if(N){const a=S.hw<N.hw?S:N,b=a===S?N:S,side=a===S?-1:1,w=b.hw-a.hw+1;for(const q of[-1,1])box(w,b.h+(esc?19:1),1.6,q*(a.hw+w/2),-.5,S.s1+side*.8*-1,Q.wall(w/7,b.h/5));
+      if(b.h>a.h)box(a.hw*2+.2,b.h-a.h+3,1.6,0,a.h-(a.hw<8&&!esc?a.hw*.42:0)+(esc?uFloor(S.s1):0),S.s1+side*.8*-1,Q.wall(a.hw/3,1))}});
   box(12,9,2,0,-.5,-1,Q.wall(2,2));
   /* torches */
   const torch=(lx,s,y,c)=>{const p=uP(lx,s,y);const br=new THREE.Mesh(new THREE.CylinderGeometry(.06,.1,.9,6),Q.iron);br.position.copy(p).add(V3(0,-.5,0));add(br);const cup=new THREE.Mesh(new THREE.CylinderGeometry(.24,.12,.26,8),Q.iron);cup.position.copy(p).add(V3(0,-.08,0));add(cup);
     const g=glowSprite(c,1.9,.8);g.position.copy(p).add(V3(0,.3,0));G.add(g);X5.torch.push({p:p.clone().add(V3(0,.3,0)),g,c})};
   for(let s=14,k=0;s<96;s+=11,k++)torch(k%2?5:-5,s,3.4,0x7dff9a);for(const s of[140,146,210,214])torch(s%4?4:-4,s,3.2,0x7dff9a);
-  for(let s=272,k=0;s<366;s+=12,k++){const y=uFloor(s)+3.3;torch(k%2?4:-4,s,y,k<3?0x7dff9a:k<6?0xffc070:0xfff0d0)}
+  for(let s=272,k=0;s<UE-6;s+=12,k++){const y=uFloor(s)+3.3,hw=uSec(s).hw;torch((k%2?1:-1)*(hw-.5),s,y,k<5?0x7dff9a:k<12?0xffc070:0xfff0d0)}
+  /* the broken cistern, halfway out: pillars, shafts of daylight, cracks of green fire */
+  {const cs0=322;for(let k=0;k<7;k++){const s=cs0+8+k*8.5,lx=(k%2?1:-1)*rand(3,8.5),y=uFloor(s),h=k%3===0?4.5:16;const c=new THREE.Mesh(new THREE.CylinderGeometry(1,1.15,h,10),Q.stone);c.position.copy(uP(lx,s,y+h/2-.3));add(c,true);X5.cols.push({x:uX(lx),z:uZ(s),r:1.35})}
+    for(let k=0;k<6;k++){const s=cs0+10+k*11,lx=rand(-7,7);const sh=new THREE.Mesh(new THREE.CylinderGeometry(.7,2.8,17,12,1,true),new THREE.MeshBasicMaterial({color:0xfff0d0,transparent:true,opacity:.08,blending:THREE.AdditiveBlending,depthWrite:false,side:D2,fog:false}));sh.position.copy(uP(lx,s,uFloor(s)+8));G.add(sh);const d=glowSprite(0xfff0d0,5,.25,false);d.position.copy(uP(lx,s,uFloor(s)+.3));G.add(d)}
+    X5.fiss=[];for(let k=0;k<4;k++){const s=cs0+12+k*15,lx=(k%2?-1:1)*5,w=13,y=uFloor(s);const m=new THREE.Mesh(new THREE.PlaneGeometry(w,1.6),new THREE.MeshBasicMaterial({color:0x7dff9a,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.copy(uP(lx,s,y+.14));G.add(m);X5.fiss.push({lx,s,w,y,m})}}
   /* puddles, roots, rubble in the tunnel */
   const pud=std({color:0x0c1410,roughness:.08,metalness:.6,envMapIntensity:1.2});for(let k=0;k<9;k++){const m=new THREE.Mesh(new THREE.CircleGeometry(rand(.5,1.2),14),pud);m.rotation.x=-Math.PI/2;m.scale.y=rand(.5,1);m.position.copy(uP(rand(-4,4),rand(14,92),.03));add(m)}
   for(let k=0;k<26;k++){const s=rand(12,134),S=uSec(s);const L=rand(.6,1.8),q=Math.random()<.5?-1:1;const r=new THREE.Mesh(new THREE.CylinderGeometry(.02,.05,L,5),Q.wood);r.position.copy(uP(q*rand(.55,.95)*S.hw,s,S.h-(S.hw<8?S.hw*.5:0)-L/2-.1));r.rotation.set(rand(-.2,.2),0,rand(-.2,.2));add(r)}
@@ -264,7 +269,7 @@ function uBuild(){if(X5.built)return;X5.built=1;const Q=x5Mats(),G=new THREE.Gro
     const fs=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshBasicMaterial({map:Q.T.sig,color:0x7dff9a,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false}));fs.rotation.x=-Math.PI/2;fs.position.copy(uP(0,238,.05));G.add(fs);X5.thrSig=fs;
     for(const s of[224,238,252])for(const q of[-1,1])col(q*16,s,1.2,20);X5.cols.push({x:uX(0),z:uZ(256.4),r:4.2})}
   /* ---- the light at the end ---- */
-  {const y=uFloor(371);const pl=new THREE.Mesh(new THREE.PlaneGeometry(9,8),new THREE.MeshBasicMaterial({color:0xffffff,fog:false}));pl.position.copy(uP(0,371.6,y+4));G.add(pl);for(const s of[6,14,26]){const g=glowSprite(0xfff4d8,s*2.4,.5,false);g.position.copy(uP(0,371-s*.2,y+4));G.add(g)}X5.endLight=pl}
+  {const y=uFloor(UE-1);const pl=new THREE.Mesh(new THREE.PlaneGeometry(9,8),new THREE.MeshBasicMaterial({color:0xffffff,fog:false}));pl.position.copy(uP(0,UE-.4,y+4));G.add(pl);for(const s of[6,14,26]){const g=glowSprite(0xfff4d8,s*2.4,.5,false);g.position.copy(uP(0,UE-1-s*.2,y+4));G.add(g)}X5.endLight=pl}
   /* ---- gates: bars and the Crown's smoke ---- */
   const gate=(k,s)=>{const S=uSec(s-.5),N=uSec(s+.5),hw=Math.min(S.hw,N.hw),h=Math.min(S.h,N.h);const g=new THREE.Group();g.position.copy(uP(0,s,uFloor(s)));G.add(g);
     for(let x=-hw+.5;x<hw;x+=.9){const b=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,h,5),Q.iron);b.position.set(x,h/2,0);g.add(b)}for(const y of[1.2,3.4,5.6]){const b=new THREE.Mesh(new THREE.BoxGeometry(hw*2,.14,.14),Q.iron);b.position.y=y;g.add(b)}
@@ -276,7 +281,7 @@ function x5Gate(k,open,quiet){const g=X5.gates[k];if(!g||g.open===!!open)return;
   addFx(null,1.3,(f,k2)=>{g.g.position.y=uFloor(g.s)+k2*k2*g.h;g.sm.material.opacity=.7*(1-k2)},()=>{g.g.visible=false})}
 
 /* walls, shoulders, pillars and gates, for everything that walks or flies down here */
-function x5Clamp(p,r){let s=uS(p.z),lx=p.x-U0.x;s=clamp(s,.6+r,371.2);const S=uSec(s);const hw=S.hw-r-.1;lx=clamp(lx,-hw,hw);
+function x5Clamp(p,r){let s=uS(p.z),lx=p.x-U0.x;s=clamp(s,.6+r,UE-.8);const S=uSec(s);const hw=S.hw-r-.1;lx=clamp(lx,-hw,hw);
   const i=USEC.indexOf(S),A=USEC[i-1],B=USEC[i+1];if(B&&B.hw<S.hw&&s>S.s1-r&&Math.abs(lx)>B.hw-r)s=S.s1-r;if(A&&A.hw<S.hw&&s<S.s0+r&&Math.abs(lx)>A.hw-r)s=S.s0+r;
   for(const k in X5.gates){const g=X5.gates[k];if(g.open)continue;if(s>g.s-r-.3&&s<=g.s)s=g.s-r-.3;else if(s>g.s&&s<g.s+r+.3)s=g.s+r+.3}
   p.x=U0.x+lx;p.z=U0.z-s;for(const c of X5.cols){const dx=p.x-c.x,dz=p.z-c.z,d=Math.hypot(dx,dz),m=c.r+r;if(d<m&&d>1e-4){p.x=c.x+dx/d*m;p.z=c.z+dz/d*m}}
@@ -285,9 +290,9 @@ function x5Clamp(p,r){let s=uS(p.z),lx=p.x-U0.x;s=clamp(s,.6+r,371.2);const S=uS
 {const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&z<-10090&&X5.in)return uFloor(uS(z));return _g.apply(this,arguments)}}
 {const _cb=camBlocked;camBlocked=function(x,y,z){if(x5In()&&z<-10090){const s=uS(z),S=uSec(s),lx=x-U0.x,f=uFloor(s);if(Math.abs(lx)>S.hw-.45||y>f+S.h-.5||y<f+.5||s<.8)return true;if(S.hw<8){const cy=f+S.h-S.hw;if(y>cy&&Math.hypot(lx,y-cy)>S.hw-.5)return true}
     for(const c of X5.cols)if(Math.hypot(x-c.x,z-c.z)<c.r+.3)return true;return false}return _cb.apply(this,arguments)}}
-{const _v=validSpot;validSpot=function(x,z,m){if(x5In()&&z<-10090){const s=uS(z),S=uSec(s);if(Math.abs(x-U0.x)>S.hw-2||s<2||s>370)return false;for(const c of X5.cols)if(Math.hypot(x-c.x,z-c.z)<c.r+1.5)return false;return true}return _v.apply(this,arguments)}}
+{const _v=validSpot;validSpot=function(x,z,m){if(x5In()&&z<-10090){const s=uS(z),S=uSec(s);if(Math.abs(x-U0.x)>S.hw-2||s<2||s>UE-2)return false;for(const c of X5.cols)if(Math.hypot(x-c.x,z-c.z)<c.r+1.5)return false;return true}return _v.apply(this,arguments)}}
 
-function x5Enter(s){uBuild();X5.in=1;X5.ug.visible=true;WB.z0=-10520;for(const e of enemies)if(!e.dead)removeEnemy(e);for(const p of eProjs)scene.remove(p.s);eProjs.length=0;
+function x5Enter(s){uBuild();X5.in=1;X5.ug.visible=true;WB.z0=-10650;for(const e of enemies)if(!e.dead)removeEnemy(e);for(const p of eProjs)scene.remove(p.s);eProjs.length=0;
   P.pos.set(uX(0),uFloor(s),uZ(s));P.vy=0;P.flying=false;P.glide=false;P.face=Math.PI;yaw=0;camera.position.set(P.pos.x,P.pos.y+4,P.pos.z+8);
   if(KFW.a)KFW.a.g.position.set(P.pos.x+1.4,P.pos.y,P.pos.z+1.6);if(LYR.a)LYR.a.g.position.set(P.pos.x-1.5,P.pos.y,P.pos.z+1.8);NZ.cp.copy(P.pos);SPAWN.copy(P.pos);x5Hint('')}
 function x5Leave(to){X5.in=0;if(X5.ug)X5.ug.visible=false;WB.z0=NZB.z0;moonLight.intensity=.75;const p=to||V3(WM.stair.x,0,WM.stair.z+4);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;NZ.cp.set(-150,0,-9872);SPAWN.copy(NZ.cp);
@@ -302,10 +307,10 @@ function x5UReset(cp){uBuild();X5.cp=cp;X5.wave={};for(const k of['g1','g2','g3'
 
 /* ---------- bats ---------- */
 ETYPES.ubat=Object.assign({},ETYPES.nbat,{name:'Abbey bat',hp:34,dmg:7,xp:30});
-function buildDireBat(s,eye,furC){const m=buildNBat();m.body.scale.setScalar(s);m.body.traverse(o=>{if(o.isSprite){o.material=o.material.clone();o.material.color.setHex(eye);o.scale.multiplyScalar(1.5)}else if(o.isMesh&&o.material&&o.material.color&&o.material.roughness>.9){o.material=o.material.clone();o.material.color.setHex(furC)}});
+function buildDireBat(s,eye,furC){const m=buildNBat();m.body.scale.setScalar(s);m.body.traverse(o=>{if(o.isSprite){o.material=o.material.clone();o.material.color.setHex(eye);o.scale.multiplyScalar(1.5)}else if(o.isMesh&&o.material&&o.material.color&&o.material.roughness>.9){o.material=o.material.clone();o.material.color.setHex(furC)}else if(o.isMesh&&o.material&&o.material.color){o.material=o.material.clone();o.material.color.setHex(0x2a1048);if(o.material.emissive)o.material.emissive.setHex(0x180630)}});
   const au=glowSprite(eye,s*2.2,.22);m.body.add(au);const a0=m.anim;return{g:m.g,body:m.body,anim:(e,dt,mv,l)=>{const t0=e.t;e.t=t0*.34;a0(e,dt,mv,l);e.t=t0;m.body.position.y=1.6+Math.sin(e.t*2.4)*.35}}}
-ETYPES.screech={name:'Old Screech, Bat of the Undercroft',boss:true,hp:1500,speed:9,dmg:20,range:0,cd:9,xp:900,r:1.9,h:3.4,fly:1,ghost:true,noCalm:true,build:()=>buildDireBat(3.1,0x9dff70,0x2a2c2a)};
-ETYPES.belfry={name:'Mother of the Belfry',boss:true,hp:2300,speed:7,dmg:22,range:0,cd:9,xp:1400,r:2.4,h:4.2,fly:1,ghost:true,noCalm:true,build:()=>buildDireBat(4,0xff5070,0x34222a)};
+ETYPES.screech={name:'Old Screech, Bat of the Undercroft',boss:true,hp:2600,speed:9.5,dmg:26,range:0,cd:9,xp:900,r:2.7,h:4.8,fly:1,ghost:true,noCalm:true,build:()=>buildDireBat(4.5,0xc070ff,0x0b0a10)};
+ETYPES.belfry={name:'Mother of the Belfry',boss:true,hp:3900,speed:7.5,dmg:28,range:0,cd:9,xp:1400,r:3.4,h:6,fly:1,ghost:true,noCalm:true,build:()=>buildDireBat(5.8,0xff4080,0x0b0a10)};
 function x5Bats(n,s0,s1,y0){for(let k=0;k<n;k++){const S=uSec(s0);const e=nzSpawnFly('ubat',uP(rand(-S.hw,S.hw)*.8,rand(s0,s1),(y0||3)+rand(0,2.5)));e.quest=true;e.x5b=1}sx('bats',.7)}
 const x5BatsLeft=()=>enemies.filter(e=>!e.dead&&e.x5b).length;
 /* a cone of sound: telegraphed, then it hurts and shoves */
@@ -331,7 +336,7 @@ function x5Boss(type,at,y,onDead){const e=spawnEnemy(type,V3(at.x,0,at.z));e.pos
 /* ---------- the level, frame by frame ---------- */
 function x5UTick(dt){const s=uS(P.pos.z),S=uSec(s),W=X5.wave;X5.t+=dt;
   /* dark, green, close */
-  scene.fog.color.setHex(S.n==='esc'?0x141a16:0x070a09);scene.fog.density=S.n==='esc'?lerp(.03,.012,clamp((s-262)/100,0,1)):S.hw>12?.011:.03;hemi.intensity=S.n==='esc'?.3+clamp((s-300)/70,0,1)*.9:S.hw>12?.62:.3;moonLight.intensity=0;
+  scene.fog.color.setHex(S.n==='esc'?0x141a16:0x070a09);scene.fog.density=S.n==='esc'?lerp(.03,.012,clamp((s-262)/(UE-272),0,1)):S.hw>12?.011:.03;hemi.intensity=S.n==='esc'?.3+clamp((s-(UE-120))/110,0,1)*.9:S.hw>12?.62:.3;moonLight.intensity=0;
   const near=X5.torch.map(t=>[t,t.p.distanceToSquared(P.pos)]).sort((a,b)=>a[1]-b[1]);X5.lights.forEach((l,i)=>{const t=near[i]&&near[i][0];if(!t||near[i][1]>1400){l.intensity=0;return}l.position.copy(t.p);l.color.setHex(t.c);l.intensity=1.5+Math.sin(time*9+i*3)*.25});
   for(let i=0;i<Math.min(5,near.length);i++){const t=near[i][0];t.g.material.opacity=.65+Math.random()*.3;if(Math.random()<.5)FL.emit(t.p,{n:1,c0:0xffffff,c1:t.c,s0:.5,s1:.05,life:.5,up:1.6,jitter:.08})}
   for(const k in X5.gates){const g=X5.gates[k];if(!g.open)g.sm.material.map.offset.y-=dt*.2}
@@ -363,7 +368,7 @@ function x5UTick(dt){const s=uS(P.pos.z),S=uSec(s),W=X5.wave;X5.t+=dt;
   if(st===18)return X5.in?(X5.mini&&!X5.mini.dead?`Defeat <b>${X5.mini.def.name.split(',')[0]}</b>`:'Follow the tunnel under the Abbey'):'Take the <b>crypt stair</b> beside the Abbey · press <b>E</b>';
   if(st===19)return X5.in?(typeof x5GObj==='function'?x5GObj():'Defeat the guardians'):'Go back down the <b>crypt stair</b>';
   if(st===20)return X5.in?(typeof x5CObj==='function'?x5CObj():''):'Go back down the <b>crypt stair</b>';
-  if(st===21||st===22)return typeof x5OObj==='function'?x5OObj(d):'';return 'The Crown is caged. More is coming.'}}
+  if(st===21||st===22)return typeof x5OObj==='function'?x5OObj(d):'';return 'The Crown fled, weakened. Morwen may still be out there. More is coming.'}}
 CHAPTERS.push({id:'under',n:'XV',title:'Beneath Westminster',desc:'A cloaked abbey, a tunnel full of wings, and two guardians of stone.'},{id:'crown',n:'XVI',title:'The Hollow Crown',desc:'The smoke in the chair, the run to the light, every old face. And yours.'});
 {const _cb=chapBoss;chapBoss=function(c){if(c.id==='under'||c.id==='crown')return null;return _cb(c)}}
 function x5Reset(){x5Hint('');x5Bars(0);x5Grey(0);if(X5.in)x5Leave();X5.arr=0;X5.intro=0;X5.it=0;X5.said={};X5.cp=0;X5.wave={};X5.mini=null;if(typeof x5GReset==='function')x5GReset();if(typeof x5CReset==='function')x5CReset();if(typeof x5OReset==='function')x5OReset()}

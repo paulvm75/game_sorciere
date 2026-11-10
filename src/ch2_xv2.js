@@ -16,8 +16,8 @@ function buildCrownGuard(kind){const gog=kind==='gog',s=gog?2.15:1.75;const m=bu
   else{const halo=new THREE.Group();halo.position.set(0,2.5*s,-.5*s);m.body.add(halo);for(let k=0;k<8;k++){const c=new THREE.Mesh(new THREE.OctahedronGeometry(.13*s,0),new THREE.MeshBasicMaterial({color:0xd8c8ff}));const a=k/8*TAU;c.position.set(Math.cos(a)*1.05*s,Math.sin(a)*1.05*s,0);c.scale.y=2.2;c.rotation.z=a-Math.PI/2;halo.add(c)}ex.push(halo)}
   return{g:m.g,body:m.body,kind,crown:cr,anim:(e,dt,mv,l)=>{if(e.ai&&e.ai.statue)return;const t0=e.t;if(gog)e.t=t0*.5;m.anim(e,dt,mv,l);e.t=t0;if(gog){m.body.position.y=Math.abs(Math.sin(e.t*5))*.14*Math.min(1,mv*4);for(const c of ex)c.material.color.setHex(e.hp<e.maxhp*.5?0xfff0a0:0x9dff70)}else ex[0].rotation.z+=dt*(e.hp<e.maxhp*.5?2.2:.8);
       cr.rotation.y+=dt*.6;cg.material.opacity=.3+Math.sin(e.t*4)*.12}}}
-ETYPES.gog={name:'Gog, Stone of the Crown',boss:true,hp:5200,speed:4.4,dmg:26,range:4.8,cd:2.3,xp:2600,r:2.2,h:6.2,noCalm:true,build:()=>buildCrownGuard('gog')};
-ETYPES.magog={name:'Magog, Wing of the Crown',boss:true,hp:4400,speed:7.5,dmg:24,range:0,cd:9,xp:2600,r:2,h:5.2,fly:1,ghost:true,kite:true,noCalm:true,build:()=>buildCrownGuard('magog')};
+ETYPES.gog={name:'Gog, Stone of the Crown',boss:true,hp:7200,speed:4.8,dmg:33,range:4.8,cd:2.3,xp:2600,r:2.2,h:6.2,noCalm:true,build:()=>buildCrownGuard('gog')};
+ETYPES.magog={name:'Magog, Wing of the Crown',boss:true,hp:6200,speed:8,dmg:30,range:0,cd:9,xp:2600,r:2,h:5.2,fly:1,ghost:true,kite:true,noCalm:true,build:()=>buildCrownGuard('magog')};
 
 /* ---------- their spells ---------- */
 function x5Spikes(from,dir,len,w,dmg,col){let hit=false;const n=Math.round(len/1.6);for(let k=1;k<=n;k++)after(k*.045,()=>{const p=V3(from.x+dir.x*k*1.6,0,from.z+dir.z*k*1.6);p.y=groundAt(p.x,p.z);const S=uSec(uS(p.z));if(X5.in&&Math.abs(p.x-U0.x)>S.hw)return;
@@ -115,7 +115,7 @@ function xgSwitch(){if(CS.active||XG.ph!==1)return;XG.ph=1.5;sayHush();const g=X
 /* phase 2: you are Kaen. Gog is yours */
 function xgPhase2(){const g=XG.gog,m=XG.mag;XG.ph=2;X4.cc=null;P.heroAnim=null;g.ai.duel=0;g.invuln=false;g.hpFloor=.4;g.hp=g.maxhp;g.busy=1;g.ai.a1=3;g.ai.a2=5;g.ai.a3=7;g.ai.a4=9;bossRef=g;$('boss').classList.remove('hidden');$('bossName').innerHTML=`${g.def.name} <span style="color:#ff4050">· Lv ${g.lvl}</span>`;
   m.ai.pt=5;XG.mb=DIFF==='hard'?5:DIFF==='easy'?9:7;P.invuln=2;try{LYR.a&&LYR.a.setBase('Spell_Simple_Idle_Loop',.3)}catch(x){}after(.8,()=>x5Say('@','mw_07'));after(4.4,()=>x5Say('Kaen','kw_09'));
-  after(.4,()=>toast('You are Kaen now. Cut <b>Gog</b> down. Magog throws bolts from her perch.','Body switch',true))}
+  after(.4,()=>toast('You are Kaen now. Cut <b>Gog</b> down. Lyra and Maëlle hold Magog in chains, but her bolts still leak through.','Body switch',true))}
 function xgBack(){if(CS.active||XG.ph!==2)return;XG.ph=2.5;sayHush();const g=XG.gog,m=XG.mag;for(const p of eProjs)scene.remove(p.s);eProjs.length=0;g.invuln=true;g.busy=999;g.dash=null;g.leap=null;g.pos.y=0;const kp=P.pos.clone();kp.y=0;const mp=X3.mPos.clone(),lp=LYR.a?LYR.a.g.position.clone():mp;X4.cc=g.pos.clone();
   playCutscene([{who:'Gog',text:XL3.gg_03,fov:38,cam:k=>({pos:headOf(g.pos,3).add(V3(5-k,0,-6)),look:headOf(g.pos,3.4)}),onStart:()=>{x5Impact(80,.12);P.shake=1;sx('garg',1,null,{rate:.5});SM.emit(eCenter(g),{n:30,c0:0x8a9088,c1:0x1c201c,s0:2,s1:6,life:1.6,a:.5,speed:5});xgChain(true)},
       update:()=>{const A=eCenter(g),B=eCenter(m);const c=XG.chain;if(c){c.position.copy(A).lerp(B,.5);c.scale.set(1+Math.sin(time*20)*.3,A.distanceTo(B),1);c.quaternion.setFromUnitVectors(V3(0,1,0),B.clone().sub(A).normalize())}for(let q=0;q<3;q++)SP.emit(A.clone().lerp(B,Math.random()),{c0:0xffffff,c1:0x9dff70,s0:.5,s1:.05,life:.5,speed:1})}},
