@@ -455,13 +455,13 @@ function x4CmpMove(c,a,dt,R,run){const e=X4.e,g=a.g.position;c.ang+=dt*(.16+.05*
   if(L>.05){g.x+=dx/L*v;g.z+=dz/L*v}g.y=groundAt(g.x,g.z);if(L>2.2){a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(dx,dz),Math.min(1,dt*8));return L>6?'Sprint_Loop':'Walk_Loop'}
   a.g.rotation.y=lerpAngle(a.g.rotation.y,Math.atan2(e.pos.x-g.x,e.pos.z-g.z),Math.min(1,dt*6));return null}
 /* Kaen: sword wave, dash cut, void ring */
-function x4KWave(a,t){const kp=a.g.position;const dir=V3(t.pos.x-kp.x,0,t.pos.z-kp.z);const L=dir.length();dir.normalize();x4Face(a,t.pos);try{a.fire('Melee_Hook',.7)}catch(x){}
-  after(.18,()=>{crescentFx(V3(kp.x,kp.y,kp.z),dir,Math.min(L,24),0xb070ff);sx('clash',.22,null,{rate:rand(1.3,1.6)});after(Math.min(.45,L/45),()=>{x4CmpHit(t,.009,'#c8a0ff');SP.emit(eCenter(t),{n:30,c0:0xffffff,c1:0x9050ff,speed:6,life:.5});flash(eCenter(t),0xa070ff,5)})})}
+function x4KWave(a,t){const kp=a.g.position;const dir=V3(t.pos.x-kp.x,0,t.pos.z-kp.z);const L=dir.length();dir.normalize();x4Face(a,t.pos);try{a.fire('Melee_Hook',.7)}catch(x){}kSwing(0,.45);
+  after(.18,()=>{crescentFx(V3(kp.x,kp.y,kp.z),dir,Math.min(L,24),0xb070ff);after(Math.min(.45,L/45),()=>{x4CmpHit(t,.009,'#c8a0ff');sx('khit',.4,null,{rate:rand(1,1.12)});SP.emit(eCenter(t),{n:30,c0:0xffffff,c1:0x9050ff,speed:6,life:.5});flash(eCenter(t),0xa070ff,5)})})}
 function x4KDash(a,t,c){const g=a.g.position,from=g.clone();const dir=V3(t.pos.x-g.x,0,t.pos.z-g.z);const L=dir.length();dir.normalize();const to=from.clone().addScaledVector(dir,Math.max(0,L-1.6));x4Face(a,t.pos);c.busy=1.2;
-  try{a.fire('Melee_Hook',.85)}catch(x){}try{sfx.blink&&sfx.blink()}catch(x){}
+  try{a.fire('Melee_Hook',.85)}catch(x){}kSwing(0,.5)
   addFx(null,.22,(f,k)=>{g.lerpVectors(from,to,k*k);g.y=groundAt(g.x,g.z);SP.emit(V3(g.x,g.y+1,g.z),{n:3,c0:0xe0c8ff,c1:0x5020c0,s0:.6,s1:.05,life:.4,speed:1})},()=>{
     const m=new THREE.Mesh(new THREE.TorusGeometry(1.8,.09,6,30,Math.PI*1.6),new THREE.MeshBasicMaterial({color:0xd0b0ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.position.set(g.x,g.y+1.1,g.z);m.rotation.set(Math.PI/2+.35,0,Math.atan2(dir.x,dir.z));
-    addFx(m,.35,(f,k)=>{m.rotation.z+=.45;m.scale.setScalar(1+k*.6);m.material.opacity=1-k},()=>{scene.remove(m);m.geometry.dispose()});x4CmpHit(t,.011,'#e0c8ff');sx('impact',.3,null,{rate:1.3});SP.emit(eCenter(t),{n:40,c0:0xffffff,c1:0x8040ff,speed:8,life:.5});P.shake=Math.max(P.shake,.12);
+    addFx(m,.35,(f,k)=>{m.rotation.z+=.45;m.scale.setScalar(1+k*.6);m.material.opacity=1-k},()=>{scene.remove(m);m.geometry.dispose()});x4CmpHit(t,.011,'#e0c8ff');sx('khit',.5,null,{rate:rand(.95,1.08)});SP.emit(eCenter(t),{n:40,c0:0xffffff,c1:0x8040ff,speed:8,life:.5});P.shake=Math.max(P.shake,.12);
     after(.35,()=>{const b=g.clone();addFx(null,.35,(f,k)=>{g.lerpVectors(b,from,k);g.y=groundAt(g.x,g.z)})})})}
 function x4KVoid(a,t){x4Face(a,t.pos);try{a.fire('Spell_Simple_Shoot',.7)}catch(x){}const p=V3(t.pos.x,groundAt(t.pos.x,t.pos.z),t.pos.z);runeFlash(p,0x9050ff,5.2,1.1);ring(p,0x8040ff,5,.6,.6);
   for(let k=0;k<20;k++){const an=k/20*TAU;SP.emit(V3(p.x+Math.sin(an)*2.6,p.y+.3,p.z+Math.cos(an)*2.6),{c0:0xd0b0ff,c1:0x3010a0,s0:.5,s1:.05,life:.7,up:2})}try{sfx.void&&sfx.void()}catch(x){}
@@ -470,7 +470,7 @@ function x4KVoid(a,t){x4Face(a,t.pos);try{a.fire('Spell_Simple_Shoot',.7)}catch(
 function x4LBalls(a,t){x4Face(a,t.pos);try{a.fire('Spell_Simple_Shoot',.55)}catch(x){}
   for(let i=0;i<3;i++)after(i*.16,()=>{if(t.dead)return;const A=headOf(a.g.position,1.25).add(V3(rand(-.3,.3),rand(-.2,.2),rand(-.3,.3)));const o=glowSprite(i%2?0xc8ff80:0xffd070,1.3,.95);o.position.copy(A);scene.add(o);const sd=rand(-2.5,2.5),up=rand(.6,1.8);
     addFx(o,.5,(f,k)=>{const B=eCenter(t);o.position.lerpVectors(A,B,k);const r=V3(B.z-A.z,0,-(B.x-A.x)).normalize();o.position.addScaledVector(r,Math.sin(k*Math.PI)*sd);o.position.y+=Math.sin(k*Math.PI)*up;SP.emit(o.position,{c0:0xfff0c0,c1:0x80e050,s0:.3,s1:.04,life:.35})},
-      ()=>{scene.remove(o);x4CmpHit(t,.0035,'#ffe090');SP.emit(eCenter(t),{n:14,c0:0xffffd0,c1:0x90e060,speed:4,life:.35});flash(eCenter(t),0xd8ff90,3)})});sx('kame',.15,null,{rate:1.7})}
+      ()=>{scene.remove(o);x4CmpHit(t,.0035,'#ffe090');SP.emit(eCenter(t),{n:14,c0:0xffffd0,c1:0x90e060,speed:4,life:.35});flash(eCenter(t),0xd8ff90,3)})});sx('kame',.15,null,{rate:1.7,cut:.7})}
 function x4LWind(a,t,c){const g=a.g.position;const aim=t?t.pos:P.pos;const dir=V3(aim.x-g.x,0,aim.z-g.z);const L=Math.max(1,dir.length());dir.normalize();x4Face(a,aim);c.busy=1;try{a.fire('OverhandThrow',.6)}catch(x){}sx('wind',.45,null,{rate:1.25});
   addFx(null,.9,(f,k)=>{const d=k*Math.min(L+4,22);const q=g.clone().addScaledVector(dir,d);for(let i=0;i<5;i++){const an=f.t*14+i*1.26,r=.6+k*2.2;SP.emit(V3(q.x+Math.cos(an)*r*dir.z,q.y+1+Math.sin(an)*r*.6,q.z-Math.cos(an)*r*dir.x),{c0:0xffffff,c1:0xa0e8d0,s0:.5,s1:.05,life:.45,speed:.6})}
     for(const S of X4.smokes){if(Math.hypot(S.p.x-q.x,S.p.z-q.z)<S.r+2.5){S.t=Math.max(S.t,S.life*.93);S.p.addScaledVector(dir,.6)}}X4.haze=Math.max(0,X4.haze-.02)},
@@ -546,7 +546,7 @@ function kmBlades(t){const n=6,bm=std({color:0x2a1050,emissive:0xa060ff,emissive
   sx('summon',.8,null,{rate:1.2});sx('riser',.5,null,{rate:1.5});for(let k=0;k<n;k++){const g=new THREE.Group();const b=new THREE.Mesh(geo,bm);g.add(b);const h=new THREE.Mesh(hilt,bm);g.add(h);const gl=glowSprite(0xb070ff,2,.7);gl.position.y=1;g.add(gl);scene.add(g);
     const a0=k/n*TAU;let launched=false,hit=false,p=null,v=null;
     addFx(g,2.6,(f)=>{if(hit){f.t=f.dur;return}const hold=.55+k*.11;if(f.t<hold){const a=a0+f.t*3;p=headOf(P.pos,2.1).add(V3(Math.cos(a)*1.7,Math.sin(f.t*6+k)*.15,Math.sin(a)*1.7));g.position.copy(p);g.rotation.set(0,-a,Math.PI);const s=Math.min(1,f.t*4);g.scale.setScalar(s);return}
-      const tgt=t&&!t.dead?eCenter(t):p.clone().add(V3(Math.sin(P.face),0,Math.cos(P.face)).multiplyScalar(30));if(!launched){launched=true;v=tgt.clone().sub(g.position).normalize().multiplyScalar(30);sx('kame',.35,null,{rate:2})}
+      const tgt=t&&!t.dead?eCenter(t):p.clone().add(V3(Math.sin(P.face),0,Math.cos(P.face)).multiplyScalar(30));if(!launched){launched=true;v=tgt.clone().sub(g.position).normalize().multiplyScalar(30);sx('kame',.35,null,{rate:2,cut:1})}
       v.lerp(tgt.clone().sub(g.position).normalize().multiplyScalar(34),.18);g.position.addScaledVector(v,.016);g.quaternion.setFromUnitVectors(V3(0,1,0),v.clone().normalize());SP.emit(g.position,{c0:0xffffff,c1:0x9040ff,s0:.4,s1:.03,life:.35});
       if(t&&!t.dead&&g.position.distanceTo(tgt)<1.2+t.def.r){hit=true;damageEnemy(t,kmDmg(t,.0075),'#e8c8ff');flash(g.position,0xb070ff,9);SP.emit(g.position,{n:26,c0:0xffffff,c1:0xa050ff,speed:9,life:.45});hitStop=Math.max(hitStop,.03);KM.en=Math.min(100,KM.en+2);sx('clash',.35,null,{rate:rand(1.3,1.7)})}},
       ()=>{scene.remove(g)})}}
@@ -650,7 +650,7 @@ function kmStormBlade(a0,t,dl){after(dl,()=>{if(!KM.on)return;const m=new THREE.
   const p=headOf(P.pos,1.2);m.position.copy(p);scene.add(m);const v=V3(Math.sin(a0),.3,Math.cos(a0)).multiplyScalar(18);let done=false;
   addFx(m,1.9,(f,k)=>{if(done){f.t=f.dur;return}if(t&&!t.dead&&f.t>.22){const to=eCenter(t).sub(p);const L=to.length();if(L<1.6+t.def.r*.6){done=true;damageEnemy(t,kmDmg(t,.007),'#e8d0ff');SP.emit(eCenter(t),{n:30,c0:0xffffff,c1:0x9050ff,speed:9,life:.5});flash(eCenter(t),0xa050ff,8);hitStop=Math.max(hitStop,.03);sx('clash',.25,null,{rate:rand(1.5,1.9)});return}v.lerp(to.normalize().multiplyScalar(36),.14)}
     p.addScaledVector(v,.016);m.position.copy(p);m.rotation.x=Math.PI/2;m.rotation.z+=.7;m.material.opacity=1-Math.max(0,k-.8)*5;SP.emit(p,{c0:0xffffff,c1:0x8a40ff,s0:.35,s1:.04,life:.3})},()=>{scene.remove(m);m.geometry.dispose()})})}
-function kmStorm(){const A=KM.a;try{A.fire('Melee_Hook',.5)}catch(x){}P.invuln=Math.max(P.invuln,.7);sx('riser',.6,null,{rate:1.5});sx('kame',.45,null,{rate:1.1});flash(P.pos,0xb070ff,22);P.shake=Math.max(P.shake,.6);
+function kmStorm(){const A=KM.a;try{A.fire('Melee_Hook',.5)}catch(x){}P.invuln=Math.max(P.invuln,.7);sx('riser',.6,null,{rate:1.5});sx('kame',.45,null,{rate:1.1,cut:1.6});flash(P.pos,0xb070ff,22);P.shake=Math.max(P.shake,.6);
   const g=new THREE.Group();for(let k=0;k<3;k++){const m=new THREE.Mesh(new THREE.TorusGeometry(2.4+k*.9,k?.05:.14,6,40,Math.PI*1.3),new THREE.MeshBasicMaterial({color:k?0xd8c0ff:0x8a40ff,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=Math.PI/2;m.rotation.z=k*2.1;g.add(m)}
   g.position.set(P.pos.x,P.pos.y+1.1,P.pos.z);scene.add(g);let tick=0;
   addFx(g,1.3,(f,k)=>{g.position.set(P.pos.x,P.pos.y+1.1,P.pos.z);g.children.forEach((m,j)=>{m.rotation.z+=(.5+j*.12)*(j%2?-1:1);m.material.opacity=.9*(1-Math.max(0,k-.7)/.3)});g.scale.setScalar(1+k*.8);

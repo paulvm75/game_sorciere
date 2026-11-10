@@ -130,12 +130,12 @@ BOSSAI.illusion=function(e,dt,d){const a=e.ai,rage=e.hp<e.maxhp*.5,act=e.m.actor
   if(a.fly){const F=a.fly;F.t+=dt;const tgt=V3(P.pos.x,P.pos.y+.4,P.pos.z);const dv=tgt.sub(e.pos);const dist=dv.length();const pSpd=(P.flying?17:13)*(P.lbT>0?1.3:1);const spd=pSpd*.8;
     if(dist>.1)e.pos.addScaledVector(dv.normalize(),Math.min(dist,spd*dt));F.hit-=dt;e.m.g.rotation.y=Math.atan2(P.pos.x-e.pos.x,P.pos.z-e.pos.z);
     if(Math.random()<.6)SP.emit(eCenter(e),{n:3,c0:0xe0c0ff,c1:0x6010d0,s0:.5,s1:.1,life:.5,speed:2});
-    if(dist<2.4&&F.hit<=0){F.hit=.9;act&&act.fire('Melee_Hook',.4);crescentFx(e.pos.clone().setY(e.pos.y-1),V3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize(),3,0xc080ff);damagePlayer(e.dmg*1.3);sfx.blink()}
+    if(dist<2.4&&F.hit<=0){F.hit=.9;act&&act.fire('Melee_Hook',.4);crescentFx(e.pos.clone().setY(e.pos.y-1),V3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize(),3,0xc080ff);damagePlayer(e.dmg*1.3);kSwing(0,.6);kHit(0,headOf(P.pos,1.1),.6)}
     if(F.t>=3.6){a.fly=null;e.leap=null;act&&act.setBase('Idle_Loop',.3);e.m.lock=0}return}
   if(lb&&a.flyCd<=0&&P.pos.y-groundAt(P.pos.x,P.pos.z)>2.2&&d<45){a.flyCd=6.5;a.fly={t:0,hit:.3};e.leap={fly:true};e.m.lock=4;act&&act.setBase(CH.clips.NinjaJump_Idle_Loop?'NinjaJump_Idle_Loop':'Jump_Loop',.2);sfx.fly&&sfx.fly();SP.emit(eCenter(e),{n:50,c0:0xffffff,c1:0x8030ff,speed:9,life:.6});toast('Kaen takes to the air!');return}
   if(e.busy>0)return;
-  if(a.a4<=0&&d<8.5){a.a4=lb?1.8:2.6;e.busy=.8;const dir=V3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize();const o=e.pos.clone();if(act){act.fire('Melee_Hook',.5);e.m.lock=.5}
-    coneTelegraph(o,dir,8,.85,lb?.35:.5,0xb060ff,()=>{if(e.dead)return;crescentFx(o,dir,7,0xc080ff);whoosh&&whoosh(.2,400,2200,.12);if(inCone(P.pos,o,dir,8,.85))damagePlayer(e.dmg*1.6)})}
+  if(a.a4<=0&&d<8.5){a.a4=lb?1.8:2.6;e.busy=.8;const dir=V3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize();const o=e.pos.clone();if(act){act.fire('Melee_Hook',.5);e.m.lock=.5}kSwing(1,.55);
+    coneTelegraph(o,dir,8,.85,lb?.35:.5,0xb060ff,()=>{if(e.dead)return;crescentFx(o,dir,7,0xc080ff);kSwing(0,.6);if(inCone(P.pos,o,dir,8,.85)){damagePlayer(e.dmg*1.6);kHit(1,headOf(P.pos,1.1),.7)}})}
   else if(a.a5<=0&&d>7&&d<30){a.a5=lb?3:4.5;e.busy=.9;const from=e.pos.clone(),dir=V3(P.pos.x-from.x,0,P.pos.z-from.z).normalize(),to=from.clone().addScaledVector(dir,28);if(act){act.fire('OverhandThrow',.55);e.m.lock=.55}
     lineTelegraph(from,to,3,lb?.4:.6,0xb060ff,()=>{if(e.dead)return;crescentFx(from,dir,28,0xd090ff);after(.15,()=>{if(distToSeg(P.pos,from,to)<1.8&&Math.abs(P.pos.y-from.y)<3.5)damagePlayer(e.dmg*1.5)})})}
   else if(lb&&a.a6<=0&&d<16){a.a6=4;e.busy=1;const dir=V3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize();const o=e.pos.clone();sfx.roar();

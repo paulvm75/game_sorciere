@@ -104,13 +104,13 @@ BOSSAI.kaenSpirit=function(e,dt,d){const a=e.ai,act=e.m.actor;const rage=e.hp<e.
   if(rage&&!a.r){a.r=1;cineLine("Kaen's Spirit",'You cannot kill a memory, witch!');flash(eCenter(e),0xb060ff,12);P.shake=.8}
   e.m.g.rotation.y=Math.atan2(P.pos.x-e.pos.x,P.pos.z-e.pos.z);
   if(a.dash){const D=a.dash;D.t+=dt;const k=Math.min(1,D.t/.42);e.pos.x=lerp(D.a.x,D.b.x,k);e.pos.z=lerp(D.a.z,D.b.z,k);e.pos.y=groundAt(e.pos.x,e.pos.z);
-    SP.emit(eCenter(e),{n:5,c0:0xffffff,c1:0x8030ff,s0:.7,s1:.1,life:.4,speed:1});if(!D.hit&&Math.hypot(P.pos.x-e.pos.x,P.pos.z-e.pos.z)<1.9&&Math.abs(P.pos.y-e.pos.y)<3){D.hit=1;damagePlayer(e.dmg*1.4);sfx.blink&&sfx.blink()}
+    SP.emit(eCenter(e),{n:5,c0:0xffffff,c1:0x8030ff,s0:.7,s1:.1,life:.4,speed:1});if(!D.hit&&Math.hypot(P.pos.x-e.pos.x,P.pos.z-e.pos.z)<1.9&&Math.abs(P.pos.y-e.pos.y)<3){D.hit=1;damagePlayer(e.dmg*1.4);kHit(1,headOf(P.pos,1.1),.7)}
     if(k>=1){a.dash=null;a.orb=Math.atan2(e.pos.x-P.pos.x,e.pos.z-P.pos.z)}return}
   if(a.wind>0){a.wind-=dt;if(a.wind<=0){const b=P.pos.clone().add(V3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize().multiplyScalar(6));a.dash={t:0,a:e.pos.clone(),b};act&&act.fire('Melee_Hook',.4)}return}
   const R=rage?6:8.5;const tx=P.pos.x+Math.sin(a.orb)*R,tz=P.pos.z+Math.cos(a.orb)*R;const f=Math.min(1,dt*1.6);e.pos.x+=(tx-e.pos.x)*f;e.pos.z+=(tz-e.pos.z)*f;e.pos.y=groundAt(e.pos.x,e.pos.z);
   const dir=V3(P.pos.x-e.pos.x,0,P.pos.z-e.pos.z).normalize();
-  if(a.t1<=0){a.t1=rage?1.7:2.5;act&&act.fire('Melee_Hook',.45);const o=e.pos.clone();crescentFx(o,dir,12,0xc080ff);sfx.blink&&sfx.blink();
-    after(.18,()=>{if(e.dead)return;const px=P.pos.x-o.x,pz=P.pos.z-o.z;const along=px*dir.x+pz*dir.z,lat=Math.abs(px*dir.z-pz*dir.x);if(along>0&&along<12.5&&lat<2.2&&Math.abs(P.pos.y-o.y)<3)damagePlayer(e.dmg)})}
+  if(a.t1<=0){a.t1=rage?1.7:2.5;act&&act.fire('Melee_Hook',.45);const o=e.pos.clone();crescentFx(o,dir,12,0xc080ff);kSwing(0,.6);
+    after(.18,()=>{if(e.dead)return;const px=P.pos.x-o.x,pz=P.pos.z-o.z;const along=px*dir.x+pz*dir.z,lat=Math.abs(px*dir.z-pz*dir.x);if(along>0&&along<12.5&&lat<2.2&&Math.abs(P.pos.y-o.y)<3){damagePlayer(e.dmg);kHit(0,headOf(P.pos,1.1),.6)}})}
   if(a.t2<=0){a.t2=rage?3.4:4.8;act&&act.fire('OverhandThrow',.5);const n=rage?7:5;for(let k=0;k<n;k++)after(k*.1,()=>{if(e.dead)return;const an=(k-(n-1)/2)*.16;const dd=V3(dir.x*Math.cos(an)-dir.z*Math.sin(an),0,dir.x*Math.sin(an)+dir.z*Math.cos(an));enemyOrb(eCenter(e),dd,rage?15:12,e.dmg*.55,0xb060ff,.32)})}
   if(a.t3<=0){a.t3=rage?4.5:6.5;a.wind=.6;ring(e.pos,0xd0a0ff,1,3,.6);flash(eCenter(e),0xb060ff,8);cineLine("Kaen's Spirit",rage?'Behind you!':'Too slow.')}};
 function finSpiritRise(center,orb){const c=center.clone();c.y=groundAt(c.x,c.z);let sp=null;

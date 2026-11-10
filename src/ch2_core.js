@@ -6,12 +6,16 @@ function ch2Save(){try{localStorage.setItem('sorciere-ch2',JSON.stringify({st:CH
 ch2Load();
 
 /* ---------- sound kit: every set has up to 4 recorded variants (assets/sx_<set>_<n>.mp3); old sound only as a fallback ---------- */
-const SX={sets:{boss:3,clash:2,impact:2,riser:2,heart:1,shield:1,shbreak:1,powerup:1,bats:2,garg:1,cackle:2,wind:1,bigben:1,portal:1,skyshatter:1,book:1,kame:2},last:{},pre:false,loops:{}};
+const SX={sets:{boss:3,clash:2,impact:2,riser:2,heart:1,shield:1,shbreak:1,powerup:1,bats:2,garg:1,cackle:2,wind:1,bigben:1,portal:1,skyshatter:1,book:1,kame:2,kswing:3,khit:2,kheavy:1},last:{},pre:false,loops:{}};
 function sxKey(n,i){return 'sx_'+n+'_'+i}
 function sxPre(){if(SX.pre)return;SX.pre=true;let d=0;for(const n in SX.sets)for(let i=0;i<SX.sets[n];i++){const k=sxKey(n,i);setTimeout(()=>clipLoad(k),d+=40)}}
 function sxBuf(b,vol,o={}){if(!AC||muted||!b)return null;try{const s=AC.createBufferSource();s.buffer=b;s.loop=!!o.loop;s.playbackRate.value=(o.rate||1)*(1+((Math.random()-.5)*(o.jit||0)));const g=AC.createGain();g.gain.value=vol;
   if(o.fade){g.gain.setValueAtTime(0,AC.currentTime);g.gain.linearRampToValueAtTime(vol,AC.currentTime+o.fade)}s.connect(g);g.connect(master);
-  if(verbIn&&o.wet!==0){const w=AC.createGain();w.gain.value=(o.wet||.14)*vol;g.connect(w);w.connect(verbIn)}s.start(AC.currentTime+(o.delay||0));if(o.duck)CLIP.duckT=Math.max(CLIP.duckT,o.duck);return{s,g}}catch(e){return null}}
+  if(verbIn&&o.wet!==0){const w=AC.createGain();w.gain.value=(o.wet||.14)*vol;g.connect(w);w.connect(verbIn)}s.start(AC.currentTime+(o.delay||0));if(o.cut){const t1=AC.currentTime+(o.delay||0)+o.cut;g.gain.setTargetAtTime(0,t1,.09);s.stop(t1+.6)}if(o.duck)CLIP.duckT=Math.max(CLIP.duckT,o.duck);return{s,g}}catch(e){return null}}
+/* Kaen's blade: steel/arcane swing (never the blink whoosh) and a distinct hit with a soft shake */
+function kSwing(heavy,vol){return sx(heavy?'kheavy':'kswing',vol||(heavy?.8:.66),()=>whoosh(.22,500,2600,.12),{rate:rand(.94,1.08),wet:.12})}
+function kHit(heavy,at,vol){sx('khit',vol||(heavy?.85:.7),()=>sx('clash',.4,null,{rate:rand(1,1.3)}),{rate:heavy?rand(.86,.94):rand(.98,1.1),wet:.1});
+  P.shake=Math.max(P.shake||0,heavy?.24:.13);vib(heavy?[18,25,30]:14);if(at){flash(at,0xffffff,heavy?5:3);SP.emit(at,{n:heavy?14:8,c0:0xffffff,c1:0xd8c0ff,s0:.35,s1:.03,life:.22,speed:heavy?9:6})}}
 function sxHas(n){const N=SX.sets[n]||0;for(let i=0;i<N;i++)if(CLIP.buf[sxKey(n,i)])return true;return false}
 /* play one variant of a set, never the same one twice in a row; fb runs when no recording is available */
 function sx(n,vol=1,fb,o={}){const N=SX.sets[n]||0;const ok=[];for(let i=0;i<N;i++)if(CLIP.buf[sxKey(n,i)])ok.push(i);

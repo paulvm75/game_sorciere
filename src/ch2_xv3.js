@@ -48,7 +48,7 @@ function xcWicks(){for(const w of XC.wicks)if(w&&!w.dead)removeEnemy(w);XC.wicks
 function x5CReset(){xcFigOff();for(const w of XC.wicks)if(w&&!w.dead)removeEnemy(w);XC.wicks=[];for(const S of XC.stands){S.on=0;S.fl.material.opacity=0;S.halo.material.opacity=0;S.li.intensity=0}XC.ph=0;XC.lit=0;XC.t=0;XC.front=0;XC.said={};const k=document.getElementById('kinFx');if(k)k.style.opacity='0'}
 function x5CObj(){if(XC.ph===1)return `Light the <b>coronation candles</b> with any spell · ${XC.lit}/3`;if(XC.ph===2)return 'Follow the Crown to the <b>light</b>!';return 'Face the thing in the chair'}
 const chairP=()=>uP(0,256.2,1.9);
-function xcIntro(){if(CS.active||XC.ph)return;xcStands();const F=xcFig(1);F.g.position.copy(chairP());F.set('king');F.cyc=0;for(let k=0;k<30;k++)F.tick(.05);
+function xcIntro(){if(CS.active||XC.ph)return;xcStands();const F=XC.fig||xcFig(1);F.g.position.copy(chairP());F.set('king');F.cyc=0;for(let k=0;k<30;k++)F.tick(.05);
   const mp=uP(0,228);x4Stage(mp,Math.PI);P.face=Math.PI;if(KFW.a){KFW.a.g.position.copy(uP(-2.6,226.4));KFW.a.g.rotation.y=Math.PI}if(LYR.a){LYR.a.g.position.copy(uP(2.5,226.2));LYR.a.g.rotation.y=Math.PI;LYR.a.g.visible=true}KFW.pin=1;LYR.pin=1;X4.cc=uP(0,250);
   const go=()=>{x4Talk('');P.heroAnim=null;X4.cc=null;KFW.pin=0;LYR.pin=0;XC.seen=1;XC.ph=1;XC.t=0;XC.ht=4;XC.st=9;F.cyc=2.6;xcWicks();toast('Hit each <b>candle</b> with any spell to light it. The Crown will try to stop you.','The Hollow Crown',true)};
   if(XC.seen){x5Banner('THE HOLLOW CROWN','LIGHT THE THREE CANDLES','#7dff9a',2);go();return}
@@ -56,7 +56,7 @@ function xcIntro(){if(CS.active||XC.ph)return;xcStands();const F=xcFig(1);F.g.po
   playCutscene([{dur:5,fov:54,title:['Chapter XVI','The Hollow Crown'],cam:k=>({pos:uP(-9+k*9,224+k*10,7-k*3.4),look:uP(0,256,3)}),onStart:()=>{x4Talk('');sx('wind',.5,null,{rate:.5})}},
     {who:'The Crown',text:XL3.cr_01,fov:38,cam:fS},{who:'@',text:XL3.mw_10,cam:wS(1,2.3),onStart:()=>x4Talk('@')},
     {who:'The Crown',text:XL3.cr_02,fov:34,cam:k=>({pos:uP(-2.4+k,249,3.4),look:uP(0,256,3.5)}),onStart:()=>{x4Talk('');F.set('claw');after(2.2,()=>F.set('king'))}},
-    {dur:2.3,fov:50,cam:k=>({pos:uP(5,232+k*2,2.6),look:uP(0,246,2.6)}),onStart:()=>{P.heroAnim='Spell_Simple_Shoot';sx('kame',.6);bolt=glowSprite(0xd4b6ff,2.4,1,false);scene.add(bolt)},
+    {dur:2.3,fov:50,cam:k=>({pos:uP(5,232+k*2,2.6),look:uP(0,246,2.6)}),onStart:()=>{P.heroAnim='Spell_Simple_Shoot';sx('kame',.6,null,{cut:1.6});bolt=glowSprite(0xd4b6ff,2.4,1,false);scene.add(bolt)},
       update:(dt,k)=>{if(!bolt)return;const a=headOf(P.pos,1.4),b=uP(0,261,3);bolt.position.copy(a).lerp(b,Math.min(1,k*1.5));if(Math.random()<.8)SP.emit(bolt.position,{c0:0xffffff,c1:0xa060ff,s0:.4,s1:.04,life:.4});if(k>.45&&!bolt.userData.h){bolt.userData.h=1;F.burst(2.2);sx('portal',.5,null,{rate:1.5})}if(k>.68&&bolt.parent){scene.remove(bolt);flash(b,0xa060ff,8)}}},
     {who:'Kaen',text:XL3.kw_12,cam:kS(-1,2.3),onStart:()=>{P.heroAnim=null;x4Talk('Kaen')}},{who:'Lyra',text:XL3.lw_10,cam:lS(1,2.2),onStart:()=>x4Talk('Lyra'),update:()=>{if(LYR.a&&Math.random()<.5)SP.emit(headOf(LYR.a.g.position,1.2),{c0:0xfff0c0,c1:0xffa040,s0:.3,s1:.03,life:.8,up:.9})}}],
     ()=>{if(bolt&&bolt.parent)scene.remove(bolt);go()})}

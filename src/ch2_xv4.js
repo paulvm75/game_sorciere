@@ -298,3 +298,8 @@ function xoMusOn(){return started&&MODE!=='open'&&(CH2.st===21||CH2.st===22)&&XO
 {const _ct=x5CTick;x5CTick=function(dt,s){_ct.apply(this,arguments);if(!X5.in||CS.active||MODE==='open'||s<UE-6||XC.ph===3)return;
   if(CH2.st===20){if(XC.ph!==2){XC.ph=2;XC.said=XC.said||{}}if(!XC.fig)xcFig(1);xcExit();return}
   XC.ph=3;sx('unveil',.9);x5White(.45,.5,()=>{xcFigOff();x5Leave(V3(-126,0,-9872));XC.ph=0;P.face=-Math.PI/2;yaw=Math.PI/2;if(CH2.st===21&&typeof xoBegin==='function'&&!XO.ph)xoBegin(true)})}}
+/* throne room prewarm: build candles + Crown figure, fetch the voices and compile shaders before the door, so the cinematic starts clean */
+{const _ct=x5CTick;x5CTick=function(dt,s){if(X5.in&&CH2.st===20&&!XC.ph&&!CS.active&&s>196&&s<222.5&&!XC.warm){XC.warm=1;try{xcStands();if(!XC.fig){const F=xcFig(1);F.g.position.copy(chairP());F.set('king');F.cyc=0;for(let k=0;k<30;k++)F.tick(.05)}
+      voPrefetch(['cr_01','cr_02'].map(k=>({who:'The Crown',text:XL3[k]})).concat([{who:'@',text:XL3.mw_10},{who:'Kaen',text:XL3.kw_12},{who:'Lyra',text:XL3.lw_10}]));try{renderer.compile(scene,camera)}catch(x){}}catch(x){}}
+  return _ct.apply(this,arguments)}}
+{const _r=x5CReset;x5CReset=function(){XC.warm=0;return _r.apply(this,arguments)}}
