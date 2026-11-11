@@ -78,7 +78,7 @@ function chBuildSex(sx){const src=CH.src;const body=src['body_'+sx];body.scene.u
   const hat=(g,dy,dz,s)=>chRigid(g,bones,SK,'Head',[0,dy,dz],null,s);
   const L=(pts,seg=16)=>new THREE.LatheGeometry(pts.map(p=>new THREE.Vector2(p[0],p[1])),seg);
   G.hat0=hat(mergeG([L([[.001,0],[.17,0],[.172,.012],[.12,.018],[.1,.02],[.1,.1],[.07,.13],[.001,.125]],18)]),.09,-.01);// fedora
-  G.hat1=hat((()=>{const g=new THREE.SphereGeometry(.13,16,8,0,TAU,0,Math.PI*.5);g.scale(1.05,.35,1.05);return g})(),.1,-.01);// beret
+  G.hat1=hat((()=>{const g=new THREE.SphereGeometry(.122,18,10,0,TAU,0,Math.PI*.5);g.scale(1.03,.85,1.06);g.rotateZ(.12);return g})(),.122,-.012);// beret (full cover)
   G.hat2=hat(mergeG([(()=>{const g=new THREE.SphereGeometry(.112,16,8,0,TAU,0,Math.PI*.5);g.scale(1,.8,1.05);return g})(),(()=>{const g=new THREE.CylinderGeometry(.11,.11,.01,16,1,false,-.9,1.8);g.scale(1,1,1.3);g.translate(0,.005,.06);return g})()]),.075,0);// cap
   G.hat3=hat((()=>{const g=new THREE.SphereGeometry(.118,16,10,0,TAU,0,Math.PI*.56);g.scale(1,1.05,1.06);return g})(),.06,-.01);// beanie
   G.hat4=hat(mergeG([new THREE.CylinderGeometry(.105,.11,.1,16),(()=>{const g=new THREE.CylinderGeometry(.1,.1,.01,16,1,false,-.9,1.8);g.scale(1,1,1.3);g.translate(0,-.045,.05);return g})()]),.12,0);// kepi
