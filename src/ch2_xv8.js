@@ -56,7 +56,7 @@ xmX2=function(m){if(CS.active||XO.fc){after(.4,()=>xmX2(m));return}xmFreeze(m);c
 
 /* ---------- before the last mash: a bigger warning up top that fades away ---------- */
 function xmWarn(){let d=document.getElementById('xmWarn');if(!d){d=document.createElement('div');d.id='xmWarn';d.style.cssText="position:fixed;left:50%;top:calc(17% + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:41;pointer-events:none;text-align:center;font-family:'Bangers',Impact,sans-serif;color:#fff;text-shadow:3px 3px 0 #000,0 0 18px rgba(255,160,60,.6);transition:opacity .6s,transform .6s;opacity:0";document.body.appendChild(d)}
-  d.innerHTML='<div style="font-size:clamp(26px,4vw,46px);letter-spacing:.08em">MASH SPACE!</div><div style="font-family:Inter,system-ui,sans-serif;font-size:clamp(13px,1.5vw,17px);letter-spacing:.02em;margin-top:4px;text-shadow:1px 1px 0 #000">'+(typeof isTouch!=='undefined'&&isTouch?'Tap the button below as fast as you can':'Hit the space bar as fast as you can')+'. Lose and it costs you 1000 HP.</div>';
+  d.innerHTML='<div style="font-size:clamp(26px,4vw,46px);letter-spacing:.08em">MASH SPACE!</div><div style="font-family:Inter,system-ui,sans-serif;font-size:clamp(13px,1.5vw,17px);letter-spacing:.02em;margin-top:4px;text-shadow:1px 1px 0 #000">'+(typeof isTouch!=='undefined'&&isTouch?'Tap the button below as fast as you can':'Hit the space bar as fast as you can')+'. Lose and it will hurt badly.</div>';
   d.style.opacity='1';d.style.transform='translateX(-50%) scale(1)';clearTimeout(d._t);d._t=setTimeout(()=>{d.style.opacity='0';d.style.transform='translateX(-50%) scale(.92)'},2600)}
 {const _fs=xmFcStart;xmFcStart=function(m){const r=_fs.apply(this,arguments);xmWarn();return r}}
 

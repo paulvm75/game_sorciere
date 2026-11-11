@@ -420,3 +420,10 @@ CHART.sorbonne=['#a8e8ff','#0c1a2a','book'];CHGLY.book='<path d="M6 9c5-2 10-2 1
 function sbSolid(x,z){for(const b of boxes)if(b.sb&&b.h>3&&x>b.x0&&x<b.x1&&z>b.z0&&z<b.z1)return true;return false}
 {const _uc=updateCamera;updateCamera=function(dt){const r=_uc.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='latin'&&SB.area){const T=V3(P.pos.x,P.pos.y+2.3,P.pos.z),C=camera.position,d=C.clone().sub(T),L=d.length();
   if(L>.1){d.divideScalar(L);let ok=L;for(let s=.3;s<=L+.01;s+=.3){const x=T.x+d.x*s,y=T.y+d.y*s,z=T.z+d.z*s;if((SB.area==='tun'&&y>6.5)||sbSolid(x,z)){ok=Math.max(.5,s-.5);break}}if(ok<L){C.copy(T).addScaledVector(d,ok);camera.lookAt(T)}}}return r}}
+
+/* ---------- no Seine under the Sorbonne: no swimming, no bridges, no river push ---------- */
+{const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&x>5500&&x<7000)return false;return _w.apply(this,arguments)}}
+{const _b=stBridge;stBridge=function(x,z){if(MODE!=='open'&&x>5500&&x<7000)return false;return _b.apply(this,arguments)}}
+{const _c=collide;collide=function(p,r,ghost,skipBlocks){if(MODE==='open'||!(p.x>5500&&p.x<7000))return _c.apply(this,arguments);
+  for(const b of boxes){if(!b.sb||p.y>b.h)continue;const cx=clamp(p.x,b.x0,b.x1),cz=clamp(p.z,b.z0,b.z1);const dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
+    if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2);p.x=cx+dx/d*r;p.z=cz+dz/d*r}else{const l=p.x-b.x0,rr=b.x1-p.x,t=p.z-b.z0,bt=b.z1-p.z,m=Math.min(l,rr,t,bt);if(m===l)p.x=b.x0-r;else if(m===rr)p.x=b.x1+r;else if(m===t)p.z=b.z0-r;else p.z=b.z1+r}}}}}

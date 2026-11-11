@@ -68,7 +68,7 @@ xmFcUI=function(){let d=document.getElementById('xmFcB');if(d)return d;const tou
 {const _p=xmFcPush;xmFcPush=function(){const r=_p.apply(this,arguments);const k=document.querySelector('#xmFcB .k');if(k){k.classList.add('hit');clearTimeout(k._t);k._t=setTimeout(()=>k.classList.remove('hit'),70)}return r}}
 function xmMash(on){let d=document.getElementById('xmMash');if(!d){d=document.createElement('div');d.id='xmMash';document.body.appendChild(d)}clearTimeout(d._t);clearTimeout(d._t2);
   if(!on){d.className='';const fb=document.getElementById('xmFcB');if(fb)fb.style.opacity='1';return}const touch=typeof isTouch!=='undefined'&&isTouch;
-  d.innerHTML=`<div class="bg"></div><div class="w">${touch?'TAP!':'MASH!'}</div><div class="key">${touch?'TAP TAP TAP':'SPACE'}</div><div class="sub">${touch?'Tap the screen':'Hit the space bar'} as fast as you can · lose and it costs 1000 HP</div>`;
+  d.innerHTML=`<div class="bg"></div><div class="w">${touch?'TAP!':'MASH!'}</div><div class="key">${touch?'TAP TAP TAP':'SPACE'}</div><div class="sub">${touch?'Tap the screen':'Hit the space bar'} as fast as you can · lose and it will hurt badly</div>`;
   d.className='on';const fb=document.getElementById('xmFcB');if(fb){fb.style.transition='opacity .35s';fb.style.opacity='0'}d._t=setTimeout(()=>{d.className='on out';if(fb)fb.style.opacity='1'},1700);d._t2=setTimeout(()=>{d.className=''},2250)}
 xmWarn=function(){xmMash(true)};
 {const _fs=xmFcStart;xmFcStart=function(m){const r=_fs.apply(this,arguments);const d=xmFcUI();d.classList.add('on');d.style.display='';return r}}
@@ -77,3 +77,41 @@ function xmK9(){const go=()=>{if(CS.active){after(.5,go);return}after(6,()=>{if(
 {const _es=epSay;epSay=function(who,text,prio){if(XO.lbSeq&&text!==XL3.kw_21)return;return _es.apply(this,arguments)}}
 {const _g=xoMirrorGo;xoMirrorGo=function(){XO.myEst=0;XO.lbSeq=0;return _g.apply(this,arguments)}}
 {const _r=revive;revive=function(){XO.lbSeq=0;return _r.apply(this,arguments)}}
+
+/* ---------- Kaen's reveal: no spoilers. Smoke, then shoes, bracelet, cape, torso, face, and only then the wide shot ---------- */
+XL3.mw_38="Damn... it's Kaen! No... I can't. I can't hit you.";VO_MAP[XL3.mw_38]='mw_38';
+xoKaen=function(){if(CS.active){after(.3,xoKaen);return}const old=XO.e;XO.ph=1.6;sayHush();const p=XOC().add(V3(-6,0,0));xoClear(null);if(old){scene.remove(old.m.g);old.dead=true}XO.e=null;bossRef=null;$('boss').classList.add('hidden');
+  const hp=V3(p.x+10,0,p.z);x4Stage(hp,-Math.PI/2);P.face=-Math.PI/2;xoCoil(true);X4.cc=p.clone();
+  const e=xoSpawn(5,p,false);e.invuln=true;e.busy=999;e.m.g.rotation.y=Math.PI/2;e.m.g.scale.setScalar(1);e.m.g.visible=false;$('boss').classList.add('hidden');kNoSpell(e.m.actor);try{e.m.actor.setBase('Idle_Loop',0)}catch(x){}
+  const kp=()=>KFW.a?KFW.a.g.position:hp;const ry=Math.PI/2,f=V3(Math.sin(ry),0,Math.cos(ry)),r=V3(f.z,0,-f.x);
+  const bones=(e.m.actor&&e.m.actor.bones)||[];const BN=n=>bones.find(b=>b.name===n||b.name.endsWith(n));
+  const BP=(n,fb)=>{const b=BN(n);if(b){e.m.g.updateMatrixWorld(true);return b.getWorldPosition(V3())}return V3(p.x,fb,p.z)};
+  const smoke=(n,y0,y1,R,a)=>{for(let q=0;q<n;q++){const an=Math.random()*TAU,rr=Math.random()*R;SM.emit(V3(p.x+Math.cos(an)*rr,p.y+rand(y0,y1),p.z+Math.sin(an)*rr),{c0:Math.random()<.5?0x8a96a0:0x3a444c,c1:0x0a0e12,s0:1.6,s1:4.6,life:1.5,a:a||.6,up:1.2})}};
+  let TOP=null;const top=()=>{if(TOP==null){const bb=new THREE.Box3().setFromObject(e.m.g);TOP=isFinite(bb.max.y)&&bb.max.y>.5?bb.max.y:1.8}return TOP};
+  const hit=(s)=>{x5Impact(60,.04);sx('clash',.45,null,{rate:rand(.5,.7)});P.shake=.45;x5Punch(7,.25);if(s)sx(s,.6)};
+  const pin=()=>{e.pos.set(p.x,0,p.z);e.m.g.position.set(p.x,0,p.z);e.m.g.rotation.y=ry};const SH=[
+    /* 1. the smoke gathers: nothing inside it yet */
+    {dur:3.4,fov:50,cut:true,cam:k=>({pos:V3(p.x+10-k*3,1.4+k*1.2,p.z+5-k*2),look:V3(p.x,1.4+k*.6,p.z)}),onStart:()=>{x5Impact(90,.1);sx('skyshatter',.5,null,{rate:1.1});sx('riser',.8,null,{rate:.55});sx('heart',.8);x5Grey(1)},
+      update:(dt,k)=>{xoStorm(p,dt,.6+k);smoke(4+Math.round(k*4),0,4.2,1.2+k*.6,.55+k*.2);if(Math.random()<dt*2)lightning(V3(p.x,p.y+4,p.z),V3(p.x+rand(-1,1),p.y+rand(.5,2),p.z+rand(-1,1)),0x9aa8b0);P.shake=Math.max(P.shake,k*.3)}},
+    /* 2. closer, thicker, a heartbeat: still nothing to see */
+    {dur:2.2,fov:40,cut:true,cam:k=>({pos:V3(p.x+5.5-k*1.5,1.5,p.z+1.5-k*.5),look:V3(p.x,1.4,p.z)}),onStart:()=>{sx('heart',.9)},update:(dt,k)=>{xoStorm(p,dt,1.4);smoke(9,0,3.6,1.3,.8);if(k>.85&&!e.m.g.visible){e.m.g.visible=true}}},
+    /* 3. shoes */
+    {dur:1.3,fov:30,cut:true,cam:k=>{const a=BP('foot_r',.1);return{pos:a.clone().addScaledVector(f,1.3-k*.2).addScaledVector(r,.5).add(V3(0,.15,0)),look:a.clone().add(V3(0,.05,0))}},onStart:()=>{e.m.g.visible=true;hit()},update:(dt)=>{smoke(4,1,3.4,1.1,.55)}},
+    /* 4. the bracelet */
+    {dur:1.1,fov:24,cut:true,cam:k=>{const a=BP('hand_l',1),s=BP('spine_02',1.1);const o=V3(a.x-s.x,0,a.z-s.z);if(o.lengthSq()<.001)o.copy(r);o.normalize();return{pos:a.clone().addScaledVector(f,.8).addScaledVector(o,.45).add(V3(0,.08-k*.05,0)),look:a}},onStart:()=>hit('shield')},
+    /* 5. the cape */
+    {dur:1.2,fov:34,cut:true,cam:k=>{const a=BP('spine_02',1.2);return{pos:a.clone().addScaledVector(f,-1.8).addScaledVector(r,.9-k*1.4).add(V3(0,.2,0)),look:a.clone().add(V3(0,-.2,0))}},onStart:()=>hit()},
+    /* 6. torso */
+    {dur:1.0,fov:34,cut:true,cam:k=>{const a=BP('spine_03',1.6);return{pos:a.clone().addScaledVector(f,1.7-k*.15).add(V3(0,-.25+k*.06,0)),look:a.clone().add(V3(0,-.3,0))}},onStart:()=>hit()},
+    /* 7. the face */
+    {dur:1.9,fov:22,cut:true,cam:k=>{const a=BP('neck_01',1.9).add(V3(0,.17,0)).addScaledVector(f,.06);return{pos:a.clone().addScaledVector(f,1.15-k*.35).addScaledVector(r,.08),look:a}},onStart:()=>{hit('heart');try{e.m.actor.setBase('Idle_Loop',.2)}catch(x){}},update:(dt,k)=>{camera.fov=22-k*4;camera.updateProjectionMatrix()}},
+    /* 8. pull out wide: colour floods back, the bolt, his name */
+    {dur:2.6,fov:46,cut:true,cam:k=>{const e2=1-Math.pow(1-k,3);const a=BP('neck_01',1.9).add(V3(0,.17,0));const near=a.clone().addScaledVector(f,.7),far=V3(p.x,0,p.z).addScaledVector(f,9).addScaledVector(r,3).add(V3(0,2.6,0));return{pos:near.lerp(far,e2),look:V3(p.x,1.3-k*.2,p.z)}},
+      onStart:()=>{x5Grey(0);xoFade(e.xo.L,false,.9);sx('riser',.7,null,{rate:.9});after(.35,()=>{xoKaenBolt(e,p);flash(headOf(p,1.2),0xc9a6ff,18);x5Impact(110,.1);x5Punch(12,.4);sx('impact',.8);ring(p,0xc9a6ff,1,12,.5);SP.emit(headOf(p,1.2),{n:90,c0:0xffffff,c1:0xc9a6ff,speed:10,life:.9,s0:.6,s1:.05});x5Banner('KAEN','MASTER OF ILLUSIONS','#c9a6ff',2.3)})}},
+    {who:'@',text:XL3.mw_38,fov:36,cam:x4S(()=>P.pos,1,2.2,1.6),onStart:()=>{P.heroAnim='Idle_Talking_Loop'}},
+    {who:'Kaen',text:XL3.fk_01,fov:34,cam:k=>({pos:headOf(p,1.6).add(V3(2.6-k*.4,0,.9)),look:headOf(p,1.55)}),onStart:()=>{P.heroAnim='Idle_Loop';try{e.m.actor.setBase('Idle_Talking_Loop',.3)}catch(x){}}},
+    {who:'Kaen',text:XL3.kw_14,fov:38,cam:k=>({pos:headOf(kp(),1.2).add(V3(-2.6,.2,-1.4+k*.5)),look:headOf(kp(),1)}),onStart:()=>{x5Impact(70,.1);P.shake=.8;try{e.m.actor.setBase('Idle_Loop',.3)}catch(x){}try{KFW.a&&KFW.a.setBase('Crouch_Idle_Loop',.2)}catch(x){}},update:()=>{if(Math.random()<.5)SP.emit(headOf(kp(),1),{c0:0xffffff,c1:0xb070ff,s0:.4,s1:.04,life:.5,speed:3})}},
+    {who:'@',text:XL3.mw_14,fov:38,cam:x4S(()=>P.pos,-1,2.2,1.7),onStart:()=>{P.heroAnim='Idle_Talking_Loop'}}];
+  for(let q=0;q<8;q++){const c=SH[q].cam;SH[q].cam=k=>{pin();return c(k)}}
+  playCutscene(SH,
+    ()=>{x5Grey(0);xcFigOff();P.heroAnim=null;X4.cc=null;e.m.g.visible=true;xoSetGrey(e.xo.L,false);e.xo.grey=false;e.xo.t=rand(6,9);try{e.m.actor.setBase('Idle_Loop',.2)}catch(x){}e.m.g.scale.setScalar(1);e.invuln=false;e.busy=.8;bossRef=e;$('boss').classList.remove('hidden');XO.ph=1;XO.cmp=0;P.invuln=1.5;x5Punch(12,.4)})};
