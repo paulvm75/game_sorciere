@@ -29,9 +29,9 @@ addEventListener('keydown',e=>{if(e.code==='KeyC'&&!e.repeat&&(P.flying||(P.glid
 #brGems{position:absolute;left:calc(50% + 90px);bottom:calc(81px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;pointer-events:none;z-index:6}
 #brGems i{width:8px;height:12px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:linear-gradient(#ffe2a0,#ff9a20);filter:drop-shadow(0 0 4px #ffb040)}
 .touch #brGems{left:auto;right:calc(14px + env(safe-area-inset-right,0px));bottom:auto;top:calc(150px + env(safe-area-inset-top,0px))}
-#diveBtn{--c:#ffd8b0;width:58px;height:58px;display:none;background:radial-gradient(circle at 50% 32%,rgba(64,48,120,.95),rgba(18,15,40,.95))}
+#diveBtn{--c:#ffd8b0;width:64px;height:64px;align-items:center;justify-content:center;display:none;background:radial-gradient(circle at 50% 32%,rgba(64,48,120,.95),rgba(18,15,40,.95))}
 #diveBtn.show{display:flex}
-#diveBtn .k{position:absolute;right:4px;bottom:2px;font:700 10px Outfit,system-ui,sans-serif;color:#fff;opacity:.7}
+#diveBtn svg{width:28px;height:28px;fill:none!important;stroke:currentColor;color:var(--c)}
 .touch #diveBtn .k{display:none}
 `;document.head.appendChild(st)}
 function brHudInit(){if($('brHint'))return;const h=document.createElement('div');h.id='brHint';
