@@ -115,7 +115,7 @@ xmDarkLB=xmEven=xmKaenIn=xmKaenDown=xmUltra=xmCalm=function(){};xmTube=function(
 {const cl=()=>{if(XO.fc){const C=XO.fc;XO.fc=null;for(const b of C.b)scene.remove(b);scene.remove(C.orb)}try{xmFcUI().style.display='none'}catch(x){}XO.sh=null;XO.bk={};XO.fcT=0};const _or=x5OReset;x5OReset=function(){cl();return _or.apply(this,arguments)};const _rv=x5ORevive;x5ORevive=function(){cl();return _rv.apply(this,arguments)}}
 
 /* voice pack 24: in-fight lines */
-const VOPK3={idx:{"mw_33":[0,16135],"kx_01":[16135,21777],"kx_02":[37912,30137],"kx_03":[68049,24912],"lz_01":[92961,26584],"lz_02":[119545,21568],"mm_09":[141113,25539],"mm_10":[166652,17807],"mm_11":[184459,28883],"mw_34":[213342,23031],"mw_35":[236373,23867],"mm_12":[260240,11537],"mw_36":[271777,18643]},p:null};
+const VOPK3={idx:{"mw_33":[0,16135],"kx_01":[16135,21777],"kx_02":[37912,30137],"kx_03":[68049,24912],"lz_01":[92961,26925],"lz_02":[119886,20205],"mm_09":[140091,25539],"mm_10":[165630,17807],"mm_11":[183437,28883],"mw_34":[212320,23031],"mw_35":[235351,23867],"mm_12":[259218,11537],"mw_36":[270755,18643]},p:null};
 {const _vr=voRaw;voRaw=function(k){const ix=VOPK3.idx[k];if(!ix||VO.raw[k])return _vr(k);if(!VOPK3.p)VOPK3.p=fetch('assets/vo24.mp3').then(r=>r.ok?r.arrayBuffer():null).catch(()=>null);
   VO.raw[k]=VOPK3.p.then(b=>b&&b.byteLength>=ix[0]+ix[1]?b.slice(ix[0],ix[0]+ix[1]):fetch('assets/'+k+'.mp3').then(r=>r.ok?r.arrayBuffer():null).catch(()=>null));return VO.raw[k]}}
 /* no black and white in the last two scenes */
