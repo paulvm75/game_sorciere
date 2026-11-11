@@ -57,7 +57,7 @@ xoKaen=function(){if(CS.active){after(.3,xoKaen);return}const old=XO.e;XO.ph=1.6
   playCutscene([
     /* the smoke gathers, slower this time, and starts to stand up */
     {dur:3.6,fov:50,cut:true,cam:k=>({pos:V3(p.x+9-k*3,1.2+k*1.4,p.z+4.5-k*2),look:V3(p.x,1+k*1.2,p.z)}),onStart:()=>{x5Impact(90,.1);sx('skyshatter',.5,null,{rate:1.1});sx('riser',.8,null,{rate:.55});sx('heart',.8);x5Grey(1)},
-      update:(dt,k)=>{fig.g.scale.setScalar(1.3+k*.6);fig.g.position.y=p.y+1+k*.6;for(let q=0;q<3;q++)SM.emit(V3(p.x+rand(-1.2,1.2),p.y+rand(0,3.5),p.z+rand(-1.2,1.2)),{c0:0x10262c,c1:0x010304,s0:1.5,s1:4,life:1.2,a:.55,up:2});if(Math.random()<.025)sx('heart',.6);P.shake=Math.max(P.shake,k*.3)}},
+      update:(dt,k)=>{xoStorm(p,dt,.6+k);fig.g.scale.setScalar(1.3+k*.6);fig.g.position.y=p.y+1+k*.6;for(let q=0;q<3;q++)SM.emit(V3(p.x+rand(-1.2,1.2),p.y+rand(0,3.5),p.z+rand(-1.2,1.2)),{c0:0x10262c,c1:0x010304,s0:1.5,s1:4,life:1.2,a:.55,up:2});if(Math.random()<.025)sx('heart',.6);P.shake=Math.max(P.shake,k*.3)}},
     /* a man in the smoke, still grey */
     {dur:3.2,fov:42,cut:true,cam:k=>({pos:V3(p.x+5.6-k*1.3,1.4,p.z-2.2+k*.6),look:headOf(p,1.2)}),onStart:()=>{fig.set('king');fig.cyc=.2},
       update:(dt,k)=>{const q=eOut(Math.min(1,k*1.1));e.m.g.scale.setScalar(Math.max(.01,q));fig.g.scale.setScalar(Math.max(.01,1.9*(1-q*.9)));if(k>.92)fig.g.visible=false;if(Math.random()<.5)SM.emit(V3(p.x+rand(-.8,.8),p.y+rand(0,2.4),p.z+rand(-.8,.8)),{c0:0x2a3430,c1:0x010304,s0:.8,s1:2.4,life:.9,a:.45,up:1})}},
@@ -67,7 +67,7 @@ xoKaen=function(){if(CS.active){after(.3,xoKaen);return}const old=XO.e;XO.ph=1.6
     {who:'@',text:XL3.mw_13,fov:36,cam:x4S(()=>P.pos,1,2.2,1.6),onStart:()=>{P.heroAnim='Idle_Loop'}},
     /* the colour seeps into him, and only now is he named */
     {dur:3.2,fov:44,cut:true,cam:k=>({pos:V3(p.x+6-k*1.6,1.6,p.z+2.6-k*.8),look:headOf(p,1.3)}),onStart:()=>{x5Grey(0);xoFade(e.xo.L,false,1.7);sx('riser',.7,null,{rate:.9});
-        after(1.5,()=>{flash(headOf(p,1.2),0xc9a6ff,18);x5Impact(110,.1);x5Punch(12,.4);sx('impact',.8);ring(p,0xc9a6ff,1,12,.5);SP.emit(headOf(p,1.2),{n:90,c0:0xffffff,c1:0xc9a6ff,speed:10,life:.9,s0:.6,s1:.05});x5Banner('KAEN','MASTER OF ILLUSIONS','#c9a6ff',2.3)})},
+        after(1.5,()=>{xoKaenBolt(e,p);flash(headOf(p,1.2),0xc9a6ff,18);x5Impact(110,.1);x5Punch(12,.4);sx('impact',.8);ring(p,0xc9a6ff,1,12,.5);SP.emit(headOf(p,1.2),{n:90,c0:0xffffff,c1:0xc9a6ff,speed:10,life:.9,s0:.6,s1:.05});x5Banner('KAEN','MASTER OF ILLUSIONS','#c9a6ff',2.3)})},
       update:(dt,k)=>{camera.fov=44-k*6;camera.updateProjectionMatrix()}},
     {who:'Kaen',text:XL3.fk_01,fov:34,cam:k=>({pos:headOf(p,1.6).add(V3(2.6-k*.4,0,.9)),look:headOf(p,1.55)}),onStart:()=>{try{e.m.actor.setBase('Idle_Talking_Loop',.3)}catch(x){}}},
     {who:'Kaen',text:XL3.kw_14,fov:38,cam:k=>({pos:headOf(kp(),1.2).add(V3(-2.6,.2,-1.4+k*.5)),look:headOf(kp(),1)}),onStart:()=>{x5Impact(70,.1);P.shake=.8;try{e.m.actor.setBase('Idle_Loop',.3)}catch(x){}try{KFW.a&&KFW.a.setBase('Crouch_Idle_Loop',.2)}catch(x){}},update:()=>{if(Math.random()<.5)SP.emit(headOf(kp(),1),{c0:0xffffff,c1:0xb070ff,s0:.4,s1:.04,life:.5,speed:3})}},
