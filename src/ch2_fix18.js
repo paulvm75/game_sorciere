@@ -108,3 +108,9 @@ spawnStones=function(n){for(const s of stones)scene.remove(s.g);stones.length=0;
 /* the clash eases in: 1.8s where the beams meet and grow before anything is decided */
 {const _fs=xmFcStart;xmFcStart=function(m){const r=_fs.apply(this,arguments);if(XO.fc){XO.fc.intro=1.8;XO.fc.k=.5;for(const b of XO.fc.b)b.visible=false;CS.speed=1}return r}}
 {const _ft=xmFcTick;xmFcTick=function(dt){const C=XO.fc;if(C&&C.intro>0){const k=C.k,t=C.t;C.intro-=dt;const r=_ft.apply(this,arguments);if(XO.fc===C){C.k=Math.max(k,C.k);C.t=t;const g=1-Math.max(0,C.intro)/1.8;for(const b of C.b){b.visible=true;b.scale.x*=g;b.scale.z*=g}C.orb.scale.multiplyScalar(.3+.7*g)}return r}return _ft.apply(this,arguments)}}
+
+/* music balance: louder Sorbonne square, epic swell for 4s after every cinematic */
+{const _ec=endCutscene;endCutscene=function(){const w=CS.active;const r=_ec.apply(this,arguments);if(w)MU.pcT=4;return r}}
+{const _mt=muTick;muTick=function(dt){const lat=started&&MODE!=='open'&&typeof CH2!=='undefined'&&CH2.zone==='latin';let z=1;if(lat)z=SB.area==='tun'?1.45:1.95;
+  MU.pcT=Math.max(0,(MU.pcT||0)-Math.min(dt,.05));const e=MU.pcT>0?Math.min(1,(4-MU.pcT)/.4,MU.pcT/1.2):0;const tg=z*(1+.45*e);
+  MU.xb=(MU.xb||1)+(tg-(MU.xb||1))*Math.min(1,dt*3);MU.dk=lat?.5:.62;_mt(dt)}}

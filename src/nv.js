@@ -26,4 +26,4 @@ if(sfx&&sfx.bossIn)sfx.bossIn=function(){};
 function muWant(){if(!started||(typeof bmWant==='function'&&bmWant()))return null;if(MODE==='open'){if(typeof VIN!=='undefined'&&VIN)return'mus_cafe';const h=OWS.tod;return h>=20.5||h<6.5?'mus_ownight':'mus_owday'}return'mus_story'}
 function muTick(dt){if(!started)return;dt=Math.min(dt,.1);if(!MU.pre){MU.pre=true;nvPrefetch()}const want=muWant();if(want)bmTrack(want);const on=!(muted||(typeof musicOn!=='undefined'&&!musicOn));
   for(const k of MU.keys){const t=BM.tr[k];if(!t)continue;const tgt=want===k&&t.ok?1:0;t.v=tgt>t.v?Math.min(1,t.v+dt/2.5):Math.max(0,t.v-dt/2);
-    if(tgt>0&&!t.playing)bmStart(t);if(t.playing&&t.v<=0&&tgt===0)bmStop(t);if(t.g)t.g.gain.value=t.v*t.v*.32*(MU.gain&&MU.gain[k]||1)*(NVS.src?.7:1)*(1-.62*(MU.vd||0))*(on?1:0)}}
+    if(tgt>0&&!t.playing)bmStart(t);if(t.playing&&t.v<=0&&tgt===0)bmStop(t);if(t.g)t.g.gain.value=t.v*t.v*.32*(MU.gain&&MU.gain[k]||1)*(NVS.src?.7:1)*(1-(MU.dk||.62)*(MU.vd||0))*(MU.xb||1)*(on?1:0)}}
