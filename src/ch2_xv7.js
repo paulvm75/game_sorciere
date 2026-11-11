@@ -21,7 +21,7 @@ xmGoLB=function(m){if(CS.active){after(.3,()=>xmGoLB(m));return}XO.bk.lb=1;xmFre
     {dur:2.2,fov:52,cut:true,cam:xmOrbit(tg,fa,5,8,1.4,2.6,1.3),onStart:()=>{xmDarkOn(m);try{m.m.actor.setBase('Idle_Loop',.1)}catch(x){}lbBoom(eCenter(m),0xffb030,true);SM.emit(eCenter(m),{n:24,c0:0x0a0806,c1:0,s0:1.5,s1:6,life:1.4,a:.3,speed:8});SP.emit(eCenter(m),{n:180,c0:0xffffff,c1:0xffc040,speed:14,life:1.1,s0:.8,s1:.1});x5Banner('LIMIT BREAKER','SHE WILL NOT FALL','#ffd060',1.8,'#000')},update:()=>{smoke();const c=eCenter(m);if(Math.random()<.5)lightning(V3(c.x,c.y+1.6,c.z),V3(c.x+rand(-1.6,1.6),c.y+rand(-1,.6),c.z+rand(-1.6,1.6)),0xffd060)}}],
     ()=>{xmThaw(m);xmDarkOn(m);const v=V3(P.pos.x-m.pos.x,0,P.pos.z-m.pos.z);if(v.lengthSq()<.01)v.set(1,0,0);v.normalize();if(P.pos.distanceTo(m.pos)<10){P.pos.x+=v.x*5;P.pos.z+=v.z*5}
       const h0=m.hp,gain=m.maxhp*.4;addFx(null,1.6,(f,k)=>{if(!m.dead)m.hp=Math.min(m.maxhp,h0+gain*k)},()=>floatText(headOf(m.pos,2.8),'+40%','#ffd060',true));
-      m.hpFloor=.04;after(.8,()=>xmShieldUp(m));XO.shT=9;XO.skyT=2.5;after(1.6,()=>{if(XO.ph===2)x5Say('Kaen','kw_21',1)});after(4.6,()=>xmMyLB())})};
+      m.hpFloor=.04;after(.8,()=>xmShieldUp(m));XO.shT=9;XO.skyT=2.5;XO.lbSeq=1;sayHush();after(1.1,()=>{if(XO.ph!==2){XO.lbSeq=0;return}x5Say('Kaen','kw_21',2);xmAfterSay(1.4,xmMyLB,11)})})};
 
 /* your limit breaker, with its short cinematic, and it lasts */
 function xmMyLB(){if(XO.ph!==2||!P.alive)return;if(CS.active||XO.fc){after(.4,xmMyLB);return}const m=XO.mir;if(m)xmFreeze(m);const tg=()=>P.pos,fa=()=>P.face+Math.PI*.8;
@@ -81,6 +81,6 @@ xmDmg=function(b){return b*1.25*(1+.2*(P.level-1))*({easy:.57,medium:.95,hard:1.
 {const _sky=xmSagaTick;xmSagaTick=function(dt){if(DIFF==='easy'&&XO.mir&&XO.mir.lb&&XO.skyT!=null)XO.skyT-=dt*.3;return _sky.apply(this,arguments)}}
 /* Kaen's advice once she is in limit breaker */
 XL3.kx_09="She's stronger now! Teleport, dodge as much as you can, and hit her when you can!";VO_MAP[XL3.kx_09]='kx_09';
-{const _lb=xmGoLB;xmGoLB=function(m){const r=_lb.apply(this,arguments);if(XO.bk&&!XO.bk.k9&&XO.bk.lb){XO.bk.k9=1;after(12,()=>{if(XO.ph===2&&XO.mir&&!XO.mir.dead)x5Say('Kaen','kx_09',1)})}return r}}
+{const _lb=xmGoLB;xmGoLB=function(m){const r=_lb.apply(this,arguments);if(XO.bk&&!XO.bk.k9&&XO.bk.lb){XO.bk.k9=1}return r}}
 /* limit breaker x2: far harder to hurt */
 {const _dp=damagePlayer;damagePlayer=function(a){if(P.lb2&&typeof a==='number')a*=.65;return _dp.call(this,a)}}

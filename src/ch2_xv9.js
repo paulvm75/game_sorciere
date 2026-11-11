@@ -34,3 +34,46 @@ function xmGoldTick(dt){const m=XO.mir;if(!m||m.dead||!m.m||!m.m.lbg)return;cons
   L.orb.forEach((s,i)=>{const a=time*(2.2+i*.15)+i*TAU/6,r=1.1+Math.sin(time*3+i)*.2;s.position.set(Math.sin(a)*r,.6+((time*.9+i/6)%1)*2.6,Math.cos(a)*r)});
   if(Math.random()<dt*30){const c=eCenter(m);SP.emit(V3(c.x+rand(-1.1,1.1),c.y+rand(-1,1.4),c.z+rand(-1.1,1.1)),{c0:Math.random()<.15?0x140a04:0xffe8a0,c1:0x301800,s0:.5,s1:.05,life:.9,up:3,speed:.6})}}
 {const _uf=updateFx;updateFx=function(dt){const r=_uf.apply(this,arguments);try{xoWallTick(dt);xmGoldTick(dt)}catch(x){}return r}}
+
+/* ---------- limit breaker timing: Kaen finishes, a beat, then you; she is already burning gold in your shot ---------- */
+function xmAfterSay(wait,fn,cap){let el=0,heard=0;const go=()=>{if(XO.ph!==2||!P.alive)return;el+=.2;const busy=SAYQ.on||SAYQ.q.length||SAYQ.src;if(busy)heard=1;if((busy||!heard&&el<3)&&el<(cap||10)){after(.2,go);return}after(wait,fn)};after(.3,go)}
+{const _my=xmMyLB;xmMyLB=function(){if(XO.ph!==2||!P.alive)return;if(CS.active||XO.fc){after(.4,xmMyLB);return}const m=XO.mir;if(m&&!m.dead&&m.lb&&!XO.myEst){XO.myEst=1;xmDarkOn(m);
+    const fwd=()=>{const v=V3(m.pos.x-P.pos.x,0,m.pos.z-P.pos.z);if(v.lengthSq()<.01)v.set(0,0,-1);return v.normalize()};
+    xmFreeze(m);P.face=Math.atan2(m.pos.x-P.pos.x,m.pos.z-P.pos.z);
+    XO.lbSeq=0;playCutscene([{dur:1.9,fov:44,cut:true,cam:k=>{const f=fwd(),r=V3(f.z,0,-f.x);return{pos:headOf(P.pos,1.85).addScaledVector(f,-2.4-k*.4).addScaledVector(r,.95),look:headOf(m.pos,1.25+k*.15)}},
+      onStart:()=>{sx('heart',.8);sx('riser',.5,null,{rate:.6});try{m.m.actor.setBase('Idle_Loop',.2)}catch(x){}},update:(dt,k)=>{const c=eCenter(m);if(Math.random()<.5)lightning(V3(c.x,c.y+1.6,c.z),V3(c.x+rand(-1.6,1.6),c.y+rand(-1,.6),c.z+rand(-1.6,1.6)),0xffd060)}}],()=>{_my();xmK9()});return}
+  return _my.apply(this,arguments)}}
+
+/* ---------- the last clash: a full-screen, kinetic MASH prompt, then a compact live one ---------- */
+(function(){const st=document.createElement('style');st.textContent=`
+#xmMash{position:fixed;inset:0;z-index:42;pointer-events:none;display:none;flex-direction:column;align-items:center;justify-content:center;font-family:'Bangers',Impact,sans-serif}
+#xmMash.on{display:flex}#xmMash .bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 52%,rgba(255,190,60,.55),rgba(255,70,20,.32) 38%,rgba(40,0,0,.25) 70%);animation:xmBg .9s ease-out both}
+#xmMash .w{position:relative;font-size:clamp(70px,17vw,210px);line-height:.9;letter-spacing:.04em;color:#fff6d0;-webkit-text-stroke:4px #3a0c00;text-shadow:0 0 30px rgba(255,170,40,.9),8px 8px 0 #c2410c;animation:xmPop .45s cubic-bezier(.2,1.6,.4,1) both,xmShake .12s .45s 8 alternate}
+#xmMash .key{position:relative;margin-top:18px;width:min(64vw,540px);height:clamp(58px,9vw,96px);border-radius:18px;background:linear-gradient(180deg,#fffaf0,#ffd38a);border:3px solid #3a0c00;border-bottom-width:14px;box-shadow:0 0 40px rgba(255,180,60,.8);
+  display:flex;align-items:center;justify-content:center;color:#3a0c00;font-size:clamp(30px,5vw,58px);letter-spacing:.2em;animation:xmKey .16s .3s infinite alternate}
+#xmMash .sub{position:relative;max-width:88vw;text-align:center;margin-top:16px;font-family:Outfit,system-ui,sans-serif;font-weight:700;font-size:clamp(14px,1.8vw,20px);color:#fff;text-shadow:0 2px 6px #000;letter-spacing:.04em}
+#xmMash.out{animation:xmOut .5s ease-in forwards}
+@keyframes xmBg{0%{opacity:0}20%{opacity:1}100%{opacity:.85}}@keyframes xmPop{0%{transform:scale(3.2) rotate(-8deg);opacity:0}100%{transform:scale(1) rotate(-3deg);opacity:1}}
+@keyframes xmShake{0%{transform:rotate(-3deg) translate(-4px,2px)}100%{transform:rotate(-2deg) translate(4px,-2px)}}@keyframes xmKey{0%{transform:translateY(0);border-bottom-width:14px}100%{transform:translateY(9px);border-bottom-width:5px}}
+@keyframes xmOut{to{opacity:0;transform:scale(.45) translateY(38vh)}}
+#xmFcB{position:fixed;left:50%;bottom:17%;transform:translateX(-50%);z-index:40;display:none;flex-direction:column;align-items:center;gap:8px;pointer-events:auto;font-family:'Bangers',Impact,sans-serif;color:#fff;text-shadow:2px 2px 0 #000}
+#xmFcB.on{display:flex}#xmFcB .k{padding:6px 26px;border-radius:12px;background:linear-gradient(180deg,#fffaf0,#ffd38a);border:2px solid #3a0c00;border-bottom-width:8px;color:#3a0c00;font-size:clamp(20px,2.6vw,30px);letter-spacing:.2em;box-shadow:0 0 22px rgba(255,170,40,.7);animation:xmPulse .5s infinite alternate}
+#xmFcB .k.hit{transform:translateY(5px);border-bottom-width:3px}#xmFcB .bar{position:relative;width:min(70vw,560px);height:20px;border:3px solid #fff;border-radius:999px;background:linear-gradient(90deg,#3a0610,#140208);overflow:hidden;box-shadow:0 0 18px rgba(255,120,40,.6)}
+#xmFcB .bar i{display:block;height:100%;width:50%;background:linear-gradient(90deg,#ffe080,#ffa030,#ff5a10);box-shadow:0 0 14px #ffb040;transition:width .08s}
+#xmFcB .ends{width:min(70vw,560px);display:flex;justify-content:space-between;font-size:15px;letter-spacing:.12em}@keyframes xmPulse{to{box-shadow:0 0 40px rgba(255,190,60,1);transform:scale(1.06)}}`;document.head.appendChild(st)})();
+xmFcUI=function(){let d=document.getElementById('xmFcB');if(d)return d;const touch=typeof isTouch!=='undefined'&&isTouch;d=document.createElement('div');d.id='xmFcB';
+  d.innerHTML=`<div class="bar"><i></i></div><div class="ends"><span>YOU</span><span>HER</span></div><div class="k">${touch?'TAP':'SPACE'}</div>`;document.body.appendChild(d);
+  window.addEventListener('keydown',ev=>{if(!XO.fc)return;if(ev.code==='Space'){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)xmFcPush()}},true);
+  d.addEventListener('pointerdown',ev=>{if(XO.fc){ev.preventDefault();xmFcPush()}});return d};
+{const _p=xmFcPush;xmFcPush=function(){const r=_p.apply(this,arguments);const k=document.querySelector('#xmFcB .k');if(k){k.classList.add('hit');clearTimeout(k._t);k._t=setTimeout(()=>k.classList.remove('hit'),70)}return r}}
+function xmMash(on){let d=document.getElementById('xmMash');if(!d){d=document.createElement('div');d.id='xmMash';document.body.appendChild(d)}clearTimeout(d._t);clearTimeout(d._t2);
+  if(!on){d.className='';const fb=document.getElementById('xmFcB');if(fb)fb.style.opacity='1';return}const touch=typeof isTouch!=='undefined'&&isTouch;
+  d.innerHTML=`<div class="bg"></div><div class="w">${touch?'TAP!':'MASH!'}</div><div class="key">${touch?'TAP TAP TAP':'SPACE'}</div><div class="sub">${touch?'Tap the screen':'Hit the space bar'} as fast as you can · lose and it costs 1000 HP</div>`;
+  d.className='on';const fb=document.getElementById('xmFcB');if(fb){fb.style.transition='opacity .35s';fb.style.opacity='0'}d._t=setTimeout(()=>{d.className='on out';if(fb)fb.style.opacity='1'},1700);d._t2=setTimeout(()=>{d.className=''},2250)}
+xmWarn=function(){xmMash(true)};
+{const _fs=xmFcStart;xmFcStart=function(m){const r=_fs.apply(this,arguments);const d=xmFcUI();d.classList.add('on');d.style.display='';return r}}
+{const _fe=xmFcEnd;xmFcEnd=function(win){const had=!!XO.fc;const r=_fe.apply(this,arguments);if(had){const d=xmFcUI();d.classList.remove('on');xmMash(false)}return r}}
+function xmK9(){const go=()=>{if(CS.active){after(.5,go);return}after(6,()=>{if(XO.ph===2&&XO.mir&&!XO.mir.dead)x5Say('Kaen','kx_09',1)})};after(.5,go)}
+{const _es=epSay;epSay=function(who,text,prio){if(XO.lbSeq&&text!==XL3.kw_21)return;return _es.apply(this,arguments)}}
+{const _g=xoMirrorGo;xoMirrorGo=function(){XO.myEst=0;XO.lbSeq=0;return _g.apply(this,arguments)}}
+{const _r=revive;revive=function(){XO.lbSeq=0;return _r.apply(this,arguments)}}
