@@ -12120,20 +12120,36 @@ MU.keys.push('mus_mont','mus_pull','mus_brass');MU.gain=Object.assign(MU.gain||{
 /* ---------- layout ---------- */
 const MTC={x:9000,z:-40};                    /* the rock's centre */
 const MTE={x:9600,z:0},MTK={x:9800,z:0};     /* church interior, crypt */
-const MTW={out:{x0:8760,x1:9240,z0:-34,z1:470},egl:{x0:MTE.x-7,x1:MTE.x+7,z0:-16,z1:16},crypt:{x0:MTK.x-21,x1:MTK.x+21,z0:-21,z1:24}};
-const MTR=84,MTST={x0:8995.6,x1:9004.4,z0:-22,z1:46},MTSQ={x0:8993.5,x1:9006.5,z0:-31,z1:-21};
-const MT={g:null,out:null,egl:null,crypt:null,area:null,hid:[],boxes:{out:[],egl:[],crypt:[]},circ:{out:[],egl:[],crypt:[]},t:0,boot:0,fog0:null,s:{},wl:-2.4,cwl:-.3,cwlT:-.3,L:[],anim:[],qs:[],stakes:[],mat:{}};
+const MTW={out:{x0:8760,x1:9240,z0:-170,z1:470},egl:{x0:MTE.x-7,x1:MTE.x+7,z0:-16,z1:16},crypt:{x0:MTK.x-21,x1:MTK.x+21,z0:-21,z1:24}};
+const MTR=84;
+const MT={g:null,out:null,egl:null,crypt:null,area:null,hid:[],boxes:{out:[],egl:[],crypt:[]},circ:{out:[],egl:[],crypt:[]},t:0,boot:0,fog0:null,s:{},wl:-2.4,cwl:-.3,cwlT:-.3,L:[],anim:[],qs:[],stakes:[],mat:{},sol:[]};
 const mtX=()=>MODE!=='open'&&started;
 const mtIn=x=>x>8500&&x<10200;
 function mtSand(x,z){return (z-40)*-.004+Math.sin(x*.09)*Math.cos(z*.07)*.05}
-function mtStreetY(z){return clamp((42-z)*12/64,0,12)}
-function mtGround(x,z){
-  if(x<9300){const dx=x-MTC.x,dz=z-MTC.z,d=Math.hypot(dx,dz);
-    if(x>MTST.x0-1.2&&x<MTST.x1+1.2&&z>MTST.z0&&z<MTST.z1)return mtStreetY(z);
-    if(x>MTSQ.x0&&x<MTSQ.x1&&z>MTSQ.z0&&z<=MTST.z0+.01)return 12;
-    if(d<MTR)return 30;return Math.min(0,mtSand(x,z))}
+/* the rock is a height field that matches its mesh exactly; the Grande Rue is carved into it and spirals up the east face */
+const MTPROF=[[86.5,-1],[85,1],[84.2,1.5],[78,3],[72,8],[64,16],[56,25],[48,34],[41,43],[35,51],[29,58],[25,63],[21,68],[15,71],[0,72]];
+function mtRockY(r){const P_=MTPROF;if(r>=P_[0][0])return -9;for(let i=1;i<P_.length;i++)if(r>=P_[i][0]){const a=P_[i-1],b=P_[i],k=(a[0]-r)/(a[0]-b[0]);return a[1]+(b[1]-a[1])*k}return 72}
+const MTPA={t0:0,t1:1.42,r0:80,r1:47.5,w:3.3};
+function mtPR(t){return MTPA.r0+(MTPA.r1-MTPA.r0)*clamp((t-MTPA.t0)/(MTPA.t1-MTPA.t0),0,1)}
+function mtPY(t){return mtRockY(mtPR(t))}
+const MTSQY=mtRockY(47.5),MTCH={t:1.7,r:38};
+function mtPolar(x,z){const dx=x-MTC.x,dz=z-MTC.z;return{r:Math.hypot(dx,dz),t:Math.atan2(dx,dz)}}
+function mtPolarP(t,r,y){return V3(MTC.x+Math.sin(t)*r,y||0,MTC.z+Math.cos(t)*r)}
+function mtInPath(x,z,pad){const q=mtPolar(x,z);pad=pad||0;if(q.t<MTPA.t0-.04-pad/60||q.t>MTPA.t1+.06)return false;return Math.abs(q.r-mtPR(q.t))<MTPA.w+pad}
+function mtInSq(x,z,pad){const q=mtPolar(x,z);pad=pad||0;return q.t>1.42-pad/48&&q.t<1.98+pad/48&&q.r>42.5-pad&&q.r<53+pad}
+function mtInGate(x,z,pad){pad=pad||0;return Math.abs(x-MTC.x)<4.4+pad&&z>MTC.z+79.6-pad&&z<MTC.z+87.5}
+function mtGateY(z){return lerp(0,mtPY(0),clamp((MTC.z+87-z)/7,0,1))}
+/* solid boxes (optionally rotated) you collide with and can stand on */
+function mtSol(x0,x1,z0,z1,y0,y1){MT.sol.push({x:(x0+x1)/2,z:(z0+z1)/2,c:1,s:0,hx:(x1-x0)/2,hz:(z1-z0)/2,y0,y1})}
+function mtSolO(x,z,a,hx,hz,y0,y1){MT.sol.push({x,z,c:Math.cos(a),s:Math.sin(a),hx,hz,y0,y1})}
+function mtSolIn(S,x,z,pad){const dx=x-S.x,dz=z-S.z;return Math.abs(dx*S.c-dz*S.s)<S.hx+(pad||0)&&Math.abs(dx*S.s+dz*S.c)<S.hz+(pad||0)}
+function mtBaseY(x,z){if(mtInGate(x,z))return mtGateY(z);if(mtInSq(x,z))return MTSQY;const q=mtPolar(x,z);if(mtInPath(x,z))return mtPY(q.t);
+  let g=Math.max(Math.min(0,mtSand(x,z)),mtRockY(q.r));if(q.r>83.2&&q.r<84.8&&Math.abs(q.t)<1.95)g=10.4;return g}
+function mtGround(x,z,y){
+  if(x<9300){let g=mtBaseY(x,z);if(y!==undefined)for(const S of MT.sol)if(S.y1>g&&y>=S.y1-1.1&&mtSolIn(S,x,z))g=S.y1;return g}
   if(x<9700)return 0;
   const d=Math.hypot(x-MTK.x,z-MTK.z);if(z>19.5&&Math.abs(x-MTK.x)<2.6)return clamp((z-19.5)*.55,0,2.4);return d<8.5?1.2:d<12.5?.6:0}
+function mtBlocked(x,z,y){const g=mtGround(x,z,y);if(g>y+.95)return true;for(const S of MT.sol){if(y>=S.y1-.6||y+1.8<=S.y0)continue;if(mtSolIn(S,x,z,.45))return true}return false}
 
 /* ---------- textures ---------- */
 const MTX={};
@@ -12175,9 +12191,10 @@ function mtBuildOut(){const G=MT.out=new THREE.Group();MT.g.add(G);const T=mtTex
   {const wn=waterN.clone?waterN:null;const m=new THREE.Mesh(new THREE.PlaneGeometry(1600,1600,1,1),std({color:0x0d2230,roughness:.08,metalness:.55,transparent:true,opacity:.86,normalMap:wn,envMapIntensity:1.8}));if(m.material.normalMap)m.material.normalScale=new THREE.Vector2(.6,.6);
     m.rotation.x=-Math.PI/2;m.position.set(MTC.x,MT.wl,300);G.add(m);MT.sea=m}
   /* the rock */
-  {const prof=[[90,-1],[86,2],[80,7],[71,16],[62,25],[53,34],[45,43],[38,51],[31,58],[26,63],[22,68],[16,71],[0,72]];const pts=prof.map(q=>new THREE.Vector2(q[0],q[1]));
-    const geo=new THREE.LatheGeometry(pts,96);const p=geo.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const a=Math.atan2(x,z);const n=1+.06*Math.sin(a*7+y*.2)+.04*Math.sin(a*19-y*.4)+.03*Math.sin(y*.9+a*3);p.setX(i,x*n);p.setZ(i,z*n)}geo.computeVertexNormals();
-    const rt=T.rock.clone();rt.needsUpdate=true;rt.repeat.set(14,5);const m=new THREE.Mesh(geo,std({map:rt,color:0x8a8072,roughness:.95,emissive:0xffffff,emissiveMap:rt,emissiveIntensity:.16}));m.position.set(MTC.x,0,MTC.z);m.castShadow=m.receiveShadow=true;G.add(m);MT.rockProf=prof}
+  {const pts=[];for(let i=0;i<MTPROF.length-1;i++){const a=MTPROF[i],b=MTPROF[i+1],n=Math.max(1,Math.ceil(Math.hypot(a[0]-b[0],a[1]-b[1])/1.3));for(let k=0;k<n;k++)pts.push(new THREE.Vector2(a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n))}pts.push(new THREE.Vector2(0,72));
+    const geo=new THREE.LatheGeometry(pts,240);const p=geo.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const a=Math.atan2(x,z);const nk=y>13&&y<69?1:0;const n=1+nk*(.006*Math.sin(a*7+y*.2)+.004*Math.sin(a*19-y*.4));p.setX(i,x*n);p.setZ(i,z*n)}
+    const ix=geo.index.array,keep=[];const cut=(i)=>{const x=p.getX(i)+MTC.x,z=p.getZ(i)+MTC.z;const q=mtPolar(x,z);return mtInPath(x,z,-.4)||mtInSq(x,z,-.4)||mtInGate(x,z,-.3)||(q.t>1.55&&q.t<1.85&&q.r>32.5&&q.r<43.8)};for(let t=0;t<ix.length;t+=3){if(cut(ix[t])&&cut(ix[t+1])&&cut(ix[t+2]))continue;keep.push(ix[t],ix[t+1],ix[t+2])}geo.setIndex(keep);geo.computeVertexNormals();
+    const rt=T.rock.clone();rt.needsUpdate=true;rt.repeat.set(16,6);const m=new THREE.Mesh(geo,std({map:rt,color:0x8a8072,roughness:.95,emissive:0xffffff,emissiveMap:rt,emissiveIntensity:.16,side:THREE.DoubleSide}));m.position.set(MTC.x,0,MTC.z);m.castShadow=m.receiveShadow=true;G.add(m);MT.rockProf=MTPROF}
   /* ramparts with towers, crenellations and the King's Gate */
   {const wall=mtM(T.granite,40,2,{color:0x9a9284,roughness:.9,emissive:0x6a4a22,emissiveIntensity:.5});const H=10;
     for(const [a0,a1] of [[-1.95,-.075],[.075,1.95]]){const geo=new THREE.CylinderGeometry(MTR,MTR,H,90,1,true,a0,a1-a0);const m=new THREE.Mesh(geo,wall);m.material.side=THREE.DoubleSide;m.position.set(MTC.x,H/2,MTC.z);G.add(m);
@@ -12185,9 +12202,9 @@ function mtBuildOut(){const G=MT.out=new THREE.Group();MT.g.add(G);const T=mtTex
     const mer=new THREE.InstancedMesh(new THREE.BoxGeometry(1.3,1.4,1.1),wall,170);let n=0;const dm=new THREE.Object3D();for(let a=-1.95;a<=1.95&&n<170;a+=2.3/MTR){if(Math.abs(a)<.08)continue;dm.position.set(MTC.x+Math.sin(a)*MTR,H+.7,MTC.z+Math.cos(a)*MTR);dm.rotation.set(0,a,0);dm.updateMatrix();mer.setMatrixAt(n++,dm.matrix)}mer.count=n;G.add(mer);
     const roof=mtM(T.slate,3,3,{color:0x5a6272,roughness:.6});
     for(const a of [-.13,.13,-.7,.7,-1.3,1.3,-1.85,1.85]){const r=Math.abs(a)<.2?3.2:4.4,h=Math.abs(a)<.2?15:17;const x=MTC.x+Math.sin(a)*MTR,z=MTC.z+Math.cos(a)*MTR;const t=new THREE.Mesh(new THREE.CylinderGeometry(r,r*1.08,h,20),wall);t.position.set(x,h/2,z);t.castShadow=true;G.add(t);
-      const c=new THREE.Mesh(new THREE.ConeGeometry(r*1.2,r*1.9,20),roof);c.position.set(x,h+r*.95,z);G.add(c);MT.circ.out.push({x,z,r:r+.3})}
+      const c=new THREE.Mesh(new THREE.ConeGeometry(r*1.2,r*1.9,20),roof);c.position.set(x,h+r*.95,z);G.add(c);mtSol(x-r*.9,x+r*.9,z-r*.9,z+r*.9,-2,h)}
     /* gatehouse over the street mouth */
-    const gx=MTC.x,gz=MTC.z+MTR;sbBox(G,3,13,6,gx-6,6.5,gz,wall);sbBox(G,3,13,6,gx+6,6.5,gz,wall);sbBox(G,15,4.4,6,gx,10.8,gz,wall);
+    const gx=MTC.x,gz=MTC.z+MTR;sbBox(G,3,13,6,gx-6,6.5,gz,wall);sbBox(G,3,13,6,gx+6,6.5,gz,wall);sbBox(G,15,4.4,6,gx,10.8,gz,wall);mtSol(gx-7.5,gx-4.5,gz-3,gz+3,-2,13);mtSol(gx+4.5,gx+7.5,gz-3,gz+3,-2,13);mtSol(gx-7.5,gx+7.5,gz-3,gz+3,8.6,13);
     const arch=new THREE.Mesh(new THREE.TorusGeometry(4.5,.5,8,24,Math.PI),wall);arch.position.set(gx,8.6,gz+3.05);G.add(arch);
     const port=new THREE.Group();for(let i=-4;i<=4;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(.22,3.6,.22),std({color:0x1a1612,metalness:.6,roughness:.5}));b.position.set(gx+i*1,10.2,gz+2.4);port.add(b)}G.add(port);
     const sign=sbCanvas(512,96,(x,w,h)=>{x.fillStyle='#1d1812';x.fillRect(0,0,w,h);x.fillStyle='#e8c878';x.font='600 54px Fraunces,Georgia,serif';x.textAlign='center';x.textBaseline='middle';x.fillText('PORTE DU ROY',w/2,h/2+3)});
@@ -12197,12 +12214,12 @@ function mtBuildOut(){const G=MT.out=new THREE.Group();MT.g.add(G);const T=mtTex
   {const prism=mtPrism();const roofM=mtM(T.slate,2,2,{color:0x6a7080,roughness:.55,metalness:.1});const hm=T.h.map(h=>{const t=h.t.clone();t.needsUpdate=true;const e=h.em.clone();e.needsUpdate=true;return std({map:t,emissive:0xffffff,emissiveMap:e,emissiveIntensity:.9,roughness:.85})});
     const rAt=y=>{const P_=MT.rockProf;for(let i=1;i<P_.length;i++)if(y<=P_[i][1]){const a=P_[i-1],b=P_[i],k=(y-a[1])/(b[1]-a[1]);return a[0]+(b[0]-a[0])*k}return 0};
     let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
-    for(const y of [6,11,16,21,27,33,39,45]){const r=rAt(y)+.5;const span=y<20?2.3:2.9;for(let a=-span;a<=span;a+=(7+rnd()*4)/r){const sx=MTC.x+Math.sin(a)*r,sz=MTC.z+Math.cos(a)*r;if(Math.abs(sx-MTC.x)<10&&a>-.5&&a<.5&&y<16)continue;if(rnd()<.18)continue;
+    for(const y of [5,10,15,21,27,33,39,45,51]){const r=rAt(y)+.5;const span=y<20?2.3:2.9;for(let a=-span;a<=span;a+=(7+rnd()*4)/r){const sx=MTC.x+Math.sin(a)*r,sz=MTC.z+Math.cos(a)*r;if(mtInPath(sx,sz,9)||mtInSq(sx,sz,10)||mtInGate(sx,sz,8))continue;if(rnd()<.18)continue;
       const w=5+rnd()*4,h=5+rnd()*5,d=6+rnd()*3;const g=new THREE.Group();g.position.set(sx,y-2.5,sz);g.rotation.y=a;const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),hm[(rnd()*4)|0]);b.position.y=h/2;b.castShadow=true;g.add(b);
-      const ro=new THREE.Mesh(prism,roofM);ro.scale.set(w+.6,2.4+rnd()*1.6,d+.6);ro.position.y=h;ro.rotation.y=rnd()<.5?0:Math.PI/2;g.add(ro);if(rnd()<.35){const ch=new THREE.Mesh(new THREE.BoxGeometry(.8,2.2,.8),hm[3]);ch.position.set(w*.3,h+1.6,0);g.add(ch)}G.add(g)}}}
+      const ro=new THREE.Mesh(prism,roofM);ro.scale.set(w+.6,2.4+rnd()*1.6,d+.6);ro.position.y=h;ro.rotation.y=rnd()<.5?0:Math.PI/2;g.add(ro);mtSolO(sx,sz,a,w/2,d/2,y-2.5,y-2.5+h+1.2);if(rnd()<.35){const ch=new THREE.Mesh(new THREE.BoxGeometry(.8,2.2,.8),hm[3]);ch.position.set(w*.3,h+1.6,0);g.add(ch)}G.add(g)}}}
   /* the abbey: Merveille walls, nave, tower, spire and the golden archangel, floodlit */
   {const ab=mtM(T.granite,8,8,{color:0xd8c6a2,roughness:.85,emissive:0x5a3c14,emissiveIntensity:.55});const roof=mtM(T.slate,4,4,{color:0x4a525e,roughness:.5,emissive:0x0a0c10});const A=new THREE.Group();A.position.set(MTC.x,0,MTC.z-6);G.add(A);
-    const add=(w,h,d,x,y,z,m)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m||ab);b.position.set(x,y,z);b.castShadow=true;A.add(b);return b};
+    const add=(w,h,d,x,y,z,m)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m||ab);b.position.set(x,y,z);b.castShadow=true;A.add(b);if(w>3&&d>3)mtSol(MTC.x+x-w/2,MTC.x+x+w/2,MTC.z-6+z-d/2,MTC.z-6+z+d/2,y-h/2,y+h/2+(y>75?4:0));return b};
     add(46,34,22,0,52,-14);add(30,26,16,-8,56,3);add(18,22,16,20,58,4);add(12,30,12,-26,50,-4);
     for(let i=-2;i<=2;i++){add(2.2,30,3,i*9,53,-25.5);}
     const nave=add(40,16,13,0,79,0);const nr=new THREE.Mesh(mtPrism(),roof);nr.scale.set(13.6,7,40.6);nr.rotation.y=Math.PI/2;nr.position.set(0,87,0);A.add(nr);
@@ -12233,29 +12250,54 @@ function mtBuildOut(){const G=MT.out=new THREE.Group();MT.g.add(G);const T=mtTex
   mtBuildStreet(G);
   for(let i=0;i<4;i++){const L=new THREE.PointLight(0xffb060,0,22,1.8);scene.add(L);MT.L.push(L)}}
 function mtBuildStreet(G){const T=mtTex();const prism=mtPrism();const roofM=mtM(T.slate,2,2,{color:0x6a7080,roughness:.55});const hm=T.h.map(h=>{const t=h.t.clone();t.needsUpdate=true;const e=h.em.clone();e.needsUpdate=true;return std({map:t,emissive:0xffffff,emissiveMap:e,emissiveIntensity:.85,roughness:.85})});
-  /* cobbled ramp */
-  {const L=MTST.z1-MTST.z0,geo=new THREE.PlaneGeometry(MTST.x1-MTST.x0+2.4,L,1,32);geo.rotateX(-Math.PI/2);const p=geo.attributes.position;for(let i=0;i<p.count;i++){const z=p.getZ(i)+(MTST.z0+MTST.z1)/2;p.setY(i,mtStreetY(z)+.03)}geo.computeVertexNormals();
-    const m=new THREE.Mesh(geo,mtM(T.cobble,3,20,{color:0x9a8a78,roughness:.75}));m.position.set(MTC.x,0,(MTST.z0+MTST.z1)/2);m.receiveShadow=true;G.add(m);
-    const sq=new THREE.Mesh(new THREE.PlaneGeometry(MTSQ.x1-MTSQ.x0,MTSQ.z1-MTSQ.z0),mtM(T.cobble,4,4,{color:0x9a8a78,roughness:.75}));sq.rotation.x=-Math.PI/2;sq.position.set(MTC.x,12.03,(MTSQ.z0+MTSQ.z1)/2);G.add(sq)}
-  /* houses both sides, shop signs, lanterns */
-  const signs=['Crêperie','La Mère Poulard','Souvenirs','Hôtel du Guesclin','Biscuiterie','Le Mouton Blanc','Tisanes','Musée'];let si=0;
-  for(const s of[-1,1])for(let z=MTST.z1-4;z>MTST.z0+2;z-=8.6){const y=mtStreetY(z),h=8+((z*7+s*13)&3)*1.2,w=8;const x=s<0?MTST.x0-w/2:MTST.x1+w/2;const b=new THREE.Mesh(new THREE.BoxGeometry(w,h+4,8.2),hm[(Math.abs(z|0)+s+4)%4]);b.position.set(x,y-2+(h+4)/2,z);b.castShadow=true;G.add(b);
-    const ro=new THREE.Mesh(prism,roofM);ro.scale.set(w+.5,3,8.7);ro.position.set(x,y+h+2,z);G.add(ro);
-    mtCol('out',x-w/2,x+w/2,z-4.3,z+4.3,60);
-    if((si+(s>0?1:0))%2===0&&si<signs.length*2){const txt=signs[(si>>1)%signs.length];const c=sbCanvas(256,64,(x2,W2,H2)=>{x2.fillStyle='#2a1c12';x2.fillRect(0,0,W2,H2);x2.strokeStyle='#d8b060';x2.lineWidth=4;x2.strokeRect(4,4,W2-8,H2-8);x2.fillStyle='#f0d898';x2.font='600 30px Fraunces,Georgia,serif';x2.textAlign='center';x2.textBaseline='middle';x2.fillText(txt,W2/2,H2/2+2)});
-      const sg=new THREE.Mesh(new THREE.PlaneGeometry(2.4,.6),std({map:c,emissive:0x3a2a14,emissiveMap:c,side:THREE.DoubleSide}));sg.position.set(MTC.x+s*3.6,y+3.6,z+1.5);sg.rotation.y=Math.PI/2;G.add(sg);const bar=new THREE.Mesh(new THREE.BoxGeometry(1.4,.06,.06),std({color:0x111111,metalness:.8}));bar.position.set(MTC.x+s*4.1,y+4,z+1.5);G.add(bar)}
-    si++;
-    if(((z|0)&1)===0){const l=glowSprite(0xffb050,2.2,.85);l.position.set(MTC.x+s*4.1,y+4.4,z-2);G.add(l);const lb=new THREE.Mesh(new THREE.BoxGeometry(.3,.45,.3),new THREE.MeshBasicMaterial({color:0xffd080}));lb.position.copy(l.position);G.add(lb)}}
-  /* the square at the top: church of Saint-Pierre on the left, the abbey steps behind a gate */
-  const T2=mtTex(),gr=mtM(T2.granite,6,4,{color:0xa89c86,roughness:.85});
-  sbBox(G,14,16,16,MTSQ.x0-7,12+8,(MTSQ.z0+MTSQ.z1)/2,gr);mtCol('out',MTSQ.x0-14,MTSQ.x0,MTSQ.z0-2,MTSQ.z1+.5,80);
-  const door=new THREE.Mesh(new THREE.PlaneGeometry(2.6,4.2),std({color:0x3a2414,roughness:.6,emissive:0x2a1408}));door.position.set(MTSQ.x0+.02,14.1,-26);door.rotation.y=Math.PI/2;G.add(door);MT.door=door;
-  const dar=new THREE.Mesh(new THREE.TorusGeometry(1.4,.22,6,16,Math.PI),gr);dar.position.set(MTSQ.x0+.05,16.2,-26);dar.rotation.y=Math.PI/2;G.add(dar);
-  const st=new THREE.Mesh(new THREE.CylinderGeometry(.1,2.4,9,4),mtM(T2.slate,2,2,{color:0x4a525e}));st.position.set(MTSQ.x0-7,32.5,(MTSQ.z0+MTSQ.z1)/2);st.rotation.y=Math.PI/4;G.add(st);
-  sbBox(G,6,5,4,MTSQ.x1+3,14.5,-26,hm[1]);mtCol('out',MTSQ.x1,MTSQ.x1+8,MTSQ.z0,MTSQ.z1,60);
-  const gate=new THREE.Group();for(let i=-6;i<=6;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(.12,3.2,.12),std({color:0x101010,metalness:.7,roughness:.4}));b.position.set(MTC.x+i*.95,13.6,MTSQ.z0+.4);gate.add(b)}G.add(gate);mtCol('out',MTSQ.x0,MTSQ.x1,MTSQ.z0-4,MTSQ.z0+.6,60);
-  const stp=mtM(T2.granite,4,6,{color:0x8a7f6c});for(let i=0;i<10;i++)sbBox(G,10,.5,1.2,MTC.x,12.25+i*.5,MTSQ.z0-.8-i*1.2,stp);
-  const cl=glowSprite(0xffd090,3,.9);cl.position.set(MTSQ.x0+.5,17.6,-26);G.add(cl)}
+  const cob=mtM(T.cobble,1,1,{color:0x9a8a78,roughness:.75,side:THREE.DoubleSide});cob.map.repeat.set(1,1);const rockW=mtM(T.rock,1,1,{color:0x7a7064,roughness:.95,side:THREE.DoubleSide});const gr=mtM(T.granite,6,4,{color:0xa89c86,roughness:.85});
+  /* the cobbled street, flat across, climbing along its length */
+  const N=160,Q=sbQuads(),W1=sbQuads(),W2=sbQuads(),w=MTPA.w;let dist=0,prev=null;const pts=[];
+  for(let i=0;i<=N;i++){const t=MTPA.t0-.035+(MTPA.t1+.035-MTPA.t0)*i/N,r=mtPR(t),y=mtPY(t);const c=mtPolarP(t,r,y);if(prev)dist+=c.distanceTo(prev);prev=c;pts.push({t,r,y,d:dist})}
+  for(let i=0;i<N;i++){const A=pts[i],B=pts[i+1];const ai=mtPolarP(A.t,A.r-w,A.y+.04),ao=mtPolarP(A.t,A.r+w,A.y+.04),bi=mtPolarP(B.t,B.r-w,B.y+.04),bo=mtPolarP(B.t,B.r+w,B.y+.04);
+    Q.add(ai,ao,bo,bi,V3(0,1,0),v=>{const q=mtPolar(v.x,v.z);return[(q.r-A.r+w)/2.2,(A.d+(v.distanceTo(ai)<.01||v.distanceTo(ao)<.01?0:B.d-A.d))/2.2]});
+    /* uphill: the rock wall the street is cut into; downhill: the retaining wall */
+    const yi0=mtRockY(A.r-w)+1.2,yi1=mtRockY(B.r-w)+1.2;W1.add(V3(ai.x,A.y-.2,ai.z),V3(bi.x,B.y-.2,bi.z),V3(bi.x,Math.max(B.y,yi1),bi.z),V3(ai.x,Math.max(A.y,yi0),ai.z),V3(-Math.sin(A.t),0,-Math.cos(A.t)),v=>[(i%2)*.0+v.distanceTo(ai)/4,v.y/4]);
+    const yo0=mtRockY(A.r+w)-.6,yo1=mtRockY(B.r+w)-.6;W2.add(V3(ao.x,Math.min(yo0,A.y),ao.z),V3(bo.x,Math.min(yo1,B.y),bo.z),V3(bo.x,B.y+.7,bo.z),V3(ao.x,A.y+.7,ao.z),V3(Math.sin(A.t),0,Math.cos(A.t)),v=>[v.distanceTo(ao)/4,v.y/4])}
+  const st=Q.mesh(cob);st.material.map.repeat.set(1,1);st.receiveShadow=true;G.add(st);G.add(W1.mesh(rockW));G.add(W2.mesh(gr));
+  /* the gate courtyard ramp */
+  {const q=sbQuads(),z0=MTC.z+87.5,z1=MTC.z+79.4;q.add(V3(MTC.x-4.6,mtGateY(z0)+.03,z0),V3(MTC.x+4.6,mtGateY(z0)+.03,z0),V3(MTC.x+4.6,mtGateY(z1)+.03,z1),V3(MTC.x-4.6,mtGateY(z1)+.03,z1),V3(0,1,0),v=>[v.x/2.2,v.z/2.2]);G.add(q.mesh(cob));
+    for(const sx of[-1,1]){const wq=sbQuads();const x=MTC.x+sx*4.6;wq.add(V3(x,-1,z0),V3(x,-1,z1),V3(x,mtRockY(Math.hypot(sx*4.6,z1-MTC.z))+1.5,z1),V3(x,10.5,z0),V3(-sx,0,0),v=>[v.z/4,v.y/4]);G.add(wq.mesh(gr))}}
+  /* houses shoulder to shoulder along both sides, signs and lanterns */
+  const signs=['Crêperie','La Mère Poulard','Souvenirs','Hôtel du Guesclin','Biscuiterie','Le Mouton Blanc','Tisanes','Musée Grévin','Auberge','Chapelle'];let si=0;
+  for(const side of[-1,1]){let t=.07;while(t<MTPA.t1-.04){const rp=mtPR(t),py=mtPY(t),hw=3.7,dep=6.8,h=7.5+((si*7+side*3)%4)*1.3,rc=rp+side*(w+dep/2);const c=mtPolarP(t,rc,0);
+      if(rc+dep/2>82.6){si++;t+=.04;continue}const base=side<0?py-.5:Math.min(py-.5,mtRockY(rc+dep/2)-1.5),top=py+h;const g=new THREE.Group();g.position.set(c.x,base,c.z);g.rotation.y=t;G.add(g);
+      const b=new THREE.Mesh(new THREE.BoxGeometry(hw*2-.15,top-base,dep),hm[(si+(side>0?2:0))%4]);b.position.y=(top-base)/2;b.castShadow=true;g.add(b);
+      const ro=new THREE.Mesh(prism,roofM);ro.scale.set(hw*2+.3,2.6,dep+.5);ro.position.y=top-base;g.add(ro);if(si%3===0){const ch=new THREE.Mesh(new THREE.BoxGeometry(.7,2,.7),hm[3]);ch.position.set(hw*.5,top-base+1.8,0);g.add(ch)}
+      mtSolO(c.x,c.z,t,hw,dep/2,base,top+1.3);
+      if(si%2===0){const txt=signs[(si>>1)%signs.length];const cv=sbCanvas(256,64,(x2,W2_,H2)=>{x2.fillStyle='#2a1c12';x2.fillRect(0,0,W2_,H2);x2.strokeStyle='#d8b060';x2.lineWidth=4;x2.strokeRect(4,4,W2_-8,H2-8);x2.fillStyle='#f0d898';x2.font='600 30px Fraunces,Georgia,serif';x2.textAlign='center';x2.textBaseline='middle';x2.fillText(txt,W2_/2,H2/2+2)});
+        const sm=std({map:cv,emissive:0x3a2a14,emissiveMap:cv});const sp=mtPolarP(t,rp+side*(w-.7),py+3.4);for(const fl of[0,Math.PI]){const sg=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.55),sm);sg.position.copy(sp);sg.rotation.y=t+Math.PI/2+fl;G.add(sg)}const br=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,1.6),std({color:0x101010,metalness:.7}));br.position.copy(mtPolarP(t,rp+side*(w-.7),py+3.75));br.rotation.y=t;G.add(br)}
+      if(si%2===1){const l=glowSprite(0xffb050,2.2,.85);l.position.copy(mtPolarP(t,rp+side*(w-.35),py+4.2));G.add(l);const lb=new THREE.Mesh(new THREE.BoxGeometry(.3,.45,.3),new THREE.MeshBasicMaterial({color:0xffd080}));lb.position.copy(l.position);G.add(lb)}
+      si++;t+=(hw*2)/rp}}
+  /* the square at the top of the street */
+  {const q=sbQuads();const n=24;for(let i=0;i<n;i++){const t0=1.42+(1.98-1.42)*i/n,t1=1.42+(1.98-1.42)*(i+1)/n;q.add(mtPolarP(t0,42.5,MTSQY+.04),mtPolarP(t0,53,MTSQY+.04),mtPolarP(t1,53,MTSQY+.04),mtPolarP(t1,42.5,MTSQY+.04),V3(0,1,0),v=>[v.x/2.2,v.z/2.2])}G.add(q.mesh(cob));
+    const rw=sbQuads();for(let i=0;i<n;i++){const t0=1.42+(1.98-1.42)*i/n,t1=1.42+(1.98-1.42)*(i+1)/n;rw.add(mtPolarP(t0,53,mtRockY(53)-1),mtPolarP(t1,53,mtRockY(53)-1),mtPolarP(t1,53,MTSQY+.8),mtPolarP(t0,53,MTSQY+.8),V3(Math.sin(t0),0,Math.cos(t0)),v=>[v.distanceTo(mtPolarP(1.42,53))/3,v.y/3])}G.add(rw.mesh(gr));
+    const rw2=sbQuads();for(let i=0;i<n;i++){const t0=1.42+(1.98-1.42)*i/n,t1=1.42+(1.98-1.42)*(i+1)/n;rw2.add(mtPolarP(t0,42.5,MTSQY-.2),mtPolarP(t1,42.5,MTSQY-.2),mtPolarP(t1,42.5,mtRockY(42.5)+.8),mtPolarP(t0,42.5,mtRockY(42.5)+.8),V3(Math.sin(t0),0,Math.cos(t0)),v=>[v.distanceTo(mtPolarP(1.42,42.5))/3,v.y/3])}G.add(rw2.mesh(rockW));
+    const radW=(t,r0,r1,yb,yt,m)=>{const e=sbQuads();e.add(mtPolarP(t,r0,yb(r0)),mtPolarP(t,r1,yb(r1)),mtPolarP(t,r1,yt(r1)),mtPolarP(t,r0,yt(r0)),V3(Math.cos(t),0,-Math.sin(t)),v=>[v.x/3+v.z/3,v.y/3]);G.add(e.mesh(m))};
+    radW(1.98,42.5,53,()=>MTSQY-1,r=>Math.max(MTSQY+.8,mtRockY(r)+1),rockW);radW(1.42,42.5,44.2,()=>MTSQY-.2,r=>mtRockY(r)+1,rockW);radW(1.42,50.8,53,r=>mtRockY(r)-1,()=>MTSQY+.8,gr);
+    {const e=mtPolarP(1.99,47.75);mtSolO(e.x,e.z,1.99,.5,5.4,MTSQY-3,MTSQY+12)}
+    for(let i=0;i<5;i++){const t=1.47+i*.12;const l=glowSprite(0xffc070,2.6,.9);l.position.copy(mtPolarP(t,52.3,MTSQY+3.4));G.add(l);const pole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.09,3.4,6),std({color:0x101010,metalness:.7}));pole.position.copy(mtPolarP(t,52.3,MTSQY+1.7));G.add(pole)}}
+  /* the church of Saint-Pierre: its door faces the square */
+  {const C=new THREE.Group();const cp=mtPolarP(MTCH.t,MTCH.r,MTSQY);C.position.copy(cp);C.rotation.y=MTCH.t;G.add(C);const W_=13,D=12,H=15;
+    const body=new THREE.Mesh(new THREE.BoxGeometry(W_,H+8,D),gr);body.position.y=(H-8)/2;C.add(body);const roof=new THREE.Mesh(prism,mtM(T.slate,3,3,{color:0x4a525e}));roof.scale.set(W_+.6,5,D+.6);roof.rotation.y=Math.PI/2;roof.position.y=H;C.add(roof);
+    const tw=new THREE.Mesh(new THREE.BoxGeometry(4.2,9,4.2),gr);tw.position.set(-W_/2+2.4,H+4.5,D/2-2.4);C.add(tw);const spire=new THREE.Mesh(new THREE.CylinderGeometry(.1,3.2,10,4),mtM(T.slate,2,2,{color:0x4a525e}));spire.rotation.y=Math.PI/4;spire.position.set(-W_/2+2.4,H+14,D/2-2.4);C.add(spire);
+    const door=new THREE.Mesh(new THREE.PlaneGeometry(2.6,4.2),std({color:0x3a2414,roughness:.6,emissive:0x2a1408}));door.position.set(0,2.1,D/2+.03);C.add(door);MT.door=door;
+    const dar=new THREE.Mesh(new THREE.TorusGeometry(1.4,.22,6,16,Math.PI),gr);dar.position.set(0,4.2,D/2+.06);C.add(dar);const rose=new THREE.Mesh(new THREE.CircleGeometry(1.5,20),new THREE.MeshBasicMaterial({map:T.glass}));rose.position.set(0,8.4,D/2+.04);C.add(rose);
+    const cl=glowSprite(0xffd090,3,.9);cl.position.set(0,5.4,D/2+.6);C.add(cl);mtSolO(cp.x,cp.z,MTCH.t,W_/2,D/2,MTSQY-8,MTSQY+H+2);MT.doorP=mtPolarP(MTCH.t,MTCH.r+D/2+1.6,MTSQY)}
+  /* the Grand Degré: an arched passage into the rock, up to the abbey, closed by an iron gate */
+  {const t=1.93,ag=new THREE.Group();ag.position.copy(mtPolarP(t,42.45,MTSQY));ag.rotation.y=t;G.add(ag);const stn=mtM(T.granite,2,2,{color:0xb0a48e,roughness:.8});
+    for(const sx of[-1,1]){const pl=new THREE.Mesh(new THREE.BoxGeometry(.9,4.2,.9),stn);pl.position.set(sx*2,2.1,.2);ag.add(pl)}const ar=new THREE.Mesh(new THREE.TorusGeometry(2,.42,6,18,Math.PI),stn);ar.position.set(0,4.2,.2);ag.add(ar);
+    const dk=new THREE.Mesh(new THREE.PlaneGeometry(3.2,5.6),new THREE.MeshBasicMaterial({color:0x050404}));dk.position.set(0,2.8,.06);ag.add(dk);
+    for(let i=-6;i<=6;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(.1,4.6,.1),std({color:0x101010,metalness:.7,roughness:.4}));b.position.set(i*.26,2.3,.5);ag.add(b)}
+    const lt=glowSprite(0xffb050,2.4,.9);lt.position.set(2.9,3.6,.7);ag.add(lt);const lt2=glowSprite(0xffb050,2.4,.9);lt2.position.set(-2.9,3.6,.7);ag.add(lt2)}
+  /* a beacon over the next place you need to be */
+  {const g=new THREE.Group();g.userData.mtK=1;const col=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,60,10,1,true),new THREE.MeshBasicMaterial({color:0xffd890,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));col.position.y=30;g.add(col);g.add(gsAt0(0xffd890,8,.6,0,1.2,0));G.add(g);MT.beacon=g}}
+function gsAt0(c,s1,o,x,y,z){const g=glowSprite(c,s1,o);g.position.set(x,y,z);return g}
 
 /* ---------- inside Saint-Pierre ---------- */
 function mtBuildEgl(){const G=MT.egl=new THREE.Group();MT.g.add(G);const T=mtTex(),X=MTE.x;const gr=mtM(T.granite,6,3,{color:0x8a7e6a,roughness:.9,side:THREE.BackSide});
@@ -12305,7 +12347,7 @@ function mtEnter(where){mtWorld();if(CH2.zone==='latin')sbLeave();if(CH2.zone===
 function mtArea(a,at){MT.area=a;MT.out.visible=a==='out';MT.egl.visible=a==='egl';MT.crypt.visible=a==='crypt';for(let i=boxes.length-1;i>=0;i--)if(boxes[i].mt)boxes.splice(i,1);for(const b of MT.boxes[a])boxes.push(b);
   Object.assign(WB,MTW[a]);let p,face=Math.PI;
   if(at)p=at;else if(a==='out')p=CH2.st>=31?V3(MTC.x,0,40):V3(MTC.x+2,0,448);else if(a==='egl')p=V3(MTE.x,0,12.5);else p=V3(MTK.x,0,18);
-  if(a==='egl'&&at&&at.z<0)face=-Math.PI/2;if(a==='out'&&at)face=Math.PI/2;
+  if(a==='egl'&&at&&at.z<0)face=-Math.PI/2;if(a==='out'&&at)face=MTCH.t;
   p.y=groundAt(p.x,p.z);P.pos.copy(p);P.vy=0;P.flying=false;P.glide=false;P.face=face;yaw=face+Math.PI;SPAWN.copy(p);if(typeof NZ!=='undefined')NZ.cp.copy(p);
   const f=V3(Math.sin(face),0,Math.cos(face)),r=V3(f.z,0,-f.x);camera.position.set(p.x-f.x*9,p.y+4,p.z-f.z*9);
   const k=p.clone().addScaledVector(r,1.6).addScaledVector(f,-1.2),l=p.clone().addScaledVector(r,-1.6).addScaledVector(f,-1.2);
@@ -12321,15 +12363,15 @@ function mtGo(a,at){if(CS.active)return;x5White(.45,.35,()=>{mtArea(a,at)});sx('
 const MTI={cur:null};
 const mtNear=(x,z,r)=>Math.hypot(P.pos.x-x,P.pos.z-z)<r;
 function mtInterTick(){if(CS.active||!P.alive||MT.fight){if(MTI.cur){MTI.cur=null;x5Hint('')}return}const st=CH2.st;let pick=null;const add=(x,z,r,label,fn)=>{if(!pick&&mtNear(x,z,r))pick={label,fn}};
-  if(MT.area==='out'){if(st>=31)add(MTSQ.x0+.8,-26,3.4,'ENTER SAINT-PIERRE',()=>mtGo('egl'))}
-  else if(MT.area==='egl'){add(MTE.x,14.6,2.6,'BACK OUT TO THE GRANDE RUE',()=>mtGo('out',V3(MTSQ.x0+2.4,12,-26)));if(st===31&&!MT.s.read)add(MTE.x+3.3,-6,2.8,'READ THE PARISH REGISTER',mtRegister);if(st>=32)add(MTE.x+6.2,-10.5,3,'GO DOWN TO THE CRYPT',()=>mtGo('crypt'))}
+  if(MT.area==='out'){if(st>=31&&MT.doorP)add(MT.doorP.x,MT.doorP.z,3.6,'ENTER SAINT-PIERRE',()=>mtGo('egl'))}
+  else if(MT.area==='egl'){add(MTE.x,14.6,2.6,'BACK OUT TO THE GRANDE RUE',()=>mtGo('out',MT.doorP.clone()));if(st===31&&!MT.s.read)add(MTE.x+3.3,-6,2.8,'READ THE PARISH REGISTER',mtRegister);if(st>=32)add(MTE.x+6.2,-10.5,3,'GO DOWN TO THE CRYPT',()=>mtGo('crypt'))}
   else if(MT.area==='crypt'){if(P.pos.z>22)add(MTK.x,24.5,2.6,'BACK UP TO THE CHURCH',()=>mtGo('egl',V3(MTE.x+5.2,0,-10.5)))}
   const lab=pick?sbKey()+' · '+pick.label:'';if(!pick){if(MTI.cur){MTI.cur=null;x5Hint('')}return}if(MTI.cur!==pick.label){MTI.cur=pick.label;x5Hint(lab,()=>{MTI.cur=null;x5Hint('');pick.fn()})}else X5.hintFn=()=>{MTI.cur=null;x5Hint('');pick.fn()}}
 
 /* ---------- objectives ---------- */
 function mtObj(){if(CH2.zone!=='mont')return null;const st=CH2.st,d=(x,z)=>Math.round(Math.hypot(P.pos.x-x,P.pos.z-z))+'m';
   if(st===30)return MT.area==='out'?`Cross the flats to <b>the King's Gate</b> before the tide · ${d(MTC.x,MTC.z+MTR)}`:null;
-  if(st===31)return MT.area==='out'?`Climb the Grande Rue to <b>Saint-Pierre</b> · ${d(MTSQ.x0,-26)}`:MT.area==='egl'?'Find <b>the parish register</b>':null;
+  if(st===31)return MT.area==='out'?`Climb the Grande Rue to <b>Saint-Pierre</b> · ${MT.doorP?d(MT.doorP.x,MT.doorP.z):''}`:MT.area==='egl'?'Find <b>the parish register</b>':null;
   if(st===32)return MT.area==='crypt'?(MT.fight?'Break <b>the Drowned Bell</b> · your echoes fight with you':'Face <b>the Drowned Bell</b>'):'Go down to <b>the crypt</b> · the door by the altar';
   return null}
 
@@ -12389,38 +12431,47 @@ const MTF={out:{c:0x1c2234,d:.0019},egl:{c:0x120d08,d:.02},crypt:{c:0x061210,d:.
   if(CH2.zone==='paris'&&CH2.st>=30&&CH2.st<=33&&!MT.boot&&!CS.active){MT.boot=1;if(CH2.st===33)CH2.st=32;mtEnter(CH2.st>=32?'crypt':'out')}
   if(CH2.zone!=='mont'||!MT.g)return;MT.t+=dt;for(let i=MT.anim.length-1;i>=0;i--)if(MT.anim[i](dt)===false)MT.anim.splice(i,1);
   const F=MTF[MT.area]||MTF.out;scene.fog.color.lerp(new THREE.Color(F.c),Math.min(1,dt*3));scene.fog.density+=(F.d-scene.fog.density)*Math.min(1,dt*3);
-  if(P.flying){P.flying=false;P.vy=Math.min(P.vy||0,0);if(!MT.flyMsg){MT.flyMsg=1;toast('The salt fog clings to the broom. It will not lift here.','The Mont',false)}}
+  if(P.flying&&MT.area!=='out'){P.flying=false;P.vy=Math.min(P.vy||0,0);if(!MT.flyMsg){MT.flyMsg=1;toast('No room for the broom under these vaults.','The Mont',false)}}
   /* lights follow the action */
-  const Ls=MT.L;if(MT.area==='out'){const onSt=P.pos.z<50;Ls[0].position.set(MTC.x,mtStreetY(P.pos.z-6)+4,P.pos.z-6);Ls[0].intensity=onSt?1.3:0;Ls[1].position.set(MTC.x,16,-26);Ls[1].intensity=onSt?1.4:0;Ls[2].position.set(MTC.x,6,MTC.z+MTR+5);Ls[2].intensity=1.2;Ls[3].intensity=0}
+  const Ls=MT.L;if(MT.area==='out'){const q=mtPolar(P.pos.x,P.pos.z),onSt=q.r<84;Ls[0].position.set(P.pos.x,P.pos.y+5,P.pos.z);Ls[0].intensity=onSt?1.1:0;const dp=MT.doorP||V3(MTC.x,0,MTC.z);Ls[1].position.set(dp.x,dp.y+5,dp.z);Ls[1].intensity=onSt?1.5:0;Ls[2].position.set(MTC.x,7,MTC.z+MTR+5);Ls[2].intensity=1.2;Ls[3].intensity=0;
+    if(MT.beacon){const bt=CH2.st===30?V3(MTC.x,0,MTC.z+MTR+7):CH2.st===31&&MT.doorP?MT.doorP:null;MT.beacon.visible=!!bt&&!CS.active;if(bt){MT.beacon.position.set(bt.x,groundAt(bt.x,bt.z),bt.z);const dd=Math.hypot(P.pos.x-bt.x,P.pos.z-bt.z);MT.beacon.children[0].material.opacity=(.1+Math.sin(MT.t*2.4)*.04)*Math.min(1,dd/14)}}}
   else if(MT.area==='egl'){Ls[0].position.set(MTE.x,2.4,-12);Ls[0].intensity=1.6+Math.sin(MT.t*9)*.15;Ls[1].position.set(MTE.x+3.4,2.6,-6.6);Ls[1].intensity=1;Ls[2].position.set(MTE.x,4,6);Ls[2].intensity=.7;Ls[3].position.set(MTE.x+6,1.8,-10.5);Ls[3].intensity=CH2.st>=32?1.2:0;Ls[3].color.setHex(0x60ffd0);for(const f of MT.cand)f.scale.setScalar(.45+Math.random()*.12)}
   else if(MT.area==='crypt'){for(let i=0;i<3;i++){const a=MT.t*.2+i*2.1;Ls[i].position.set(MTK.x+Math.sin(a)*12,5,MTK.z+Math.cos(a)*12);Ls[i].intensity=1.1;Ls[i].color.setHex(0xff9a50)}Ls[3].position.set(MTK.x+3,9.5,MTK.z+4);Ls[3].intensity=2.2;Ls[3].color.setHex(0x40ffc8);for(const f of MT.pil)f.scale.setScalar(2.2+Math.random()*.4)}
   if(MT.angel)MT.angel.rotation.y+=dt*.05;
   /* the tide */
   if(MT.area==='out'){if(MT.s.tideOn&&CH2.st===30&&!CS.active)MT.wl=Math.min(.25,MT.wl+.0092*dt);MT.sea.position.y=MT.wl;if(waterN){}
     const g=groundAt(P.pos.x,P.pos.z),dep=MT.wl-g;const out=Math.hypot(P.pos.x-MTC.x,P.pos.z-MTC.z)>MTR;
-    if(out&&dep>.12&&P.alive&&!CS.active){P.chilled=Math.max(P.chilled,.25);MT.tdT=(MT.tdT||0)-dt;if(MT.tdT<=0){MT.tdT=.5;damagePlayer(maxHP()*.018*(dep>.5?2:1))}if(Math.random()<.5)SP.emit(V3(P.pos.x+rand(-.6,.6),MT.wl+.05,P.pos.z+rand(-.6,.6)),{c0:0xd8f4ff,c1:0x3a7a90,s0:.3,s1:.05,life:.5,speed:2,up:2,grav:6});if(!MT.s.tideMsg){MT.s.tideMsg=1;toast('The tide is in! Get to the Mont!','The flats',false)}}
+    if(out&&dep>.12&&P.pos.y<MT.wl+.4&&P.alive&&!CS.active){P.chilled=Math.max(P.chilled,.25);MT.tdT=(MT.tdT||0)-dt;if(MT.tdT<=0){MT.tdT=.5;damagePlayer(maxHP()*.018*(dep>.5?2:1))}if(Math.random()<.5)SP.emit(V3(P.pos.x+rand(-.6,.6),MT.wl+.05,P.pos.z+rand(-.6,.6)),{c0:0xd8f4ff,c1:0x3a7a90,s0:.3,s1:.05,life:.5,speed:2,up:2,grav:6});if(!MT.s.tideMsg){MT.s.tideMsg=1;toast('The tide is in! Get to the Mont!','The flats',false)}}
     for(const q of MT.qs){if(Math.hypot(P.pos.x-q.x,P.pos.z-q.z)<q.r&&P.alive&&!CS.active&&P.pos.y<.4){P.webbed=Math.max(P.webbed,.12);MT.sqT=(MT.sqT||0)-dt;if(MT.sqT<=0){MT.sqT=.9;sx('squelch',.55,null,{rate:rand(.85,1.1)});SM.emit(V3(P.pos.x,P.pos.y+.1,P.pos.z),{n:4,c0:0x3a3428,c1:0x100c08,s0:.4,s1:1,life:.8,a:.5})}if(!MT.s.qsMsg){MT.s.qsMsg=1;msSay('ms_11',1);toast('Quicksand. Jump and keep moving to pull free.','The flats',false)}}}
     if(CH2.st===30&&!CS.active){const z=P.pos.z,S=MT.s;
       if(z<392&&!S.b1){S.b1=1;msSay('ms_08')}
       if(z<330&&!S.w1){S.w1=1;mtWave(3)}
       if(z<235&&!S.w2){S.w2=1;sx('toll',.5,null,{rate:.7,wet:.8});P.shake=.3;msSay('ms_09',1);after(3.5,()=>msSay('ms_10'));mtWave(4)}
       if(z<140&&!S.w3){S.w3=1;sx('toll',.65,null,{rate:.7,wet:.8});P.shake=.4;mtWave(5)}
-      if(z<56&&Math.abs(P.pos.x-MTC.x)<6){CH2.st=31;ch2Save();writeSave();for(const e of enemies)if(!e.dead&&e.type==='mpil')removeEnemy(e);msSay('ms_12',1);sxStop('mtTide',3);try{gainXP(800)}catch(x){}x5Banner('THE KING\'S GATE','THE TIDE CLOSES BEHIND YOU','#9ad8ff',2.4,'#08121a')}}
-    if(CH2.st===31&&P.pos.z<22&&!MT.s.b13){MT.s.b13=1;msSay('ms_13')}}
+      if(Math.hypot(P.pos.x-MTC.x,P.pos.z-MTC.z)<MTR-1.2&&P.pos.x<9300){CH2.st=31;ch2Save();writeSave();for(const e of enemies)if(!e.dead&&e.type==='mpil')removeEnemy(e);msSay('ms_12',1);sxStop('mtTide',3);try{gainXP(800)}catch(x){}x5Banner('THE KING\'S GATE','THE TIDE CLOSES BEHIND YOU','#9ad8ff',2.4,'#08121a')}}
+    if(CH2.st===31&&mtPolar(P.pos.x,P.pos.z).t>.35&&mtPolar(P.pos.x,P.pos.z).r<82&&!MT.s.b13){MT.s.b13=1;msSay('ms_13')}}
   else if(MT.area==='crypt'){MT.cwl+=(MT.cwlT-MT.cwl)*Math.min(1,dt*.8);MT.cw.position.y=MT.cwl;MT.rune.rotation.z+=dt*.15;MT.rune.material.opacity=.2+Math.sin(MT.t*2)*.08;
     if(CH2.st===32&&!MT.s.cin&&!CS.active&&P.pos.z<17){MT.s.cin=1;mtCryptReveal()}}
   mtInterTick()}}
 
 /* ---------- world plumbing ---------- */
-{const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&mtIn(x))return mtGround(x,z);return _g.apply(this,arguments)}}
+{const _bl=blockedAt;blockedAt=function(x,z,y){if(MODE!=='open'&&CH2.zone==='mont'&&MT.area==='out'&&mtIn(x)&&x<9300){if(mtBlocked(x,z,y))return true;
+    if(!P.flying){const g1=mtGround(x,z,y),st=Math.hypot(x-P.pos.x,z-P.pos.z);if(st>1e-4&&g1>y-.05){const g0=mtGround(P.pos.x,P.pos.z,y),ux=(x-P.pos.x)/st,uz=(z-P.pos.z)/st,ga=mtGround(P.pos.x+ux*.9,P.pos.z+uz*.9,y);if(ga-g0>.95)return true}}return false}return _bl.apply(this,arguments)}}
+/* steep rock: you slide off it instead of standing on it */
+{const _up=updatePlayer;updatePlayer=function(dt){const r=_up.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='mont'&&MT.area==='out'&&P.alive&&!CS.active&&!P.flying&&P.onGround&&P.pos.x<9300){
+    const x=P.pos.x,z=P.pos.z,g=mtGround(x,z,P.pos.y),b=mtBaseY(x,z);if(g<=b+.05&&!mtInPath(x,z)&&!mtInSq(x,z)&&!mtInGate(x,z)){const e=.6,gx=(mtBaseY(x+e,z)-mtBaseY(x-e,z))/(2*e),gz=(mtBaseY(x,z+e)-mtBaseY(x,z-e))/(2*e),sl=Math.hypot(gx,gz);
+      if(sl>1.05){const k=Math.min(1,(sl-1.05)*2)*9*dt;const nx=x-gx/sl*k,nz=z-gz/sl*k;if(!mtBlocked(nx,nz,P.pos.y-2)){P.pos.x=nx;P.pos.z=nz;P.pos.y=Math.max(mtGround(nx,nz,P.pos.y),P.pos.y-k*sl)}}}}return r}}
+/* the camera does not go inside houses or the rock */
+{const _cb=camBlocked;camBlocked=function(x,y,z){if(MODE!=='open'&&CH2.zone==='mont'&&MT.area==='out'&&x>8500&&x<9300){if(y<mtBaseY(x,z)+.6)return true;for(const S of MT.sol)if(y>S.y0&&y<S.y1+1&&mtSolIn(S,x,z,.25))return true;return false}return _cb.apply(this,arguments)}}
+{const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&mtIn(x))return mtGround(x,z,y);return _g.apply(this,arguments)}}
 {const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&mtIn(x))return false;return _w.apply(this,arguments)}}
 {const _b=stBridge;stBridge=function(x,z){if(MODE!=='open'&&mtIn(x))return false;return _b.apply(this,arguments)}}
 {const _c=collide;collide=function(p,r,ghost,skipBlocks){if(MODE==='open'||!mtIn(p.x))return _c.apply(this,arguments);
   for(const b of boxes){if(!b.mt||p.y>b.h)continue;const cx=clamp(p.x,b.x0,b.x1),cz=clamp(p.z,b.z0,b.z1);const dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
     if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2);p.x=cx+dx/d*r;p.z=cz+dz/d*r}else{const l=p.x-b.x0,rr=b.x1-p.x,t=p.z-b.z0,bt=b.z1-p.z,m=Math.min(l,rr,t,bt);if(m===l)p.x=b.x0-r;else if(m===rr)p.x=b.x1+r;else if(m===t)p.z=b.z0-r;else p.z=b.z1+r}}}
   const C=MT.circ[MT.area]||[];for(const c of C){const dx=p.x-c.x,dz=p.z-c.z,d=Math.hypot(dx,dz),rr=c.r+r;if(d<rr&&d>1e-4){p.x=c.x+dx/d*rr;p.z=c.z+dz/d*rr}}
-  if(MT.area==='out'&&p.x<9300){const dx=p.x-MTC.x,dz=p.z-MTC.z,d=Math.hypot(dx,dz);const inSt=p.x>MTST.x0+r&&p.x<MTST.x1-r&&p.z<MTST.z1+2,inSq=p.z<=MTST.z0+.5&&p.x>MTSQ.x0+r&&p.x<MTSQ.x1-r&&p.z>MTSQ.z0;
-    if(d<MTR+r&&!inSt&&!inSq){if(p.z>MTST.z0&&p.z<MTC.z+MTR+r&&Math.abs(p.x-MTC.x)<MTST.x1-MTC.x+1.5){p.x=clamp(p.x,MTST.x0+r,MTST.x1-r)}else{const k=(MTR+r)/(d||1);p.x=MTC.x+dx*k;p.z=MTC.z+dz*k}}}
+  if(MT.area==='out'&&p.x<9300){const y=p.y;for(const S of MT.sol){if(y>=S.y1-.6||y+1.8<=S.y0)continue;const dx=p.x-S.x,dz=p.z-S.z;const lx=dx*S.c-dz*S.s,lz=dx*S.s+dz*S.c;const ex=S.hx+r*.75-Math.abs(lx),ez=S.hz+r*.75-Math.abs(lz);if(ex<=0||ez<=0)continue;
+      let nx=lx,nz=lz;if(ex<ez)nx=Math.sign(lx||1)*(S.hx+r*.75);else nz=Math.sign(lz||1)*(S.hz+r*.75);p.x=S.x+nx*S.c+nz*S.s;p.z=S.z-nx*S.s+nz*S.c}}
   if(MT.area==='crypt'){const dx=p.x-MTK.x,dz=p.z-MTK.z,d=Math.hypot(dx,dz);if(d>19.4&&!(Math.abs(dx)<2.3&&dz>0)){const k=19.4/d;p.x=MTK.x+dx*k;p.z=MTK.z+dz*k}}}}
 {const _mw=muWant;muWant=function(){if(started&&MODE!=='open'&&CH2.zone==='mont'&&!(typeof bmWant==='function'&&bmWant()))return MT.area==='crypt'&&!MT.fight?'mus_ownight':'mus_mont';return _mw.apply(this,arguments)}}
 {const _dr=distReal;distReal=function(u){if(MODE!=='open'&&CH2.zone==='mont')return Math.round(u)+' m';return _dr.apply(this,arguments)}}
@@ -12428,7 +12479,9 @@ const MTF={out:{c:0x1c2234,d:.0019},egl:{c:0x120d08,d:.02},crypt:{c:0x061210,d:.
   if(MT.area==='out'&&CH2.st===30){MT.wl=Math.min(MT.wl,mtSand(P.pos.x,P.pos.z+70));for(const e of enemies)if(!e.dead&&e.type==='mpil')removeEnemy(e)}if(MT.area==='crypt'&&MT.fight)try{mtBossReset()}catch(x){}}return r}}
 {const _dw=drawWorldMap;drawWorldMap=function(){if(MODE!=='open'&&CH2.zone==='mont'&&MT.area){worldMap.width=WB.x1-WB.x0+48;worldMap.height=WB.z1-WB.z0+48;MAPOX=WB.x0-24;MAPOZ=WB.z0-24;const x=worldMap.getContext('2d'),X=v=>v-MAPOX,Z=v=>v-MAPOZ;
   x.fillStyle=MT.area==='out'?'#2a2a26':'#1d1935';x.fillRect(0,0,worldMap.width,worldMap.height);
-  if(MT.area==='out'){x.fillStyle='#5a5448';x.beginPath();x.arc(X(MTC.x),Z(MTC.z),MTR,0,7);x.fill();x.fillStyle='#8a7a5a';x.fillRect(X(MTST.x0),Z(MTST.z0-9),MTST.x1-MTST.x0,MTST.z1-MTST.z0+9);x.fillStyle='#6a5a3a';for(const s of MT.stakes)x.fillRect(X(s.x)-3,Z(s.z),6,2);x.fillStyle='#302a22';for(const q of MT.qs){x.beginPath();x.arc(X(q.x),Z(q.z),q.r,0,7);x.fill()}}
+  if(MT.area==='out'){x.fillStyle='#5a5448';x.beginPath();x.arc(X(MTC.x),Z(MTC.z),MTR,0,7);x.fill();x.strokeStyle='#9a8a6a';x.lineWidth=6.6;x.beginPath();for(let t=0;t<=1.43;t+=.02){const c=mtPolarP(t,mtPR(t));t?x.lineTo(X(c.x),Z(c.z)):x.moveTo(X(c.x),Z(c.z))}x.stroke();x.lineWidth=9;x.beginPath();x.moveTo(X(MTC.x),Z(MTC.z+MTR+4));x.lineTo(X(MTC.x),Z(MTC.z+MTR-4));x.stroke();
+    x.fillStyle='#9a8a6a';x.beginPath();x.arc(X(MTC.x),Z(MTC.z),53,Math.PI/2-1.98,Math.PI/2-1.42);x.arc(X(MTC.x),Z(MTC.z),42.5,Math.PI/2-1.42,Math.PI/2-1.98,true);x.fill();
+    if(MT.doorP){x.fillStyle='#c8b080';const c=mtPolarP(MTCH.t,MTCH.r);x.beginPath();x.arc(X(c.x),Z(c.z),7,0,7);x.fill()}x.fillStyle='#6a5a3a';for(const s of MT.stakes)x.fillRect(X(s.x)-3,Z(s.z),6,2);x.fillStyle='#302a22';for(const q of MT.qs){x.beginPath();x.arc(X(q.x),Z(q.z),q.r,0,7);x.fill()}}
   else if(MT.area==='egl'){x.fillStyle='#5a4a3a';x.fillRect(X(MTE.x-7),Z(-16),14,32)}else{x.fillStyle='#3a4a46';x.beginPath();x.arc(X(MTK.x),Z(MTK.z),20,0,7);x.fill()}return}return _dw.apply(this,arguments)}}
 {const _t=toast;toast=function(msg,title){if(MT.muteT>time&&!(title&&/XVIII/.test(title)))return;return _t.apply(this,arguments)}}
 /* ================= XVIII · the Drowned Bell: every toll rewinds six seconds and leaves an echo of you behind ================= */
