@@ -120,3 +120,45 @@ const VOPK3={idx:{"mw_33":[0,16135],"kx_01":[16135,21777],"kx_02":[37912,30137],
   VO.raw[k]=VOPK3.p.then(b=>b&&b.byteLength>=ix[0]+ix[1]?b.slice(ix[0],ix[0]+ix[1]):fetch('assets/'+k+'.mp3').then(r=>r.ok?r.arrayBuffer():null).catch(()=>null));return VO.raw[k]}}
 /* no black and white in the last two scenes */
 {const _g=x5Grey;x5Grey=function(on){if(on&&(XO.ph===1.8||XO.ph===3||XO.ph===2))return _g(0);return _g.apply(this,arguments)}}
+
+/* ---------- 1) the crypt: everything heavy is built while the screen is black, and the cinematic starts on its own ---------- */
+{const _vs=x5VS;x5VS=function(a,b){if(a==='MAËLLE'&&b==='MAËLLE')return;return _vs.apply(this,arguments)}}
+{const _en=x5Enter;x5Enter=function(s){const r=_en.apply(this,arguments);if(CH2.st===20&&s>=X5CP[4]-1&&!XC.ph){try{XC.warm=1;xcStands();if(!XC.fig){const F=xcFig(1);F.g.position.copy(chairP());F.set('king');F.cyc=0;for(let k=0;k<30;k++)F.tick(.05)}
+      voPrefetch(['cr_01','cr_02'].map(k=>({who:'The Crown',text:XL3[k]})).concat([{who:'@',text:XL3.mw_10},{who:'Kaen',text:XL3.kw_12},{who:'Lyra',text:XL3.lw_10}]));renderer.compile(scene,camera)}catch(x){}
+    after(.45,()=>{if(X5.in&&CH2.st===20&&!XC.ph&&!CS.active){P.pos.copy(uP(0,223));P.pos.y=uFloor(223);xcIntro()}})}return r}}
+{const _d=x5Descend;x5Descend=function(){if(CH2.st===20){const f=fadeEl.style;const r=_d.apply(this,arguments);f.transition='opacity .3s';return r}return _d.apply(this,arguments)}}
+
+/* ---------- 2) the buttons under the map ---------- */
+(function(){const st=document.createElement('style');st.textContent=`#mapWrap .row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;width:118px}
+#mapWrap .row .mini{height:28px;min-width:28px;padding:0 10px;font-size:11px;letter-spacing:.03em;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;border-radius:14px;background:rgba(14,10,30,.82);box-shadow:inset 0 0 0 1px rgba(232,223,204,.18),0 2px 6px rgba(0,0,0,.35)}
+#mapWrap .row .mini:hover{background:rgba(40,28,70,.9)}#mapWrap .row .mini .ic{color:#f2a541;font-size:12px}#mapWrap .row .mini kbd{font:inherit;font-size:9px;opacity:.6;padding:1px 4px;border-radius:4px;background:rgba(255,255,255,.1)}
+#spellBtn{flex:1}#autoBtn{order:3;width:100%}#autoBtn .dot{width:7px;height:7px;border-radius:50%;background:#6a6478;box-shadow:0 0 0 2px rgba(255,255,255,.08)}#autoBtn.on .dot{background:#7dff9a;box-shadow:0 0 8px #7dff9a}#autoBtn em{font-style:normal;opacity:.65;font-size:10px}#autoBtn.on{background:rgba(40,70,48,.85)}`;document.head.appendChild(st)})();
+syncAuto=function(){const b=$('autoBtn');if(!b)return;b.classList.toggle('on',autoBolt);b.innerHTML='<span class="dot"></span>Autobolt<em>'+(autoBolt?'ON':'OFF')+'</em>'};
+{const dress=()=>{const b=document.getElementById('spellBtn');if(b&&!b._d){b._d=1;b.innerHTML='<span class="ic">✦</span>Spells'+(typeof isTouch!=='undefined'&&isTouch?'':'<kbd>K</kbd>')}const a=document.getElementById('autoBtn');if(a&&!a.querySelector('.dot'))try{syncAuto()}catch(x){}};setInterval(dress,800);setTimeout(dress,50)}
+
+/* ---------- 3) chapter cards with a small picture each, and a second Hollow Crown entry that starts outside ---------- */
+CHAPTERS.push({id:'crown2',n:'XVI · II',title:'The Hollow Crown: The Square',desc:'Straight out into the square. Every face it ever wore, then Kaen, then you.'});
+{const _cb=chapBoss;chapBoss=function(c){if(c.id==='crown2')return null;return _cb(c)}}
+{const _ac=applyChapter;applyChapter=function(id){if(id!=='crown2')return _ac.apply(this,arguments);_ac.call(this,'crown');CH2.st=21;ch2Save();XO.form=0;XO.ph=0;XO.rt=1.2;X5.intro=0;x5AbbeyShow(true);
+  P.pos.set(-122,0,-9872);P.face=-Math.PI/2;yaw=Math.PI/2;NZ.cp.set(-122,0,-9872);SPAWN.copy(NZ.cp);if(KFW.a)KFW.a.g.position.set(-120.6,0,-9870.4);lyraPlace(-120.6,-9873.6,-Math.PI/2);
+  after(.8,()=>toast('The Crown is waiting in the square outside the Abbey.','Chapter XVI · II: The Square',true))}}
+const CHART={kitsune:['#bfe6ff','#2a3a5a','fox'],beast:['#ff6a4a','#3a0c08','flame'],giant:['#9fe3ff','#0c2234','flake'],catdemon:['#6ab8ff','#0a1a3a','eye'],slug:['#ff5a5a','#300810','drop'],bilel:['#ffd060','#2a1c04','star'],
+  queen:['#6affd6','#062a24','wave'],illusion:['#c9a6ff','#1c0e34','sword'],crossing:['#8ab8ff','#0a1630','boat'],london:['#ffb070','#2a1406','tower'],escape:['#c0c8ff','#121630','wing'],silver:['#e0e8ff','#141a26','moon'],
+  smoke:['#9dffb0','#08200e','swirl'],under:['#60ff80','#06180a','arch'],crown:['#f2a541','#2a1604','crown'],crown2:['#ff9a4a','#2a0e04','crown']};
+const CHGLY={fox:'<path d="M6 8l8 6h12l8-6-3 14-11 10L9 22z" /><circle cx="15" cy="20" r="1.6" fill="#000"/><circle cx="25" cy="20" r="1.6" fill="#000"/>',
+  flame:'<path d="M20 4c3 7 10 10 10 19a10 10 0 0 1-20 0c0-5 3-7 4-11 2 3 2 5 4 6 1-5-1-9 2-14z"/>',flake:'<path d="M19 4h2v32h-2zM4 19h32v2H4zM8.3 9.7l1.4-1.4 22 22-1.4 1.4zM30.3 8.3l1.4 1.4-22 22-1.4-1.4z"/>',
+  eye:'<path d="M4 20c6-9 26-9 32 0-6 9-26 9-32 0z"/><path d="M19 12h2v16h-2z" fill="#000"/>',drop:'<path d="M20 5c6 9 11 14 11 20a11 11 0 0 1-22 0c0-6 5-11 11-20z"/>',
+  star:'<path d="M20 4l4 11 12 1-9 7 3 12-10-7-10 7 3-12-9-7 12-1z"/>',wave:'<path d="M4 24c4-6 8-6 12 0s8 6 12 0 6-5 8-3v11H4z"/><path d="M12 6l3 6 5-6 5 6 3-6v9H12z"/>',
+  sword:'<path d="M19 3h2v24h-2z"/><path d="M13 27h14v2H13z"/><path d="M19 29h2v7h-2z"/>',boat:'<path d="M5 24h30l-5 8H10z"/><path d="M19 6h2v18h-2z"/><path d="M21 8l10 12H21z"/>',
+  tower:'<path d="M16 34V12l4-8 4 8v22z"/><circle cx="20" cy="17" r="3" fill="#000"/>',wing:'<path d="M20 22C14 10 6 10 3 12c5 1 7 5 8 9-3-1-5 0-6 2 6 0 10 2 15 7 5-5 9-7 15-7-1-2-3-3-6-2 1-4 3-8 8-9-3-2-11-2-17 10z"/>',
+  moon:'<path d="M26 6a14 14 0 1 0 8 22A12 12 0 0 1 26 6z"/>',swirl:'<path d="M20 6a14 14 0 1 1-13 18c2 3 6 5 10 4a8 8 0 1 0-6-12c2-1 5-1 7 1a5 5 0 1 1-6 5"/>',
+  arch:'<path d="M8 34V16a12 12 0 0 1 24 0v18h-6V18a6 6 0 0 0-12 0v16z"/>',crown:'<path d="M5 28L7 12l8 8 5-12 5 12 8-8 2 16z"/><path d="M6 30h28v4H6z"/>'};
+(function(){const st=document.createElement('style');st.textContent=`.chap{flex-direction:row!important;align-items:flex-start;gap:12px!important;padding:12px!important}
+.chap .th{flex:0 0 58px;height:58px;border-radius:12px;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 4px 12px rgba(0,0,0,.35);overflow:hidden}
+.chap .th svg{width:34px;height:34px;filter:drop-shadow(0 0 6px currentColor)}.chap .th i{position:absolute;right:4px;bottom:3px;font-style:normal;font-size:9px;letter-spacing:.06em;color:rgba(255,255,255,.75);font-family:'Pirata One',Georgia,serif}
+.chap .th u{position:absolute;left:4px;top:4px;width:14px;height:14px;border-radius:50%;background:#2fbf71;color:#fff;font-size:9px;line-height:14px;text-align:center;text-decoration:none;box-shadow:0 0 6px rgba(47,191,113,.7)}
+.chap .tx{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}.chap:hover .th{transform:scale(1.04)}.chap .th{transition:transform .15s}`;document.head.appendChild(st)})();
+{const _rc=renderChapters;renderChapters=function(){_rc();const list=$('chapList');if(!list)return;try{const i1=chapIndexOf('crown2'),el=list.children[i1];if(el){const done=CH2.st>=23,cur=started&&CH2.st>=21&&CH2.st<23;el.className='chap'+(done?' done':'')+(cur?' cur':'')}
+    const ec=list.children[chapIndexOf('crown')];if(ec&&started&&CH2.st>=21&&CH2.st<23)ec.className=ec.className.replace(' cur','')}catch(x){}
+  [...list.children].forEach((el,i)=>{const c=CHAPTERS[i];if(!c||el.querySelector('.th'))return;const A=CHART[c.id]||['#c9a6ff','#1a1030','star'];const th=document.createElement('span');th.className='th';th.style.background=`radial-gradient(circle at 50% 38%,${A[0]}55,${A[1]} 72%)`;th.style.color=A[0];
+    th.innerHTML=`<svg viewBox="0 0 40 40" fill="${A[0]}">${CHGLY[A[2]]||CHGLY.star}</svg><i>${c.n}</i>`+(/\bdone\b/.test(el.className)?'<u>✓</u>':'');const tx=document.createElement('span');tx.className='tx';while(el.firstChild)tx.appendChild(el.firstChild);el.appendChild(th);el.appendChild(tx)})}}
