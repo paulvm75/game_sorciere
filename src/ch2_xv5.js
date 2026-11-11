@@ -196,3 +196,8 @@ function xmSagaTick(dt){const m=XO.mir;if(!m||m.dead)return;if(XO.clash){xmClash
   else if(T.u===2&&!T.end&&m.hp<=m.maxhp*.06+1){T.end=1;xmCalm(m)}}
 {const _ot=x5OTick;x5OTick=function(dt,dq){const st=CH2.st;if(st===21||st===22){try{kNoSpell(KFW.a);if(XO.e&&XO.e.type==='illusion')kNoSpell(XO.e.m.actor)}catch(x){}if(XO.ph===2){xoArena();XO.t+=dt;xmSagaTick(dt);return}}return _ot.apply(this,arguments)}}
 {const cl=()=>{xmUltraOff();XO.kf=null;XO.tn={};CS.speed=1};const _or=x5OReset;x5OReset=function(){cl();return _or.apply(this,arguments)};const _rv=x5ORevive;x5ORevive=function(){cl();return _rv.apply(this,arguments)}}
+
+/* voice pack 23: the chapter XVI rewrite ships as one file */
+const VOPK2={idx:{"kw_08b":[0,45183],"kw_09b":[45183,29301],"kw_19b":[74484,90323],"kw_20b":[164807,90741],"kw_21":[255548,40377],"kw_22":[295925,27629],"kw_23":[323554,45601],"kw_24":[369155,45810],"kw_25":[414965,39541],"kw_26":[454506,48736],"lw_08b":[503242,51661],"lw_09b":[554903,39541],"lw_16b":[594444,56886],"lw_17":[651330,47482],"mm_07":[698812,47273],"mw_07b":[746085,46437],"mw_22b":[792522,82381],"mw_24b":[874903,40377],"mw_27":[915280,51244],"mw_28":[966524,38078],"mw_29":[1004602,50826],"mw_30":[1055428,34107],"mw_31":[1089535,50617],"mw_32":[1140152,24285],"wh_01":[1164437,59185],"wh_02":[1223622,9448],"wh_03":[1233070,31599],"wh_04":[1264669,27211],"wh_05":[1291880,41839]},p:null};
+{const _vr=voRaw;voRaw=function(k){const ix=VOPK2.idx[k];if(!ix||VO.raw[k])return _vr(k);if(!VOPK2.p)VOPK2.p=fetch('assets/vo23.mp3').then(r=>r.ok?r.arrayBuffer():null).catch(()=>null);
+  VO.raw[k]=VOPK2.p.then(b=>b&&b.byteLength>=ix[0]+ix[1]?b.slice(ix[0],ix[0]+ix[1]):fetch('assets/'+k+'.mp3').then(r=>r.ok?r.arrayBuffer():null).catch(()=>null));return VO.raw[k]}}
