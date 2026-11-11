@@ -212,6 +212,11 @@ function mtBuildEgl(){const G=MT.egl=new THREE.Group();MT.g.add(G);const T=mtTex
   /* the crypt door: east wall */
   const dr=new THREE.Mesh(new THREE.PlaneGeometry(2,3.4),std({color:0x1a120c,roughness:.7,emissive:0x000000}));dr.position.set(X+6.97,1.7,-10.5);dr.rotation.y=-Math.PI/2;G.add(dr);MT.cdoor=dr;
   const cg=glowSprite(0x60ffd0,3.2,0);cg.position.set(X+6.4,1.7,-10.5);G.add(cg);MT.cglow=cg;
+  {const fr=mtM(T.granite,1,2,{color:0xc8bca4});sbBox(G,.4,3.8,.4,X+6.8,1.9,-11.7,fr);sbBox(G,.4,3.8,.4,X+6.8,1.9,-9.3,fr);sbBox(G,.4,.45,2.8,X+6.8,3.9,-10.5,fr);
+    const lab=sbCanvas(256,64,(x,w,h)=>{x.fillStyle='#1a140e';x.fillRect(0,0,w,h);x.fillStyle='#e0c890';x.font='600 34px Fraunces,Georgia,serif';x.textAlign='center';x.textBaseline='middle';x.fillText('CRYPTE',w/2,h/2+2)});
+    const lb=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.4),std({map:lab,emissive:0x2a2010,emissiveMap:lab}));lb.position.set(X+6.55,4.45,-10.5);lb.rotation.y=-Math.PI/2;G.add(lb);
+    const bm=new THREE.Group();const col=new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,7,10,1,true),new THREE.MeshBasicMaterial({color:0xffd890,transparent:true,opacity:.14,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));col.position.y=3.5;bm.add(col);
+    const ring=new THREE.Mesh(new THREE.RingGeometry(.55,.85,28),new THREE.MeshBasicMaterial({color:0xffd890,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;bm.add(ring);G.add(bm);MT.eBeam=bm}
   const ent=new THREE.Mesh(new THREE.PlaneGeometry(2.6,4),std({color:0x3a2414,roughness:.6}));ent.position.set(X,2,15.97);ent.rotation.y=Math.PI;G.add(ent)}
 
 /* ---------- Notre-Dame-sous-Terre: the flooded crypt ---------- */
@@ -267,7 +272,7 @@ function mtInterTick(){if(CS.active||!P.alive||MT.fight){if(MTI.cur){MTI.cur=nul
 function mtObj(){if(CH2.zone!=='mont')return null;const st=CH2.st,d=(x,z)=>Math.round(Math.hypot(P.pos.x-x,P.pos.z-z))+'m';
   if(st===30)return MT.area==='out'?`Cross the flats to <b>the King's Gate</b> before the tide · ${d(MTC.x,MTC.z+MTR)}`:null;
   if(st===31)return MT.area==='out'?`Climb the Grande Rue to <b>Saint-Pierre</b> · ${MT.doorP?d(MT.doorP.x,MT.doorP.z):''}`:MT.area==='egl'?'Find <b>the parish register</b>':null;
-  if(st===32)return MT.area==='crypt'?(MT.fight?'Break <b>the Drowned Bell</b> · your echoes fight with you':'Face <b>the Drowned Bell</b>'):'Go down to <b>the crypt</b> · the door by the altar';
+  if(st===32)return MT.area==='crypt'?(MT.fight?'Break <b>the Drowned Bell</b> · your echoes fight with you':'Face <b>the Drowned Bell</b>'):(MT.area==='egl'?`Go down to <b>the crypt</b> · glowing door right of the altar · ${Math.round(Math.hypot(P.pos.x-MTE.x-6,P.pos.z+10.5))} m`:'Go down to <b>the crypt</b> · inside Saint-Pierre');
   return null}
 
 /* ---------- staging + lines ---------- */
@@ -317,7 +322,7 @@ function mtRegister(){if(CS.active)return;MT.s.read=1;const lp=MT.lec.getWorldPo
     mtLine('ms_21',{fov:32,cam:k=>({pos:headOf(MTL_(),.6).add(V3(-1.1,.3,1.4)),look:headOf(MTL_(),.35)}),onStart:()=>{x4Talk('')}}),
     mtLine('ms_22',{onStart:()=>{x4Talk('@');P.face=Math.atan2(MTE.x+7-P.pos.x,-10.5-P.pos.z)}})],
     ()=>{mtEnd();renderer.domElement.style.filter='';MU.vd=0;CH2.st=32;ch2Save();writeSave();try{LYR.a.setBase('Idle_Loop',.6)}catch(x){}try{KFW.a.setBase('Idle_Loop',.4)}catch(x){}for(const f of MT.cand)f.material.color.setHex(0xffb050);
-      toast('Lyra is back on her feet, barely. The crypt door is open, east of the altar.','Saint-Pierre',true)})}
+      toast('Lyra is back on her feet, barely. The crypt door is open: the glowing door on the right of the altar.','Saint-Pierre',true)})}
 
 /* ---------- per frame ---------- */
 const MTF={out:{c:0x1c2234,d:.0019},egl:{c:0x120d08,d:.02},crypt:{c:0x061210,d:.024}};
@@ -330,7 +335,9 @@ const MTF={out:{c:0x1c2234,d:.0019},egl:{c:0x120d08,d:.02},crypt:{c:0x061210,d:.
   /* lights follow the action */
   const Ls=MT.L;if(MT.area==='out'){const q=mtPolar(P.pos.x,P.pos.z),onSt=q.r<84;Ls[0].position.set(P.pos.x,P.pos.y+5,P.pos.z);Ls[0].intensity=onSt?1.1:0;const dp=MT.doorP||V3(MTC.x,0,MTC.z);Ls[1].position.set(dp.x,dp.y+5,dp.z);Ls[1].intensity=onSt?1.5:0;Ls[2].position.set(MTC.x,7,MTC.z+MTR+5);Ls[2].intensity=1.2;Ls[3].intensity=0;
     if(MT.beacon){const bt=CH2.st===30?V3(MTC.x,0,MTC.z+MTR+7):CH2.st===31&&MT.doorP?MT.doorP:null;MT.beacon.visible=!!bt&&!CS.active;if(bt){MT.beacon.position.set(bt.x,groundAt(bt.x,bt.z),bt.z);const dd=Math.hypot(P.pos.x-bt.x,P.pos.z-bt.z);MT.beacon.children[0].material.opacity=(.1+Math.sin(MT.t*2.4)*.04)*Math.min(1,dd/14)}}}
-  else if(MT.area==='egl'){Ls[0].position.set(MTE.x,2.4,-12);Ls[0].intensity=1.6+Math.sin(MT.t*9)*.15;Ls[1].position.set(MTE.x+3.4,2.6,-6.6);Ls[1].intensity=1;Ls[2].position.set(MTE.x,4,6);Ls[2].intensity=.7;Ls[3].position.set(MTE.x+6,1.8,-10.5);Ls[3].intensity=CH2.st>=32?1.2:0;Ls[3].color.setHex(0x60ffd0);for(const f of MT.cand)f.scale.setScalar(.45+Math.random()*.12)}
+  else if(MT.area==='egl'){if(MT.eBeam){const t=CH2.st===31&&!MT.s.read?V3(MTE.x+3.3,0,-6):CH2.st>=32&&CH2.st<=33?V3(MTE.x+5.6,0,-10.5):null;MT.eBeam.visible=!!t&&!CS.active;if(t){MT.eBeam.position.copy(t);const k=.5+Math.sin(MT.t*3)*.5;MT.eBeam.children[0].material.opacity=.08+k*.08;MT.eBeam.children[1].scale.setScalar(1+k*.25)}}
+    if(CH2.st>=32&&!CS.active){MT.cglow.material.opacity=.55+Math.sin(MT.t*2.2)*.2;MT.cdoor.material.emissive.setHex(0x0a3a30)}
+    Ls[0].position.set(MTE.x,2.4,-12);Ls[0].intensity=1.6+Math.sin(MT.t*9)*.15;Ls[1].position.set(MTE.x+3.4,2.6,-6.6);Ls[1].intensity=1;Ls[2].position.set(MTE.x,4,6);Ls[2].intensity=.7;Ls[3].position.set(MTE.x+6,1.8,-10.5);Ls[3].intensity=CH2.st>=32?1.2:0;Ls[3].color.setHex(0x60ffd0);for(const f of MT.cand)f.scale.setScalar(.45+Math.random()*.12)}
   else if(MT.area==='crypt'){for(let i=0;i<3;i++){const a=MT.t*.2+i*2.1;Ls[i].position.set(MTK.x+Math.sin(a)*12,5,MTK.z+Math.cos(a)*12);Ls[i].intensity=1.1;Ls[i].color.setHex(0xff9a50)}Ls[3].position.set(MTK.x+3,9.5,MTK.z+4);Ls[3].intensity=2.2;Ls[3].color.setHex(0x40ffc8);for(const f of MT.pil)f.scale.setScalar(2.2+Math.random()*.4)}
   if(MT.angel)MT.angel.rotation.y+=dt*.05;
   /* the tide */
