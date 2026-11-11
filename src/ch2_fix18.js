@@ -62,8 +62,8 @@ xoMirror=function(){if(CS.active){after(.3,xoMirror);return}const old=XO.e;if(!o
       XO.ph=2;$('boss').classList.remove('hidden');bossRef=mir;P.invuln=1.5;x5Punch(12,.4)})};
 
 /* ---------- 4. the clash: a small instruction, no bar; it happens now and then during her limit breaker; it does not end the fight ---------- */
-(function(){const st=document.createElement('style');st.textContent=`#xmFcS{position:fixed;left:50%;bottom:24%;transform:translate(-50%,8px);z-index:40;opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;
-  padding:9px 18px;border-radius:999px;background:rgba(14,8,24,.62);border:1px solid rgba(255,200,120,.35);box-shadow:0 0 18px rgba(255,150,60,.25);color:#fff4dc;font:600 15px Outfit,system-ui,sans-serif;letter-spacing:.03em;text-shadow:0 1px 3px #000;white-space:nowrap}
+(function(){const st=document.createElement('style');st.textContent=`#xmFcS{position:fixed;left:50%;top:calc(24% + env(safe-area-inset-top,0px));max-width:92vw;white-space:normal;text-align:center;transform:translate(-50%,8px);z-index:40;opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;
+  padding:9px 18px;border-radius:999px;background:rgba(14,8,24,.62);border:1px solid rgba(255,200,120,.35);box-shadow:0 0 18px rgba(255,150,60,.25);color:#fff4dc;font:600 clamp(13px,1.6vw,16px) Outfit,system-ui,sans-serif;letter-spacing:.03em;text-shadow:0 1px 3px #000}
 #xmFcS.on{opacity:1;transform:translate(-50%,0)}#xmFcS b{color:#ffd27a}#xmFcS.hit{transform:translate(-50%,0) scale(1.05)}#xmFcS i{display:none}`;document.head.appendChild(st)})();
 xmFcUI=function(){let d=document.getElementById('xmFcS');if(d)return d;const touch=typeof isTouch!=='undefined'&&isTouch;d=document.createElement('div');d.id='xmFcS';d.innerHTML=touch?'Keep tapping the screen, <b>fast</b>, to push her back':'Keep tapping <b>SPACE</b>, fast, to push her back';d.appendChild(document.createElement('i'));document.body.appendChild(d);
   window.addEventListener('keydown',ev=>{if(!XO.fc)return;if(ev.code==='Space'){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)xmFcPush()}},true);
@@ -104,3 +104,7 @@ spawnStones=function(n){for(const s of stones)scene.remove(s.g);stones.length=0;
   if(!P.weak||!stones.length||!P.alive||CS.active)return;let bad=false;for(const s of stones){const p=s.g.position;if(s.zone!==CH2.zone||(CH2.zone==='latin'&&s.area!==SB.area)||Math.hypot(p.x-P.pos.x,p.z-P.pos.z)>260||!stOK(p.x,p.z,P.pos)){bad=true;break}}
   if(bad){for(const s of stones)if(s.g.parent)s.g.parent.remove(s.g);spawnStones(stones.length)}}}
 {const _ai=BOSSAI.illusion;BOSSAI.illusion=function(e,dt,d){const r=_ai.apply(this,arguments);if(e.xo)e.hpFloor=.02;return r}}
+
+/* the clash eases in: 1.8s where the beams meet and grow before anything is decided */
+{const _fs=xmFcStart;xmFcStart=function(m){const r=_fs.apply(this,arguments);if(XO.fc){XO.fc.intro=1.8;XO.fc.k=.5;for(const b of XO.fc.b)b.visible=false;CS.speed=1}return r}}
+{const _ft=xmFcTick;xmFcTick=function(dt){const C=XO.fc;if(C&&C.intro>0){const k=C.k,t=C.t;C.intro-=dt;const r=_ft.apply(this,arguments);if(XO.fc===C){C.k=Math.max(k,C.k);C.t=t;const g=1-Math.max(0,C.intro)/1.8;for(const b of C.b){b.visible=true;b.scale.x*=g;b.scale.z*=g}C.orb.scale.multiplyScalar(.3+.7*g)}return r}return _ft.apply(this,arguments)}}
