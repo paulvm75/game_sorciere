@@ -85,7 +85,8 @@ function sbBuildPlaza(){const G=SB.pl=new THREE.Group();SB.g.add(G);const X=SBP.
     const side=std({color:0xb8a888,roughness:.9}),roof=std({color:0x4a5260,roughness:.7});const mats=face==='x'?[fm,fm,roof,side,side,side]:[side,side,roof,side,fm,fm];
     const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mats);m.position.set((x0+x1)/2,h/2,(z0+z1)/2);G.add(m);
     const r=new THREE.Mesh(new THREE.CylinderGeometry(.01,1,1,4,1),roof);r.scale.set(face==='x'?d*.72:w*.72,4,face==='x'?w*.72:d*.72);r.rotation.y=Math.PI/4;r.position.set((x0+x1)/2,h+2,(z0+z1)/2);G.add(r);sbCol('pl',x0,x1,z0,z1,h)};
-  block(5932,5960,-70,44,20,'x');block(6040,6068,-70,44,22,'x');block(5956,6044,40,64,19,'z');block(5940,5975,-118,-70,24,'z');block(6025,6062,-118,-70,22,'z');
+  block(5932,5960,-70,44,20,'x');block(6040,6068,-70,44,22,'x');block(5956,6044,40,64,19,'z');block(5940,5975,-118,-70,24,'z');stone(6025,6062,-118,-70,22);
+  function stone(x0,x1,z0,z1,h){const w=x1-x0,d=z1-z0;const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),[sbMat(T.lime,d/8,h/6),sbMat(T.lime,d/8,h/6),std({color:0x4a5260,roughness:.7}),std({color:0xb8a888}),sbMat(T.lime,w/8,h/6),sbMat(T.lime,w/8,h/6)]);m.position.set((x0+x1)/2,h/2,(z0+z1)/2);G.add(m);sbCol('pl',x0,x1,z0,z1,h)}
   /* the chapel of the Sorbonne: portico, drum, dome, lantern */
   const lime=sbMat(T.lime,6,3),limeS=sbMat(T.lime,2,4),lead=std({color:0x5d6873,roughness:.45,metalness:.35}),gold=std({color:0xd8b060,emissive:0x3a2808,roughness:.35,metalness:.6});
   sbBox(G,50,22,40,X,11,-90,lime);sbCol('pl',5975,6025,-110,-70,40);
@@ -101,12 +102,18 @@ function sbBuildPlaza(){const G=SB.pl=new THREE.Group();SB.g.add(G);const X=SBP.
   /* clock + inscription glow over the portico */
   const ck=new THREE.Mesh(new THREE.CircleGeometry(1.6,32),std({color:0xf2ead8,emissive:0x8a7a50,roughness:.5}));ck.position.set(X,16,-69.3);G.add(ck);
   /* the Sorbonne gate, east of the chapel: double doors, porter's lodge */
-  const wood=std({color:0x3a2416,roughness:.75}),iron=std({color:0x1a1a1e,roughness:.4,metalness:.7});
-  const gl=new THREE.Group();gl.position.set(6029.5,0,-69.6);G.add(gl);sbBox(gl,4.5,7,.35,2.25,3.5,0,wood);const gr2=new THREE.Group();gr2.position.set(6038.5,0,-69.6);G.add(gr2);sbBox(gr2,4.5,7,.35,-2.25,3.5,0,wood);
-  for(const q of[gl,gr2])for(let k=0;k<3;k++)sbBox(q,4.2,.18,.42,q===gl?2.25:-2.25,1.4+k*2.2,0,iron);
-  const arch=new THREE.Mesh(new THREE.TorusGeometry(4.6,.4,8,24,Math.PI),limeS);arch.position.set(6034,7,-69.4);G.add(arch);
-  const cour=new THREE.Mesh(new THREE.PlaneGeometry(9,7),new THREE.MeshBasicMaterial({color:0xffc878,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));cour.position.set(6034,3.5,-69.95);G.add(cour);
-  SB.gate={l:gl,r:gr2,cour,open:0,tg:0};
+  const wood=std({color:0x2a160c,roughness:.55,emissive:0x0a0402}),goldG=std({color:0xe0b45a,emissive:0x3a2606,roughness:.3,metalness:.8});
+  /* a grand stone frame: pilasters, entablature, a carved arch with a goldG keystone */
+  for(const x of[6027.2,6040.8]){sbBox(G,1.6,10.5,1.6,x,5.25,-69.4,limeS);sbBox(G,2.1,.5,2.1,x,10.7,-69.4,lime);sbBox(G,2.1,.6,2.1,x,.3,-69.4,lime);const lp=glowSprite(0xffd08a,3,.75);lp.position.set(x,8.6,-68.2);G.add(lp);sbBox(G,.5,.8,.5,x,8.6,-68.4,goldG)}
+  sbBox(G,16,1.3,2,6034,11.6,-69.4,lime);sbBox(G,16.4,.25,2.2,6034,12.35,-69.4,goldG);
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(4.75,.55,10,32,Math.PI),limeS);arch.position.set(6034,6.6,-69.3);G.add(arch);const arch2=new THREE.Mesh(new THREE.TorusGeometry(4.2,.12,8,32,Math.PI),goldG);arch2.position.set(6034,6.6,-69);G.add(arch2);
+  sbBox(G,.9,1.3,.9,6034,11.25,-68.9,goldG);
+  const tym=new THREE.Mesh(new THREE.CircleGeometry(4.2,32,0,Math.PI),std({color:0x1a1410,emissive:0x0a0604}));tym.position.set(6034,6.6,-69.75);G.add(tym);
+  const gl=new THREE.Group();gl.position.set(6029.6,0,-69.55);G.add(gl);sbBox(gl,4.4,6.6,.3,2.2,3.3,0,wood);const gr2=new THREE.Group();gr2.position.set(6038.4,0,-69.55);G.add(gr2);sbBox(gr2,4.4,6.6,.3,-2.2,3.3,0,wood);
+  for(const q of[gl,gr2]){const sg=q===gl?1:-1;for(const yy of[1.2,3.3,5.4])sbBox(q,4.2,.12,.36,sg*2.2,yy,0,goldG);sbBox(q,.14,6.4,.36,sg*.15,3.3,0,goldG);sbBox(q,.14,6.4,.36,sg*4.25,3.3,0,goldG);
+    const rd=decal(runeTex,0x8ac8ff,2.6,true,.55);rd.rotation.x=0;rd.position.set(sg*2.2,3.6,.17);q.add(rd);const kn=new THREE.Mesh(new THREE.TorusGeometry(.22,.05,8,16),goldG);kn.position.set(sg*.6,3.1,.25);q.add(kn)}
+  const cour=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({transparent:true,opacity:0}));cour.visible=false;G.add(cour);
+  SB.gate={l:gl,r:gr2,cour,open:0,tg:0,portal:null};
   sbBox(G,2.4,2.8,2.4,6022.6,1.4,-67.2,lime);const lw=new THREE.Mesh(new THREE.PlaneGeometry(1.2,.9),new THREE.MeshBasicMaterial({color:0xffd690}));lw.position.set(6022.6,1.8,-65.99);G.add(lw);sbCol('pl',6021.4,6023.8,-68.4,-66,3);
   /* fountain */
   const fb=new THREE.Mesh(new THREE.CylinderGeometry(4.4,4.6,.9,40,1,true),lime);fb.position.set(X,.45,-16);G.add(fb);const fr=new THREE.Mesh(new THREE.TorusGeometry(4.45,.22,8,40),lime);fr.rotation.x=Math.PI/2;fr.position.set(X,.9,-16);G.add(fr);
@@ -251,32 +258,32 @@ function sbArea(a){SB.area=a;SB.pl.visible=a==='plaza';SB.tu.visible=a==='tun';f
 function sbLeave(){if(CH2.zone!=='latin')return;x5Hint('');SBI.cur=null;sbExamClose();for(let i=boxes.length-1;i>=0;i--)if(boxes[i].sb)boxes.splice(i,1);SB.g.visible=false;for(const o of SB.hid)o.visible=true;SB.hid=[];
   CH2.zone='paris';SB.area=null;Object.assign(WB,CH2.parisWB||{x0:-430,x1:430,z0:-330,z1:300});if(SB.fog0){scene.fog.color.copy(SB.fog0.c);scene.fog.density=SB.fog0.d}for(const b of SB.books)SB.g.remove(b.g);SB.books=[];if(SB.orr)SB.orr.ph='idle';KFW.pin=0;LYR.pin=0;try{drawWorldMap()}catch(x){}}
 function sbGo(a){if(CS.active)return;x5White(.45,.35,()=>{sbArea(a);if(a==='tun'&&!SB.s.tunIn){SB.s.tunIn=1;after(1,()=>toast('Les Réserves. Old stone, older books. Nothing down here wants to hurt you.','Under the Sorbonne',true))}});sx('pubdoor',.7,null,{rate:.8})}
-function sbGateOpen(now){SB.gate.tg=1;if(now)SB.gate.open=1}
+function sbGateOpen(now){const G=SB.gate;G.tg=1;if(now)G.open=1;if(!G.portal){const g=sbPortalMake(V3(6034,0,-69.25),0,{a:0xffd27a,b:0x7ab8ff,r:0xa8d8ff,c1:0x5a9cff,c2:0xffd27a,g:0x9ad0ff,sc:1.42});SB.pl.add(g);G.portal=g;g.userData.open(1);if(now)g.userData.k=1;if(!now){flash(V3(6034,3,-69),0x9ad0ff,16);sx('portal',.9,null,{rate:.9})}}}
 function sbDoorOpen(now){SB.door.tg=1;if(now)SB.door.open=1;const i=boxes.indexOf(SB.door.box);if(i>=0)boxes.splice(i,1)}
 
 /* ---------- camera helpers ---------- */
 const sbTC=(gp,lp,d,side,h)=>k=>{const s=gp(),L=lp();const v=V3(L.x-s.x,0,L.z-s.z);if(v.lengthSq()<.01)v.set(0,0,1);v.normalize();const r=V3(v.z,0,-v.x);return{pos:headOf(s,h||1.62).addScaledVector(v,(d||2.3)+k*.15).addScaledVector(r,side==null?.7:side),look:headOf(s,(h||1.62)-.06)}};
 function sbStage(npc,dist){const a=npc.g.position,f=V3(Math.sin(npc.g.rotation.y),0,Math.cos(npc.g.rotation.y));const p=a.clone().addScaledVector(f,dist||2.3);P.pos.set(p.x,groundAt(p.x,p.z),p.z);P.vy=0;P.flying=false;P.face=Math.atan2(a.x-p.x,a.z-p.z);
   const r=V3(f.z,0,-f.x);KFW.pin=1;LYR.pin=1;if(KFW.a){const k=p.clone().addScaledVector(f,1.5).addScaledVector(r,1.5);KFW.a.g.position.set(k.x,0,k.z);KFW.a.g.visible=true;x4Face(KFW.a,a)}if(LYR.a){const l=p.clone().addScaledVector(f,1.4).addScaledVector(r,-1.5);LYR.a.g.position.set(l.x,0,l.z);LYR.a.g.visible=true;x4Face(LYR.a,a)}return p}
-const sbNT=(a,on)=>{try{a.setBase(on?'Idle_Talking_Loop':'Idle_Loop',.3)}catch(x){}};
+const sbNT=(a,on)=>{try{a.setBase(on?(a.talkA||'Idle_Talking_Loop'):(a.idleA||'Idle_Loop'),.3)}catch(x){}};
 function sbEnd(){x4Talk('');P.heroAnim=null;KFW.pin=0;LYR.pin=0;for(const k in SB.npc)sbNT(SB.npc[k],0)}
 const SBK=()=>KFW.a?KFW.a.g.position:P.pos,SBL=()=>LYR.a?LYR.a.g.position:P.pos;
 function sbLine(who,key,npc,o){const n=npc;return Object.assign({who,text:XL4[key],fov:34,cam:who==='@'?sbTC(()=>P.pos,()=>n?n.g.position:SBL(),2.3,.6):who==='Kaen'?sbTC(SBK,()=>P.pos):who==='Lyra'?sbTC(SBL,()=>P.pos):sbTC(()=>n.g.position,()=>P.pos,2.4,.6,n===SB.npc.t?1.48:1.6),
   onStart:()=>{for(const k in SB.npc)sbNT(SB.npc[k],SB.npc[k]===n&&who!=='@'&&who!=='Kaen'&&who!=='Lyra');x4Talk(who==='@'||who==='Kaen'||who==='Lyra'?who:'')}},o||{})}
 
 /* ---------- the portal: Lyra's door, gold and rose ---------- */
-function sbPortalMake(p,ry){const g=new THREE.Group();g.position.copy(p);g.rotation.y=ry;g.userData.sbP=1;const C=new THREE.Group();C.position.y=2.5;g.add(C);
+function sbPortalMake(p,ry,pal){pal=pal||{};const g=new THREE.Group();g.position.copy(p);g.rotation.y=ry;g.userData.sbP=1;const C=new THREE.Group();C.position.y=2.5;g.add(C);
   const rm=c=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false});
-  const t1=new THREE.Mesh(new THREE.TorusGeometry(2.3,.08,10,120),rm(0xffd27a));C.add(t1);const t2=new THREE.Mesh(new THREE.TorusGeometry(2.62,.035,8,120),rm(0xff7a9a));C.add(t2);const t3=new THREE.Mesh(new THREE.TorusGeometry(2.0,.025,8,120),rm(0xffffff));C.add(t3);
-  const rn=decal(runeTex,0xffb0c0,6.6,true,.8);rn.rotation.x=0;C.add(rn);
-  const sw=new THREE.Mesh(new THREE.CircleGeometry(2.28,72),new THREE.ShaderMaterial({uniforms:{uT:{value:0},uA:{value:0}},transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
+  const t1=new THREE.Mesh(new THREE.TorusGeometry(2.3,.08,10,120),rm(pal.a||0xffd27a));C.add(t1);const t2=new THREE.Mesh(new THREE.TorusGeometry(2.62,.035,8,120),rm(pal.b||0xff7a9a));C.add(t2);const t3=new THREE.Mesh(new THREE.TorusGeometry(2.0,.025,8,120),rm(0xffffff));C.add(t3);
+  const rn=decal(runeTex,pal.r||0xffb0c0,6.6,true,.8);rn.rotation.x=0;C.add(rn);
+  const sw=new THREE.Mesh(new THREE.CircleGeometry(2.28,72),new THREE.ShaderMaterial({uniforms:{uT:{value:0},uA:{value:0},uC1:{value:new THREE.Color(pal.c1||0xff6b99)},uC2:{value:new THREE.Color(pal.c2||0xffd173)}},transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
     vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:'uniform float uT,uA;varying vec2 vU;void main(){vec2 p=vU*2.-1.;float r=length(p);float a=atan(p.y,p.x);float s=sin(a*5.+r*14.-uT*5.)*.5+.5;float s2=sin(a*3.-r*9.+uT*3.)*.5+.5;float core=exp(-r*r*5.);vec3 c=mix(vec3(1.,.42,.6),vec3(1.,.82,.45),s)*(.45+s2*.6)+vec3(1.)*core*1.3;float al=smoothstep(1.,.86,r)*(.4+s*.35+core)*uA;gl_FragColor=vec4(c,al);}'}));C.add(sw);
-  const gl=glowSprite(0xffb0a0,10,0);C.add(gl);scene.add(g);
+    fragmentShader:'uniform float uT,uA;uniform vec3 uC1,uC2;varying vec2 vU;void main(){vec2 p=vU*2.-1.;float r=length(p);float a=atan(p.y,p.x);float s=sin(a*5.+r*14.-uT*5.)*.5+.5;float s2=sin(a*3.-r*9.+uT*3.)*.5+.5;float core=exp(-r*r*5.);vec3 c=mix(uC1,uC2,s)*(.45+s2*.6)+vec3(1.)*core*1.3;float al=smoothstep(1.,.86,r)*(.4+s*.35+core)*uA;gl_FragColor=vec4(c,al);}'}));C.add(sw);
+  const gl=glowSprite(pal.g||0xffb0a0,10,0);C.add(gl);scene.add(g);if(pal.sc)g.scale.setScalar(pal.sc);
   const U=g.userData={k:0,tg:0,dead:0,C,open(v){U.tg=v},kill(){U.tg=0}};let em=0;
   SB.anim.push(dt=>{U.k+=(U.tg-U.k)*Math.min(1,dt*(U.tg>U.k?2.6:4));const k=U.k,e=k<1?1-Math.pow(1-k,3):1;const s=Math.max(.001,e*(1+Math.sin(SB.t*6)*.03));C.scale.set(s,s,s);t1.rotation.z+=dt*1.6;t2.rotation.z-=dt*2.4;t3.rotation.z+=dt*3.2;rn.rotation.z+=dt*.7;
     sw.material.uniforms.uT.value+=dt;sw.material.uniforms.uA.value=k;gl.material.opacity=.55*k;
-    em+=dt*60*k;while(em>1){em--;const a=Math.random()*TAU,R=2.4+Math.random()*.6;const w=C.localToWorld(V3(Math.cos(a)*R,Math.sin(a)*R,0));SP.emit(w,{n:1,c0:0xffffff,c1:Math.random()<.5?0xff7a9a:0xffd27a,s0:.28,s1:.03,life:.55,speed:1.4})}
+    em+=dt*60*k;while(em>1){em--;const a=Math.random()*TAU,R=2.4+Math.random()*.6;const w=C.localToWorld(V3(Math.cos(a)*R,Math.sin(a)*R,0));SP.emit(w,{n:1,c0:0xffffff,c1:Math.random()<.5?(pal.b||0xff7a9a):(pal.a||0xffd27a),s0:.28,s1:.03,life:.55,speed:1.4})}
     if(k>.3&&Math.random()<dt*2.2){const a=Math.random()*TAU;lightning(C.localToWorld(V3(Math.cos(a)*2.3,Math.sin(a)*2.3,0)),C.localToWorld(V3(Math.cos(a+.6)*3.4,Math.sin(a+.6)*3.4,0)),Math.random()<.5?0xffd27a:0xff8aa8)}
     if(U.tg===0&&k<.02){scene.remove(g);U.dead=1;return false}});return g}
 
@@ -386,7 +393,7 @@ function sbFinale(){if(CS.active)return;const X=SBT.x,desk=V3(X,0,-258.5);const 
   if(CH2.zone==='paris'&&CH2.st===23&&!SB.b23&&!CS.active){SB.b23=1;try{lyraToTroca()}catch(x){}CH2.obj=()=>CH2.zone==='paris'&&CH2.st===23?`Meet <b>Lyra</b> at the Trocadéro · she can open a door to the Sorbonne · ${Math.round(Math.hypot(P.pos.x+126,P.pos.z+112))}m`:null}
   if(CH2.zone!=='latin'||!SB.g)return;
   for(const a of SB.acts)if(a.g.parent&&a.g.parent.visible)try{a.update(dt)}catch(x){}
-  const v=SB.npc.v;if(v){v.g.position.y=.35+Math.sin(SB.t*1.3)*.15}
+  const v=SB.npc.v;if(v){v.g.position.y=.75+Math.sin(SB.t*1.3)*.15}
   const G=SB.gate;if(G){G.open+=(G.tg-G.open)*Math.min(1,dt*1.2);G.l.rotation.y=G.open*1.5;G.r.rotation.y=-G.open*1.5;G.cour.material.opacity=G.open*.55}
   const D=SB.door;if(D){D.open+=(D.tg-D.open)*Math.min(1,dt*.9);D.g.position.y=-D.open*7.2;D.rn.rotation.z+=dt*.6;D.dg.material.opacity=.5*(1-D.open)+Math.sin(SB.t*3)*.1}
   if(SB.area==='tun'){scene.fog.color.lerp(new THREE.Color(0x120c08),Math.min(1,dt*3));scene.fog.density+=(.03-scene.fog.density)*Math.min(1,dt*3);if(P.flying){P.flying=false;P.vy=Math.min(P.vy||0,0);if(!SB.flyMsg){SB.flyMsg=1;toast('No room to fly down here.','Les Réserves',false)}}if(P.pos.y>4.5){P.pos.y=4.5;P.vy=Math.min(P.vy||0,0)}
@@ -418,8 +425,11 @@ CHART.sorbonne=['#a8e8ff','#0c1a2a','book'];CHGLY.book='<path d="M6 9c5-2 10-2 1
 
 /* ---------- camera: never behind a wall or above the vaults down here ---------- */
 function sbSolid(x,z){for(const b of boxes)if(b.sb&&b.h>3&&x>b.x0&&x<b.x1&&z>b.z0&&z<b.z1)return true;return false}
-{const _uc=updateCamera;updateCamera=function(dt){const r=_uc.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='latin'&&SB.area){const T=V3(P.pos.x,P.pos.y+2.3,P.pos.z),C=camera.position,d=C.clone().sub(T),L=d.length();
-  if(L>.1){d.divideScalar(L);let ok=L;for(let s=.3;s<=L+.01;s+=.3){const x=T.x+d.x*s,y=T.y+d.y*s,z=T.z+d.z*s;if((SB.area==='tun'&&y>6.5)||sbSolid(x,z)){ok=Math.max(.5,s-.5);break}}if(ok<L){C.copy(T).addScaledVector(d,ok);camera.lookAt(T)}}}return r}}
+function sbCeil(x,z){const r=SBRM.R3;return x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]?10.6:6.8}
+{const _uc=updateCamera;updateCamera=function(dt){const r=_uc.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='latin'&&SB.area){const T=camTarget,D=camDesired,d=D.clone().sub(T),L=d.length();
+  if(L>.1){d.divideScalar(L);let ok=L;for(let s=.25;s<=L+.01;s+=.25){const x=T.x+d.x*s,y=T.y+d.y*s,z=T.z+d.z*s;if((SB.area==='tun'&&y>sbCeil(x,z)-.5)||sbSolid(x,z)){ok=Math.max(.7,s-.45);break}}
+    SB.cd=SB.cd==null||SB.cdA!==SB.area?ok:(ok<SB.cd?ok:SB.cd+(ok-SB.cd)*Math.min(1,dt*2.2));SB.cdA=SB.area;camera.position.copy(T).addScaledVector(d,Math.min(L,SB.cd));
+    if(P.shake>0){camera.position.x+=rand(-1,1)*P.shake*.3;camera.position.y+=rand(-1,1)*P.shake*.3}camera.lookAt(T)}}return r}}
 
 /* ---------- no Seine under the Sorbonne: no swimming, no bridges, no river push ---------- */
 {const _w=stWater;stWater=function(x,z){if(MODE!=='open'&&x>5500&&x<7000)return false;return _w.apply(this,arguments)}}
