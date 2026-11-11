@@ -685,7 +685,7 @@ addEventListener('keydown',e=>{if(!started||MODE==='open'||CS.active||CH2.st!==1
 function nzTowerRestore(){const g=NZ.ghost;if(g){g.g.visible=true;g.g.scale.setScalar(1);if(NZ.green){g.g.position.set(NZ.green.x,0,NZ.green.z);g.g.rotation.y=Math.PI*.15}try{g.setBase('Crouch_Idle_Loop',.2);g.update(.3)}catch(x){}}
   for(const l of NZQ.links){l.visible=true;l.scale.setScalar(1);l.rotation.x=0;if(l.userData.p0)l.position.copy(l.userData.p0);if(l.material&&'emissiveIntensity' in l.material)l.material.emissiveIntensity=.3}NZQ.dead=0;NZQ.hits=0;if(NZQ.spirit)NZQ.spirit.ty=-12}
 {const _ac=applyChapter;applyChapter=function(id){const r=_ac.apply(this,arguments);if(MODE==='open')return r;if(CH2.st===5&&CH2.zone==='north')nzTowerRestore();if(CH2.st<5){if(NZ.ghost)NZ.ghost.g.visible=false;for(const l of NZQ.links)l.visible=false;if(NZ.crown)NZ.crown.visible=false;NZ.afterDone=0}
-  if(LYR.a){const want=(CH2.zone==='paris'&&LYR.home)||(CH2.zone==='north'&&CH2.st>=11);if(!want)LYR.a.g.visible=false}LYR.pin=0;KFW.pin=0;X4.haze=0;return r}}
+  if(LYR.a){const want=(CH2.zone==='paris'&&LYR.home)||(CH2.zone==='north'&&CH2.st>=11)||CH2.zone==='latin';if(!want)LYR.a.g.visible=false}LYR.pin=0;KFW.pin=0;X4.haze=0;return r}}
 
 /* ================= the Warden catches up: CAST ANY SPELL, QUICK! ================= */
 {const _tc=tryCast;tryCast=function(i){const m0=P.mana;const r=_tc.apply(this,arguments);if(P.mana!==m0)EP_CAST=performance.now();return r}}

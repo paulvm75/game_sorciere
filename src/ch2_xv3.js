@@ -215,7 +215,7 @@ function xoMirror(){if(CS.active){after(.3,xoMirror);return}const old=XO.e;if(!o
         mir=xoMirrorGo(p);mir.invuln=true;mir.busy=999;mir.m.g.rotation.y=Math.atan2(hp.x-p.x,hp.z-p.z);mir.m.g.scale.setScalar(.01);xoSetGrey(mir.xo.L,true);$('boss').classList.add('hidden');XO.ph=1.8},
       update:(dt,k)=>{const g=old.m.g;if(k<.45){const q=k/.45;g.scale.set(1-q*.5,1-q*.75,1-q*.5);fig.g.scale.setScalar(.01+1.15*q)}else{g.visible=false;const q=(k-.45)/.55;fig.g.scale.setScalar(Math.max(.01,1.15*(1-q*q)));mir.m.g.scale.setScalar(Math.min(1,.2+q*.9));if(q>.8&&mir.xo.grey){mir.xo.grey=false;xoSetGrey(mir.xo.L,false);x5Impact(120,.2);x5Grey(0);sx('skyshatter',.7,null,{rate:.8});flash(headOf(p,1.2),0xffffff,26);x5Banner('MAËLLE','THE HOLLOW CROWN, WEARING YOU','#c9a6ff',2.4)}}
         if(Math.random()<.5)sx('heart',.5);SM.emit(V3(p.x+rand(-1,1),rand(.2,2.6),p.z+rand(-1,1)),{n:2,c0:0x5a6a5e,c1:0x06100a,s0:1.2,s1:3.4,life:1.3,a:.5,up:.8});camera.fov=46-k*14;camera.updateProjectionMatrix()}},
-    {who:'???',text:XL3.mm_01,fov:30,cam:k=>({pos:headOf(p,1.55).add(V3((hp.x>p.x?1:-1)*(2.3-k*.4),.05,.8)),look:headOf(p,1.5)}),onStart:()=>{xcFigOff();scene.remove(old.m.g);old.dead=true;mir.m.g.scale.setScalar(1);try{mir.m.actor.setBase('Idle_Talking_Loop',.3)}catch(x){}}},
+    {who:'The Crown, wearing Maëlle',text:XL3.mm_01,fov:30,cam:k=>({pos:headOf(p,1.55).add(V3((hp.x>p.x?1:-1)*(2.3-k*.4),.05,.8)),look:headOf(p,1.5)}),onStart:()=>{xcFigOff();scene.remove(old.m.g);old.dead=true;mir.m.g.scale.setScalar(1);try{mir.m.actor.setBase('Idle_Talking_Loop',.3)}catch(x){}}},
     {who:'@',text:XL3.mw_16,fov:36,cam:x4S(()=>P.pos,-1,2.2,1.65),onStart:()=>{x4Talk('@');try{mir.m.actor.setBase('Idle_Loop',.3)}catch(x){}}},
     {who:'Lyra',text:XL3.lw_12,fov:40,cam:k=>({pos:headOf(x4L(),1.1).add(V3(-2.8,.3,1.2)),look:headOf(x4L(),.8)})}],
     ()=>{x5Grey(0);xcFigOff();if(old.m.g.parent)scene.remove(old.m.g);old.dead=true;if(!mir){mir=xoMirrorGo(p);mir.m.g.rotation.y=Math.atan2(hp.x-p.x,hp.z-p.z)}P.heroAnim=null;X4.cc=null;CH2.st=Math.max(CH2.st,22);ch2Save();writeSave();if(mir){mir.m.g.scale.setScalar(1);mir.invuln=false;mir.busy=.9;xoSetGrey(mir.xo.L,false)}XO.ph=2;$('boss').classList.remove('hidden');bossRef=mir;P.invuln=1.5;x5VS('MAËLLE','MAËLLE','#c9a6ff','#7dff9a');x5Punch(12,.4)})}
@@ -245,7 +245,7 @@ function x5OTick(dt,dq){const st=CH2.st;if(st!==21&&st!==22)return;
   if(XO.ph===1){const e=XO.e;if(!e||e.dead)return;flick(e);if(XO.cmp)xoCmpTick(dt);else if(XO.form===5&&!XO.coil.length)xoCoil(true);
     if(!e.invuln&&e.hp<=e.maxhp*e.hpFloor+1){if(XO.form<4)xoMorph(XO.form+1);else if(XO.form===4)xoKaen();else xoMirror()}return}
   if(XO.ph===2){const m=XO.mir;if(!m||m.dead)return;if(XO.clash){xmClashTick(dt);return}flick(m);const r=m.hp/m.maxhp,T=XO.tn||(XO.tn={});
-    if(r<.82&&!T.a){T.a=1;x5Say('???','mm_02',1)}if(r<.62&&!T.b){T.b=1;x5Say('???','mm_03',1)}if(r<.3&&!T.c){T.c=1;x5Say('???','mm_04',1)}
+    if(r<.82&&!T.a){T.a=1;x5Say('The Crown, wearing Maëlle','mm_02',1)}if(r<.62&&!T.b){T.b=1;x5Say('The Crown, wearing Maëlle','mm_03',1)}if(r<.3&&!T.c){T.c=1;x5Say('The Crown, wearing Maëlle','mm_04',1)}
     if(r<.45&&!XO.cl&&m.busy<=0&&P.alive&&!P.flying){XO.cl=1;xmClash(m)}
     if(!m.invuln&&m.hp<=m.maxhp*m.hpFloor+1)xoEnd()}}
 {const _or=x5OReset;x5OReset=function(){if(XO.clash){const C=XO.clash;XO.clash=null;for(const b of C.b)scene.remove(b);scene.remove(C.orb);P.heroAnim=null}if(XO.cage){scene.remove(XO.cage);XO.cage=null}XO.rt=0;XO.cl=0;XO.tn={};return _or.apply(this,arguments)}}

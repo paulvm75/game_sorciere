@@ -65,7 +65,7 @@ function lbBoom(at,col,big){const c=at.clone();flash(c,col,big?40:26);x5Impact(b
 
 /* she breaks her limit when she is about to fall: scream, blast, 40% back, shields */
 function xmGoLB(m){XO.bk.lb=1;m.busy=1.6;m.ai.fly=null;if(m.m.broom)m.m.broom.visible=false;m.pos.y=groundAt(m.pos.x,m.pos.z);try{m.m.actor.setBase('Idle_Loop',.1);m.m.actor.fire('Spell_Simple_Shoot',.2)}catch(x){}
-  x5Say('???','mm_08',2);xmDarkOn(m);lbBoom(eCenter(m),0xffb030,true);x5Banner('LIMIT BREAKER','SHE WILL NOT FALL','#ffd060',1.6,'#000');SM.emit(eCenter(m),{n:90,c0:0x050403,c1:0,s0:2,s1:9,life:2,a:.9,speed:10});
+  x5Say('The Crown, wearing Maëlle','mm_08',2);xmDarkOn(m);lbBoom(eCenter(m),0xffb030,true);x5Banner('LIMIT BREAKER','SHE WILL NOT FALL','#ffd060',1.6,'#000');SM.emit(eCenter(m),{n:90,c0:0x050403,c1:0,s0:2,s1:9,life:2,a:.9,speed:10});
   const v=V3(P.pos.x-m.pos.x,0,P.pos.z-m.pos.z);if(v.lengthSq()<.01)v.set(1,0,0);v.normalize();if(P.pos.distanceTo(m.pos)<10){P.pos.x+=v.x*5;P.pos.z+=v.z*5;damagePlayer(xd(20))}
   const h0=m.hp,gain=m.maxhp*.4;addFx(null,1.6,(f,k)=>{if(m.dead)return;m.hp=Math.min(m.maxhp,h0+gain*k);},()=>{floatText(headOf(m.pos,2.8),'+40%','#ffd060',true)});
   m.hpFloor=.04;after(.8,()=>xmShieldUp(m));XO.shT=9;XO.skyT=2;
@@ -84,7 +84,7 @@ function xmFcStart(m){const mp=P.pos.clone();mp.y=groundAt(mp.x,mp.z);P.flying=f
   P.heroAnim='Spell_Simple_Idle_Loop';try{m.m.actor.setBase('Idle_Loop',.1);m.m.actor.fire('Spell_Simple_Shoot',.2)}catch(x){}xmFcUI().style.display='block';sx('dcharge',1);xmFs(.8,.8);x5Impact(80,.08);x5Say('@','mw_35',1)}
 function xmFcEnd(win){const C=XO.fc;if(!C)return;XO.fc=null;xmFcUI().style.display='none';for(const b of C.b){scene.remove(b);b.geometry.dispose()}scene.remove(C.orb);P.heroAnim=null;const m=C.m;if(!m||m.dead)return;
   if(win){lbBoom(eCenter(m),0xffa030,true);m.hp=Math.max(1,m.maxhp*.02);XO.bk.won=1;after(.6,xoEnd);return}
-  m.invuln=false;m.busy=.6;flash(headOf(P.pos,1),0xff5010,30);fireBurst(headOf(P.pos,.6),4,true);P.shake=1.6;x5Impact(120,.14);sx('impact',1,null,{rate:.6});x5Say('???','mm_12',1);
+  m.invuln=false;m.busy=.6;flash(headOf(P.pos,1),0xff5010,30);fireBurst(headOf(P.pos,.6),4,true);P.shake=1.6;x5Impact(120,.14);sx('impact',1,null,{rate:.6});x5Say('The Crown, wearing Maëlle','mm_12',1);
   const was=P.invuln;P.invuln=0;const dmg=1000;P.hp-=dmg;floatText(headOf(P.pos,2.2),'-'+dmg,'#ff4020',true);if(P.hp<=0){P.hp=1;damagePlayer(1e6)}P.invuln=Math.max(.6,0);
   m.hp=Math.min(m.maxhp,m.hp+m.maxhp*.08);XO.fcT=10}
 function xmFcTick(dt){const C=XO.fc,m=C.m;if(!m||m.dead||!P.alive){xmFcEnd(false);return}C.t+=dt;C.k-=dt*({easy:.13,medium:.17,hard:.2}[DIFF]||.17);C.skyT-=dt;
@@ -97,13 +97,13 @@ function xmFcTick(dt){const C=XO.fc,m=C.m;if(!m||m.dead||!P.alive){xmFcEnd(false
 
 /* ---------- in-fight lines ---------- */
 function xmBarks(m,dt){const B=XO.bk,r=m.hp/m.maxhp;const say=(k,who,key)=>{if(B[k])return;B[k]=1;x5Say(who,key,1)};
-  if(XO.t>6)say('a','???','mm_02');if(XO.t>14)say('lz1','Lyra','lz_01');if(r<.85)say('b','???','mm_09');if(r<.75)say('k1','Kaen','kx_01');if(r<.65)say('c','???','mm_03');if(r<.58&&!B.e1){B.e1=1;x5Say('@','mw_27',1);after(6.8,()=>{if(XO.ph===2)x5Say('???','mm_07',1)})}
-  if(r<.48)say('d','???','mm_10');if(r<.4)say('lz2','Lyra','lz_02');if(r<.34)say('f','???','mm_11');if(r<.26)say('g','@','mw_36');if(r<.2)say('h','???','mm_04');
+  if(XO.t>6)say('a','The Crown, wearing Maëlle','mm_02');if(XO.t>14)say('lz1','Lyra','lz_01');if(r<.85)say('b','The Crown, wearing Maëlle','mm_09');if(r<.75)say('k1','Kaen','kx_01');if(r<.65)say('c','The Crown, wearing Maëlle','mm_03');if(r<.58&&!B.e1){B.e1=1;x5Say('@','mw_27',1);after(6.8,()=>{if(XO.ph===2)x5Say('The Crown, wearing Maëlle','mm_07',1)})}
+  if(r<.48)say('d','The Crown, wearing Maëlle','mm_10');if(r<.4)say('lz2','Lyra','lz_02');if(r<.34)say('f','The Crown, wearing Maëlle','mm_11');if(r<.26)say('g','@','mw_36');if(r<.2)say('h','The Crown, wearing Maëlle','mm_04');
   if(B.lb&&P.lbT>0){B.wt=(B.wt==null?7:B.wt)-dt;if(B.wt<=0&&!CS.active){B.wt=rand(10,14);const w=['wh_02','wh_03','wh_04'][(B.wn=(B.wn||0)+1)%3];x5Say('Whispers',w,1);if(Math.random()<.6)after(3.6,()=>{if(XO.ph===2)x5Say('@','mw_32',1)})}}}
 
 /* ---------- the whole fight, no breaks ---------- */
 xmSagaTick=function(dt){const m=XO.mir;if(!m||m.dead)return;if(XO.fc){xmFcTick(dt);return}const r=m.hp/m.maxhp,B=XO.bk||(XO.bk={});XO.fcT=(XO.fcT||0)-dt;
-  if(m.lb){const c=eCenter(m);for(let i=0;i<2;i++)SM.emit(V3(c.x+rand(-.7,.7),c.y+rand(-1.1,1.2),c.z+rand(-.7,.7)),{c0:0x050403,c1:0,s0:1,s1:3.2,life:1,a:.8,up:2.6});if(Math.random()<.6)FL.emit(V3(c.x+rand(-.4,.4),c.y-1,c.z+rand(-.4,.4)),{n:1,c0:0xffd060,c1:0x2a1400,s0:.7,s1:.05,life:.7,up:3.2});if(Math.random()<dt*2.5)lightning(V3(c.x,c.y+1.6,c.z),V3(c.x+rand(-1.6,1.6),c.y+rand(-1,.6),c.z+rand(-1.6,1.6)),0xffd060);if(m.m.aura)m.m.aura.material.opacity=.38+Math.sin(time*7)*.08;if(m.m.fl)for(const q of m.m.fl)q.material.uniforms.uT.value=time;
+  if(m.lb){const c=eCenter(m);if(Math.random()<.22)SM.emit(V3(c.x+rand(-.7,.7),c.y+rand(-.6,1.2),c.z+rand(-.7,.7)),{c0:0x0a0806,c1:0,s0:.8,s1:2.2,life:.9,a:.22,up:2.4});if(Math.random()<.6)FL.emit(V3(c.x+rand(-.4,.4),c.y-1,c.z+rand(-.4,.4)),{n:1,c0:0xffd060,c1:0x2a1400,s0:.7,s1:.05,life:.7,up:3.2});if(Math.random()<dt*2.5)lightning(V3(c.x,c.y+1.6,c.z),V3(c.x+rand(-1.6,1.6),c.y+rand(-1,.6),c.z+rand(-1.6,1.6)),0xffd060);if(m.m.aura)m.m.aura.material.opacity=.38+Math.sin(time*7)*.08;if(m.m.fl)for(const q of m.m.fl)q.material.uniforms.uT.value=time;
     XO.shT=(XO.shT||9)-dt;if(!XO.sh&&XO.shT<=0&&!CS.active){XO.shT=rand(8,11);xmShieldUp(m)}}
   if(XO.sh)XO.sh.g.rotation.y+=dt*.8;
   if(!CS.active&&P.alive&&!m.invuln){XO.skyT=(XO.skyT==null?6:XO.skyT)-dt;if(XO.skyT<=0){XO.skyT=m.lb?rand(3,4):r<.5?rand(4.2,5.4):rand(5.5,7);XO.skyN=(XO.skyN||0)+1;const q=XO.skyN%3;if(q===0)xmMeteor(m);else xmSky(m,q===1?(m.lb?9:6):(m.lb?7:5),0xff6a1a,q===1?'FIRE RAIN':'BLACK FIRE','#ff9a4a',2.6,m.lb?20:16)}}

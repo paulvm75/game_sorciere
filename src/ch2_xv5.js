@@ -97,10 +97,10 @@ function xmDarkLB(m){xmFreeze(m);const G=xmGeo(m),{ep,pp,d,sd}=G;X4.cc=ep.clone(
     {dur:2,fov:40,cut:true,cam:k=>({pos:headOf(ep,1.1).addScaledVector(d,-3.4+k*.8).addScaledVector(sd,1.4),look:headOf(ep,1.1+k*.3)}),onStart:()=>{try{m.m.actor.setBase('Crouch_Idle_Loop',.2)}catch(x){}sx('riser',1,null,{rate:.6});sx('heart',.9)},
       update:(dt,k)=>{const c=eCenter(m);for(let i=0;i<2;i++)SM.emit(V3(c.x+rand(-.6,.6),c.y+rand(-1,1),c.z+rand(-.6,.6)),{c0:0x050403,c1:0,s0:.8,s1:2.6,life:.9,a:.7,up:2.4});P.shake=Math.max(P.shake,k*.4)}},
     /* she screams it out */
-    {who:'???',text:XL3.mm_08,fov:30,cut:true,cam:k=>({pos:headOf(ep,1.5).addScaledVector(d,-2.4-k*1.2).addScaledVector(sd,.5),look:headOf(ep,1.45)}),onStart:()=>{xmDarkOn(m);try{m.m.actor.setBase('Spell_Simple_Idle_Loop',.15)}catch(x){}const c=eCenter(m);x5Impact(150,.2);x5Punch(18,.6);P.shake=1.5;sx('ktf',.9,null,{rate:.7});sx('skyshatter',.7,null,{rate:.6});
+    {who:'The Crown, wearing Maëlle',text:XL3.mm_08,fov:30,cut:true,cam:k=>({pos:headOf(ep,1.5).addScaledVector(d,-2.4-k*1.2).addScaledVector(sd,.5),look:headOf(ep,1.45)}),onStart:()=>{xmDarkOn(m);try{m.m.actor.setBase('Spell_Simple_Idle_Loop',.15)}catch(x){}const c=eCenter(m);x5Impact(150,.2);x5Punch(18,.6);P.shake=1.5;sx('ktf',.9,null,{rate:.7});sx('skyshatter',.7,null,{rate:.6});
         flash(c,0xffd060,18);ring(m.pos,0x050403,1,16,.6);ring(m.pos,0xffc040,.5,12,.5);SM.emit(c,{n:90,c0:0x050403,c1:0x000000,s0:2,s1:9,life:2,a:.9,speed:10});SP.emit(c,{n:160,c0:0xffffff,c1:0xffc040,speed:16,life:1,s0:.7,s1:.05})},update:(dt,k)=>{aura();P.shake=Math.max(P.shake,.5)}},
     {dur:2.2,fov:48,cut:true,cam:k=>{const a=Math.atan2(-d.x,-d.z)+k*1.4;return{pos:V3(ep.x+Math.sin(a)*6,1.6+k,ep.z+Math.cos(a)*6),look:headOf(ep,1.2)}},onStart:()=>{x5Banner('LIMIT BREAKER','GOLD, AND BLACK UNDERNEATH','#ffd060',2.2,'#000')},update:()=>aura()},
-    {who:'???',text:XL3.mm_06,fov:30,cam:k=>({pos:headOf(ep,1.58).addScaledVector(d,-2.2+k*.3).addScaledVector(sd,.6),look:headOf(ep,1.55)}),update:()=>aura()},
+    {who:'The Crown, wearing Maëlle',text:XL3.mm_06,fov:30,cam:k=>({pos:headOf(ep,1.58).addScaledVector(d,-2.2+k*.3).addScaledVector(sd,.6),look:headOf(ep,1.55)}),update:()=>aura()},
     {who:'Kaen',text:XL3.kw_21,fov:38,cam:k=>({pos:headOf(kp(),1.3).add(V3(-2.6+k*.4,.2,1.2)),look:headOf(kp(),1.1)}),onStart:()=>{x4Talk('Kaen');x5Impact(50,.05)}},
     {who:'@',text:XL3.mw_26,fov:34,cam:x4S(()=>P.pos,1,2.2,1.65),onStart:()=>{x4Talk('@');P.heroAnim='Spell_Simple_Idle_Loop'}},
     {dur:3.2,fov:46,cut:true,cam:k=>{const a=P.face+k*2.6;return{pos:V3(P.pos.x+Math.sin(a)*5,P.pos.y+1.6+k*1.2,P.pos.z+Math.cos(a)*5),look:headOf(P.pos,1.2)}},onStart:()=>{x4Talk('');try{witchLimitBreak(false)}catch(x){console.warn(x)}x5Impact(110,.14);x5Banner('LIMIT BREAKER','MAËLLE','#ffd060',2.2,'#1a1206')},update:dt=>{P.lbRamp=Math.min(1,(P.lbRamp||0)+dt*.6);try{lbSet(P.lbRamp)}catch(x){}}}],
@@ -119,7 +119,7 @@ function xmEven(m){xmFreeze(m);const G=xmGeo(m),{ep,pp,d,sd,mid}=G;X4.cc=mid.clo
     {dur:1.6,fov:58,cut:true,cam:k=>({pos:V3(mid.x+sd.x*14,3+k*2,mid.z+sd.z*14),look:V3(mid.x,1.4,mid.z)}),onStart:()=>{CS.speed=1;try{x4Kin('punch')}catch(x){}kill();flash(mid,0xffffff,40);x5Impact(170,.25);x5Punch(22,.7);P.shake=1.8;sx('skyshatter',1);ring(mid,0xffc040,1,18,.6);ring(mid,0xff2030,.5,14,.5);SP.emit(V3(mid.x,1.4,mid.z),{n:220,c0:0xffffff,c1:0xffc040,speed:18,life:1,s0:.7,s1:.05});SM.emit(V3(mid.x,1.4,mid.z),{n:40,c0:0x140306,c1:0,s0:2,s1:7,life:1.4,a:.7,speed:10})},
       update:(dt,k)=>{const q=eOut(Math.min(1,k*2));const a=pp.clone().addScaledVector(d,-4.5*q),b=ep.clone().addScaledVector(d,4.5*q);P.pos.x=a.x;P.pos.z=a.z;m.pos.x=b.x;m.pos.z=b.z}},
     {who:'@',text:XL3.mw_27,fov:36,cam:x4S(()=>P.pos,1,2.2,1.6),onStart:()=>{P.heroAnim='Crouch_Idle_Loop';try{m.m.actor.setBase('Crouch_Idle_Loop',.2)}catch(x){}}},
-    {who:'???',text:XL3.mm_07,fov:30,cam:k=>({pos:headOf(m.pos,1.58).addScaledVector(d,-2.2).addScaledVector(sd,.6),look:headOf(m.pos,1.55)}),onStart:()=>{try{m.m.actor.setBase('Idle_Loop',.3)}catch(x){}}}],
+    {who:'The Crown, wearing Maëlle',text:XL3.mm_07,fov:30,cam:k=>({pos:headOf(m.pos,1.58).addScaledVector(d,-2.2).addScaledVector(sd,.6),look:headOf(m.pos,1.55)}),onStart:()=>{try{m.m.actor.setBase('Idle_Loop',.3)}catch(x){}}}],
     ()=>{kill();XO.tn.ev=2;P.lbT=Math.max(P.lbT||0,25);xmThaw(m)})}
 
 /* 3. Kaen tears out of the smoke to help, and gets thrown across the square */
@@ -184,7 +184,7 @@ function xmSagaTick(dt){const m=XO.mir;if(!m||m.dead)return;if(XO.clash){xmClash
     /* and she never stops throwing things down from the sky */
     if(!CS.active&&P.alive&&!m.invuln){XO.skyT=(XO.skyT==null?4:XO.skyT)-dt;if(XO.skyT<=0){XO.skyT=P.ultra>0?rand(3.2,4.2):rand(4,5.2);XO.skyN=(XO.skyN||0)+1;if(XO.skyN%3===0)xmMeteor(m);else xmSky(m,XO.skyN%3===1?7:5,0xffc040,XO.skyN%3===1?'GOLDEN RAIN':'BLACK STARS','#ffd060',2.6,18)}}}
   if(P.ultra>0)xmUltraTick(dt);if(XO.kf)xmKfTick(dt,m);
-  if(r<.9&&!T.a){T.a=1;x5Say('???','mm_02',1)}if(r<.72&&!T.b){T.b=1;x5Say('???','mm_03',1)}if(r<.58&&!T.c){T.c=1;x5Say('???','mm_04',1)}
+  if(r<.9&&!T.a){T.a=1;x5Say('The Crown, wearing Maëlle','mm_02',1)}if(r<.72&&!T.b){T.b=1;x5Say('The Crown, wearing Maëlle','mm_03',1)}if(r<.58&&!T.c){T.c=1;x5Say('The Crown, wearing Maëlle','mm_04',1)}
   m.hpFloor=T.lb!==2?.5:T.ev!==2?.4:T.u!==2?.22:.06;
   if(CS.active||!P.alive)return;
   if(T.k===2&&!T.kd&&!m.invuln&&((XO.kf&&XO.kf.t>16)||r<=.225)){T.kd=1;xmKaenDown(m);return}
