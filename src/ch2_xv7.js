@@ -68,3 +68,19 @@ const VOPK4={idx:{"kx_04":[0,34943],"mw_37":[34943,24285],"kx_05":[59228,20106],
 /* the limit breaker badge: minutes, ×2, and no clock on easy in the mirror fight */
 {const _lt=lbTick;lbTick=function(dt){const r=_lt.apply(this,arguments);try{if(lbBadge&&lbBadge.style.display!=='none'&&P.lbT>0){const t=Math.ceil(P.lbT),mm=Math.floor(t/60),ss=String(t%60).padStart(2,'0');const inf=DIFF==='easy'&&XO.ph===2&&XO.bk&&XO.bk.my!=null;
   lbBadge.textContent=(P.lb2?'LIMIT BREAKER ×2':'LIMIT BREAKER')+(inf?' · ∞':' '+(t>=60?mm+':'+ss:t+'s'));lbBadge.style.background=P.lb2?'linear-gradient(90deg,#06102a,#16306a)':'';lbBadge.style.color=P.lb2?'#bcdcff':''}}catch(x){}return r}}
+
+/* ---------- the witch card on the title screen: hidden, one small link opens it ---------- */
+(function(){const st=document.createElement('style');st.textContent=`#mmCard2.mmHide,#start.mm2>#mmCard2.mmHide{display:none!important}
+#mmCardTog{position:fixed;display:none;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:61;padding:6px 13px;border:0;border-radius:99px;background:rgba(14,10,30,.55);backdrop-filter:blur(6px);color:rgba(243,227,192,.75);font:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(243,227,192,.18)}
+#mmCardTog:hover{color:#f2a541;background:rgba(30,20,50,.75)}#mmCardTog.open{bottom:auto;top:calc(22px + env(safe-area-inset-top,0px))}`;document.head.appendChild(st)})();
+{const _mc=mmCard2;mmCard2=function(){const r=_mc.apply(this,arguments);try{const C=$('mmCard2'),S=$('start');if(!C||!S)return r;if(!C.dataset.tog){C.dataset.tog=1;C.classList.add('mmHide')}let b=$('mmCardTog');if(!b){b=document.createElement('button');b.id='mmCardTog';document.body.appendChild(b);setInterval(()=>{const S2=$('start');const on=S2&&S2.classList.contains('mm2')&&!S2.classList.contains('cv')&&getComputedStyle(S2).display!=='none'&&!S2.classList.contains('hidden');b.style.display=on?'block':'none'},300);b.addEventListener('click',e=>{e.stopPropagation();const c=$('mmCard2');if(!c)return;c.classList.toggle('mmHide');lab()})}
+  const lab=()=>{const c=$('mmCard2'),ni=$('nameIn'),lv=save&&save.level||1;const open=c&&!c.classList.contains('mmHide');b.classList.toggle('open',open);b.textContent=open?'✕ Close':'✦ '+((ni&&ni.value)||HERO.name||'Maëlle')+' · Lv '+lv};lab()}catch(x){}return r}}
+/* ---------- easy mode against yourself: 32% harder than last pass, harder still once she breaks her limit ---------- */
+xmDmg=function(b){return b*1.25*(1+.2*(P.level-1))*({easy:.57,medium:.95,hard:1.2}[DIFF]||.95)*(DIFF==='easy'&&XO.mir&&XO.mir.lb?1.2:1)};
+{const _g=xoMirrorGo;xoMirrorGo=function(p){const e=_g(p);if(DIFF==='easy'){e.maxhp=Math.round(e.maxhp*1.32);e.hp=e.maxhp}return e}}
+{const _sky=xmSagaTick;xmSagaTick=function(dt){if(DIFF==='easy'&&XO.mir&&XO.mir.lb&&XO.skyT!=null)XO.skyT-=dt*.3;return _sky.apply(this,arguments)}}
+/* Kaen's advice once she is in limit breaker */
+XL3.kx_09="She's stronger now! Teleport, dodge as much as you can, and hit her when you can!";VO_MAP[XL3.kx_09]='kx_09';
+{const _lb=xmGoLB;xmGoLB=function(m){const r=_lb.apply(this,arguments);if(XO.bk&&!XO.bk.k9&&XO.bk.lb){XO.bk.k9=1;after(12,()=>{if(XO.ph===2&&XO.mir&&!XO.mir.dead)x5Say('Kaen','kx_09',1)})}return r}}
+/* limit breaker x2: far harder to hurt */
+{const _dp=damagePlayer;damagePlayer=function(a){if(P.lb2&&typeof a==='number')a*=.65;return _dp.call(this,a)}}
