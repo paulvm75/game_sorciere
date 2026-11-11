@@ -876,7 +876,7 @@ function x4Kin(kind){const c=renderer.domElement;let ov=document.getElementById(
   else if(kind==='punch'){ov.style.opacity='1';c.style.transform='scale(1.16)';void c.offsetWidth;c.style.transition='transform .45s cubic-bezier(.2,1.6,.4,1)';c.style.transform='scale(1.02)';setTimeout(()=>{ov.style.transition='opacity .6s';ov.style.opacity='0'},250)}
   else{c.style.transform='scale(1.06)';void c.offsetWidth;c.style.transition='transform 1.2s cubic-bezier(.2,.8,.2,1)';c.style.transform='scale(1)';ov.style.transition='opacity .4s';ov.style.opacity='0';setTimeout(()=>{c.style.transition='';c.style.transform=''},1300)}}
 {const _ec=endCutscene;endCutscene=function(){const c=renderer.domElement;c.style.transition='';c.style.transform='';const ov=document.getElementById('kinFx');if(ov)ov.style.opacity='0';return _ec.apply(this,arguments)}}
-SX.sets.dbeam=1;SX.sets.dcharge=1;
+SX.sets.dbeam=1;SX.sets.dcharge=1;Object.assign(SX.sets,{zap:2,thunder:1,catmeow:1,catesc:1});
 
 /* ---------- the Warden never leaks across chapters: a fresh Warden, a fresh escape, every time ---------- */
 function wdReset(){try{CH2.chase=null;if(WD.e&&!WD.e.dead)removeEnemy(WD.e);WD.e=null;WD.esc=0;WD.t=0;WD.said=0;WD.lasT=4;WD.orbT=7;if(typeof XII!=='undefined')XII.wdE=null;const t=$('wdQte');if(t){t.className='';if(t.fl)t.fl.className=''}hitStop=0}catch(x){}}

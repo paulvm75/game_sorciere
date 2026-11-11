@@ -137,20 +137,16 @@ moonLight.castShadow=true;moonLight.shadow.mapSize.set(2048,2048);
 moonLight.shadow.bias=-.0008;moonLight.shadow.normalBias=.03;
 
 let composer=null,bloomPass=null,gradePass=null,fxaaPass=null,bokehPass=null,useComposer=true;
-const GradeShader={uniforms:{tDiffuse:{value:null},uTime:{value:0},uSat:{value:1.15},uWeak:{value:0},uCA:{value:1},uLift:{value:0},uSharp:{value:0},uCine:{value:0},uRes:{value:new THREE.Vector2(1/1100,1/650)}},
+const GradeShader={uniforms:{tDiffuse:{value:null},uTime:{value:0},uSat:{value:1.15},uWeak:{value:0},uCA:{value:1},uLift:{value:0},uSharp:{value:0},uRes:{value:new THREE.Vector2(1/1100,1/650)}},
   vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-  fragmentShader:`uniform sampler2D tDiffuse;uniform float uTime,uSat,uWeak,uCA,uLift,uSharp,uCine;uniform vec2 uRes;varying vec2 vUv;
-  float lu(vec2 u){return dot(texture2D(tDiffuse,u).rgb,vec3(.299,.587,.114));}
+  fragmentShader:`uniform sampler2D tDiffuse;uniform float uTime,uSat,uWeak,uCA,uLift,uSharp;uniform vec2 uRes;varying vec2 vUv;
   float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
   void main(){vec2 c=vUv-.5;float d=length(c);vec2 off=c*d*.007*uCA;vec3 col;
   col.r=texture2D(tDiffuse,vUv+off).r;col.g=texture2D(tDiffuse,vUv).g;col.b=texture2D(tDiffuse,vUv-off).b;
   if(uSharp>0.0){vec3 nb=texture2D(tDiffuse,vUv+vec2(uRes.x,0.)).rgb+texture2D(tDiffuse,vUv-vec2(uRes.x,0.)).rgb+texture2D(tDiffuse,vUv+vec2(0.,uRes.y)).rgb+texture2D(tDiffuse,vUv-vec2(0.,uRes.y)).rgb;col+=(col-nb*.25)*uSharp;}
-  if(uCine>0.0){vec2 r=uRes*1.25;float a=lu(vUv+vec2(-r.x,r.y)),b=lu(vUv+vec2(0.,r.y)),c2=lu(vUv+vec2(r.x,r.y)),dd=lu(vUv+vec2(-r.x,0.)),f=lu(vUv+vec2(r.x,0.)),g=lu(vUv+vec2(-r.x,-r.y)),hh=lu(vUv+vec2(0.,-r.y)),ii=lu(vUv+vec2(r.x,-r.y));
-    float gx=-a-2.*dd-g+c2+2.*f+ii,gy=-a-2.*b-c2+g+2.*hh+ii;float e=clamp(length(vec2(gx,gy))*2.4-.14,0.,1.);col=mix(col,col*.12,e*.6*uCine);}
-  float l=dot(col,vec3(.299,.587,.114));col=mix(vec3(l),col,uSat*(1.0-uWeak*.65)*(1.0+.2*uCine));
-  if(uCine>0.0){col=mix(col,(col-.5)*1.2+.5,uCine);vec3 tone=mix(vec3(-.02,.07,.12),vec3(.16,.06,-.04),smoothstep(.12,.75,l));col+=tone*uCine;}
+  float l=dot(col,vec3(.299,.587,.114));col=mix(vec3(l),col,uSat*(1.0-uWeak*.65));
   col=(col-.5)*1.08+.5+uLift;col=mix(col,col*vec3(1.05,.98,1.08),smoothstep(.0,.6,1.0-l));
-  col*=1.0-smoothstep(.42-.1*uCine,.95,d)*(.6+.25*uCine);col+=(h(vUv*(uTime+1.0))-.5)*.022;gl_FragColor=vec4(max(col,0.0),1.0);}`};
+  col*=1.0-smoothstep(.42,.95,d)*.6;col+=(h(vUv*(uTime+1.0))-.5)*.022;gl_FragColor=vec4(max(col,0.0),1.0);}`};
 try{if(THREE.EffectComposer&&THREE.UnrealBloomPass&&THREE.RenderPass&&THREE.ShaderPass){{const rt=new THREE.WebGLRenderTarget(innerWidth*renderer.getPixelRatio(),innerHeight*renderer.getPixelRatio(),{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,stencilBuffer:true});composer=new THREE.EffectComposer(renderer,rt)}composer.addPass(new THREE.RenderPass(scene,camera));
   if(THREE.BokehPass){try{bokehPass=new THREE.BokehPass(scene,camera,{focus:8,aperture:.0006,maxblur:.008,width:innerWidth,height:innerHeight});bokehPass.enabled=false;composer.addPass(bokehPass)}catch(e){bokehPass=null}}
   bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.4,.42,.84);composer.addPass(bloomPass);

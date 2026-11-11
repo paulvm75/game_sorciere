@@ -33,7 +33,7 @@ function xmFcCombo(n){let c=document.getElementById('xmFcC');if(!c){c=document.c
 {const _uc=updateCamera;updateCamera=function(dt){const r=_uc.apply(this,arguments);const C=XO.fc;
   XO.fcW=Math.max(0,Math.min(1,(XO.fcW||0)+(C?dt/.8:-dt/.7)));
   if(C&&C.m){const a=C.mp,b=C.m.pos,mid=V3((a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2),dir=V3(b.x-a.x,0,b.z-a.z),sep=Math.max(4,dir.length());dir.normalize();
-    const perp=V3(-dir.z,0,dir.x).multiplyScalar(C.sd||1),dist=Math.max(8.5,sep*.85+4);
+    const perp=V3(-dir.z,0,dir.x).multiplyScalar(C.sd||1),dist=Math.max(6.2,sep*.6+3.2);
     const pos=mid.clone().addScaledVector(perp,dist).addScaledVector(dir,-sep*.08);pos.y=Math.max(mid.y+2.6,groundAt(pos.x,pos.z)+1.2);
     const look=V3(mid.x,mid.y+1.25,mid.z);if(!XO.fcCam)XO.fcCam={pos:pos.clone(),look:look.clone()};
     const k=1-Math.exp(-dt*6);XO.fcCam.pos.lerp(pos,k);XO.fcCam.look.lerp(look,k)}

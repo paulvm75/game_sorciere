@@ -34,5 +34,3 @@ function csWide(c){const d=c.pos.clone().sub(c.look),L=d.length();if(L>0&&L<3.2)
 /* a soft key light on the speaker's face during face shots */
 const CSK={L:new THREE.PointLight(0xffe2c4,0,7,1.6),p:V3(),t:-9};scene.add(CSK.L);
 {const _mt=muTick;muTick=function(dt){_mt(dt);const on=CS.active&&time-CSK.t<.25;CSK.L.position.copy(CSK.p);CSK.L.intensity+=((on?1.6:0)-CSK.L.intensity)*Math.min(1,dt*5)}}
-/* the cinematic grade fades in and out with cutscenes */
-{let cv=0;const _mt=muTick;muTick=function(dt){_mt(dt);const tg=CS.active?1:0;cv+=(tg-cv)*Math.min(1,dt*(tg?2.2:3));if(gradePass&&gradePass.uniforms.uCine)gradePass.uniforms.uCine.value=cv<.01?0:cv}}
