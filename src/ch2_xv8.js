@@ -59,3 +59,9 @@ function xmWarn(){let d=document.getElementById('xmWarn');if(!d){d=document.crea
   d.innerHTML='<div style="font-size:clamp(26px,4vw,46px);letter-spacing:.08em">MASH SPACE!</div><div style="font-family:Inter,system-ui,sans-serif;font-size:clamp(13px,1.5vw,17px);letter-spacing:.02em;margin-top:4px;text-shadow:1px 1px 0 #000">'+(typeof isTouch!=='undefined'&&isTouch?'Tap the button below as fast as you can':'Hit the space bar as fast as you can')+'. Lose and it costs you 1000 HP.</div>';
   d.style.opacity='1';d.style.transform='translateX(-50%) scale(1)';clearTimeout(d._t);d._t=setTimeout(()=>{d.style.opacity='0';d.style.transform='translateX(-50%) scale(.92)'},2600)}
 {const _fs=xmFcStart;xmFcStart=function(m){const r=_fs.apply(this,arguments);xmWarn();return r}}
+
+/* ---------- music: Fighting Stance for the Crown wearing Kaen, Last Stand for the fight against yourself ---------- */
+if(MU.keys)MU.keys.push('mus_b_kaen2','mus_b_mirror');MU.gain.mus_b_kaen2=1.7;MU.gain.mus_b_mirror=1.7;
+function xoMusKey(){if(XO.ph===1.8||XO.ph===2)return 'mus_b_mirror';if(XO.ph===1.6||(XO.ph===1&&XO.form===5))return 'mus_b_kaen2';return 'mus_b_crown'}
+{const _bw=bmWant;bmWant=function(){if(xoMusOn()){bmTrack(xoMusKey());return null}return _bw.apply(this,arguments)}}
+{const _mw=muWant;muWant=function(){if(xoMusOn()){const k=xoMusKey(),t=bmTrack(k);if(t.ok)return k;const c=bmTrack('mus_b_crown');return c.ok?'mus_b_crown':null}return _mw.apply(this,arguments)}}
