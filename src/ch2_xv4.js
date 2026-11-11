@@ -110,7 +110,7 @@ function xgBindTick(dt){const Bd=XG.bind,m=XG.mag;if(!Bd||!m||m.dead)return;cons
 /* =====================================================================================
    the mirror, second pass: your whole spellbook, your broom, a cage of glass, your limit breaker
    ===================================================================================== */
-const xd=b=>x5Dmg(b)*(XO.mir&&XO.mir.lb?1.3:1);
+const xd=b=>x5Dmg(b)*(XO.mir&&XO.mir.lb?1.6:1);
 function xmName(e,n,col){floatText(headOf(e.pos,2.5+(e.pos.y-groundAt(e.pos.x,e.pos.z))),n,col||'#d4b6ff');try{e.m.actor.fire('Spell_Simple_Shoot',.35)}catch(x){}}
 function xmLob(a,b,col,dur,arc){const s=glowSprite(col,1.6,1,false);scene.add(s);addFx(s,dur,(f,k)=>{s.position.copy(a).lerp(b,k);s.position.y+=Math.sin(k*Math.PI)*(arc||0);if(Math.random()<.8)FL.emit(s.position,{n:1,c0:0xffffff,c1:col,s0:.6,s1:.05,life:.4})},()=>scene.remove(s))}
 function xmFireball(e){const p=P.pos.clone();p.y=groundAt(p.x,p.z);xmName(e,'FIREBALL','#ff8a3c');xmLob(eCenter(e),V3(p.x,p.y+.6,p.z),0xff8a3c,.7,2.5);telegraph(p,3.3,.7,0xff8a3c,()=>{fireBurst(V3(p.x,p.y+.6,p.z),3.2,true);sfx.boom&&sfx.boom();if(playerIn(p,3.5,4)){damagePlayer(xd(22));P.shake=Math.max(P.shake,.6)}})}
@@ -259,14 +259,14 @@ function xoEnd(){if(CS.active){after(.3,xoEnd);return}const m=XO.mir;if(!m)retur
     {who:'@',text:XL3.mw_24,fov:34,cam:wS(1,2.1),onStart:()=>x4Talk('@')},{who:'Kaen',text:XL3.kw_20,fov:30,cam:kS(.6,1.9),onStart:()=>x4Talk('Kaen')},{who:'Lyra',text:XL3.lw_16,fov:38,cam:lS(-1,2.2),onStart:()=>x4Talk('Lyra')},
     {who:'@',text:XL3.mw_20,fov:46,cam:k=>({pos:V3(hp2.x+dir.x*(5+k*3)+sd.x*2,2+k*2,hp2.z+dir.z*(5+k*3)+sd.z*2),look:V3(hp2.x,1.4,hp2.z)}),onStart:()=>x4Talk('@')}],
     ()=>{x4Talk('');x5Grey(0);P.heroAnim=null;X4.cc=null;KFW.pin=0;LYR.pin=0;xcFigOff();upAll();if(m.m.g.parent)scene.remove(m.m.g);m.dead=true;XO.mir=null;XO.ph=0;XO.form=0;P.pos.y=groundAt(P.pos.x,P.pos.z);if(K)K.g.position.y=0;if(Ly)Ly.g.position.y=0;P.hp=Math.max(P.hp,maxHP()*.5);CH2.st=23;ch2Save();writeSave();try{gainXP(4000)}catch(x){}
-      x5Banner('THE HOLLOW CROWN','WOUNDED, AND RUNNING','#ffd890',2.6,'#1a1206');toast('The Crown fled, half of what it was. And somewhere, Morwen may still be waiting.','Chapter XVI complete',true);after(9,()=>toast('Chapter XVII is coming: Morwen.','Sorcière',true))});
+      x5Banner('THE HOLLOW CROWN','WOUNDED, AND RUNNING','#ffd890',2.6,'#1a1206');toast('The Crown fled, half of what it was. Morwen is still inside it, and it is feeding on her.','Chapter XVI complete',true);after(9,()=>toast('Chapter XVII is coming: Morwen.','Sorcière',true))});
   function mid2x(){return (p.x+hp.x)/2+dir.x*5+sd.x*13}function mid2z(){return (p.z+hp.z)/2+dir.z*5+sd.z*13}}
 
 /* ---------- the square, per frame ---------- */
 function x5OTick(dt,dq){const st=CH2.st;if(st!==21&&st!==22)return;
   if(!XO.ph){XO.rt=(XO.rt||0)-dt;if(XO.rt>0)return;if(dq<36&&P.pos.y<30){if(st===22){xoMirrorGo();x5VS('MAËLLE','MAËLLE','#c9a6ff','#7dff9a')}else xoBegin(false)}return}
   xoArena();XO.t+=dt;
-  if(XO.ph===1){const e=XO.e;if(!e||e.dead)return;const X=e.xo;if(X&&!e.invuln){X.t-=dt;if(X.t<=0){X.grey=!X.grey;X.t=X.grey?4:rand(7,11);xoSetGrey(X.L,X.grey);const c=eCenter(e);SM.emit(c,{n:10,c0:0x10262c,c1:0x010304,s0:1.5,s1:4.5,life:1,a:.5,speed:3});if(!X.grey){flash(c,0xffffff,6);x5Impact(30,0)}}
+  if(XO.ph===1){const e=XO.e;if(!e||e.dead)return;const X=e.xo;if(X&&!e.invuln){X.t-=dt;if(X.t<=0){X.grey=!X.grey;X.t=X.grey?4:rand(7,11);xoFade(X.L,X.grey,X.grey?.6:1.2);const c=eCenter(e);SM.emit(c,{n:10,c0:0x10262c,c1:0x010304,s0:1.5,s1:4.5,life:1,a:.5,speed:3});if(!X.grey){flash(c,0xffffff,6);x5Impact(30,0)}}
       if(X.grey&&Math.random()<.4)SM.emit(V3(e.pos.x+rand(-1,1),e.pos.y+rand(.3,e.def.h||2),e.pos.z+rand(-1,1)),{c0:0x10262c,c1:0x010304,s0:1,s1:3,life:1,a:.45,up:.8})}
     if(XO.cmp)xoCmpTick(dt);else if(XO.form===5&&!XO.coil.length)xoCoil(true);
     if(!e.invuln&&e.hp<=e.maxhp*e.hpFloor+1){if(XO.form<4)xoMorph(XO.form+1);else if(XO.form===4)xoKaen();else xoMirror()}return}

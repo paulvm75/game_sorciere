@@ -368,7 +368,7 @@ function x5UTick(dt){const s=uS(P.pos.z),S=uSec(s),W=X5.wave;X5.t+=dt;
   if(st===18)return X5.in?(X5.mini&&!X5.mini.dead?`Defeat <b>${X5.mini.def.name.split(',')[0]}</b>`:'Follow the tunnel under the Abbey'):'Take the <b>crypt stair</b> beside the Abbey · press <b>E</b>';
   if(st===19)return X5.in?(typeof x5GObj==='function'?x5GObj():'Defeat the guardians'):'Go back down the <b>crypt stair</b>';
   if(st===20)return X5.in?(typeof x5CObj==='function'?x5CObj():''):'Go back down the <b>crypt stair</b>';
-  if(st===21||st===22)return typeof x5OObj==='function'?x5OObj(d):'';return 'The Crown fled, weakened. Morwen may still be out there. More is coming.'}}
+  if(st===21||st===22)return typeof x5OObj==='function'?x5OObj(d):'';return 'The Crown fled, weakened. It still has Morwen, and it is feeding on her. More is coming.'}}
 CHAPTERS.push({id:'under',n:'XV',title:'Beneath Westminster',desc:'A cloaked abbey, a tunnel full of wings, and two guardians of stone.'},{id:'crown',n:'XVI',title:'The Hollow Crown',desc:'The smoke in the chair, the run to the light, every old face. And yours.'});
 {const _cb=chapBoss;chapBoss=function(c){if(c.id==='under'||c.id==='crown')return null;return _cb(c)}}
 function x5Reset(){x5Hint('');x5Bars(0);x5Grey(0);if(X5.in)x5Leave();X5.arr=0;X5.intro=0;X5.it=0;X5.said={};X5.cp=0;X5.wave={};X5.mini=null;if(typeof x5GReset==='function')x5GReset();if(typeof x5CReset==='function')x5CReset();if(typeof x5OReset==='function')x5OReset()}

@@ -113,16 +113,16 @@ function xoMorph(i){if(CS.active){after(.3,()=>xoMorph(i));return}const old=XO.e
   const orbit=(R,y,an)=>V3(p.x+Math.sin(a0+an)*R,p.y+y,p.z+Math.cos(a0+an)*R);
   playCutscene([
     /* wide: the old face boils away into the smoke */
-    {dur:1.9,fov:52,cut:true,cam:k=>({pos:orbit(19+k*4,7.5+k*2,-.35+k*.55),look:V3(p.x,p.y+2.2,p.z)}),onStart:()=>{CS.speed=.8;x5Impact(80,.12);sx('skyshatter',.6,null,{rate:1.3});sx('portal',.7,null,{rate:.7});sx('riser',.6,null,{rate:1.2});P.shake=.9;
-        if(old&&old.m&&old.m.g.parent){const g=old.m.g;if(old.xo)xoSetGrey(old.xo.L,true);old.dead=true;if(old===bossRef)bossRef=null;$('boss').classList.add('hidden');addFx(null,1.1,(f,k)=>{g.scale.set(Math.max(.01,1-k*.9),1+k*.6,Math.max(.01,1-k*.9));g.position.y=p.y+k*2.2;g.rotation.y+=k*.4},()=>{scene.remove(g)})}
-        xoClear(null);fig=xcFig(1.5);fig.g.position.copy(p);fig.cyc=.18;fig.burst(1.8);for(let k=0;k<20;k++)fig.tick(.03)},
-      update:(dt,k)=>{for(let n=0;n<3;n++){const an=time*3+n*2.1,r=4.5*(1-k)+1.2;SM.emit(V3(p.x+Math.sin(an)*r,p.y+k*5+rand(0,1.5),p.z+Math.cos(an)*r),{c0:0x10262c,c1:0x010304,s0:2,s1:5,life:1.2,a:.6,up:2.5})}
+    {dur:2.6,fov:52,cut:true,cam:k=>({pos:orbit(19+k*4,7.5+k*2,-.35+k*.55),look:V3(p.x,p.y+2.2,p.z)}),onStart:()=>{CS.speed=.8;x5Impact(80,.12);sx('skyshatter',.6,null,{rate:1.3});sx('portal',.7,null,{rate:.7});sx('riser',.6,null,{rate:1.2});P.shake=.9;
+        if(old&&old.m&&old.m.g.parent){const g=old.m.g;if(old.xo)xoFade(old.xo.L,true,.8);old.dead=true;if(old===bossRef)bossRef=null;$('boss').classList.add('hidden');after(.85,()=>addFx(null,1.2,(f,k)=>{g.scale.set(Math.max(.01,1-k*.9),1+k*.6,Math.max(.01,1-k*.9));g.position.y=p.y+k*2.2;g.rotation.y+=k*.4},()=>{scene.remove(g)}))}
+        xoClear(null);fig=xcFig(1.5);fig.g.position.copy(p);fig.cyc=.18;for(let k=0;k<20;k++)fig.tick(.03);fig.g.scale.setScalar(.01);after(.8,()=>{if(fig)fig.burst(1.8)})},
+      update:(dt,k)=>{if(fig)fig.g.scale.setScalar(Math.max(.01,1.5*eOut(clamp((k-.25)/.45,0,1))));for(let n=0;n<3;n++){const an=time*3+n*2.1,r=4.5*(1-k)+1.2;SM.emit(V3(p.x+Math.sin(an)*r,p.y+k*5+rand(0,1.5),p.z+Math.cos(an)*r),{c0:0x10262c,c1:0x010304,s0:2,s1:5,life:1.2,a:.6,up:2.5})}
         if(Math.random()<.5)SP.emit(V3(p.x+rand(-1,1),p.y+rand(0,5),p.z+rand(-1,1)),{c0:0xffffff,c1:0x7dff9a,s0:.4,s1:.04,life:.7,up:4});camera.fov=52+k*6;camera.updateProjectionMatrix()}},
     /* the new face erupts out of it, camera rushes in */
-    {dur:2,fov:58,cut:true,cam:k=>{const q=1-Math.pow(1-Math.min(1,k*1.6),3);return{pos:orbit(24-q*11,6-q*3.2,.2+k*.18),look:V3(p.x,p.y+1.7,p.z)}},onStart:()=>{xcFigOff();flash(p,0xffffff,30);ring(p,0x7dff9a,1,16,.55);ring(p,0xffffff,.5,9,.35);SP.emit(V3(p.x,p.y+2,p.z),{n:160,c0:0xffffff,c1:0x7dff9a,speed:14,life:1,s0:.7,s1:.05});
+    {dur:2.4,fov:58,cut:true,cam:k=>{const q=1-Math.pow(1-Math.min(1,k*1.4),3);return{pos:orbit(24-q*11,6-q*3.2,.2+k*.18),look:V3(p.x,p.y+1.7,p.z)}},onStart:()=>{xcFigOff();flash(p,0xffffff,30);ring(p,0x7dff9a,1,16,.55);ring(p,0xffffff,.5,9,.35);SP.emit(V3(p.x,p.y+2,p.z),{n:160,c0:0xffffff,c1:0x7dff9a,speed:14,life:1,s0:.7,s1:.05});
         SM.emit(V3(p.x,p.y+1,p.z),{n:40,c0:0x10262c,c1:0x010304,s0:2,s1:7,life:1.4,a:.6,speed:9});sx('impact',.9);sx('ktf',.5,null,{rate:1.4});x5Impact(110,.18);x5Punch(16,.5);P.shake=1.4;CS.speed=1;
         e=xoSpawn(i,p);e.busy=99;e.invuln=true;e.m.g.scale.setScalar(.12);e.m.g.rotation.y=Math.atan2(P.pos.x-p.x,P.pos.z-p.z);$('boss').classList.add('hidden');if(F.t==='giant')snow.force=1;after(.35,()=>x5Banner(F.nm,F.sub,F.col,1.8));if(F.say)x5Say('The Crown',F.say,1)},
-      update:(dt,k)=>{if(e)e.m.g.scale.setScalar(.12+.88*eBack(Math.min(1,k*2.2)));camera.fov=58-Math.sin(Math.min(1,k*1.4)*Math.PI*.5)*12;camera.updateProjectionMatrix()}}],
+      update:(dt,k)=>{if(e)e.m.g.scale.setScalar(.06+.94*eOut(Math.min(1,k*1.5)));camera.fov=58-Math.sin(Math.min(1,k*1.4)*Math.PI*.5)*12;camera.updateProjectionMatrix()}}],
     ()=>{xcFigOff();CS.speed=1;if(!e){e=xoSpawn(i,p)}e.m.g.scale.setScalar(1);e.busy=.6;e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');XO.ph=1;XO.cmp=i<5?1:0;P.invuln=Math.max(P.invuln,1.2)})}
 /* companions: the Portobello kit, on whoever the Crown is wearing */
 function xoCmpMove(c,a,dt,R,run){const e=XO.e,g=a.g.position,B=XO.B;c.ang+=dt*.2;let tx=clamp(e.pos.x+Math.sin(c.ang)*R,B.x0+2,B.x1-2),tz=clamp(e.pos.z+Math.cos(c.ang)*R,B.z0+2,B.z1-2);const dp=Math.hypot(tx-P.pos.x,tz-P.pos.z);if(dp<3.5){tx+=(tx-P.pos.x)/(dp||1)*(3.5-dp);tz+=(tz-P.pos.z)/(dp||1)*(3.5-dp)}

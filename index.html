@@ -9843,7 +9843,7 @@ function x5UTick(dt){const s=uS(P.pos.z),S=uSec(s),W=X5.wave;X5.t+=dt;
   if(st===18)return X5.in?(X5.mini&&!X5.mini.dead?`Defeat <b>${X5.mini.def.name.split(',')[0]}</b>`:'Follow the tunnel under the Abbey'):'Take the <b>crypt stair</b> beside the Abbey · press <b>E</b>';
   if(st===19)return X5.in?(typeof x5GObj==='function'?x5GObj():'Defeat the guardians'):'Go back down the <b>crypt stair</b>';
   if(st===20)return X5.in?(typeof x5CObj==='function'?x5CObj():''):'Go back down the <b>crypt stair</b>';
-  if(st===21||st===22)return typeof x5OObj==='function'?x5OObj(d):'';return 'The Crown fled, weakened. Morwen may still be out there. More is coming.'}}
+  if(st===21||st===22)return typeof x5OObj==='function'?x5OObj(d):'';return 'The Crown fled, weakened. It still has Morwen, and it is feeding on her. More is coming.'}}
 CHAPTERS.push({id:'under',n:'XV',title:'Beneath Westminster',desc:'A cloaked abbey, a tunnel full of wings, and two guardians of stone.'},{id:'crown',n:'XVI',title:'The Hollow Crown',desc:'The smoke in the chair, the run to the light, every old face. And yours.'});
 {const _cb=chapBoss;chapBoss=function(c){if(c.id==='under'||c.id==='crown')return null;return _cb(c)}}
 function x5Reset(){x5Hint('');x5Bars(0);x5Grey(0);if(X5.in)x5Leave();X5.arr=0;X5.intro=0;X5.it=0;X5.said={};X5.cp=0;X5.wave={};X5.mini=null;if(typeof x5GReset==='function')x5GReset();if(typeof x5CReset==='function')x5CReset();if(typeof x5OReset==='function')x5OReset()}
@@ -9937,7 +9937,7 @@ function xgSpawn(){const mk=(type,lx,ry)=>{const e=spawnEnemy(type,uP(lx,198));e
 function xgWake(e){e.ai.statue=0;e.busy=.6;e.invuln=false;e.ai.a1=2.5;e.ai.a2=4;e.ai.a3=6;e.ai.a4=8}
 function x5GReset(){xgWardOff();xgChain(false);if(KM.on)try{kmEnd()}catch(x){}X3.mPos=null;if(XG.oldC){X3.C=XG.oldC;XG.oldC=null}for(const k of['gog','mag']){const e=XG[k];if(e&&!e.dead)removeEnemy(e);XG[k]=null}XG.ph=0;XG.t=0;KFW.pin=0;LYR.pin=0;x5Bars(0);
   if(X5.gdoor)for(const d of X5.gdoor){d.position.x=uX(d.userData.q*2.2);d.rotation.y=0}if(X5.gseal)X5.gseal.visible=true}
-function x5GObj(){const n=k=>XG[k]&&!XG[k].dead;if(XG.ph===1)return 'Break <b>Magog</b> while Kaen holds Gog';if(XG.ph===2)return 'You are <b>Kaen</b>. Bring <b>Gog</b> to his knees';if(XG.ph===3)return n('gog')&&n('mag')?'Finish <b>Gog</b> and <b>Magog</b>':`Finish <b>${n('gog')?'Gog':'Magog'}</b>`;return 'Cross the hall of the guardians'}
+function x5GObj(){const n=k=>XG[k]&&!XG[k].dead;if(XG.ph===1)return 'Break <b>Magog</b> while Kaen holds Gog';if(XG.ph===2)return 'Play as <b>Kaen</b>: bring <b>Gog</b> to his knees while Magog is chained';if(XG.ph===3)return n('gog')&&n('mag')?'Finish <b>Gog</b> and <b>Magog</b>':`Finish <b>${n('gog')?'Gog':'Magog'}</b>`;return 'Cross the hall of the guardians'}
 function x5GIntro(){if(CS.active||XG.ph)return;CH2.st=Math.max(CH2.st,19);ch2Save();X5.cp=3;NZ.cp.copy(uP(0,X5CP[3]));for(const b of enemies)if(b.x5b&&!b.dead)removeEnemy(b);xgSpawn();const g=XG.gog,m=XG.mag;
   const mp=uP(0,160);x4Stage(mp,Math.PI);P.face=Math.PI;if(KFW.a){KFW.a.g.position.copy(uP(-2.6,158.6));KFW.a.g.rotation.y=Math.PI}if(LYR.a){LYR.a.g.position.copy(uP(2.4,158.2));LYR.a.g.rotation.y=Math.PI;LYR.a.g.visible=true}KFW.pin=1;LYR.pin=1;X4.cc=uP(0,190);
   const go=()=>{x4Talk('');P.heroAnim=null;X4.cc=null;XG.seen=1;xgPhase1()};
@@ -9969,8 +9969,8 @@ function xgSwitch(){if(CS.active||XG.ph!==1)return;XG.ph=1.5;sayHush();const g=X
     ()=>x5Swap(mp,kp,'BODY SWITCH','MAËLLE  ▸  KAEN',()=>{XG.oldC=X3.C;X3.C=V3(kp.x,0,kp.z);X3.lPos=null;X3.mPos=mp.clone();if(KFW.a)KFW.a.g.position.copy(kp);kmStart();P.pos.copy(kp);P.pos.y=0},xgPhase2))}
 /* phase 2: you are Kaen. Gog is yours */
 function xgPhase2(){const g=XG.gog,m=XG.mag;XG.ph=2;X4.cc=null;P.heroAnim=null;g.ai.duel=0;g.invuln=false;g.hpFloor=.4;g.hp=g.maxhp;g.busy=1;g.ai.a1=3;g.ai.a2=5;g.ai.a3=7;g.ai.a4=9;bossRef=g;$('boss').classList.remove('hidden');$('bossName').innerHTML=`${g.def.name} <span style="color:#ff4050">· Lv ${g.lvl}</span>`;
-  m.ai.pt=5;XG.mb=DIFF==='hard'?5:DIFF==='easy'?9:7;P.invuln=2;try{LYR.a&&LYR.a.setBase('Spell_Simple_Idle_Loop',.3)}catch(x){}after(.8,()=>x5Say('@','mw_07'));after(4.4,()=>x5Say('Kaen','kw_09'));
-  after(.4,()=>toast('You are Kaen now. Cut <b>Gog</b> down. Lyra and Maëlle hold Magog in chains, but her bolts still leak through.','Body switch',true))}
+  m.ai.pt=5;XG.mb=DIFF==='hard'?5:DIFF==='easy'?9:7;P.invuln=2;try{LYR.a&&LYR.a.setBase('Spell_Simple_Idle_Loop',.3)}catch(x){}after(.8,()=>x5Say(HERO.g==='f'?'Maëlle\u200b':'@','mw_07'));after(4.4,()=>x5Say('Kaen','kw_09'));
+  after(.4,()=>toast('Play as Kaen. Cut <b>Gog</b> down while Lyra and Maëlle hold Magog in the chain. Her bolts still leak through.','Kaen takes Gog',true))}
 function xgBack(){if(CS.active||XG.ph!==2)return;XG.ph=2.5;sayHush();const g=XG.gog,m=XG.mag;for(const p of eProjs)scene.remove(p.s);eProjs.length=0;g.invuln=true;g.busy=999;g.dash=null;g.leap=null;g.pos.y=0;const kp=P.pos.clone();kp.y=0;const mp=X3.mPos.clone(),lp=LYR.a?LYR.a.g.position.clone():mp;X4.cc=g.pos.clone();
   playCutscene([{who:'Gog',text:XL3.gg_03,fov:38,cam:k=>({pos:headOf(g.pos,3).add(V3(5-k,0,-6)),look:headOf(g.pos,3.4)}),onStart:()=>{x5Impact(80,.12);P.shake=1;sx('garg',1,null,{rate:.5});SM.emit(eCenter(g),{n:30,c0:0x8a9088,c1:0x1c201c,s0:2,s1:6,life:1.6,a:.5,speed:5});xgChain(true)},
       update:()=>{const A=eCenter(g),B=eCenter(m);const c=XG.chain;if(c){c.position.copy(A).lerp(B,.5);c.scale.set(1+Math.sin(time*20)*.3,A.distanceTo(B),1);c.quaternion.setFromUnitVectors(V3(0,1,0),B.clone().sub(A).normalize())}for(let q=0;q<3;q++)SP.emit(A.clone().lerp(B,Math.random()),{c0:0xffffff,c1:0x9dff70,s0:.5,s1:.05,life:.5,speed:1})}},
@@ -10112,16 +10112,16 @@ function xoMorph(i){if(CS.active){after(.3,()=>xoMorph(i));return}const old=XO.e
   const orbit=(R,y,an)=>V3(p.x+Math.sin(a0+an)*R,p.y+y,p.z+Math.cos(a0+an)*R);
   playCutscene([
     /* wide: the old face boils away into the smoke */
-    {dur:1.9,fov:52,cut:true,cam:k=>({pos:orbit(19+k*4,7.5+k*2,-.35+k*.55),look:V3(p.x,p.y+2.2,p.z)}),onStart:()=>{CS.speed=.8;x5Impact(80,.12);sx('skyshatter',.6,null,{rate:1.3});sx('portal',.7,null,{rate:.7});sx('riser',.6,null,{rate:1.2});P.shake=.9;
-        if(old&&old.m&&old.m.g.parent){const g=old.m.g;if(old.xo)xoSetGrey(old.xo.L,true);old.dead=true;if(old===bossRef)bossRef=null;$('boss').classList.add('hidden');addFx(null,1.1,(f,k)=>{g.scale.set(Math.max(.01,1-k*.9),1+k*.6,Math.max(.01,1-k*.9));g.position.y=p.y+k*2.2;g.rotation.y+=k*.4},()=>{scene.remove(g)})}
-        xoClear(null);fig=xcFig(1.5);fig.g.position.copy(p);fig.cyc=.18;fig.burst(1.8);for(let k=0;k<20;k++)fig.tick(.03)},
-      update:(dt,k)=>{for(let n=0;n<3;n++){const an=time*3+n*2.1,r=4.5*(1-k)+1.2;SM.emit(V3(p.x+Math.sin(an)*r,p.y+k*5+rand(0,1.5),p.z+Math.cos(an)*r),{c0:0x10262c,c1:0x010304,s0:2,s1:5,life:1.2,a:.6,up:2.5})}
+    {dur:2.6,fov:52,cut:true,cam:k=>({pos:orbit(19+k*4,7.5+k*2,-.35+k*.55),look:V3(p.x,p.y+2.2,p.z)}),onStart:()=>{CS.speed=.8;x5Impact(80,.12);sx('skyshatter',.6,null,{rate:1.3});sx('portal',.7,null,{rate:.7});sx('riser',.6,null,{rate:1.2});P.shake=.9;
+        if(old&&old.m&&old.m.g.parent){const g=old.m.g;if(old.xo)xoFade(old.xo.L,true,.8);old.dead=true;if(old===bossRef)bossRef=null;$('boss').classList.add('hidden');after(.85,()=>addFx(null,1.2,(f,k)=>{g.scale.set(Math.max(.01,1-k*.9),1+k*.6,Math.max(.01,1-k*.9));g.position.y=p.y+k*2.2;g.rotation.y+=k*.4},()=>{scene.remove(g)}))}
+        xoClear(null);fig=xcFig(1.5);fig.g.position.copy(p);fig.cyc=.18;for(let k=0;k<20;k++)fig.tick(.03);fig.g.scale.setScalar(.01);after(.8,()=>{if(fig)fig.burst(1.8)})},
+      update:(dt,k)=>{if(fig)fig.g.scale.setScalar(Math.max(.01,1.5*eOut(clamp((k-.25)/.45,0,1))));for(let n=0;n<3;n++){const an=time*3+n*2.1,r=4.5*(1-k)+1.2;SM.emit(V3(p.x+Math.sin(an)*r,p.y+k*5+rand(0,1.5),p.z+Math.cos(an)*r),{c0:0x10262c,c1:0x010304,s0:2,s1:5,life:1.2,a:.6,up:2.5})}
         if(Math.random()<.5)SP.emit(V3(p.x+rand(-1,1),p.y+rand(0,5),p.z+rand(-1,1)),{c0:0xffffff,c1:0x7dff9a,s0:.4,s1:.04,life:.7,up:4});camera.fov=52+k*6;camera.updateProjectionMatrix()}},
     /* the new face erupts out of it, camera rushes in */
-    {dur:2,fov:58,cut:true,cam:k=>{const q=1-Math.pow(1-Math.min(1,k*1.6),3);return{pos:orbit(24-q*11,6-q*3.2,.2+k*.18),look:V3(p.x,p.y+1.7,p.z)}},onStart:()=>{xcFigOff();flash(p,0xffffff,30);ring(p,0x7dff9a,1,16,.55);ring(p,0xffffff,.5,9,.35);SP.emit(V3(p.x,p.y+2,p.z),{n:160,c0:0xffffff,c1:0x7dff9a,speed:14,life:1,s0:.7,s1:.05});
+    {dur:2.4,fov:58,cut:true,cam:k=>{const q=1-Math.pow(1-Math.min(1,k*1.4),3);return{pos:orbit(24-q*11,6-q*3.2,.2+k*.18),look:V3(p.x,p.y+1.7,p.z)}},onStart:()=>{xcFigOff();flash(p,0xffffff,30);ring(p,0x7dff9a,1,16,.55);ring(p,0xffffff,.5,9,.35);SP.emit(V3(p.x,p.y+2,p.z),{n:160,c0:0xffffff,c1:0x7dff9a,speed:14,life:1,s0:.7,s1:.05});
         SM.emit(V3(p.x,p.y+1,p.z),{n:40,c0:0x10262c,c1:0x010304,s0:2,s1:7,life:1.4,a:.6,speed:9});sx('impact',.9);sx('ktf',.5,null,{rate:1.4});x5Impact(110,.18);x5Punch(16,.5);P.shake=1.4;CS.speed=1;
         e=xoSpawn(i,p);e.busy=99;e.invuln=true;e.m.g.scale.setScalar(.12);e.m.g.rotation.y=Math.atan2(P.pos.x-p.x,P.pos.z-p.z);$('boss').classList.add('hidden');if(F.t==='giant')snow.force=1;after(.35,()=>x5Banner(F.nm,F.sub,F.col,1.8));if(F.say)x5Say('The Crown',F.say,1)},
-      update:(dt,k)=>{if(e)e.m.g.scale.setScalar(.12+.88*eBack(Math.min(1,k*2.2)));camera.fov=58-Math.sin(Math.min(1,k*1.4)*Math.PI*.5)*12;camera.updateProjectionMatrix()}}],
+      update:(dt,k)=>{if(e)e.m.g.scale.setScalar(.06+.94*eOut(Math.min(1,k*1.5)));camera.fov=58-Math.sin(Math.min(1,k*1.4)*Math.PI*.5)*12;camera.updateProjectionMatrix()}}],
     ()=>{xcFigOff();CS.speed=1;if(!e){e=xoSpawn(i,p)}e.m.g.scale.setScalar(1);e.busy=.6;e.invuln=false;bossRef=e;$('boss').classList.remove('hidden');XO.ph=1;XO.cmp=i<5?1:0;P.invuln=Math.max(P.invuln,1.2)})}
 /* companions: the Portobello kit, on whoever the Crown is wearing */
 function xoCmpMove(c,a,dt,R,run){const e=XO.e,g=a.g.position,B=XO.B;c.ang+=dt*.2;let tx=clamp(e.pos.x+Math.sin(c.ang)*R,B.x0+2,B.x1-2),tz=clamp(e.pos.z+Math.cos(c.ang)*R,B.z0+2,B.z1-2);const dp=Math.hypot(tx-P.pos.x,tz-P.pos.z);if(dp<3.5){tx+=(tx-P.pos.x)/(dp||1)*(3.5-dp);tz+=(tz-P.pos.z)/(dp||1)*(3.5-dp)}
@@ -10361,7 +10361,7 @@ function xgBindTick(dt){const Bd=XG.bind,m=XG.mag;if(!Bd||!m||m.dead)return;cons
 /* =====================================================================================
    the mirror, second pass: your whole spellbook, your broom, a cage of glass, your limit breaker
    ===================================================================================== */
-const xd=b=>x5Dmg(b)*(XO.mir&&XO.mir.lb?1.3:1);
+const xd=b=>x5Dmg(b)*(XO.mir&&XO.mir.lb?1.6:1);
 function xmName(e,n,col){floatText(headOf(e.pos,2.5+(e.pos.y-groundAt(e.pos.x,e.pos.z))),n,col||'#d4b6ff');try{e.m.actor.fire('Spell_Simple_Shoot',.35)}catch(x){}}
 function xmLob(a,b,col,dur,arc){const s=glowSprite(col,1.6,1,false);scene.add(s);addFx(s,dur,(f,k)=>{s.position.copy(a).lerp(b,k);s.position.y+=Math.sin(k*Math.PI)*(arc||0);if(Math.random()<.8)FL.emit(s.position,{n:1,c0:0xffffff,c1:col,s0:.6,s1:.05,life:.4})},()=>scene.remove(s))}
 function xmFireball(e){const p=P.pos.clone();p.y=groundAt(p.x,p.z);xmName(e,'FIREBALL','#ff8a3c');xmLob(eCenter(e),V3(p.x,p.y+.6,p.z),0xff8a3c,.7,2.5);telegraph(p,3.3,.7,0xff8a3c,()=>{fireBurst(V3(p.x,p.y+.6,p.z),3.2,true);sfx.boom&&sfx.boom();if(playerIn(p,3.5,4)){damagePlayer(xd(22));P.shake=Math.max(P.shake,.6)}})}
@@ -10510,14 +10510,14 @@ function xoEnd(){if(CS.active){after(.3,xoEnd);return}const m=XO.mir;if(!m)retur
     {who:'@',text:XL3.mw_24,fov:34,cam:wS(1,2.1),onStart:()=>x4Talk('@')},{who:'Kaen',text:XL3.kw_20,fov:30,cam:kS(.6,1.9),onStart:()=>x4Talk('Kaen')},{who:'Lyra',text:XL3.lw_16,fov:38,cam:lS(-1,2.2),onStart:()=>x4Talk('Lyra')},
     {who:'@',text:XL3.mw_20,fov:46,cam:k=>({pos:V3(hp2.x+dir.x*(5+k*3)+sd.x*2,2+k*2,hp2.z+dir.z*(5+k*3)+sd.z*2),look:V3(hp2.x,1.4,hp2.z)}),onStart:()=>x4Talk('@')}],
     ()=>{x4Talk('');x5Grey(0);P.heroAnim=null;X4.cc=null;KFW.pin=0;LYR.pin=0;xcFigOff();upAll();if(m.m.g.parent)scene.remove(m.m.g);m.dead=true;XO.mir=null;XO.ph=0;XO.form=0;P.pos.y=groundAt(P.pos.x,P.pos.z);if(K)K.g.position.y=0;if(Ly)Ly.g.position.y=0;P.hp=Math.max(P.hp,maxHP()*.5);CH2.st=23;ch2Save();writeSave();try{gainXP(4000)}catch(x){}
-      x5Banner('THE HOLLOW CROWN','WOUNDED, AND RUNNING','#ffd890',2.6,'#1a1206');toast('The Crown fled, half of what it was. And somewhere, Morwen may still be waiting.','Chapter XVI complete',true);after(9,()=>toast('Chapter XVII is coming: Morwen.','Sorcière',true))});
+      x5Banner('THE HOLLOW CROWN','WOUNDED, AND RUNNING','#ffd890',2.6,'#1a1206');toast('The Crown fled, half of what it was. Morwen is still inside it, and it is feeding on her.','Chapter XVI complete',true);after(9,()=>toast('Chapter XVII is coming: Morwen.','Sorcière',true))});
   function mid2x(){return (p.x+hp.x)/2+dir.x*5+sd.x*13}function mid2z(){return (p.z+hp.z)/2+dir.z*5+sd.z*13}}
 
 /* ---------- the square, per frame ---------- */
 function x5OTick(dt,dq){const st=CH2.st;if(st!==21&&st!==22)return;
   if(!XO.ph){XO.rt=(XO.rt||0)-dt;if(XO.rt>0)return;if(dq<36&&P.pos.y<30){if(st===22){xoMirrorGo();x5VS('MAËLLE','MAËLLE','#c9a6ff','#7dff9a')}else xoBegin(false)}return}
   xoArena();XO.t+=dt;
-  if(XO.ph===1){const e=XO.e;if(!e||e.dead)return;const X=e.xo;if(X&&!e.invuln){X.t-=dt;if(X.t<=0){X.grey=!X.grey;X.t=X.grey?4:rand(7,11);xoSetGrey(X.L,X.grey);const c=eCenter(e);SM.emit(c,{n:10,c0:0x10262c,c1:0x010304,s0:1.5,s1:4.5,life:1,a:.5,speed:3});if(!X.grey){flash(c,0xffffff,6);x5Impact(30,0)}}
+  if(XO.ph===1){const e=XO.e;if(!e||e.dead)return;const X=e.xo;if(X&&!e.invuln){X.t-=dt;if(X.t<=0){X.grey=!X.grey;X.t=X.grey?4:rand(7,11);xoFade(X.L,X.grey,X.grey?.6:1.2);const c=eCenter(e);SM.emit(c,{n:10,c0:0x10262c,c1:0x010304,s0:1.5,s1:4.5,life:1,a:.5,speed:3});if(!X.grey){flash(c,0xffffff,6);x5Impact(30,0)}}
       if(X.grey&&Math.random()<.4)SM.emit(V3(e.pos.x+rand(-1,1),e.pos.y+rand(.3,e.def.h||2),e.pos.z+rand(-1,1)),{c0:0x10262c,c1:0x010304,s0:1,s1:3,life:1,a:.45,up:.8})}
     if(XO.cmp)xoCmpTick(dt);else if(XO.form===5&&!XO.coil.length)xoCoil(true);
     if(!e.invuln&&e.hp<=e.maxhp*e.hpFloor+1){if(XO.form<4)xoMorph(XO.form+1);else if(XO.form===4)xoKaen();else xoMirror()}return}
@@ -10554,6 +10554,204 @@ function xoMusOn(){return started&&MODE!=='open'&&(CH2.st===21||CH2.st===22)&&XO
       voPrefetch(['cr_01','cr_02'].map(k=>({who:'The Crown',text:XL3[k]})).concat([{who:'@',text:XL3.mw_10},{who:'Kaen',text:XL3.kw_12},{who:'Lyra',text:XL3.lw_10}]));try{renderer.compile(scene,camera)}catch(x){}}catch(x){}}
   return _ct.apply(this,arguments)}}
 {const _r=x5CReset;x5CReset=function(){XC.warm=0;return _r.apply(this,arguments)}}
+/* =====================================================================================
+   CHAPTER XVI, third pass: smooth morphs, a slow Kaen reveal, the Gog chain told straight,
+   Morwen inside the Crown, and the long limit-breaker war against your own face
+   ===================================================================================== */
+Object.assign(XL3,{
+  kw_08:"Maëlle! I can take Gog, but not with her raining bolts on my back. Chain her down!",
+  lw_08:"I'll bind her with Alfred's flame. Maëlle, take the chain with me! Kaen, he's all yours!",
+  mw_07:"Got her! She's heavy, and she is not happy. Hurry up, Kaen!",
+  kw_09:'Keep her still. I only need a minute with this one.',
+  lw_09:"They're binding together! Kaen, fall back! We can't hold her any longer!",
+  mw_22:'It showed me every one of them. Hakuko. The Nine-Tails. Hrímgar. Even you. But never Morwen. Why not Morwen?',
+  kw_19:"Because it hasn't finished with her. I felt her in there, the whole fight. Trapped. It can't wear her, it can't use her. It's still eating her.",
+  mw_24:'Eating her? But I destroyed her under Paris. There was nothing left.',
+  kw_20:'You broke what the Abyss made of her. Her soul went straight to the Crown. And Morwen is strong. Strong enough to feed it for a very long time.',
+  lw_16:"Then that's why it ran. Not to hide. To feed. Every night she's in there, it gets stronger.",
+  kw_21:"That's your limit breaker, Maëlle! It stole that too. Use yours. Now!",
+  mw_27:"We're even. Every hit, every spell. I'm literally fighting myself.",
+  mm_07:"Of course we're even. I am everything you are. Minus the fear.",
+  kw_22:'Enough! Get away from her!',
+  kw_23:"I'm fine! I've been thrown by worse. Together, Maëlle!",
+  kw_24:"Maëlle... I can't... It's too strong. It's all yours.",
+  mw_28:'Kaen? KAEN! ...Get. Away. From him.',
+  wh_01:'Yes. Let it in. Kill her. Kill all of them. Nobody will ever hurt you again.',
+  mw_29:"No. I hear you. I'm using it. I am not becoming it.",
+  wh_02:'Kill her.',wh_03:'Stronger. Let go. Just a little more.',wh_04:'They will leave you. They always leave.',
+  wh_05:'Finish it. Then the rest. Then everyone who ever doubted you.',
+  mw_30:'I could. I could end all of it. Right now.',
+  kw_25:"Maëlle. Look at me. That's not you. Let it go.",
+  lw_17:"Breathe with me. Alfred's flame, not the Crown's. Come back to us.",
+  mw_31:"I'm here. I'm here. That was... too close.",
+  kw_26:"You almost became what it wanted, just to save us. Don't ever do that again.",
+  mw_32:'Stay yourself. Stay yourself.'});
+for(const k of ['kw_08','lw_08','mw_07','kw_09','lw_09','mw_22','kw_19','mw_24','kw_20','lw_16'])VO_MAP[XL3[k]]=k+'b';
+for(const k of ['kw_21','mw_27','mm_07','kw_22','kw_23','kw_24','mw_28','wh_01','mw_29','wh_02','wh_03','wh_04','wh_05','mw_30','kw_25','lw_17','mw_31','kw_26','mw_32'])VO_MAP[XL3[k]]=k;
+
+/* ---------- colour drains and returns instead of snapping ---------- */
+{const _s=xoSetGrey;xoSetGrey=function(L,g){if(L)L._tok=null;return _s(L,g)}}
+function xoFade(L,toGrey,dur){if(!L||!L.length)return;const tok={};for(const q of L){if(!q[3])q[3]=q[2].clone();q[0].material=q[3]}L._tok=tok;
+  addFx(null,dur||.8,(f,k)=>{if(L._tok!==tok)return;const t=k*k*(3-2*k);for(const q of L){const a=toGrey?q[1]:q[2],b=toGrey?q[2]:q[1],m=q[3];if(m.color&&a.color&&b.color)m.color.copy(a.color).lerp(b.color,t);if(m.emissive&&a.emissive&&b.emissive)m.emissive.copy(a.emissive).lerp(b.emissive,t);if(a.roughness!=null&&b.roughness!=null)m.roughness=lerp(a.roughness,b.roughness,t);if(a.metalness!=null&&b.metalness!=null)m.metalness=lerp(a.metalness,b.metalness,t)}},
+    ()=>{if(L._tok===tok)xoSetGrey(L,toGrey)})}
+
+/* ---------- Kaen never stands with his arm stuck out ---------- */
+function kNoSpell(a){if(!a||a._ns||!a.setBase)return;a._ns=1;const sb=a.setBase;a.setBase=function(n){if(n==='Spell_Simple_Idle_Loop'){const r=[...arguments];r[0]='Idle_Loop';return sb.apply(this,r)}return sb.apply(this,arguments)}}
+{const _aa=actorAnimate;actorAnimate=function(e,dt,mv,rate){if(e&&(e.type==='illusion'||e.def&&e.def.build===buildIllusion)&&e.busy>0){const b=e.busy;e.busy=0;try{return _aa.apply(this,arguments)}finally{e.busy=b}}return _aa.apply(this,arguments)}}
+
+/* ---------- the Gog fight: nobody swaps bodies, Kaen takes Gog while you chain Magog ---------- */
+{const _sw=x5Swap;x5Swap=function(m,k,label,sub,a,b){if(label==='BODY SWITCH'){label='KAEN TAKES GOG';sub='PLAY AS KAEN'}else if(label==='SWITCH BACK'){label='BACK TO MAËLLE';sub='THE CHAIN BREAKS'}return _sw.call(this,m,k,label,sub,a,b)}}
+/* his techniques only show up once the transition is over */
+{const _h=kmHud;kmHud=function(on){if(on&&CS.active){_h(false);const w=()=>{if(!KM.on)return;if(CS.active){after(.15,w);return}_h(true)};after(.15,w);return}return _h.apply(this,arguments)}}
+
+/* ---------- Kaen: a slow reveal, his name only once the colour is in him ---------- */
+xoKaen=function(){if(CS.active){after(.3,xoKaen);return}const old=XO.e;XO.ph=1.6;sayHush();const p=XOC().add(V3(-6,0,0));xoClear(null);if(old){scene.remove(old.m.g);old.dead=true}XO.e=null;bossRef=null;$('boss').classList.add('hidden');
+  const hp=V3(p.x+10,0,p.z);x4Stage(hp,-Math.PI/2);P.face=-Math.PI/2;xoCoil(true);X4.cc=p.clone();
+  const e=xoSpawn(5,p,false);e.invuln=true;e.busy=999;e.m.g.rotation.y=Math.PI/2;e.m.g.scale.setScalar(.01);$('boss').classList.add('hidden');kNoSpell(e.m.actor);try{e.m.actor.setBase('Idle_Loop',0)}catch(x){}
+  const fig=xcFig(1.3);fig.g.position.copy(p);fig.set('ball');fig.cyc=.3;const kp=()=>KFW.a?KFW.a.g.position:hp;
+  const cut=(dur,fov,cam,fn)=>({dur,fov,cut:true,cam,onStart:()=>{x5Impact(60,.04);sx('clash',.45,null,{rate:rand(.5,.7)});P.shake=.5;x5Punch(7,.25);fn&&fn()}});
+  playCutscene([
+    /* the smoke gathers, slower this time, and starts to stand up */
+    {dur:3.6,fov:50,cut:true,cam:k=>({pos:V3(p.x+9-k*3,1.2+k*1.4,p.z+4.5-k*2),look:V3(p.x,1+k*1.2,p.z)}),onStart:()=>{x5Impact(90,.1);sx('skyshatter',.5,null,{rate:1.1});sx('riser',.8,null,{rate:.55});sx('heart',.8);x5Grey(1)},
+      update:(dt,k)=>{fig.g.scale.setScalar(1.3+k*.6);fig.g.position.y=p.y+1+k*.6;for(let q=0;q<3;q++)SM.emit(V3(p.x+rand(-1.2,1.2),p.y+rand(0,3.5),p.z+rand(-1.2,1.2)),{c0:0x10262c,c1:0x010304,s0:1.5,s1:4,life:1.2,a:.55,up:2});if(Math.random()<.025)sx('heart',.6);P.shake=Math.max(P.shake,k*.3)}},
+    /* a man in the smoke, still grey */
+    {dur:3.2,fov:42,cut:true,cam:k=>({pos:V3(p.x+5.6-k*1.3,1.4,p.z-2.2+k*.6),look:headOf(p,1.2)}),onStart:()=>{fig.set('king');fig.cyc=.2},
+      update:(dt,k)=>{const q=eOut(Math.min(1,k*1.1));e.m.g.scale.setScalar(Math.max(.01,q));fig.g.scale.setScalar(Math.max(.01,1.9*(1-q*.9)));if(k>.92)fig.g.visible=false;if(Math.random()<.5)SM.emit(V3(p.x+rand(-.8,.8),p.y+rand(0,2.4),p.z+rand(-.8,.8)),{c0:0x2a3430,c1:0x010304,s0:.8,s1:2.4,life:.9,a:.45,up:1})}},
+    cut(.8,30,()=>({pos:V3(p.x+1.5,.28,p.z+.7),look:V3(p.x,.25,p.z)}),()=>{xcFigOff();e.m.g.scale.setScalar(1)}),
+    cut(.8,28,()=>({pos:V3(p.x+1.3,1.1,p.z-1.1),look:V3(p.x,.95,p.z-.3)})),
+    cut(1.2,24,k=>({pos:headOf(p,1.62).add(V3(1.35-k*.2,0,.1)),look:headOf(p,1.6)})),
+    {who:'@',text:XL3.mw_13,fov:36,cam:x4S(()=>P.pos,1,2.2,1.6),onStart:()=>{P.heroAnim='Idle_Loop'}},
+    /* the colour seeps into him, and only now is he named */
+    {dur:3.2,fov:44,cut:true,cam:k=>({pos:V3(p.x+6-k*1.6,1.6,p.z+2.6-k*.8),look:headOf(p,1.3)}),onStart:()=>{x5Grey(0);xoFade(e.xo.L,false,1.7);sx('riser',.7,null,{rate:.9});
+        after(1.5,()=>{flash(headOf(p,1.2),0xc9a6ff,18);x5Impact(110,.1);x5Punch(12,.4);sx('impact',.8);ring(p,0xc9a6ff,1,12,.5);SP.emit(headOf(p,1.2),{n:90,c0:0xffffff,c1:0xc9a6ff,speed:10,life:.9,s0:.6,s1:.05});x5Banner('KAEN','MASTER OF ILLUSIONS','#c9a6ff',2.3)})},
+      update:(dt,k)=>{camera.fov=44-k*6;camera.updateProjectionMatrix()}},
+    {who:'Kaen',text:XL3.fk_01,fov:34,cam:k=>({pos:headOf(p,1.6).add(V3(2.6-k*.4,0,.9)),look:headOf(p,1.55)}),onStart:()=>{try{e.m.actor.setBase('Idle_Talking_Loop',.3)}catch(x){}}},
+    {who:'Kaen',text:XL3.kw_14,fov:38,cam:k=>({pos:headOf(kp(),1.2).add(V3(-2.6,.2,-1.4+k*.5)),look:headOf(kp(),1)}),onStart:()=>{x5Impact(70,.1);P.shake=.8;try{e.m.actor.setBase('Idle_Loop',.3)}catch(x){}try{KFW.a&&KFW.a.setBase('Crouch_Idle_Loop',.2)}catch(x){}},update:()=>{if(Math.random()<.5)SP.emit(headOf(kp(),1),{c0:0xffffff,c1:0xb070ff,s0:.4,s1:.04,life:.5,speed:3})}},
+    {who:'@',text:XL3.mw_14,fov:38,cam:x4S(()=>P.pos,-1,2.2,1.7),onStart:()=>{P.heroAnim='Idle_Talking_Loop'}}],
+    ()=>{x5Grey(0);xcFigOff();P.heroAnim=null;X4.cc=null;xoSetGrey(e.xo.L,false);e.xo.grey=false;e.xo.t=rand(6,9);try{e.m.actor.setBase('Idle_Loop',.2)}catch(x){}e.m.g.scale.setScalar(1);e.invuln=false;e.busy=.8;bossRef=e;$('boss').classList.remove('hidden');XO.ph=1;XO.cmp=0;P.invuln=1.5;x5Punch(12,.4)})};
+
+/* =====================================================================================
+   the mirror war
+   ===================================================================================== */
+function xmUI(){let d=document.getElementById('ultraFx');if(d)return d;d=document.createElement('div');d.id='ultraFx';d.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:22;opacity:0;transition:opacity .5s;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(30,14,0,.45) 70%,rgba(0,0,0,.9) 100%)';document.body.appendChild(d);return d}
+function xmUltraOff(){P.ultra=0;try{xmUI().style.opacity='0'}catch(x){}FIN.boost=0}
+function xmRedEyes(e){try{e.m.g.traverse(o=>{if(o.isSprite&&o.material&&o.material.color&&o.material.color.getHex()===0x9dffb0){o.material=o.material.clone();o.material.color.setHex(0xff1a1a);o.scale.multiplyScalar(1.4)}if(o.isMesh&&o.material&&o.material.isMeshBasicMaterial&&o.material.color&&o.material.color.getHex()===0x9dffb0){o.material=o.material.clone();o.material.color.setHex(0xff2020)}})}catch(x){}}
+function xmDarkOn(m){if(m._dk)return;m._dk=1;m.lb=1;xmRedEyes(m);if(!m.m.aura){const au=glowSprite(0xff2030,4.2,.16);au.position.y=1.1;m.m.g.add(au);m.m.aura=au}try{m.m.g.traverse(o=>{if((o.isMesh||o.isSkinnedMesh)&&o.material&&o.material.emissive&&!o.material.transparent){o.material=o.material.clone();o.material.emissive.setHex(0x1a0206);o.material.color.multiplyScalar(.55)}});m.xo.L=xoGreyList(m.m.g)}catch(x){}}
+function xmFreeze(m){for(const q of eProjs)scene.remove(q.s);eProjs.length=0;m.invuln=true;m.busy=999;m.ai.fly=null;if(m.m.broom)m.m.broom.visible=false;m.pos.y=groundAt(m.pos.x,m.pos.z);P.invuln=Math.max(P.invuln,6);P.flying=false;P.vy=0;sayHush()}
+function xmThaw(m){x5Grey(0);try{x4Kin('out')}catch(x){}m.invuln=false;m.busy=.8;P.invuln=Math.max(P.invuln,1.5);P.heroAnim=null;X4.cc=null;CS.speed=1;try{m.m.actor.setBase('Idle_Loop',.2)}catch(x){}}
+const xmGeo=m=>{const ep=m.pos.clone();ep.y=groundAt(ep.x,ep.z);const pp=P.pos.clone();pp.y=groundAt(pp.x,pp.z);const d=V3(ep.x-pp.x,0,ep.z-pp.z);if(d.lengthSq()<.01)d.set(-1,0,0);d.normalize();return{ep,pp,d,sd:V3(d.z,0,-d.x),mid:pp.clone().lerp(ep,.5)}};
+
+/* 1. it lights your limit breaker, black and red; Kaen tells you to light yours */
+function xmDarkLB(m){xmFreeze(m);const G=xmGeo(m),{ep,pp,d,sd}=G;X4.cc=ep.clone();m.m.g.rotation.y=Math.atan2(-d.x,-d.z);const kp=()=>KFW.a?KFW.a.g.position:pp;
+  playCutscene([
+    {dur:2.6,fov:40,cut:true,cam:k=>({pos:headOf(ep,1.1).addScaledVector(d,-3.4+k*.8).addScaledVector(sd,1.4),look:headOf(ep,1.2+k*.3)}),onStart:()=>{try{m.m.actor.setBase('Crouch_Idle_Loop',.2)}catch(x){}sx('riser',1,null,{rate:.6});sx('heart',.9);x5Grey(1)},
+      update:(dt,k)=>{const c=eCenter(m);for(let i=0;i<3;i++)SM.emit(V3(c.x+rand(-.6,.6),c.y+rand(-1,1),c.z+rand(-.6,.6)),{c0:0x140306,c1:0x000000,s0:.8,s1:2.6,life:.9,a:.7,up:2.4});P.shake=Math.max(P.shake,k*.4)}},
+    {dur:2.4,fov:48,cut:true,cam:k=>{const a=Math.atan2(-d.x,-d.z)+k*1.4;return{pos:V3(ep.x+Math.sin(a)*6,1.6+k,ep.z+Math.cos(a)*6),look:headOf(ep,1.2)}},onStart:()=>{x5Grey(0);xmDarkOn(m);try{m.m.actor.setBase('Spell_Simple_Idle_Loop',.2)}catch(x){}const c=eCenter(m);x5Impact(140,.2);x5Punch(18,.6);P.shake=1.4;sx('ktf',.9,null,{rate:.7});sx('skyshatter',.7,null,{rate:.6});
+        ring(m.pos,0x200408,1,16,.6);flash(c,0xff2030,16);SM.emit(c,{n:70,c0:0x1a0408,c1:0x000000,s0:2,s1:8,life:1.8,a:.85,speed:9});x5Banner('LIMIT BREAKER','THE CROWN BURNS YOUR FURY BLACK','#ff3040',2.4,'#000');
+        },
+      update:()=>{const c=eCenter(m);if(Math.random()<.9)FL.emit(V3(c.x+rand(-.5,.5),c.y-1,c.z+rand(-.5,.5)),{n:1,c0:0xff2030,c1:0x100002,s0:.8,s1:.05,life:.7,up:3});SM.emit(V3(c.x+rand(-.6,.6),c.y+rand(-1,1),c.z+rand(-.6,.6)),{c0:0x140306,c1:0,s0:.8,s1:2.6,life:.9,a:.7,up:2.4})}},
+    {who:'???',text:XL3.mm_06,fov:30,cam:k=>({pos:headOf(ep,1.58).addScaledVector(d,-2.2+k*.3).addScaledVector(sd,.6),look:headOf(ep,1.55)})},
+    {who:'Kaen',text:XL3.kw_21,fov:38,cam:k=>({pos:headOf(kp(),1.3).add(V3(-2.6+k*.4,.2,1.2)),look:headOf(kp(),1.1)}),onStart:()=>{x4Talk('Kaen');x5Impact(50,.05)}},
+    {who:'@',text:XL3.mw_26,fov:34,cam:x4S(()=>P.pos,1,2.2,1.65),onStart:()=>{x4Talk('@');P.heroAnim='Spell_Simple_Idle_Loop'}},
+    {dur:3.2,fov:46,cut:true,cam:k=>{const a=P.face+k*2.6;return{pos:V3(P.pos.x+Math.sin(a)*5,P.pos.y+1.6+k*1.2,P.pos.z+Math.cos(a)*5),look:headOf(P.pos,1.2)}},onStart:()=>{x4Talk('');try{witchLimitBreak(false)}catch(x){console.warn(x)}x5Impact(110,.14);x5Banner('LIMIT BREAKER','MAËLLE','#ffd060',2.2,'#1a1206')},update:dt=>{P.lbRamp=Math.min(1,(P.lbRamp||0)+dt*.6);try{lbSet(P.lbRamp)}catch(x){}}}],
+    ()=>{XO.tn.lb=2;xmDarkOn(m);if(!(P.lbT>0))try{witchLimitBreak(false)}catch(x){}P.lbT=Math.max(P.lbT||0,60);P.lbRamp=1;xmThaw(m);toast('Your limit breaker lasts longer here. Hers hits much harder. Keep moving.','Limit Breaker',true)})}
+
+/* 2. dead even: a beam lock neither of you can win */
+function xmEven(m){xmFreeze(m);const G=xmGeo(m),{ep,pp,d,sd,mid}=G;X4.cc=mid.clone();m.m.g.rotation.y=Math.atan2(-d.x,-d.z);P.face=Math.atan2(d.x,d.z);
+  const up=V3(0,1,0),mk=col=>{const b=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,1,14,1,true),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));scene.add(b);return b};let bA=null,bB=null,orb=null;
+  const put=(b,a,c)=>{const v=c.clone().sub(a),L=v.length()||.01;b.position.copy(a).addScaledVector(v,.5);b.quaternion.setFromUnitVectors(up,v.normalize());const w=1+Math.sin(time*40)*.18;b.scale.set(w,L,w)};
+  const beams=k=>{if(!bA)return;const A=headOf(P.pos,1.3),B=eCenter(m),M=A.clone().lerp(B,.5+Math.sin(time*7)*.06);put(bA,A,M);put(bB,B,M);orb.position.copy(M);orb.scale.setScalar(6+Math.sin(time*30)*1.4);SP.emit(M,{n:5,c0:0xffffff,c1:Math.random()<.5?0xffc040:0xff2030,speed:10,life:.4,s0:.5,s1:.05});P.shake=Math.max(P.shake,.4)};
+  const kill=()=>{for(const b of[bA,bB])if(b){scene.remove(b);b.geometry.dispose()}if(orb)scene.remove(orb);bA=bB=orb=null};
+  playCutscene([
+    {dur:3,fov:52,cut:true,cam:k=>({pos:V3(mid.x+sd.x*(11-k*2),2.2+k,mid.z+sd.z*(11-k*2)),look:V3(mid.x,1.4,mid.z)}),onStart:()=>{P.heroAnim='Spell_Simple_Idle_Loop';try{m.m.actor.setBase('Spell_Simple_Idle_Loop',.2)}catch(x){}bA=mk(0xffc040);bB=mk(0xff2030);orb=glowSprite(0xffffff,6,1);scene.add(orb);sx('dcharge',1);sx('riser',.8);x5Impact(90,.1);try{x4Kin('in')}catch(x){}x5VS('MAËLLE','MAËLLE','#ffd060','#ff3040','EVEN')},update:(dt,k)=>beams(k)},
+    {dur:1.4,fov:30,cut:true,cam:k=>({pos:headOf(P.pos,1.6).addScaledVector(d,1.6).addScaledVector(sd,-.9),look:headOf(P.pos,1.5)}),onStart:()=>{CS.speed=.6;x5Punch(8,.3)},update:(dt,k)=>beams(k)},
+    {dur:1.4,fov:30,cut:true,cam:k=>({pos:headOf(m.pos,1.6).addScaledVector(d,-1.6).addScaledVector(sd,.9),look:headOf(m.pos,1.5)}),update:(dt,k)=>beams(k)},
+    {dur:1.6,fov:58,cut:true,cam:k=>({pos:V3(mid.x+sd.x*14,3+k*2,mid.z+sd.z*14),look:V3(mid.x,1.4,mid.z)}),onStart:()=>{CS.speed=1;try{x4Kin('punch')}catch(x){}kill();flash(mid,0xffffff,40);x5Impact(170,.25);x5Punch(22,.7);P.shake=1.8;sx('skyshatter',1);ring(mid,0xffc040,1,18,.6);ring(mid,0xff2030,.5,14,.5);SP.emit(V3(mid.x,1.4,mid.z),{n:220,c0:0xffffff,c1:0xffc040,speed:18,life:1,s0:.7,s1:.05});SM.emit(V3(mid.x,1.4,mid.z),{n:40,c0:0x140306,c1:0,s0:2,s1:7,life:1.4,a:.7,speed:10})},
+      update:(dt,k)=>{const q=eOut(Math.min(1,k*2));const a=pp.clone().addScaledVector(d,-4.5*q),b=ep.clone().addScaledVector(d,4.5*q);P.pos.x=a.x;P.pos.z=a.z;m.pos.x=b.x;m.pos.z=b.z}},
+    {who:'@',text:XL3.mw_27,fov:36,cam:x4S(()=>P.pos,1,2.2,1.6),onStart:()=>{P.heroAnim='Crouch_Idle_Loop';try{m.m.actor.setBase('Crouch_Idle_Loop',.2)}catch(x){}}},
+    {who:'???',text:XL3.mm_07,fov:30,cam:k=>({pos:headOf(m.pos,1.58).addScaledVector(d,-2.2).addScaledVector(sd,.6),look:headOf(m.pos,1.55)}),onStart:()=>{try{m.m.actor.setBase('Idle_Loop',.3)}catch(x){}}}],
+    ()=>{kill();XO.tn.ev=2;P.lbT=Math.max(P.lbT||0,25);xmThaw(m)})}
+
+/* 3. Kaen tears out of the smoke to help, and gets thrown across the square */
+function xmKaenIn(m){const K=KFW.a;if(!K){XO.tn.k=2;XO.tn.kd=1;xmUltra(m);return}xmFreeze(m);const G=xmGeo(m),{ep,d,sd}=G;const k0=K.g.position.clone();X4.cc=ep.clone();
+  let ci=-1,bd=1e9;XO.coil.forEach((c,i)=>{const q=c.position.distanceTo(k0);if(q<bd){bd=q;ci=i}});
+  const run=ep.clone().addScaledVector(V3(k0.x-ep.x,0,k0.z-ep.z).normalize(),2.2);const far=ep.clone().addScaledVector(V3(k0.x-ep.x,0,k0.z-ep.z).normalize(),13);far.x=clamp(far.x,XO.B.x0+3,XO.B.x1-3);far.z=clamp(far.z,XO.B.z0+3,XO.B.z1-3);
+  playCutscene([
+    {who:'Kaen',text:XL3.kw_22,fov:38,cam:k=>({pos:headOf(k0,1.3).add(V3(-3+k*.6,.3,1.6)),look:headOf(k0,1.1)}),onStart:()=>{if(ci>=0){const c=XO.coil.splice(ci,1)[0];scene.remove(c)}flash(headOf(k0,1),0xb070ff,14);ring(k0,0xb070ff,.5,6,.4);sx('shbreak',.8);x5Impact(80,.1);try{K.setBase('Idle_Loop',.1);K.fire('Melee_Hook',.4)}catch(x){}x4Face(K,ep)}},
+    {dur:1.3,fov:56,cut:true,cam:k=>{const p=K.g.position;return{pos:V3(p.x+sd.x*5,1.4,p.z+sd.z*5),look:headOf(p,1)}},onStart:()=>{CS.speed=.7;try{K.setBase('Sprint_Loop',.1)}catch(x){}try{x4Kin('in')}catch(x){}kSwing(1,.7)},
+      update:(dt,k)=>{K.g.position.lerpVectors(k0,run,eIn(k));K.g.position.y=groundAt(K.g.position.x,K.g.position.z);SP.emit(headOf(K.g.position,1),{n:2,c0:0xffffff,c1:0xb070ff,s0:.5,s1:.05,life:.4,speed:1})}},
+    {dur:1,fov:34,cut:true,cam:()=>({pos:headOf(run,1.3).addScaledVector(sd,2.6),look:headOf(ep,1.2)}),onStart:()=>{try{m.m.actor.fire('Spell_Simple_Shoot',.2)}catch(x){}m.m.g.rotation.y=Math.atan2(run.x-ep.x,run.z-ep.z);xoBeam(eCenter(m),headOf(run,1.1),0xff2030,.5,.9);flash(headOf(run,1.1),0xffffff,30);x5Impact(160,.22);x5Punch(20,.6);P.shake=1.6;sx('dbeam',.9);sx('impact',1,null,{rate:.7});try{x4Kin('punch')}catch(x){}x5Grey(1);after(.25,()=>x5Grey(0))}},
+    {dur:1.7,fov:50,cut:true,cam:k=>({pos:V3((run.x+far.x)/2+sd.x*9,2.4,(run.z+far.z)/2+sd.z*9),look:K.g.position.clone().setY(1)}),onStart:()=>{CS.speed=1;try{K.setBase('Crouch_Idle_Loop',.1)}catch(x){}},
+      update:(dt,k)=>{const q=Math.min(1,k*1.5);K.g.position.lerpVectors(run,far,eOut(q));K.g.position.y=groundAt(K.g.position.x,K.g.position.z)+Math.sin(q*Math.PI)*2.4;if(q<1)SM.emit(V3(K.g.position.x,K.g.position.y+.5,K.g.position.z),{c0:0x140306,c1:0,s0:1,s1:3,life:.7,a:.5});else if(!K._land){K._land=1;ring(far,0xb070ff,.5,6,.4);SM.emit(V3(far.x,.5,far.z),{n:30,c0:0x4a5a4e,c1:0x06100a,s0:2,s1:6,life:1.2,a:.6,speed:6});sx('impact',.8);P.shake=1}}},
+    {who:'Kaen',text:XL3.kw_23,fov:38,cam:k=>({pos:headOf(far,1).add(V3(2.4,.2,-1.6+k*.4)),look:headOf(far,1)}),onStart:()=>{K._land=0;try{K.setBase('Idle_Loop',.6)}catch(x){}x4Face(K,ep)}}],
+    ()=>{if(ci>=0&&XO.coil[ci]&&XO.coil[ci].position.distanceTo(k0)<2){const c=XO.coil.splice(ci,1)[0];scene.remove(c)}XO.tn.k=2;XO.kf={t:0,hit:4,ang:0,st:0,c:{busy:0,cd:.8,n:0,an:''}};XO.cmp=1;KFW.pin=1;xmThaw(m);toast('Kaen is in the fight. Keep the pressure on her together.','Kaen',true)})}
+function xmKfTick(dt,m){const F=XO.kf,K=KFW.a;if(!F||!K||!m||m.dead)return;F.t+=dt;const c=F.c;c.busy=Math.max(0,c.busy-dt);c.cd-=dt;F.hit-=dt;K.g.visible=true;
+  if(F.st>0){F.st-=dt;if(F.st<=0){c.an='';x4CmpAnim(c,K,'Idle_Loop')}return}
+  if(!c.busy){const g=K.g.position;F.ang+=dt*.5;const R=4.6,tx=clamp(m.pos.x+Math.sin(F.ang)*R,XO.B.x0+2,XO.B.x1-2),tz=clamp(m.pos.z+Math.cos(F.ang)*R,XO.B.z0+2,XO.B.z1-2);const dx=tx-g.x,dz=tz-g.z,L=Math.hypot(dx,dz),v=Math.min(L,dt*9);if(L>.05){g.x+=dx/L*v;g.z+=dz/L*v}g.y=groundAt(g.x,g.z);
+    x4CmpAnim(c,K,L>1.6?'Sprint_Loop':'Idle_Loop');if(L>1.6)K.g.rotation.y=Math.atan2(dx,dz);else x4Face(K,m.pos);
+    if(c.cd<=0&&L<3&&m.pos.y<groundAt(m.pos.x,m.pos.z)+4){c.cd=rand(2.2,3.2);c.n++;c.an='';if(c.n%2)x4KWave(K,m);else x4KDash(K,m,c);c.busy=Math.max(c.busy,.7)}}
+  if(F.hit<=0&&!m.invuln){F.hit=rand(4.5,6.5);const A=eCenter(m),B=headOf(K.g.position,1.1);xoBeam(A,B,0xff2030,.3,.35);flash(B,0xff2030,8);sx('impact',.5,null,{rate:1.2});F.st=.9;c.busy=1;c.an='';x4CmpAnim(c,K,'Crouch_Idle_Loop');SM.emit(B,{n:12,c0:0x140306,c1:0,s0:1,s1:3,life:.8,a:.6,speed:4})}}
+
+/* 4. it puts him down for good, half in game, half in slow motion */
+function xmKaenDown(m){const K=KFW.a;xmFreeze(m);XO.cmp=0;const kpos=(K?K.g.position:P.pos).clone();kpos.y=groundAt(kpos.x,kpos.z);const G=xmGeo(m),{d,sd}=G;const ep0=m.pos.clone();const behind=kpos.clone().addScaledVector(V3(kpos.x-P.pos.x,0,kpos.z-P.pos.z).normalize(),1.6);
+  const slam=kpos.clone().addScaledVector(V3(kpos.x-ep0.x,0,kpos.z-ep0.z).normalize(),-.4);X4.cc=kpos.clone();
+  playCutscene([
+    {dur:1.3,fov:38,cut:true,cam:k=>({pos:headOf(kpos,.6).addScaledVector(sd,3.2-k*.6),look:headOf(kpos,1.1)}),onStart:()=>{CS.speed=.45;try{x4Kin('in')}catch(x){}flash(eCenter(m),0xff2030,10);SM.emit(eCenter(m),{n:24,c0:0x140306,c1:0,s0:1.5,s1:4,life:.8,a:.7,speed:4});m.pos.copy(behind);m.pos.y=groundAt(behind.x,behind.z);m.m.g.rotation.y=Math.atan2(kpos.x-behind.x,kpos.z-behind.z);flash(eCenter(m),0xff2030,12);sx('portal',.6,null,{rate:1.6});if(K){x4Face(K,P.pos);try{K.setBase('Idle_Loop',.1)}catch(x){}}x5Banner('BEHIND YOU','','#ff3040',.9,'#000')}},
+    {dur:.9,fov:30,cut:true,cam:()=>({pos:headOf(kpos,1.2).addScaledVector(sd,-2.2),look:headOf(kpos,1.1)}),onStart:()=>{CS.speed=1;try{m.m.actor.fire('Spell_Simple_Shoot',.15)}catch(x){}const c=headOf(kpos,1.1);flash(c,0xffffff,40);x5Impact(190,.3);x5Punch(24,.8);P.shake=2;sx('skyshatter',1);sx('dbeam',.9,null,{rate:.7});x5Grey(1);try{x4Kin('punch')}catch(x){}SM.emit(c,{n:60,c0:0x140306,c1:0,s0:2,s1:7,life:1.4,a:.8,speed:12});SP.emit(c,{n:120,c0:0xffffff,c1:0xff2030,speed:16,life:.8,s0:.6,s1:.05})}},
+    {dur:1.6,fov:44,cut:true,cam:k=>({pos:V3(slam.x+sd.x*.5,9-k*2,slam.z+sd.z*.5+.01),look:V3(slam.x,0,slam.z)}),onStart:()=>{x5Grey(0);if(K){K.g.position.copy(slam);K.g.position.y=groundAt(slam.x,slam.z);try{K.setBase('Crouch_Idle_Loop',.05)}catch(x){}}ring(slam,0xff2030,.5,9,.5);ring(slam,0x200408,1,12,.7);SM.emit(V3(slam.x,.5,slam.z),{n:50,c0:0x4a5a4e,c1:0x06100a,s0:2,s1:7,life:1.6,a:.7,speed:8});sx('impact',1,null,{rate:.6});vib([60,30,120])}},
+    {who:'Kaen',text:XL3.kw_24,fov:34,cam:k=>({pos:headOf(slam,.8).add(V3(1.8,.1,1.2-k*.3)),look:headOf(slam,.7)})},
+    {who:'@',text:XL3.mw_28,fov:30,cam:k=>({pos:headOf(P.pos,1.6).addScaledVector(d,1.5-k*.3).addScaledVector(sd,-.6),look:headOf(P.pos,1.55)}),onStart:()=>{P.heroAnim='Idle_Loop';P.face=Math.atan2(m.pos.x-P.pos.x,m.pos.z-P.pos.z)},update:()=>{if(Math.random()<.6)lightning(V3(P.pos.x,P.pos.y+2.4,P.pos.z),V3(P.pos.x+rand(-1.5,1.5),P.pos.y+rand(.2,1.4),P.pos.z+rand(-1.5,1.5)),0xffd060)}}],
+    ()=>{XO.kf=null;KFW.pin=1;XO.tn.kd=2;xmUltra(m)})}
+
+/* 5. beyond the limit: gold, lightning, something black underneath, and voices */
+function xmUltra(m){if(CS.active){after(.3,()=>xmUltra(m));return}xmFreeze(m);const G=xmGeo(m),{d,sd}=G;X4.cc=m.pos.clone();const U=xmUI();
+  const storm=k=>{FIN.boost=1.6;for(let i=0;i<2;i++)SM.emit(V3(P.pos.x+rand(-1.4,1.4),P.pos.y+rand(0,2.6),P.pos.z+rand(-1.4,1.4)),{c0:0x0a0603,c1:0,s0:.8,s1:2.4,life:1,a:.6,up:2.6});if(Math.random()<.7)lightning(V3(P.pos.x,P.pos.y+2.8,P.pos.z),V3(P.pos.x+rand(-2,2),P.pos.y+rand(.1,1.6),P.pos.z+rand(-2,2)),Math.random()<.75?0xffd060:0x6a20ff);SP.emit(V3(P.pos.x+rand(-1.2,1.2),P.pos.y+rand(0,2.6),P.pos.z+rand(-1.2,1.2)),{n:2,c0:0xfff0b0,c1:0x402000,s0:.5,s1:.05,life:.9,up:3,speed:.6});P.shake=Math.max(P.shake,.25+k*.3)};
+  playCutscene([
+    {dur:3.6,fov:50,cut:true,cam:k=>{const a=P.face+Math.PI+k*3;return{pos:V3(P.pos.x+Math.sin(a)*(6-k*1.5),P.pos.y+.8+k*2,P.pos.z+Math.cos(a)*(6-k*1.5)),look:headOf(P.pos,1.2+k*.3)}},onStart:()=>{P.heroAnim='Spell_Simple_Idle_Loop';P.lbT=Math.max(P.lbT||0,60);P.lbRamp=1;try{lbSet(1)}catch(x){}U.style.opacity='.75';sx('riser',1,null,{rate:.5});sx('ktf',1,null,{rate:.55});sx('skyshatter',.9,null,{rate:.5});x5Impact(150,.2);x5Punch(20,.8);
+        flash(headOf(P.pos,1.2),0xffd060,40);ring(P.pos,0xffc040,1,20,.8);ring(P.pos,0x140306,1,14,.9);SP.emit(headOf(P.pos,1.2),{n:300,c0:0xffffff,c1:0xffc040,speed:20,life:1.2,s0:.8,s1:.06});x5Banner('LIMIT BREAKER','BEYOND','#ffd060',2.6,'#000')},update:(dt,k)=>storm(k)},
+    {who:'Whispers',text:XL3.wh_01,fov:22,cam:k=>({pos:headOf(P.pos,1.64).addScaledVector(d,.9-k*.15),look:headOf(P.pos,1.62)}),onStart:()=>{U.style.opacity='.95';x5Grey(1)},update:(dt,k)=>{storm(.4);if(Math.random()<.05){x5Impact(40,0)}}},
+    {who:'@',text:XL3.mw_29,fov:32,cam:x4S(()=>P.pos,-1,2,1.6),onStart:()=>{x5Grey(0);U.style.opacity='.6';x5Impact(90,.1);x5Punch(12,.4)},update:(dt,k)=>storm(.6)}],
+    ()=>{XO.tn.u=2;P.ultra=60;P.lbT=Math.max(P.lbT||0,60);P.lbRamp=1;XO.wt=6;U.style.opacity='.45';xmThaw(m);toast('Every spell now hits like a hammer, and you take far less damage. Hold on to yourself until she falls.','Limit Breaker: Beyond',true)})}
+function xmUltraTick(dt){P.ultra-=dt;const U=xmUI();if(P.ultra<=0){xmUltraOff();return}P.lbT=Math.max(P.lbT||0,2);P.lbRamp=1;FIN.boost=Math.max(FIN.boost||0,1.3);U.style.opacity=String(.38+Math.sin(time*2.3)*.1);
+  if(Math.random()<dt*4)lightning(V3(P.pos.x,P.pos.y+2.8,P.pos.z),V3(P.pos.x+rand(-2,2),P.pos.y+rand(.1,1.6),P.pos.z+rand(-2,2)),Math.random()<.8?0xffd060:0x6a20ff);
+  if(Math.random()<dt*20)SM.emit(V3(P.pos.x+rand(-1.2,1.2),P.pos.y+rand(0,2.4),P.pos.z+rand(-1.2,1.2)),{c0:0x0a0603,c1:0,s0:.6,s1:2,life:.9,a:.5,up:2.4});
+  XO.wt=(XO.wt||8)-dt;if(XO.wt<=0&&!CS.active){XO.wt=rand(9,13);const w=['wh_02','wh_03','wh_04'][(XO.wn=(XO.wn||0)+1)%3];x5Say('Whispers',w,1);x5Impact(40,0);if(Math.random()<.6)after(4,()=>{if(P.ultra>0)x5Say('@','mw_32',1)})}}
+{const _de=damageEnemy;damageEnemy=function(e,amt){if(P.ultra>0&&e&&e===XO.mir&&typeof amt==='number'){const a=[...arguments];a[1]=amt*1.6;return _de.apply(this,a)}return _de.apply(this,arguments)}}
+{const _dp=damagePlayer;damagePlayer=function(a){if(P.ultra>0&&typeof a==='number')a*=.6;return _dp.call(this,a)}}
+
+/* 6. she is on her knees and you could finish everything; they pull you back */
+function xmCalm(m){xmFreeze(m);const G=xmGeo(m),{ep,d,sd}=G;X4.cc=ep.clone();const K=KFW.a,Ly=LYR.a;const U=xmUI();let orb=null;
+  const near=ep.clone().addScaledVector(d,-2.6);const kpos=()=>K?K.g.position:P.pos,lpos=()=>Ly?Ly.g.position:P.pos;
+  playCutscene([
+    {dur:2.8,fov:42,cut:true,cam:k=>({pos:V3(ep.x+sd.x*5.5,.9+k*.4,ep.z+sd.z*5.5),look:V3((ep.x+P.pos.x)/2,1.1,(ep.z+P.pos.z)/2)}),onStart:()=>{try{m.m.actor.setBase('Crouch_Idle_Loop',.2)}catch(x){}xoFade(m.xo.L,true,1.2);sx('heart',.9);P.heroAnim='Walk_Loop';const from=P.pos.clone();P._cf=from;
+        orb=glowSprite(0xffc040,1,1);scene.add(orb)},update:(dt,k)=>{P.pos.lerpVectors(P._cf,near,Math.min(1,k*1.4));P.pos.y=groundAt(P.pos.x,P.pos.z);P.face=Math.atan2(ep.x-P.pos.x,ep.z-P.pos.z);if(k>.7)P.heroAnim='Spell_Simple_Idle_Loop';orb.position.copy(headOf(P.pos,1.3)).addScaledVector(d,.6);orb.scale.setScalar(1+k*2);SM.emit(orb.position,{c0:0x0a0603,c1:0,s0:.4,s1:1.4,life:.6,a:.6,up:1})}},
+    {who:'Whispers',text:XL3.wh_05,fov:24,cam:k=>({pos:headOf(P.pos,1.64).addScaledVector(d,1-k*.2).addScaledVector(sd,.3),look:headOf(P.pos,1.6)}),onStart:()=>{U.style.opacity='.95'},update:(dt,k)=>{if(orb){orb.scale.setScalar(3+k*2);orb.position.copy(headOf(P.pos,1.3)).addScaledVector(d,.6)}if(Math.random()<.5)lightning(headOf(P.pos,2.6),headOf(P.pos,rand(.3,1.6)).add(V3(rand(-1.5,1.5),0,rand(-1.5,1.5))),0xffd060)}},
+    {who:'@',text:XL3.mw_30,fov:34,cam:k=>({pos:headOf(P.pos,1.5).addScaledVector(sd,2.2).addScaledVector(d,.6),look:V3((ep.x+P.pos.x)/2,1.3,(ep.z+P.pos.z)/2)}),update:(dt,k)=>{if(orb){orb.scale.setScalar(5+k*2+Math.sin(time*30)*.4)}P.shake=Math.max(P.shake,.3)}},
+    {who:'Kaen',text:XL3.kw_25,fov:38,cam:k=>({pos:headOf(kpos(),1.3).add(V3(2.4,.2,1.4-k*.4)),look:headOf(kpos(),1.2)}),onStart:()=>{if(K){try{K.setBase('Idle_Loop',.6)}catch(x){}x4Face(K,P.pos)}}},
+    {who:'Lyra',text:XL3.lw_17,fov:38,cam:k=>({pos:headOf(lpos(),1.2).add(V3(-2.4,.2,1.4)),look:headOf(lpos(),1.1)}),onStart:()=>{xoCoil(false);if(Ly){Ly.g.visible=true;try{Ly.setBase('Spell_Simple_Idle_Loop',.3)}catch(x){}x4Face(Ly,P.pos)}flash(headOf(lpos(),1.2),0xffd890,12);sx('shield',.7)},update:()=>{try{ritStream(headOf(lpos(),1.2),headOf(P.pos,1.2),0xfff6c8,0xffb030,.8,0)}catch(x){}}},
+    {dur:3.4,fov:46,cut:true,cam:k=>{const a=P.face+Math.PI*.6-k*.8;return{pos:V3(P.pos.x+Math.sin(a)*(4.5+k),P.pos.y+1.4+k*.6,P.pos.z+Math.cos(a)*(4.5+k)),look:headOf(P.pos,1.1)}},onStart:()=>{sx('heart',.6);sx('wind',.6,null,{rate:.7});P.heroAnim='Crouch_Idle_Loop';x5Impact(60,0)},
+      update:(dt,k)=>{FIN.boost=Math.max(0,1.6*(1-k));P.lbRamp=Math.max(0,1-k);try{lbSet(P.lbRamp)}catch(x){}U.style.opacity=String(.9*(1-k));if(orb){orb.scale.setScalar(Math.max(.01,7*(1-k*1.2)));if(k>.85){scene.remove(orb);orb=null}}if(Math.random()<.6)SP.emit(V3(P.pos.x+rand(-1,1),P.pos.y+rand(0,2),P.pos.z+rand(-1,1)),{c0:0xfff0b0,c1:0xffc040,s0:.4,s1:.04,life:1.2,up:2.5,speed:.4})}},
+    {who:'@',text:XL3.mw_31,fov:36,cam:x4S(()=>P.pos,1,2.2,1.2),onStart:()=>{xmUltraOff();P.lbT=0;P.lbRamp=0;try{lbSet(0)}catch(x){}P.heroAnim='Idle_Loop'}},
+    {who:'Kaen',text:XL3.kw_26,fov:34,cam:k=>({pos:headOf(kpos(),1.5).add(V3(-2,.1,1.6-k*.3)),look:headOf(kpos(),1.45)})}],
+    ()=>{if(orb)scene.remove(orb);x5Grey(0);xmUltraOff();P.lbT=0;P.lbRamp=0;try{lbSet(0)}catch(x){}XO.tn.end=2;P.heroAnim=null;CS.speed=1;try{m.m.actor.setBase('Crouch_Idle_Loop',.2)}catch(x){}m.invuln=true;m.busy=999;after(.2,xoEnd)})}
+
+/* the mirror fight, beat by beat */
+function xmSagaTick(dt){const m=XO.mir;if(!m||m.dead)return;if(XO.clash){xmClashTick(dt);return}if(XO.tube){xmTubeTick(dt);return}
+  XO.clT=(XO.clT||0)-dt;const r=m.hp/m.maxhp,T=XO.tn||(XO.tn={});
+  if(m.lb){const c=eCenter(m);if(Math.random()<.8)SM.emit(V3(c.x+rand(-.5,.5),c.y+rand(-1,1),c.z+rand(-.5,.5)),{c0:0x140306,c1:0x000000,s0:.8,s1:2.6,life:.9,a:.7,up:2.4});if(Math.random()<.4)FL.emit(V3(c.x+rand(-.4,.4),c.y-1,c.z+rand(-.4,.4)),{n:1,c0:0xb0101c,c1:0x100002,s0:.6,s1:.05,life:.7,up:3});if(m.m.aura)m.m.aura.material.opacity=.15+Math.sin(time*7)*.05}
+  if(P.ultra>0)xmUltraTick(dt);if(XO.kf)xmKfTick(dt,m);
+  if(r<.9&&!T.a){T.a=1;x5Say('???','mm_02',1)}if(r<.72&&!T.b){T.b=1;x5Say('???','mm_03',1)}if(r<.58&&!T.c){T.c=1;x5Say('???','mm_04',1)}
+  m.hpFloor=T.lb!==2?.5:T.ev!==2?.4:T.u!==2?.22:.06;
+  if(CS.active||!P.alive)return;const idle=m.busy<=0&&!m.ai.fly&&!m.invuln&&m.pos.y<groundAt(m.pos.x,m.pos.z)+.6;if(!idle)return;
+  if(!T.lb&&!T.t1&&r<.82){T.t1=1;xmTube(m,0)}
+  else if(!T.lb&&!XO.cl&&r<.66&&XO.clT<=0){XO.cl=1;xmClash(m)}
+  else if(!T.lb&&r<=.505){T.lb=1;xmDarkLB(m)}
+  else if(T.lb===2&&!T.ev&&r<=.405){T.ev=1;xmEven(m)}
+  else if(T.ev===2&&!T.k&&r<.34){T.k=1;xmKaenIn(m)}
+  else if(T.k===2&&!T.kd&&((XO.kf&&XO.kf.t>16)||r<=.225)){T.kd=1;xmKaenDown(m)}
+  else if(T.u===2&&!T.end&&m.hp<=m.maxhp*.06+1){T.end=1;xmCalm(m)}}
+{const _ot=x5OTick;x5OTick=function(dt,dq){const st=CH2.st;if(st===21||st===22){try{kNoSpell(KFW.a);if(XO.e&&XO.e.type==='illusion')kNoSpell(XO.e.m.actor)}catch(x){}if(XO.ph===2){xoArena();XO.t+=dt;xmSagaTick(dt);return}}return _ot.apply(this,arguments)}}
+{const cl=()=>{xmUltraOff();XO.kf=null;XO.tn={};CS.speed=1};const _or=x5OReset;x5OReset=function(){cl();return _or.apply(this,arguments)};const _rv=x5ORevive;x5ORevive=function(){cl();return _rv.apply(this,arguments)}}
 /* voice pack: new lines ship as one file */
 const VOPK={idx:{"k2_01":[0,52269],"k2_02":[52269,44781],"k2_03":[97050,48429],"k2_04":[145479,43821],"k2_05":[189300,19053],"k2_06":[208353,20973],"k2_07":[229326,42285],"k2_08":[271611,33069],"k2_09":[304680,20973],"k2_11":[325653,17709],"k2_12":[343362,19245],"k2_13":[362607,45549],"k2_14":[408156,64941],"k2_15":[473097,19629],"k2_16":[492726,20205],"k2_17":[512931,18669],"k2_18":[531600,17133],"k2_19":[548733,18861],"k3_01":[567594,32877],"k3_02":[600471,25005],"k3_03":[625476,39597],"k3_04":[665073,40941],"k3_05":[706014,57837],"k3_06":[763851,60909],"k3_07":[824760,32493],"k3_08":[857253,35757],"k3_09":[893010,40749],"k3_10":[933759,20781],"k6_01":[954540,45741],"k6_02":[1000281,56301],"k6_03":[1056582,53421],"k6_04":[1110003,17709],"k6_05":[1127712,23661],"k6_06":[1151373,15213],"k6_07":[1166586,23277],"k6_08":[1189863,9837],"k6_09":[1199700,24813],"k7_01":[1224513,41325],"k7_02":[1265838,53229],"k7_03":[1319067,48813],"k7_04":[1367880,37677],"k7_05":[1405557,54573],"k7_06":[1460130,60141],"k7_07":[1520271,27501],"k7_08":[1547772,30765],"kb2_01":[1578537,50157],"kb2_02":[1628694,43245],"kb2_03":[1671939,45933],"kf_01":[1717872,14445],"kf_02":[1732317,18477],"kf_03":[1750794,11373],"kf_04":[1762167,18093],"kf_05":[1780260,18669],"kf_06":[1798929,32109],"kf_07":[1831038,12525],"kf_08":[1843563,37101],"kf_09":[1880664,13101],"kf_10":[1893765,10413],"kf_11":[1904178,7917],"kj5_01":[1912095,35181],"kj5_02":[1947276,75885],"kj5_03":[2023161,72429],"kj5_04":[2095590,36909],"kj5_05":[2132499,77229],"kj5_06":[2209728,62829],"kj5_07":[2272557,49965],"kj5_08":[2322522,53613],"kj5_09":[2376135,40173],"kj5_10":[2416308,37293],"kj5_11":[2453601,51501],"kj5_12":[2505102,27117],"kj5_13":[2532219,51693],"kj5_14":[2583912,60909],"kj5_15":[2644821,45741],"kj5_16":[2690562,50157],"kj5_17":[2740719,31341],"kj5_18":[2772060,47469],"kj5_19":[2819529,52845],"kj5_20":[2872374,36141],"kj5_21":[2908515,40749],"kx1":[2949264,33261],"kx2":[2982525,60717],"kx3":[3043242,45741],"kx4":[3088983,53805],"kx5":[3142788,50925],"kz_clue":[3193713,66669],"kz_free":[3260382,35949],"kz_stop":[3296331,41517],"ly43":[3337848,25581],"ly44":[3363429,34605],"ly45":[3398034,28269],"ly46":[3426303,54765],"ly47":[3481068,25197],"ly48":[3506265,67245],"ly49":[3573510,49005],"m6_01":[3622515,31917],"m6_02":[3654432,25197],"m6_03":[3679629,21549],"m6_04":[3701178,33837],"m6_05":[3735015,24813],"m6_06":[3759828,29997],"m6_07":[3789825,27693],"m6_08":[3817518,31917],"m6_09":[3849435,31533],"m7_01":[3880968,53613],"m7_02":[3934581,23277],"m7_03":[3957858,40365],"m7_04":[3998223,34413],"m7_05":[4032636,21165],"m7_06":[4053801,17517],"m7_07":[4071318,19437],"m7_08":[4090755,17709],"m7_09":[4108464,19437],"m7_10":[4127901,21933],"m7_11":[4149834,25581],"m7_12":[4175415,21357],"vp_01":[4196772,39789],"vp_02":[4236561,57837],"vp_03":[4294398,38445],"vp_04":[4332843,34605],"vp_05":[4367448,24621],"vp_06":[4392069,47469],"vp_07":[4439538,39789],"vp_08":[4479327,50157],"vp_09":[4529484,41133],"vp_10":[4570617,24429],"vp_11":[4595046,47277],"m8_01":[4642323,55341],"m8_02":[4697664,39597],"m8_03":[4737261,26733],"m8_04":[4763994,24813],"m8_05":[4788807,59757],"m8_06":[4848564,41517],"m8_07":[4890081,43437],"m8_08":[4933518,16749],"m8_09":[4950267,5229],"m8_10":[4955496,15597],"m8_11":[4971093,27309],"k8_01":[4998402,71469],"k8_02":[5069871,74925],"k8_03":[5144796,105453],"k8_04":[5250249,74157],"k8_05":[5324406,13869],"k8_06":[5338275,51117],"k8_07":[5389392,29805],"k8_08":[5419197,25581],"al_01":[5444778,83757],"al_02":[5528535,74925],"al_03":[5603460,82413],"al_04":[5685873,68397],"al_05":[5754270,48045],"al_06":[5802315,41517],"al_07":[5843832,39021],"al_08":[5882853,29613],"de_01":[5912466,45741],"de_02":[5958207,32685],"de_03":[5990892,36333],"de_04":[6027225,29613],"de_05":[6056838,28269],"de_06":[6085107,34029],"de_07":[6119136,23277],"ly50":[6142413,63213],"ly51":[6205626,74157],"ly52":[6279783,52461],"ly53":[6332244,40749],"ly54":[6372993,54573],"ly55":[6427566,27309],"kc_01":[6454875,8493],"kc_02":[6463368,25773],"kc_03":[6489141,28077],"kc_04":[6517218,8493],"kc_05":[6525711,17517],"kc_06":[6543228,19053],"kc_07":[6562281,13293],"kc_08":[6575574,15597],"kc_09":[6591171,22125],"kc_10":[6613296,7533],"kc_11":[6620829,16173],"m9_01":[6637002,44397],"m9_02":[6681399,62253],"m9_03":[6743652,22509],"k9_01":[6766161,69165],"k9_02":[6835326,39213],"k9_03":[6874539,29037],"kc_12":[6903576,17709],"kc_13":[6921285,20205],"kc_14":[6941490,12909],"kc_15":[6954399,7533],"kc_16":[6961932,13101],"kc_17":[6975033,14637],"kc_18":[6989670,25965],"kc_19":[7015635,21165],"kc_20":[7036800,18477],"kc_21":[7055277,31149],"m8_12":[7086426,28653],"m8_13":[7115079,20781],"m8_14":[7135860,43437],"k8_09":[7179297,42669],"ly56":[7221966,31533],"ly57":[7253499,45933],"ly58":[7299432,17709],"ly59":[7317141,15021],"ly60":[7332162,34221],"mw_01":[7366383,37677],"mw_02":[7404060,23469],"mw_03":[7427529,26157],"mw_04":[7453686,44781],"mw_05":[7498467,22701],"mw_06":[7521168,34413],"mw_07":[7555581,42669],"mw_08":[7598250,25965],"mw_09":[7624215,39021],"mw_10":[7663236,26157],"mw_11":[7689393,23469],"mw_12":[7712862,40365],"mw_13":[7753227,32877],"mw_14":[7786104,35181],"mw_15":[7821285,28077],"mw_16":[7849362,26925],"mw_17":[7876287,20781],"mw_18":[7897068,39789],"mw_19":[7936857,14829],"mw_20":[7951686,31533],"kw_01":[7983219,63021],"kw_02":[8046240,26157],"kw_03":[8072397,31341],"kw_04":[8103738,24237],"kw_05":[8127975,53613],"kw_06":[8181588,37101],"kw_07":[8218689,26541],"kw_08":[8245230,43821],"kw_09":[8289051,24621],"kw_10":[8313672,23469],"kw_11":[8337141,51117],"kw_12":[8388258,28269],"kw_13":[8416527,20589],"kw_14":[8437116,55341],"kw_15":[8492457,49005],"lw_01":[8541462,56877],"lw_02":[8598339,45357],"lw_03":[8643696,45357],"lw_04":[8689053,49197],"lw_05":[8738250,19053],"lw_06":[8757303,29229],"lw_07":[8786532,34413],"lw_08":[8820945,49197],"lw_09":[8870142,38829],"lw_10":[8908971,60717],"lw_11":[8969688,21549],"lw_12":[8991237,37677],"lw_13":[9028914,28077],"cr_01":[9056991,39981],"cr_02":[9096972,74349],"cr_03":[9171321,9837],"cr_04":[9181158,34797],"cr_05":[9215955,41709],"cr_06":[9257664,41709],"cr_07":[9299373,10221],"cr_08":[9309594,8109],"cr_09":[9317703,20781],"cr_10":[9338484,24621],"gg_01":[9363105,23661],"gg_02":[9386766,31533],"gg_03":[9418299,17325],"gg_04":[9435624,18285],"fk_01":[9453909,44397],"mm_01":[9498306,43053],"mm_02":[9541359,19629],"mm_03":[9560988,25581],"mm_04":[9586569,20781],"mw_21":[9607350,56493],"mw_22":[9663843,71469],"mw_23":[9735312,58797],"mw_24":[9794109,50733],"mw_26":[9844842,26733],"kw_16":[9871575,36525],"kw_17":[9908100,24237],"kw_18":[9932337,82605],"kw_19":[10014942,90861],"kw_20":[10105803,35373],"lw_14":[10141176,34221],"lw_15":[10175397,50541],"lw_16":[10225938,32109],"cr_11":[10258047,17709],"mm_05":[10275756,36525],"mm_06":[10312281,32109]},p:null};
 {const _vr=voRaw;voRaw=function(k){const ix=VOPK.idx[k];if(!ix||VO.raw[k])return _vr(k);if(!VOPK.p)VOPK.p=fetch('assets/vo22.mp3').then(r=>r.ok?r.arrayBuffer():null).catch(()=>null);
