@@ -407,7 +407,7 @@ function x3Finish(){kmEnd();x3Shatter();x3Drop();X3.phase=0;X3.trap=null;x3Strug
 /* ---------- Kaen flies beside you, Lyra rides a guardian ---------- */
 const LYF={g:null,an:''};
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open'||CH2.st<11||KM.on)return;
-  if(LYR.mk)LYR.mk.visible=!!LYR.home;if((CH2.zone!=='north'&&CH2.zone!=='latin')||CH2.st<13&&(CH2.st<11||X3.phase||X3.trap||KM.on||X3.e)){if(LYF.g)LYF.g.g.visible=false;return}if(!LYR.a){lyraPlace(P.pos.x-2,P.pos.z+2,P.face);LYR.home=false}const L=LYR.a;if(!L||CS.active||LYR.pin)return;L.g.visible=true;
+  if(LYR.mk)LYR.mk.visible=!!LYR.home;if((CH2.zone!=='north'&&CH2.zone!=='latin'&&CH2.zone!=='mont'&&CH2.zone!=='nola')||CH2.st<13&&(CH2.st<11||X3.phase||X3.trap||KM.on||X3.e)){if(LYF.g)LYF.g.g.visible=false;return}if(!LYR.a){lyraPlace(P.pos.x-2,P.pos.z+2,P.face);LYR.home=false}const L=LYR.a;if(!L||CS.active||LYR.pin)return;L.g.visible=true;
   const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);
   if(P.flying&&(CH2.st<13||CH2.st>=15)){if(LYF.g)LYF.g.g.visible=false;const tg=P.pos.clone().addScaledVector(r,-2.6).addScaledVector(f,-1.2);tg.y=P.pos.y+.2+Math.sin(time*1.7)*.2;L.g.position.lerp(tg,Math.min(1,dt*5));L.g.rotation.y=lerpAngle(L.g.rotation.y,P.face,Math.min(1,dt*5));
     if(LYF.an!=='fly'){LYF.an='fly';try{L.setBase('NinjaJump_Idle_Loop',.3)}catch(x){}}if(Math.random()<.6)SP.emit(V3(L.g.position.x,L.g.position.y+.3,L.g.position.z),{c0:0xffd0d0,c1:0xff3040,s0:.35,s1:.04,life:.5,speed:1})}
