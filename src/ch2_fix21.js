@@ -10,7 +10,10 @@ function csShown(o){for(let q=o;q;q=q.parent){if(!q.visible)return false;if(q===
 const _csV=V3(),_csQ=new THREE.Quaternion();
 function csHead(g){if(!g.userData.csHead){let h=null;g.traverse(o=>{if(!h&&o.isBone&&o.name==='Head')h=o});g.userData.csHead=h||'none'}const h=g.userData.csHead;
   if(h==='none'){g.updateMatrixWorld(true);return g.getWorldPosition(V3()).add(V3(0,1.62,0))}h.updateWorldMatrix(true,false);return h.getWorldPosition(V3()).add(V3(0,.06,0))}
-function csClear(a,b){const n=8;for(let i=1;i<=n;i++){const t=i/n,x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t,z=a.z+(b.z-a.z)*t;
+const _csRC=new THREE.Raycaster();
+function csRayHit(a,b){const d=b.clone().sub(a),L=d.length();_csRC.set(a,d.normalize());_csRC.camera=camera;_csRC.far=L;_csRC.near=.25;let hits;try{hits=_csRC.intersectObjects(scene.children,true)}catch(x){return false}
+  for(const h of hits){const o=h.object;if(!o.visible||o.isSprite||o.isPoints||o.isLine||o.isSkinnedMesh||o.isInstancedMesh)continue;const m=Array.isArray(o.material)?o.material[0]:o.material;if(!m||m.transparent&&m.opacity<.6||m.blending===THREE.AdditiveBlending)continue;return true}return false}
+function csClear(a,b){if(csRayHit(a,b))return false;const n=8;for(let i=1;i<=n;i++){const t=i/n,x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t,z=a.z+(b.z-a.z)*t;
   if(y<groundAt(x,z)+.25)return false;if(typeof camBlocked==='function'&&i>2&&camBlocked(x,y,z))return false;
   if(MODE!=='open'&&CH2.zone==='latin'&&typeof sbSolid==='function'&&(sbSolid(x,z)||(SB.area==='tun'&&typeof sbCeil==='function'&&y>sbCeil(x,z)-.3)))return false}return true}
 function csFaceShot(s,idx){const orig=s.cam;const side=idx%2?1:-1;let lock=null;
