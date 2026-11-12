@@ -235,7 +235,7 @@ function nlEnter(crash){nlBuild();CH2.zone='nola';MT.g.visible=false;if(PL.g)PL.
     {who:'Morwen',text:XL8.ms_62,fov:30,cam:k=>{const m=MW.a.g.position;return{pos:headOf(m,1.6).add(V3(.3,.05,-1.5+k*.2)),look:headOf(m,1.55)}},onStart:()=>{try{MW.a.setBase('Idle_Loop',.5)}catch(x){}MW.a.g.rotation.y=Math.PI;MW.fl=3}},
     {dur:3.4,fov:48,cut:true,cam:k=>({pos:V3(NL.X+18-k*4,6+k*10,40-k*6),look:V3(NL.X,8,cz)})}],
     ()=>{P.heroAnim=null;NL.band=1;MU.vd=0;KFW.pin=0;LYR.pin=0;CH2.st=34;ch2Save();writeSave();MU.xb=1;try{gainXP(2500)}catch(x){}
-      x5Banner('THE TIDE DOOR','TO BE CONTINUED IN NEW ORLEANS','#7dffd8',3.6,'#04140f');toast('Morwen is with you, half here. Somewhere in this city, the Crown is hiding, and her name is waiting to be found.','Chapter XVIII complete',true)})}
+      x5Banner('THE TIDE DOOR','CHAPTER XVIII COMPLETE','#7dffd8',3.2,'#04140f');after(3.6,()=>{if(CH2.zone==='nola')x19Begin()})})}
 function nlLeave(){if(CH2.zone!=='nola')return;NL.g.visible=false;NL.band=0;for(const a of NL.acts)a.g.visible=false;if(MW.a)MW.a.g.visible=false;for(let i=boxes.length-1;i>=0;i--)if(boxes[i].mt)boxes.splice(i,1);
   CH2.zone='mont';mtLeave()}
 {const _g=groundAt;groundAt=function(x,z,y){if(MODE!=='open'&&((x>11500&&x<12500)||x>19000))return x>19000?(PL.on?-50:0):0;return _g.apply(this,arguments)}}
@@ -246,7 +246,7 @@ function nlLeave(){if(CH2.zone!=='nola')return;NL.g.visible=false;NL.band=0;for(
 {const _rv=revive;revive=function(){const r=_rv.apply(this,arguments);if(MODE!=='open'&&CH2.zone==='nola'){P.pos.copy(SPAWN);P.flying=false}return r}}
 {const _dr=distReal;distReal=function(u){if(MODE!=='open'&&(CH2.zone==='nola'||CH2.zone==='pull'))return Math.round(u)+' m';return _dr.apply(this,arguments)}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!started||MODE==='open')return;if(CH2.zone==='paris'&&CH2.st>=34&&!NL.boot&&!CS.active){NL.boot=1;mtWorld();MT.hid=scene.children.filter(o=>o.visible&&!mtKeep(o));for(const o of MT.hid)o.visible=false;CH2.parisWB={x0:WB.x0,x1:WB.x1,z0:WB.z0,z1:WB.z1};nlEnter(false)}
-  if(CH2.zone==='nola'){if(P.flying){P.flying=false;P.vy=Math.min(P.vy||0,0)}if(NL.band)for(const a of NL.acts)try{a.update(Math.min(dt,.05))}catch(x){}}}}
+  if(CH2.zone==='nola'){if(NL.band)for(const a of NL.acts)try{a.update(Math.min(dt,.05))}catch(x){}}}}
 
 /* ---------- chapter select ---------- */
 CHAPTERS.push({id:'mont',n:'XVIII',title:'The Tide Door',desc:'Morwen was born on Mont-Saint-Michel. Her true name is in the parish register, unless the Crown got there first.'});
