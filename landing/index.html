@@ -168,6 +168,58 @@ footer .play-now{display:flex;justify-content:center;margin-top:20px}
   .hero-art img,.hero-logo,.hero-copy,.story h2,.story .right p,.panorama img,.slot{transform:none!important}
   #fx{display:none}
 }
+
+/* ---------- trailer ---------- */
+.trailer{padding-block:30px 10px}
+.tframe{position:relative;aspect-ratio:16/9;background:#1a0f1c;cursor:pointer;clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 22px,100% calc(100% - 22px),calc(100% - 22px) 100%,22px 100%,0 calc(100% - 22px),0 22px);box-shadow:0 30px 60px -30px rgba(50,16,47,.5)}
+.tframe video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tframe .fr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tframe .tplay{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:14px;color:#fff;background:linear-gradient(0deg,rgba(50,16,47,.55),rgba(50,16,47,.05) 60%);transition:opacity .4s}
+.tframe .tplay img{width:92px;height:92px;filter:drop-shadow(0 0 20px rgba(255,190,80,.8));transition:transform .3s}
+.tframe:hover .tplay img{transform:scale(1.08)}
+.tframe .tplay b{font:800 20px/1 var(--f);letter-spacing:.02em;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.tframe.on .tplay{opacity:0;pointer-events:none}
+/* ---------- journey ---------- */
+.journey{position:relative;height:440vh;margin-top:40px}
+.jstage{position:sticky;top:0;height:100vh;overflow:hidden;background:#140a18}
+.jv{position:absolute;inset:0;opacity:0;transition:opacity .9s ease}
+.jv.on{opacity:1}
+.jv video{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.06 + var(--jp,0)*.08))}
+.jstage::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,var(--paper) 0,rgba(255,253,250,0) 14%,rgba(20,10,24,0) 55%,rgba(20,10,24,.75) 100%),linear-gradient(90deg,rgba(20,10,24,.55),rgba(20,10,24,0) 55%)}
+.jtext{position:absolute;left:0;right:0;bottom:clamp(40px,9vh,110px);z-index:3;color:#fff}
+.jact{position:absolute;left:clamp(20px,4vw,64px);bottom:0;max-width:560px;opacity:0;transform:translateY(40px);transition:opacity .7s,transform .7s}
+.jact.on{opacity:1;transform:none}
+.jact .n{font:800 15px/1 var(--f);letter-spacing:.14em;color:#ffcf6a}
+.jact h3{font:900 clamp(48px,8vw,118px)/.9 var(--f);letter-spacing:-.04em;margin:10px 0 14px;color:transparent;-webkit-text-stroke:2px #fff;text-shadow:0 0 40px rgba(255,180,80,.25)}
+.jact h3 span{color:#fff;-webkit-text-stroke:0}
+.jact p{margin:0;font:500 clamp(17px,1.7vw,21px)/1.45 var(--f);text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.jdots{position:absolute;right:clamp(16px,3vw,44px);top:50%;translate:0 -50%;display:grid;gap:14px;z-index:3}
+.jdots i{width:10px;height:10px;transform:rotate(45deg);border:2px solid #fff;opacity:.6;transition:all .3s}
+.jdots i.on{background:var(--gold);border-color:var(--gold);opacity:1;transform:rotate(45deg) scale(1.3)}
+/* ---------- cast ---------- */
+.cast{padding-block:70px 40px}
+.castgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:40px;align-items:center}
+.viewer{position:relative;aspect-ratio:4/5;box-shadow:inset 0 0 0 2px var(--gold);background:radial-gradient(60% 50% at 50% 55%,#fff6e6,#f3e6f5 70%,#eadcf0);clip-path:polygon(20px 0,calc(100% - 20px) 0,100% 20px,100% calc(100% - 20px),calc(100% - 20px) 100%,20px 100%,0 calc(100% - 20px),0 20px);cursor:grab}
+.viewer:active{cursor:grabbing}
+.viewer canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.viewer .vart{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;transition:opacity .6s}
+.viewer.ready .vart{opacity:0}
+.viewer .fr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.viewer .vhint{position:absolute;left:0;right:0;bottom:16px;text-align:center;font:600 13px/1 var(--f);color:var(--violet-deep);opacity:.75}
+.viewer .vload{position:absolute;left:50%;top:14px;translate:-50% 0;font:700 12px/1 var(--f);letter-spacing:.1em;color:var(--gold-deep);background:rgba(255,253,250,.8);padding:6px 10px}
+.anim{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.anim button{border:2px solid var(--violet);background:var(--paper);color:var(--violet-deep);font:700 14px/1 var(--f);padding:9px 14px;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.anim button.on{background:var(--violet);color:#fff}
+.who{display:grid;gap:10px}
+.whob{display:grid;grid-template-columns:72px 1fr;gap:16px;align-items:center;text-align:left;border:0;background:none;padding:12px 14px;cursor:pointer;border-left:4px solid transparent;transition:background .25s,border-color .25s}
+.whob img{width:72px;height:72px;object-fit:cover;border-radius:50%;box-shadow:0 0 0 2px var(--gold);background:#fff}
+.whob b{display:block;font:800 26px/1 var(--f);letter-spacing:-.02em;color:var(--ink)}
+.whob span{display:block;font:600 14px/1.3 var(--f);color:var(--violet-deep);margin-top:4px}
+.whob small{display:block;font:500 15px/1.4 var(--f);color:var(--ink);opacity:.8;margin-top:6px}
+.whob:hover{background:rgba(237,155,0,.06)}
+.whob.on{border-left-color:var(--gold);background:linear-gradient(90deg,rgba(237,155,0,.12),transparent)}
+@media (max-width:860px){.castgrid{grid-template-columns:1fr}.viewer{max-width:440px;margin:auto;width:100%}.journey{height:400vh}}
+@media (prefers-reduced-motion:reduce){.jv{transition:none}.jact{transition:none}}
 </style>
 </head>
 <body>
@@ -180,8 +232,9 @@ footer .play-now{display:flex;justify-content:center;margin-top:20px}
     <a class="brand" href="#top" aria-label="Sorcière, back to top"><img class="sp" src="ui/spark-gold.svg" alt=""><img class="lg" src="media/sorciere-logo.webp" alt=""></a>
     <span class="rule" aria-hidden="true"><span class="slash">///</span></span>
     <ul>
+      <li><a href="#trailer">Trailer</a></li>
       <li><a href="#story">Story</a></li>
-      <li><a href="#world">World</a></li>
+      <li><a href="#cast">Cast</a></li>
       <li><a href="#gameplay">Gameplay</a></li>
     </ul>
     <button class="snd" id="snd" type="button" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="sndL">Sound</span></button>
@@ -206,6 +259,12 @@ footer .play-now{display:flex;justify-content:center;margin-top:20px}
   </div>
 </header>
 
+
+<section class="container trailer" id="trailer">
+  <div class="eyebrow"><span><b>00</b> / THE TRAILER</span><span class="slash">///</span></div>
+  <div class="tframe" id="tframe"><video id="tvid" src="media/trailer.mp4" poster="media/trailer.jpg" playsinline preload="metadata" aria-label="Sorcière trailer with Kaen's theme and Maëlle's voice"></video><img class="fr" src="ui/frame-gold.svg" alt=""><div class="tplay"><img src="ui/play-gold.svg" alt=""><b>Watch the trailer · sound on</b></div></div>
+</section>
+
 <div class="container"><div class="srule" aria-hidden="true"><img src="ui/spark-gold.svg" alt=""></div></div>
 
 <section class="container story" id="story">
@@ -219,6 +278,39 @@ footer .play-now{display:flex;justify-content:center;margin-top:20px}
   <svg class="bolt" viewBox="0 0 60 70" aria-hidden="true"><path d="M34 0 L14 36 H28 L20 70 L48 28 H33 L44 0Z" fill="#ed9b00" opacity=".9"/><path d="M34 0 L14 36 H28 L20 70" fill="none" stroke="#a85b00" stroke-width="1.5"/></svg>
 </section>
 
+
+<section class="journey" id="journey" aria-label="The journey">
+  <div class="jstage">
+    <div class="jv on" data-i="0"><video src="media/sc_paris.mp4" poster="media/sc_paris.jpg" muted loop playsinline preload="auto" aria-label="Maëlle flying over the rooftops of Paris"></video></div>
+    <div class="jv" data-i="1"><video src="media/sc_lyra.mp4" poster="media/sc_lyra.jpg" muted loop playsinline preload="metadata" aria-label="Lyra opening a golden door on the beach at Calais"></video></div>
+    <div class="jv" data-i="2"><video src="media/sc_london.mp4" poster="media/sc_london.jpg" muted loop playsinline preload="metadata" aria-label="Kaen with his violet blade above London in the rain"></video></div>
+    <div class="jv" data-i="3"><video src="media/sc_morwen.mp4" poster="media/sc_morwen.jpg" muted loop playsinline preload="metadata" aria-label="Morwen rising from the sea near Mont-Saint-Michel"></video></div>
+    <div class="jtext container">
+      <div class="jact on"><div class="n">I · PARIS</div><h3><span>Paris</span> after midnight.</h3><p>Rooftops, the Seine and the iron tower. Something is hunting up there, and Maëlle has a broom.</p></div>
+      <div class="jact"><div class="n">II · CALAIS</div><h3><span>A door</span> on the sand.</h3><p>Lyra sings, and the light opens a way across the Channel.</p></div>
+      <div class="jact"><div class="n">III · LONDON</div><h3><span>Kaen.</span> Or one of him.</h3><p>The Master of Illusions waits in the rain. Nobody knows which face is real.</p></div>
+      <div class="jact"><div class="n">IV · MONT-SAINT-MICHEL</div><h3><span>The tide</span> remembers.</h3><p>An abbey on a rock in the sea, and a queen who will not stay drowned.</p></div>
+    </div>
+    <div class="jdots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+  </div>
+</section>
+
+<section class="container cast" id="cast">
+  <div class="eyebrow"><span><b>02</b> / THE CAST</span><span class="slash">///</span></div>
+  <div class="castgrid">
+    <div>
+      <div class="viewer" id="viewer"><img class="vart" id="vart" src="media/cast/maelle.webp" alt="Maëlle, full figure"><span class="vload" id="vload">LOADING 3D</span><span class="vhint">Drag to turn · the real in-game model</span></div>
+      <div class="anim" id="anim"><button data-a="Idle_Loop" class="on" type="button">Idle</button><button data-a="Jog_Fwd_Loop" type="button">Run</button><button data-a="Spell_Simple_Shoot" type="button">Cast</button><button data-a="Dance_Loop" type="button">Dance</button></div>
+    </div>
+    <div class="who" id="who">
+      <button class="whob on" data-c="maelle" type="button"><img src="media/cast/maelle_face.webp" alt=""><span><b>Maëlle</b><span>The witch</span><small>Green eyes, a silver bob, a broom and seventeen spells.</small></span></button>
+      <button class="whob" data-c="kaen" type="button"><img src="media/cast/kaen_face.webp" alt=""><span><b>Kaen</b><span>Master of Illusions</span><small>A violet blade and a smile you should not trust.</small></span></button>
+      <button class="whob" data-c="lyra" type="button"><img src="media/cast/lyra_face.webp" alt=""><span><b>Lyra</b><span>Kaen's sister</span><small>She opens doors between cities, and she sings when it matters.</small></span></button>
+      <button class="whob" data-c="morwen" type="button"><img src="media/cast/morwen_face.webp" alt=""><span><b>Morwen</b><span>Queen of the Abyss</span><small>Small, beautiful, deadly. The sea gave her back.</small></span></button>
+    </div>
+  </div>
+</section>
+
 <section class="world" id="world">
   <div class="container" style="position:relative"><span class="ticks" aria-hidden="true">///</span>
     <figure class="panorama" data-k="in" style="margin:0"><img src="media/world-panorama.webp" alt="A lamplit stone promenade at sunset leading to a glowing spired city across the water" width="2172" height="724" loading="lazy"><figcaption>Beyond the ordinary.</figcaption></figure>
@@ -226,7 +318,7 @@ footer .play-now{display:flex;justify-content:center;margin-top:20px}
 </section>
 
 <section class="container gameplay" id="gameplay">
-  <div class="eyebrow"><span><b>02</b> / GAMEPLAY</span><span class="slash">///</span></div>
+  <div class="eyebrow"><span><b>03</b> / GAMEPLAY</span><span class="slash">///</span></div>
   <div class="gameplay-grid">
     <div class="slot gameplay-main" data-k="in">
       <div class="video-slot" data-v><video src="media/hrim.mp4" poster="media/hrim.jpg" muted loop playsinline preload="metadata" aria-label="In-game footage: Maëlle on her broom throwing fire at Hrímgar, the Frost Giant"></video><img class="fr" src="ui/frame-gold.svg" alt=""><img class="play" src="ui/play-gold.svg" alt=""></div>
@@ -294,6 +386,65 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;const vh=inne
       g.beginPath();g.moveTo(q.x,q.y-r*2);g.lineTo(q.x+r*.5,q.y-r*.5);g.lineTo(q.x+r*2,q.y);g.lineTo(q.x+r*.5,q.y+r*.5);g.lineTo(q.x,q.y+r*2);g.lineTo(q.x-r*.5,q.y+r*.5);g.lineTo(q.x-r*2,q.y);g.lineTo(q.x-r*.5,q.y-r*.5);g.closePath();g.fill()}}
   requestAnimationFrame(tick)}
 size();addEventListener('resize',size);requestAnimationFrame(tick);
+})();
+</script>
+
+<script>
+(()=>{
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* trailer: sound on, pauses the page theme */
+const tf=document.getElementById('tframe'),tv=document.getElementById('tvid'),th=document.getElementById('theme'),ti=document.getElementById('intro');
+tf.addEventListener('click',()=>{if(tv.paused){try{th.pause();ti.pause()}catch(x){}tv.muted=false;tv.controls=true;const p=tv.play();p&&p.catch(()=>{});tf.classList.add('on')}});
+tv.addEventListener('ended',()=>{tf.classList.remove('on');tv.controls=false});
+/* journey: one scene per quarter of the scroll */
+const J=document.getElementById('journey'),jv=[...J.querySelectorAll('.jv')],ja=[...J.querySelectorAll('.jact')],jd=[...J.querySelectorAll('.jdots i')];let cur=0;
+function jset(i){if(i===cur)return;cur=i;jv.forEach((v,k)=>{v.classList.toggle('on',k===i);const vid=v.querySelector('video');if(k===i){const p=vid.play();p&&p.catch(()=>{})}else vid.pause()});ja.forEach((a,k)=>a.classList.toggle('on',k===i));jd.forEach((d,k)=>d.classList.toggle('on',k===i))}
+function jtick(){const r=J.getBoundingClientRect(),vh=innerHeight;const p=Math.max(0,Math.min(.9999,-r.top/Math.max(1,r.height-vh)));const i=Math.floor(p*4);jset(i);const lp=(p*4)%1;jv[i].style.setProperty('--jp',reduce?0:lp.toFixed(3));
+  const vis=r.bottom>0&&r.top<vh;const v=jv[cur].querySelector('video');if(vis&&v.paused&&!reduce){const q=v.play();q&&q.catch(()=>{})}else if(!vis&&!v.paused)v.pause();requestAnimationFrame(jtick)}
+requestAnimationFrame(jtick);
+/* cast: the real in-game models, animated with the game's own clips */
+const VW=document.getElementById('viewer'),vart=document.getElementById('vart'),vload=document.getElementById('vload');
+const CAST={maelle:'media/cast/maelle.wasm',kaen:'media/cast/kaen.wasm',lyra:'media/cast/lyra.wasm',morwen:'media/cast/morwen.wasm'};
+const MAP={Hips:'pelvis',Spine02:'spine_01',Spine01:'spine_02',Spine:'spine_03',neck:'neck_01',Head:'Head',LeftShoulder:'clavicle_l',LeftArm:'upperarm_l',LeftForeArm:'lowerarm_l',LeftHand:'hand_l',RightShoulder:'clavicle_r',RightArm:'upperarm_r',RightForeArm:'lowerarm_r',RightHand:'hand_r',LeftUpLeg:'thigh_l',LeftLeg:'calf_l',LeftFoot:'foot_l',LeftToeBase:'ball_l',RightUpLeg:'thigh_r',RightLeg:'calf_r',RightFoot:'foot_r',RightToeBase:'ball_r'};
+const CHILD={Hips:'Spine02',Spine02:'Spine01',Spine01:'Spine',Spine:'neck',neck:'Head',LeftShoulder:'LeftArm',LeftArm:'LeftForeArm',LeftForeArm:'LeftHand',RightShoulder:'RightArm',RightArm:'RightForeArm',RightForeArm:'RightHand',LeftUpLeg:'LeftLeg',LeftLeg:'LeftFoot',LeftFoot:'LeftToeBase',RightUpLeg:'RightLeg',RightLeg:'RightFoot',RightFoot:'RightToeBase'};
+let started=false;
+function addScript(u){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+async function boot(){if(started)return;started=true;
+  try{await addScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');await addScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js');await addScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/meshopt_decoder.js')}catch(e){vload.textContent='3D unavailable';return}
+  const T=THREE;const R=new T.WebGLRenderer({antialias:true,alpha:true});R.setPixelRatio(Math.min(2,devicePixelRatio||1));R.outputEncoding=T.sRGBEncoding;VW.insertBefore(R.domElement,VW.firstChild);
+  const S=new T.Scene();S.add(new T.HemisphereLight(0xfff4e8,0x8a6a9a,1.05));const d=new T.DirectionalLight(0xffe6c0,1.2);d.position.set(2,4,3);S.add(d);const d2=new T.DirectionalLight(0xc8a8ff,.7);d2.position.set(-3,2,-2);S.add(d2);
+  const disc=new T.Mesh(new T.CircleGeometry(.75,48),new T.MeshBasicMaterial({color:0xf0dcc8,transparent:true,opacity:.7}));disc.rotation.x=-Math.PI/2;S.add(disc);
+  const C=new T.PerspectiveCamera(28,1,.1,50);
+  function size(){const w=VW.clientWidth,h=VW.clientHeight;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}size();addEventListener('resize',size);
+  const L=new T.GLTFLoader();if(window.MeshoptDecoder)L.setMeshoptDecoder(MeshoptDecoder);
+  const loadG=u=>new Promise((res,rej)=>L.load(u,res,undefined,rej));
+  const A=await loadG('media/cast/anims.wasm');const SRC=A.scene;SRC.visible=false;S.add(SRC);SRC.updateMatrixWorld(true);const sb={};SRC.traverse(o=>{if(!sb[o.name])sb[o.name]=o});
+  const wq=o=>o.getWorldQuaternion(new T.Quaternion()),wp=o=>o.getWorldPosition(new T.Vector3());
+  const restQ={},restP={};for(const n in sb){restQ[n]=wq(sb[n]);restP[n]=wp(sb[n])}const legS=restP.thigh_l.y-restP.foot_l.y;
+  const mixer=new T.AnimationMixer(SRC);let act=null,clipName='Idle_Loop';
+  function play(n){clipName=n;const c=A.animations.find(c=>c.name===n);if(!c)return;if(act)act.fadeOut(.25);act=mixer.clipAction(c);act.reset().fadeIn(.25).play()}play('Idle_Loop');
+  const models={};let M=null;
+  async function show(key){vload.style.display='';vload.textContent='LOADING 3D';if(M)M.root.visible=false;
+    if(!models[key]){const g=await loadG(CAST[key]);const root=g.scene;const tb={};root.traverse(o=>{if(o.isBone)tb[o.name]=o;if(o.isMesh){o.frustumCulled=false;if(o.material){o.material.side=T.DoubleSide}}});S.add(root);root.updateMatrixWorld(true);
+      const tq={},tp={};for(const n in tb){tq[n]=wq(tb[n]);tp[n]=wp(tb[n])}const legT=tp.LeftUpLeg.y-tp.LeftFoot.y;const sc=legS/legT;
+      const order=[];root.traverse(o=>{if(o.isBone&&MAP[o.name])order.push(o.name)});const cal={};
+      for(const n of order){const c=CHILD[n];const qc=new T.Quaternion();if(c&&tb[c]){const dt=tp[c].clone().sub(tp[n]).normalize(),ds=restP[MAP[c]].clone().sub(restP[MAP[n]]).normalize();qc.setFromUnitVectors(dt,ds)}else{const pp=tb[n].parent&&cal[tb[n].parent.name];if(pp)qc.copy(pp.qc)}cal[n]={qc,tr:tq[n],si:restQ[MAP[n]].clone().invert()}}
+      models[key]={root,tb,cal,order,hip:tp.Hips.clone(),hipS:restP.pelvis.clone(),k:legT/legS,h:tp.Head.y}}
+    M=models[key];M.root.visible=true;VW.classList.add('ready');vload.style.display='none'}
+  let yaw=.35,drag=null,auto=true;
+  VW.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:yaw};auto=false;VW.setPointerCapture(e.pointerId)});
+  VW.addEventListener('pointermove',e=>{if(drag)yaw=drag.y+(e.clientX-drag.x)*.01});
+  VW.addEventListener('pointerup',()=>{drag=null});
+  document.getElementById('who').addEventListener('click',e=>{const b=e.target.closest('.whob');if(!b)return;document.querySelectorAll('.whob').forEach(x=>x.classList.toggle('on',x===b));vart.src='media/cast/'+b.dataset.c+'.webp';VW.classList.remove('ready');show(b.dataset.c)});
+  document.getElementById('anim').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#anim button').forEach(x=>x.classList.toggle('on',x===b));play(b.dataset.a)});
+  await show('maelle');
+  let last=performance.now();
+  (function loop(now){requestAnimationFrame(loop);const r=VW.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const dt=Math.min(.05,(now-last)/1000);last=now;
+    mixer.update(dt);SRC.updateMatrixWorld(true);
+    if(M){const{tb,cal,order}=M;for(const n of order){const t=tb[n],k=cal[n];const W=wq(sb[MAP[n]]).multiply(k.si).multiply(k.qc).multiply(k.tr);t.quaternion.copy(wq(t.parent).invert().multiply(W));t.updateMatrixWorld(true)}
+      const dp=wp(sb.pelvis).sub(M.hipS).multiplyScalar(M.k);dp.x=0;dp.z=0;const w=M.hip.clone().add(dp);tb.Hips.position.copy(tb.Hips.parent.worldToLocal(w));M.root.updateMatrixWorld(true)}
+    if(auto&&!reduce)yaw+=dt*.35;const H=M?M.h:1.6;C.position.set(Math.sin(yaw)*4.3,H*.62,Math.cos(yaw)*4.3);C.lookAt(0,H*.5,0);R.render(S,C)})(last)}
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();boot()}},{rootMargin:'400px'});io.observe(VW)}else boot();
 })();
 </script>
 </body>
