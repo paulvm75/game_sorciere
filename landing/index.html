@@ -4,491 +4,409 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sorcière</title>
-<meta name="description" content="Sorcière is a witch action RPG set in Paris after midnight. Voiced story, open world, broom flight. Plays in your browser.">
+<meta name="description" content="Sorcière: a witch, a ghost, and a crown that steals faces. A supernatural action RPG from Paris to Mont-Saint-Michel.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Pirata+One&family=Cinzel:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* night over the rooftops, lamplight gold, and one tide-green for the sea */
-  --ink:#0a0714;
-  --night:#140f26;
-  --dusk:#221a3d;
-  --gold:#f2c160;
-  --ember:#ff9a3c;
-  --parch:#efe4cf;
-  --mist:#a99fc4;
-  --tide:#7dffd8;
-  --line:rgba(242,193,96,.18);
-  --f-mark:"Cinzel",Georgia,serif;
-  --f-disp:"Fraunces",Georgia,"Times New Roman",serif;
+  /* moonlit lavender paper, plum ink, lamplight gold and ember orange from the game's title card */
+  --paper:#fbf6ff;
+  --haze:#efe3ff;
+  --lilac:#c9a8ff;
+  --violet:#8a4dff;
+  --plum:#24112e;
+  --gold:#f2a541;
+  --sun:#ffd25a;
+  --ember:#ff7a1a;
+  --soft:#6d5a7e;
+  --f-mark:"Pirata One",Georgia,serif;
+  --f-head:"Bangers",Impact,"Arial Black",sans-serif;
+  --f-cap:"Cinzel",Georgia,serif;
+  --f-it:"Fraunces",Georgia,serif;
   --f-body:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
-  /* layout: full-bleed footage, a pinned chapter rail, text kept to a 62ch column */
-  color-scheme:dark;
+  /* layout: hero with Maëlle, a four-act story told on scroll, the coven, then footage */
+  color-scheme:light;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--ink);color:var(--parch)}
+html,body{margin:0;background:var(--paper);color:var(--plum)}
+html{overflow-x:clip}
 body{font:400 17px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:clip}
 img,video{max-width:100%;display:block}
 a{color:inherit}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
-h1,h2,h3{text-wrap:balance;margin:0}
+:focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:6px}
+h1,h2,h3{margin:0;text-wrap:balance}
 .wrap{width:min(1240px,100% - 32px);margin-inline:auto}
-.eyebrow{font:600 12px/1 var(--f-body);letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
-.muted{color:var(--mist)}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
 
-/* ---------- nav ---------- */
-.nav{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px max(16px,calc((100% - 1240px)/2));transition:background .35s,backdrop-filter .35s}
-.nav.solid{background:rgba(10,7,20,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line)}
-.nav .mark{font:900 18px/1 var(--f-mark);letter-spacing:.18em;text-decoration:none}
-.nav ul{display:flex;gap:26px;list-style:none;margin:0;padding:0;font-size:14px}
-.nav ul a{text-decoration:none;color:var(--mist);transition:color .2s}
-.nav ul a:hover{color:var(--parch)}
-@media (max-width:720px){.nav ul{display:none}}
+/* type roles, all taken from the game */
+.cap{font:600 13px/1.2 var(--f-cap);letter-spacing:.28em;text-transform:uppercase;color:var(--soft)}
+.bang{font:400 clamp(44px,6.4vw,92px)/.92 var(--f-head);letter-spacing:.02em;color:var(--plum);text-shadow:3px 3px 0 var(--sun),0 0 30px rgba(138,77,255,.25);transform:skew(-6deg);transform-origin:left}
+.bang .g{background:linear-gradient(180deg,#fff6c8 0%,var(--sun) 38%,var(--ember) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:1.5px var(--plum);text-shadow:none;filter:drop-shadow(3px 3px 0 var(--plum))}
+.it{font-family:var(--f-it);font-style:italic}
+.rule{display:flex;align-items:center;gap:18px}
+.rule::before,.rule::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--lilac),transparent)}
+.star{color:var(--gold)}
 
-.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:999px;font:600 15px/1 var(--f-body);text-decoration:none;border:0;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s}
-.btn.gold{background:var(--gold);color:#1a1022;box-shadow:0 0 0 0 rgba(242,193,96,.5),0 10px 30px -10px rgba(242,193,96,.7)}
-.btn.gold:hover{transform:translateY(-2px);box-shadow:0 0 0 6px rgba(242,193,96,.14),0 14px 34px -10px rgba(242,193,96,.8)}
-.btn.ghost{background:rgba(239,228,207,.06);color:var(--parch);box-shadow:inset 0 0 0 1px rgba(239,228,207,.22)}
-.btn.ghost:hover{background:rgba(239,228,207,.12)}
-.btn.small{padding:10px 16px;font-size:13px}
-.btn svg{width:16px;height:16px}
-.soon{font:600 10px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:rgba(125,255,216,.12);color:var(--tide)}
+/* nav */
+.nav{position:fixed;inset:0 0 auto;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px max(16px,calc((100% - 1240px)/2));transition:background .3s,box-shadow .3s}
+.nav.solid{background:rgba(251,246,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 1px 0 rgba(138,77,255,.18)}
+.nav .mark{font:400 30px/1 var(--f-mark);text-decoration:none;color:var(--plum);display:flex;align-items:center;gap:10px}
+.nav .mark i{font-style:normal;color:var(--gold);font-size:18px}
+.nav ul{display:flex;gap:30px;list-style:none;margin:0;padding:0}
+.nav ul a{font:400 19px/1 var(--f-head);letter-spacing:.06em;text-decoration:none;color:var(--plum);transition:color .2s}
+.nav ul a:hover{color:var(--ember)}
+@media (max-width:760px){.nav ul{display:none}}
+
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;font:400 21px/1 var(--f-head);letter-spacing:.06em;text-decoration:none;border:0;cursor:pointer;transition:transform .2s,box-shadow .2s;border-radius:4px}
+.btn.gold{background:linear-gradient(180deg,var(--sun),var(--ember));color:var(--plum);box-shadow:4px 4px 0 var(--plum),0 0 40px rgba(255,122,26,.35)}
+.btn.gold:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--plum),0 0 50px rgba(255,122,26,.5)}
+.btn.line{color:var(--plum);padding-left:6px}
+.btn.line b{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--plum);transition:background .2s}
+.btn.line:hover b{background:var(--sun)}
+.btn svg{width:14px;height:14px}
+.btn.small{font-size:17px;padding:10px 16px}
 
 /* ---------- hero ---------- */
-.hero{position:relative;min-height:clamp(600px,92vh,960px);display:grid;align-items:end;padding:120px 0 64px;isolation:isolate}
-.hero .frame{position:absolute;inset:0;z-index:-1;overflow:hidden;clip-path:inset(calc(var(--p,0)*7%) calc(var(--p,0)*5%) calc(var(--p,0)*7%) calc(var(--p,0)*5%) round calc(var(--p,0)*36px));will-change:clip-path}
-.hero video{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.08 - var(--p,0)*.08)) translateY(calc(var(--p,0)*6%))}
-.hero .frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,7,20,.55) 0%,rgba(10,7,20,0) 30%,rgba(10,7,20,.2) 55%,var(--ink) 100%),radial-gradient(120% 70% at 20% 100%,rgba(10,7,20,.75),transparent 60%)}
-.wordmark{font:900 clamp(56px,15.5vw,236px)/.82 var(--f-mark);letter-spacing:.02em;margin:18px 0 22px;display:flex;flex-wrap:nowrap;color:var(--parch);text-shadow:0 0 60px rgba(242,193,96,.25)}
-.wordmark span{display:inline-block;transform:translateY(calc(var(--p,0)*var(--dy,0)*1px)) rotate(calc(var(--p,0)*var(--rz,0)*1deg));transition:color .3s}
-.wordmark span:hover{color:var(--gold)}
-.hero .lede{max-width:56ch;font:300 clamp(18px,2vw,22px)/1.5 var(--f-body);color:var(--parch);opacity:calc(1 - var(--p,0)*1.4)}
-.hero .ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
-.hero .scrollcue{position:absolute;right:max(16px,calc((100% - 1240px)/2));bottom:64px;font:500 12px/1 var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:var(--mist);writing-mode:vertical-rl;display:flex;align-items:center;gap:12px}
-.hero .scrollcue::after{content:"";width:1px;height:64px;background:linear-gradient(var(--gold),transparent);animation:cue 2.2s ease-in-out infinite}
-@keyframes cue{0%,100%{transform:scaleY(.4);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
-@media (max-width:720px){.hero .scrollcue{display:none}}
+.hero{position:relative;padding:96px 0 40px;overflow:hidden;isolation:isolate;background:
+  radial-gradient(60% 50% at 78% 38%,rgba(255,210,90,.38),transparent 70%),
+  radial-gradient(50% 60% at 20% 80%,rgba(201,168,255,.45),transparent 70%),
+  linear-gradient(180deg,var(--paper),var(--haze) 70%,var(--paper))}
+.hero .eyebrow{margin-top:28px}
+.word{font:400 clamp(84px,17vw,250px)/.8 var(--f-mark);margin:6px 0 0;display:flex;justify-content:center;position:relative;z-index:1;user-select:none}
+.word span{display:inline-block;background:linear-gradient(180deg,#fff3c2 6%,var(--sun) 40%,var(--gold) 62%,var(--ember) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:2px var(--plum);filter:drop-shadow(5px 5px 0 var(--plum)) drop-shadow(0 0 26px rgba(138,77,255,.45));transform:translateY(calc(var(--p,0)*var(--dy,0)*1px)) rotate(calc(var(--p,0)*var(--rz,0)*1deg))}
+.stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:end;gap:24px;margin-top:-4vw}
+.pitch{position:relative;z-index:3;padding-bottom:60px;display:grid;gap:18px;transform:translateY(calc(var(--p,0)*-60px))}
+.pitch .bang{font-size:clamp(48px,6vw,86px)}
+.pitch p{margin:0;max-width:34ch;font-size:19px;color:var(--soft)}
+.pitch .ctas{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:10px}
+.pitch .bar{width:56px;height:3px;background:var(--plum)}
+.her{position:relative;height:clamp(480px,50vw,720px);display:flex;justify-content:center}
+.her img.m{position:relative;height:100%;width:auto;object-fit:contain;filter:drop-shadow(0 30px 40px rgba(36,17,46,.28)) drop-shadow(0 0 40px rgba(255,200,90,.35))}
+.moon{position:absolute;right:2%;top:2%;width:clamp(120px,15vw,210px);aspect-ratio:1;border-radius:50%;z-index:0;background:radial-gradient(circle at 38% 36%,#fffaf0,#ffe9b8 45%,#f6c46d 80%);box-shadow:0 0 60px 10px rgba(255,210,90,.55),0 0 160px 40px rgba(255,170,60,.25);transform:translateY(calc(var(--p,0)*60px))}
+.moon::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 64% 60%,rgba(214,150,60,.35) 0 9%,transparent 10%),radial-gradient(circle at 34% 66%,rgba(214,150,60,.25) 0 6%,transparent 7%),radial-gradient(circle at 56% 30%,rgba(214,150,60,.2) 0 5%,transparent 6%)}
+.rune{position:absolute;z-index:1;width:min(92%,640px);aspect-ratio:1;left:50%;top:48%;translate:-50% -50%;transform:rotate(calc(var(--p,0)*140deg + var(--spin,0deg)));opacity:.85}
+.city{position:absolute;inset:auto 0 0 0;height:34%;z-index:1;opacity:.55;background:linear-gradient(180deg,transparent,var(--haze) 85%)}
+.city svg{position:absolute;inset:auto 0 0;width:100%;height:100%}
+.mw{position:relative;z-index:2;height:100%;transform:translateY(calc(var(--p,0)*-90px)) scale(calc(1 + var(--p,0)*.06));transform-origin:bottom center}
+.spark{position:absolute;z-index:3;left:-14%;top:9%;width:46%;aspect-ratio:1;pointer-events:none}
+@media (max-width:860px){.stage{grid-template-columns:1fr;margin-top:0}.pitch{order:2;padding-bottom:20px;transform:none}.her{height:min(118vw,560px)}}
 
-/* ---------- marquee ---------- */
-.marquee{padding:36px 0;border-block:1px solid var(--line);overflow:hidden;background:var(--night)}
-.mrow{display:flex;white-space:nowrap;gap:0;font:italic 300 clamp(40px,7vw,96px)/1.05 var(--f-disp);will-change:transform}
-.mrow span{padding-right:.5em}
-.mrow i{font-style:normal;color:var(--gold);padding-right:.5em}
-.mrow.b{font-style:normal;font-weight:700;color:transparent;-webkit-text-stroke:1px rgba(239,228,207,.38)}
-.mrow.b i{color:var(--tide);-webkit-text-stroke:0}
+/* marquee band */
+.band{background:var(--plum);color:var(--paper);padding:20px 0;overflow:hidden;transform:rotate(-1.6deg);margin:-10px -20px 0;position:relative;z-index:5;box-shadow:0 0 0 6px var(--sun)}
+.mrow{display:flex;white-space:nowrap;font:400 clamp(30px,4.4vw,58px)/1 var(--f-head);letter-spacing:.04em;will-change:transform}
+.mrow span{padding-right:.6em}
+.mrow i{font-style:normal;color:var(--sun);padding-right:.6em}
 
-/* ---------- section heads ---------- */
-section{position:relative}
-.shead{display:grid;gap:16px;margin-bottom:44px;max-width:62ch}
-.shead h2{font:600 clamp(36px,5.4vw,72px)/1.02 var(--f-disp);letter-spacing:-.01em}
-.shead h2 em{font-style:italic;font-weight:300;color:var(--gold)}
-.shead p{margin:0;color:var(--mist);font-size:18px}
+/* ---------- story ---------- */
+.story{padding:150px 0 60px;position:relative}
+.story .head{display:grid;gap:14px;margin-bottom:70px}
+.story .head p{margin:0;max-width:58ch;font-size:19px;color:var(--soft)}
+.act{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:56px;align-items:center;padding:56px 0;border-top:1px solid rgba(138,77,255,.18)}
+.act:nth-child(even) .media{order:2}
+.act .media{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;box-shadow:0 30px 60px -28px rgba(36,17,46,.5),0 0 0 1px rgba(138,77,255,.25);clip-path:inset(calc(max(0,.42 - var(--p,1))*18%) round 18px);transform:rotate(calc((.5 - var(--p,.5))*4deg))}
+.act .media video,.act .media img{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.14 - var(--p,0)*.14))}
+.act .media .lbl{position:absolute;left:14px;bottom:14px;font:400 18px/1 var(--f-head);letter-spacing:.06em;background:var(--sun);color:var(--plum);padding:6px 10px;transform:skew(-8deg);box-shadow:3px 3px 0 var(--plum)}
+.act .txt{display:grid;gap:14px;max-width:52ch}
+.act .num{font:400 clamp(120px,14vw,200px)/.7 var(--f-mark);color:transparent;-webkit-text-stroke:2px var(--gold);transform:translateX(calc((var(--p,.5) - .5)*-80px));margin-bottom:-6px}
+.act h3{font:400 clamp(36px,4vw,56px)/.95 var(--f-head);letter-spacing:.02em;transform:skew(-6deg);transform-origin:left}
+.act h3 em{font-style:normal;color:var(--ember)}
+.act .where{font:600 12px/1 var(--f-cap);letter-spacing:.24em;text-transform:uppercase;color:var(--violet)}
+.act p{margin:0;color:var(--soft);font-size:18px}
+.act p b{color:var(--plum);font-weight:600}
+@media (max-width:860px){.act{grid-template-columns:1fr;gap:26px}.act:nth-child(even) .media{order:0}}
 
-/* ---------- modes ---------- */
-.modes{padding:120px 0 80px}
-.mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
-.mode{position:relative;border-radius:22px;overflow:hidden;background:var(--night);box-shadow:inset 0 0 0 1px var(--line);display:grid;grid-template-rows:auto 1fr}
-.mode .media{aspect-ratio:16/9;overflow:hidden}
-.mode .media video,.mode .media img{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.12 - var(--p,0)*.12));transition:transform .2s linear}
-.mode .body{padding:26px 28px 30px;display:grid;gap:12px;align-content:start}
-.mode h3{font:600 30px/1.1 var(--f-disp)}
-.mode ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
-.mode li{font-size:13px;padding:6px 11px;border-radius:999px;background:rgba(239,228,207,.06);color:var(--parch)}
-@media (max-width:820px){.mgrid{grid-template-columns:1fr}}
+/* ---------- coven ---------- */
+.coven{position:relative;padding:130px 0 120px;overflow:hidden;background:
+  radial-gradient(50% 50% at 25% 55%,rgba(255,210,90,.35),transparent 70%),
+  radial-gradient(45% 55% at 78% 50%,rgba(138,77,255,.28),transparent 70%),
+  linear-gradient(180deg,var(--paper),var(--haze))}
+.coven .head{text-align:center;display:grid;gap:12px;justify-items:center;margin-bottom:40px}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;align-items:end}
+.hero-card{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:end;min-height:620px;padding:0 0 36px}
+.hero-card .fig{position:relative;height:620px;display:flex;align-items:flex-end;justify-content:center;transform:translateX(calc((1 - min(1,var(--p,1)*2.4))*var(--from,0px)));opacity:calc(.3 + min(1,var(--p,1)*2.4)*.7)}
+.hero-card .fig img{height:100%;width:auto;object-fit:contain;position:relative;z-index:2}
+.hero-card.m .fig img{filter:drop-shadow(0 24px 30px rgba(36,17,46,.3)) drop-shadow(0 0 30px rgba(255,190,80,.5))}
+.hero-card.k .fig img{height:94%;filter:drop-shadow(0 24px 30px rgba(36,17,46,.35)) drop-shadow(0 0 34px rgba(150,70,255,.75))}
+.hero-card .fig .ring{position:absolute;z-index:1;width:115%;aspect-ratio:1;left:50%;bottom:-6%;translate:-50% 0;transform:rotateX(70deg) rotate(var(--spin,0deg));border-radius:50%}
+.bio{position:relative;z-index:3;display:grid;gap:12px;align-content:end}
+.bio .face{width:120px;height:120px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 4px var(--paper),0 0 0 6px var(--gold),0 12px 30px -10px rgba(36,17,46,.6)}
+.hero-card.k .bio .face{box-shadow:0 0 0 4px var(--paper),0 0 0 6px var(--violet),0 12px 30px -10px rgba(36,17,46,.6)}
+.bio h3{font:400 clamp(54px,5.6vw,82px)/.85 var(--f-mark)}
+.hero-card.m .bio h3{color:var(--plum)}
+.hero-card.k .bio h3{color:#3b1466;text-shadow:0 0 24px rgba(150,70,255,.45)}
+.bio .title{font:italic 500 21px/1.2 var(--f-it);color:var(--ember)}
+.hero-card.k .bio .title{color:var(--violet)}
+.bio p{margin:0;color:var(--soft);font-size:16px}
+.swatch{display:flex;gap:6px}
+.swatch i{width:18px;height:18px;transform:rotate(45deg);box-shadow:0 0 0 1px rgba(36,17,46,.2)}
+.also{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:40px}
+.mini{padding:24px;border-radius:16px;background:rgba(255,255,255,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(138,77,255,.2);display:grid;gap:8px}
+.mini h4{margin:0;font:400 36px/1 var(--f-mark)}
+.mini .title{font:italic 500 16px/1.2 var(--f-it);color:var(--violet)}
+.mini p{margin:0;font-size:15px;color:var(--soft)}
+@media (max-width:1000px){.duo{grid-template-columns:1fr}.hero-card{min-height:0}}
+@media (max-width:640px){.hero-card{grid-template-columns:1fr}.hero-card .fig{height:440px}.also{grid-template-columns:1fr}}
 
-/* ---------- feature reels ---------- */
-.reel{padding:90px 0;overflow:hidden}
-.reel .kword{font:900 clamp(90px,21vw,330px)/.8 var(--f-mark);letter-spacing:-.01em;white-space:nowrap;color:transparent;-webkit-text-stroke:1.5px rgba(242,193,96,.42);transform:translateX(calc(14vw - var(--p,0)*42vw));will-change:transform;user-select:none;margin-bottom:-.28em;position:relative;z-index:0}
-.reel.r .kword{transform:translateX(calc(-30vw + var(--p,0)*42vw));text-align:right}
-.reel .stage{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:40px;align-items:center}
-.reel.r .stage{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
-.reel.r .copy{order:-1}
-.reel .screen{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:16/9;background:var(--night);box-shadow:0 40px 80px -30px rgba(0,0,0,.9),0 0 0 1px var(--line);clip-path:inset(calc(max(0,.45 - var(--p,0))*16%) round 20px);transform:rotate(calc((.5 - var(--p,0))*var(--tilt,3deg)))}
-.reel .screen video{width:100%;height:100%;object-fit:cover}
-.reel .tag{position:absolute;left:14px;top:14px;font:600 11px/1 var(--f-body);letter-spacing:.16em;text-transform:uppercase;background:rgba(10,7,20,.66);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:7px 10px;border-radius:999px;color:var(--parch)}
-.reel .copy{display:grid;gap:16px;max-width:44ch}
-.reel .copy h3{font:600 clamp(28px,3.4vw,44px)/1.08 var(--f-disp)}
-.reel .copy h3 em{font-style:italic;font-weight:300;color:var(--gold)}
-.reel .copy p{margin:0;color:var(--mist)}
-.reel .facts{display:flex;gap:28px;margin-top:6px}
-.reel .facts b{display:block;font:600 30px/1 var(--f-disp);color:var(--parch);font-variant-numeric:tabular-nums}
-.reel .facts span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
-.reel .pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.reel .pair .screen{aspect-ratio:16/10;border-radius:14px}
-.reel .pair.one{grid-template-columns:1fr;width:62%;margin-left:auto;margin-top:-8%;position:relative;z-index:2}
-.reel .pair.one .screen{aspect-ratio:16/9}
-@media (max-width:860px){.reel .pair.one{width:80%;margin-top:-6%}}
-@media (max-width:860px){.reel .stage,.reel.r .stage{grid-template-columns:1fr}.reel.r .copy{order:0}}
+/* ---------- beyond the veil ---------- */
+.veil{padding:130px 0 70px}
+.veil .head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:34px;flex-wrap:wrap}
+.vgrid{display:grid;grid-template-columns:1.6fr 1fr;grid-template-rows:auto auto;gap:22px}
+.tile{display:grid;gap:10px}
+.tile .v{position:relative;overflow:hidden;border-radius:6px;aspect-ratio:16/9;box-shadow:0 0 0 1px rgba(138,77,255,.35),0 24px 50px -28px rgba(36,17,46,.6);background:var(--haze)}
+.tile .v video{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.12 - var(--p,0)*.12))}
+.tile .v::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 60%,rgba(36,17,46,.35))}
+.tile .t{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid rgba(138,77,255,.3);padding-bottom:8px}
+.tile .t b{font:400 22px/1 var(--f-head);letter-spacing:.05em}
+.tile .t span{font-size:14px;color:var(--soft)}
+.tile.big{grid-row:span 2}
+.tile.big .v{aspect-ratio:auto;height:100%;min-height:340px}
+.vrow{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media (max-width:860px){.vgrid,.vrow{grid-template-columns:1fr}.tile.big{grid-row:auto}.tile.big .v{aspect-ratio:16/9;min-height:0}}
 
-/* ---------- chapter rail ---------- */
-.rail{background:linear-gradient(180deg,var(--ink),var(--night) 20%,var(--night) 80%,var(--ink))}
-.rail .pin{position:sticky;top:0;height:100vh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;align-content:center;gap:34px;overflow:hidden;padding-top:60px}
-.track{min-width:0;align-items:stretch}
-.rail .shead{margin-bottom:0;max-width:none}
-.rail .shead h2{max-width:20ch}
-.track{display:flex;gap:18px;padding-inline:max(16px,calc((100% - 1240px)/2));will-change:transform;transform:translateX(calc(var(--x,0)*-1px))}
-.card{flex:0 0 clamp(250px,26vw,340px);min-height:380px;border-radius:20px;padding:24px;display:grid;grid-template-rows:auto auto 1fr auto;gap:10px;position:relative;overflow:hidden;background:var(--dusk);box-shadow:inset 0 0 0 1px var(--line)}
-.card .num{font:900 64px/.9 var(--f-mark);color:transparent;-webkit-text-stroke:1px var(--gold)}
-.card h3{font:600 24px/1.12 var(--f-disp)}
-.card p{margin:0;font-size:15px;color:var(--mist)}
-.card .where{font:600 11px/1 var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
-.card.shot{color:var(--parch)}
-.card.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.55;transition:opacity .4s,transform .6s}
-.card.shot:hover img{opacity:.8;transform:scale(1.04)}
-.card.shot::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(20,15,38,.15),rgba(20,15,38,.92) 70%)}
-.card>*{position:relative;z-index:2}
-.card.paris{background:linear-gradient(160deg,#2a1d4a,#171030)}
-.card.channel{background:linear-gradient(160deg,#16324a,#0d1626)}
-.card.london{background:linear-gradient(160deg,#3a1d24,#160d14)}
-.card.mont{background:linear-gradient(160deg,#103a36,#0a1716)}
-.railbar{height:2px;background:rgba(239,228,207,.1);margin-top:6px;border-radius:2px;overflow:hidden}
-.railbar i{display:block;height:100%;width:100%;background:var(--gold);transform-origin:left;transform:scaleX(var(--rp,0))}
-@media (max-width:760px){
-  .rail{height:auto!important}
-  .rail .pin{position:relative;height:auto;padding:90px 0 60px}
-  .track{transform:none;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:12px}
-  .card{scroll-snap-align:start;flex-basis:78vw}
-  .railbar{display:none}
-}
+/* bestiary */
+.beasts{padding:60px 0 40px;overflow:hidden}
+.brow{display:flex;gap:.5em;white-space:nowrap;font:400 clamp(44px,7vw,104px)/1.05 var(--f-mark);transform:translateX(calc((var(--p,.5) - .5)*var(--dir,1)*40vw))}
+.brow span{color:transparent;-webkit-text-stroke:1.5px rgba(36,17,46,.55)}
+.brow b{font-weight:400;background:linear-gradient(180deg,var(--sun),var(--ember));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:1.5px var(--plum)}
+.brow i{font-style:normal;color:var(--violet);font-size:.5em;align-self:center}
 
-/* ---------- spellbook ---------- */
-.spells{padding:120px 0;overflow:hidden}
-.srow{display:flex;gap:.6em;white-space:nowrap;font:300 clamp(38px,6.4vw,92px)/1.08 var(--f-disp);transform:translateX(calc((var(--p,.5) - .5)*var(--dir,1)*36vw));will-change:transform}
-.srow b{font-weight:700;font-style:italic;color:var(--gold)}
-.srow span{color:rgba(239,228,207,.85)}
-.srow span::after{content:"·";color:var(--mist);margin-left:.6em}
-.srow span:last-child::after{content:""}
-.spells .note{margin-top:42px;display:flex;flex-wrap:wrap;gap:28px;color:var(--mist)}
-.spells .note b{color:var(--parch);font-weight:600}
-
-/* ---------- cast ---------- */
-.cast{padding:110px 0}
-.clist{display:grid;border-top:1px solid var(--line)}
-.who{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:baseline;padding:26px 0;border-bottom:1px solid var(--line);transition:background .3s}
-.who h3{font:600 clamp(30px,4.6vw,62px)/1 var(--f-disp);transform:translateX(calc((1 - var(--p,1))*-8vw));transition:color .25s}
-.who h3 em{font-style:italic;font-weight:300;color:var(--mist);font-size:.5em;margin-left:.3em}
-.who p{margin:0;color:var(--mist);max-width:46ch}
-.who:hover h3{color:var(--gold)}
-@media (max-width:760px){.who{grid-template-columns:1fr;gap:8px}}
-
-/* ---------- bosses ---------- */
-.bosses{padding:40px 0 110px}
-.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px;background:var(--line);border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
-.boss{background:var(--ink);padding:20px 22px;display:grid;gap:6px;transition:background .25s}
-.boss:hover{background:var(--night)}
-.boss b{font:600 19px/1.2 var(--f-disp)}
-.boss span{font-size:13px;color:var(--mist)}
-.boss .lv{font:600 11px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--ember);font-variant-numeric:tabular-nums}
-
-/* ---------- play ---------- */
-.play{padding:120px 0 90px;background:radial-gradient(80% 60% at 50% 0%,rgba(242,193,96,.12),transparent 70%),var(--ink);border-top:1px solid var(--line)}
-.play .big{font:900 clamp(60px,12vw,180px)/.86 var(--f-mark);letter-spacing:.01em;margin:18px 0 26px;transform:scale(calc(.9 + var(--p,1)*.1));transform-origin:left bottom}
-.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:36px}
-.pcard{border-radius:20px;padding:26px;background:var(--night);box-shadow:inset 0 0 0 1px var(--line);display:grid;gap:12px;align-content:start}
-.pcard.on{background:linear-gradient(160deg,rgba(242,193,96,.18),rgba(242,193,96,.04)),var(--night);box-shadow:inset 0 0 0 1px rgba(242,193,96,.45)}
-.pcard h3{font:600 24px/1.15 var(--f-disp);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.pcard p{margin:0;color:var(--mist);font-size:15px}
-.pcard .btn{justify-self:start;margin-top:6px}
-.btn[aria-disabled="true"]{opacity:.55;cursor:default;pointer-events:none}
-@media (max-width:900px){.pgrid{grid-template-columns:1fr}}
-.keys{margin-top:56px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 26px;font-size:14px;color:var(--mist)}
-.keys div{display:flex;gap:10px;align-items:center}
-kbd{font:600 12px/1 var(--f-body);color:var(--parch);background:var(--dusk);box-shadow:inset 0 -2px 0 rgba(0,0,0,.4),0 0 0 1px var(--line);padding:6px 8px;border-radius:6px;min-width:28px;text-align:center}
-footer{padding:36px 0 48px;color:var(--mist);font-size:13px;border-top:1px solid var(--line)}
-footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
-footer .mark{font:900 15px/1 var(--f-mark);letter-spacing:.18em;color:var(--parch)}
-
-/* reveal: content is visible at rest, it only lifts slightly when JS runs */
-.lift{transform:translateY(calc((1 - min(1,var(--p,1)*2.2))*36px));opacity:calc(.35 + min(1,var(--p,1)*2.2)*.65)}
+/* finale */
+.finale{position:relative;margin-top:80px;padding:110px 0 100px;text-align:center;overflow:hidden;background:
+  radial-gradient(60% 80% at 50% 0%,rgba(255,210,90,.55),transparent 70%),
+  linear-gradient(180deg,var(--haze),#e4d2ff)}
+.finale .bang{display:inline-block;font-size:clamp(54px,9vw,140px);transform:skew(-6deg) scale(calc(.9 + var(--p,1)*.1));transform-origin:center}
+.finale p{max-width:52ch;margin:22px auto 30px;color:var(--soft);font-size:19px}
+.finale .ctas{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;align-items:center}
+.soon{font:600 11px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;padding:5px 8px;border-radius:999px;background:rgba(138,77,255,.14);color:var(--violet)}
+.btn.ghost{background:rgba(255,255,255,.7);color:var(--plum);box-shadow:inset 0 0 0 2px var(--plum);cursor:default}
+footer{padding:28px 0 40px;background:#e4d2ff}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center;color:var(--soft);font-size:14px}
+footer .mark{font:400 28px/1 var(--f-mark);color:var(--plum)}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
-  .hero .frame{clip-path:none}
-  .hero video,.wordmark span,.mrow,.reel .kword,.reel .screen,.track,.srow,.who h3,.play .big,.lift,.mode .media video,.mode .media img{transform:none!important;opacity:1!important}
-  .reel .screen{clip-path:inset(0 round 20px)}
-  .rail{height:auto!important}
-  .rail .pin{position:relative;height:auto;padding:90px 0 60px}
-  .track{overflow-x:auto;padding-bottom:12px}
+  .word span,.pitch,.mw,.moon,.rune,.act .media,.act .media video,.act .num,.hero-card .fig,.tile .v video,.brow,.finale .bang,.mrow{transform:none!important}
+  .act .media{clip-path:inset(0 round 18px)}
+  #fx{display:none}
 }
 </style>
 </head>
 <body>
+<canvas id="fx" aria-hidden="true"></canvas>
 
 <nav class="nav" id="nav" aria-label="Main">
-  <a class="mark" href="#top">SORCIÈRE</a>
+  <a class="mark" href="#top"><i>✦</i>Sorcière</a>
   <ul>
-    <li><a href="#modes">Modes</a></li>
-    <li><a href="#fly">Gameplay</a></li>
-    <li><a href="#chapters">Chapters</a></li>
-    <li><a href="#cast">Cast</a></li>
+    <li><a href="#story">The Story</a></li>
+    <li><a href="#coven">The Coven</a></li>
+    <li><a href="#veil">Gameplay</a></li>
   </ul>
   <a class="btn gold small" href="https://claude.ai/artifact/PcLVQukF113ST8HwCSR4Mp">Play now</a>
 </nav>
 
 <header class="hero" id="top" data-k="out">
-  <div class="frame">
-    <video src="media/eiffel.mp4" poster="media/eiffel.jpg" autoplay muted loop playsinline preload="auto" aria-label="Maëlle flying her broom around the Eiffel Tower at night"></video>
-  </div>
   <div class="wrap">
-    <div class="eyebrow">A witch action RPG · Paris, after midnight</div>
-    <h1 class="wordmark" aria-label="Sorcière"><span>S</span><span>O</span><span>R</span><span>C</span><span>I</span><span>È</span><span>R</span><span>E</span></h1>
-    <p class="lede">Fly a broom over Paris. Fight a frost giant under the Eiffel Tower. Follow a ghost across the Channel, through London, and out to the tide at Mont-Saint-Michel.</p>
-    <div class="ctas">
-      <a class="btn gold" href="https://claude.ai/artifact/PcLVQukF113ST8HwCSR4Mp"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg>Play in your browser</a>
-      <a class="btn ghost" href="#play">Windows download <span class="soon">Soon</span></a>
+    <div class="rule cap eyebrow"><span>A world between moonlight and shadow</span></div>
+    <h1 class="word" aria-label="Sorcière"><span>S</span><span>o</span><span>r</span><span>c</span><span>i</span><span>è</span><span>r</span><span>e</span></h1>
+    <div class="stage">
+      <div class="pitch">
+        <h2 class="bang">The night<br><span class="g">belongs to her.</span></h2>
+        <div class="bar" aria-hidden="true"></div>
+        <p>A young witch, a ghost who used to be her enemy, and a crown that steals faces. From the rooftops of Paris to the tide at Mont-Saint-Michel.</p>
+        <div class="ctas">
+          <a class="btn gold" href="https://claude.ai/artifact/PcLVQukF113ST8HwCSR4Mp">Enter the world</a>
+          <a class="btn line" href="#veil"><b><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg></b>Watch gameplay</a>
+        </div>
+      </div>
+      <div class="her">
+        <div class="moon" aria-hidden="true"></div>
+        <svg class="rune" viewBox="0 0 400 400" aria-hidden="true">
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd25a"/><stop offset="1" stop-color="#8a4dff"/></linearGradient></defs>
+          <g fill="none" stroke="url(#rg)" stroke-width="1.4" opacity=".9">
+            <circle cx="200" cy="200" r="190"/><circle cx="200" cy="200" r="176" stroke-dasharray="2 8"/><circle cx="200" cy="200" r="130"/>
+            <polygon points="200,24 352,288 48,288"/><polygon points="200,376 48,112 352,112"/>
+            <circle cx="200" cy="200" r="60" stroke-dasharray="14 6"/>
+          </g>
+          <g fill="#f2a541" font-family="Cinzel,serif" font-size="13" letter-spacing="6"><text><textPath href="#cp">SORCIÈRE · LUNA · NOX · IGNIS · UMBRA · MAËLLE · </textPath></text></g>
+          <path id="cp" d="M200,47 a153,153 0 1,1 -0.1,0" fill="none"/>
+        </svg>
+        <div class="city" aria-hidden="true"><svg viewBox="0 0 600 200" preserveAspectRatio="none"><path fill="#b996f0" d="M0 200V130h30v-20h20v20h26V95h18v35h30v-50l10-12 10 12v50h40V110h26v-14h14v14h20v20h40V60l6-30 6 30v70h30v-26h34v26h26V90l14-20 14 20v40h30v-24h30v24h40v-36h20v36h46v70z"/><path fill="#9a74de" d="M0 200v-40h50v-18h40v18h60v-28h30v28h70v-14h40v14h80v-24h40v24h60v-16h40v16h90v40z"/></svg></div>
+        <div class="mw"><img class="m" src="media/maelle.webp" alt="Maëlle, the Silver Witch, in her bordeaux cape and wide pointed hat" width="436" height="1043">
+        <canvas class="spark" id="spark" width="240" height="240" aria-hidden="true"></canvas></div>
+      </div>
     </div>
   </div>
-  <div class="scrollcue" aria-hidden="true">Scroll</div>
 </header>
 
-<div class="marquee" aria-hidden="true">
-  <div class="mrow a" data-m="1"></div>
-  <div class="mrow b" data-m="-1"></div>
-</div>
+<div class="band" aria-hidden="true"><div class="mrow" data-m="1"></div></div>
 
-<section class="modes" id="modes">
+<section class="story" id="story">
   <div class="wrap">
-    <div class="shead lift" data-k="in">
-      <div class="eyebrow">Two ways to play</div>
-      <h2>A story to follow, <em>a city to get lost in</em></h2>
+    <div class="head">
+      <div class="cap">The story so far</div>
+      <h2 class="bang">Eighteen chapters. <span class="g">Four acts.</span></h2>
+      <p>It starts with a masked fox on the rooftops of Paris. It ends, for now, on a rock in the sea, with a dead queen's true name.</p>
     </div>
-    <div class="mgrid">
-      <article class="mode lift" data-k="in">
-        <div class="media" data-k="in"><video src="media/rue.mp4" poster="media/rue.jpg" muted loop playsinline preload="metadata" aria-label="Maëlle running up the Grande Rue of Mont-Saint-Michel"></video></div>
-        <div class="body">
-          <div class="eyebrow">Story mode</div>
-          <h3>Eighteen chapters and a voiced cast</h3>
-          <p class="muted">From a masked fox on the rooftops of Paris to Kaen, the Master of Illusions. Then the Channel, the Tower of London, the Hollow Crown, the Sorbonne and the Tide Door.</p>
-          <ul><li>Cutscenes</li><li>Voiced cast</li><li>Chapter select</li><li>Boss fights</li></ul>
+    <div class="acts">
+      <article class="act" data-k="in">
+        <div class="media"><video src="media/fox.mp4" poster="media/fox.jpg" muted loop playsinline preload="metadata" aria-label="Maëlle fights Hakuko, the Masked Fox"></video><span class="lbl">Chapters I - VIII</span></div>
+        <div class="txt">
+          <div class="num" aria-hidden="true">I</div>
+          <div class="where">Paris, after midnight</div>
+          <h3>The <em>Master</em> of Illusions</h3>
+          <p>Midnight, and something is hunting the rooftops. <b>Maëlle</b> chases Hakuko, the Masked Fox, across the zinc roofs and into a war she never chose: a frost giant at the Eiffel Tower, a grinning cat demon in the Seine, <b>Morwen</b>, Queen of the Abyss, and at the end of it all <b>Kaen Kuroshiba</b>, the Master of Illusions.</p>
         </div>
       </article>
-      <article class="mode lift" data-k="in">
-        <div class="media" data-k="in"><video src="media/ow.mp4" poster="media/ow.jpg" muted loop playsinline preload="metadata" aria-label="Maëlle running across the Champ de Mars toward the Eiffel Tower in daylight"></video></div>
-        <div class="body">
-          <div class="eyebrow">Open world</div>
-          <h3>Real Paris, street by street</h3>
-          <p class="muted">Built on real Paris street data. Take the métro, sit in cafés, run quests, chase Orson's gold, and catch the Chat Noir before he runs off with your wand.</p>
-          <ul><li>Métro</li><li>Cafés</li><li>Quests</li><li>Broom stones</li></ul>
+      <article class="act" data-k="in">
+        <div class="media"><video src="media/eiffel.mp4" poster="media/eiffel.jpg" muted loop playsinline preload="metadata" aria-label="Broom flight around the Eiffel Tower"></video><span class="lbl">Chapters IX - XI</span></div>
+        <div class="txt">
+          <div class="num" aria-hidden="true">II</div>
+          <div class="where">Calais · the Channel · London</div>
+          <h3>The <em>Crossing</em></h3>
+          <p>Kaen's prison breaks. His sister <b>Lyra</b> opens a door to Calais, and Maëlle flies the cursed Channel through bats, winged jack-o'-lanterns and gargoyles. Greyfang waits on the clock tower. At the Tower of London the Warden takes a body, and Kaen comes home as a ghost riding her broom.</p>
+        </div>
+      </article>
+      <article class="act" data-k="in">
+        <div class="media"><video src="media/fight.mp4" poster="media/fight.jpg" muted loop playsinline preload="metadata" aria-label="Spells against Hrímgar, the Frost Giant"></video><span class="lbl">Chapters XII - XVI</span></div>
+        <div class="txt">
+          <div class="num" aria-hidden="true">III</div>
+          <div class="where">London · Westminster</div>
+          <h3>The <em>Hollow</em> Crown</h3>
+          <p>Ash from the Trocadéro, six ravens and a heartbeat give Kaen his body back. Then the truth about the Crown: a brother made of smoke in a cloaked pub, an abbey full of wings, Gog and Magog, and a chair where something has been waiting. Every face it ever wore. Then yours.</p>
+        </div>
+      </article>
+      <article class="act" data-k="in">
+        <div class="media"><video src="media/montair.mp4" poster="media/montair.jpg" muted loop playsinline preload="metadata" aria-label="Mont-Saint-Michel at night"></video><span class="lbl">Chapters XVII - XVIII</span></div>
+        <div class="txt">
+          <div class="num" aria-hidden="true">IV</div>
+          <div class="where">The Sorbonne · Mont-Saint-Michel</div>
+          <h3>The <em>Tide</em> Door</h3>
+          <p>Lyra opens a door home. Under the Sorbonne someone still remembers Morwen, and a baptism record points to Mont-Saint-Michel. Her true name is in the parish register, unless the Crown got there first. Below the abbey, the Drowned Bell is still ringing.</p>
         </div>
       </article>
     </div>
   </div>
 </section>
 
-<section class="reel" id="fly" data-k="in">
-  <div class="kword" aria-hidden="true">FLY</div>
-  <div class="wrap stage">
-    <div class="screen" style="--tilt:3deg"><video src="media/eiffel.mp4" poster="media/eiffel.jpg" muted loop playsinline preload="metadata" aria-label="Broom flight around the Eiffel Tower"></video><span class="tag">In game · Paris</span></div>
-    <div class="copy">
-      <div class="eyebrow">Broom flight</div>
-      <h3>Jump twice and <em>the broom answers</em></h3>
-      <p>Hold Space to climb, tap to drop, tap again to catch the broom. Rooftops, the Seine, the iron of the tower: all of it is yours to cross. Over the Channel, only Lyra's sea-glass gem keeps you in the air.</p>
-      <div class="facts"><div><b>30 s</b><span>open-world flight</span></div><div><b>+15 s</b><span>per broom stone</span></div></div>
-    </div>
-  </div>
-</section>
-
-<section class="reel r" id="fight" data-k="in">
-  <div class="kword" aria-hidden="true">FIGHT</div>
-  <div class="wrap stage">
-    <div class="copy">
-      <div class="eyebrow">Combat</div>
-      <h3>Seventeen spells, <em>and the bosses hit back</em></h3>
-      <p>Charge a spell, chain it into the next, keep moving. Hrímgar brings winter into Paris. Under the abbey at Mont-Saint-Michel, the Drowned Bell is still ringing.</p>
-      <div class="facts"><div><b>17</b><span>spells</span></div><div><b>Lv 50</b><span>top boss</span></div></div>
-    </div>
-    <div>
-      <div class="screen" style="--tilt:-3deg"><video src="media/fight.mp4" poster="media/fight.jpg" muted loop playsinline preload="metadata" aria-label="Maëlle casting spells at Hrímgar the Frost Giant"></video><span class="tag">Hrímgar, the Frost Giant</span></div>
-      <div class="pair one">
-        <div class="screen" style="--tilt:2deg"><video src="media/fox.mp4" poster="media/fox.jpg" muted loop playsinline preload="metadata" aria-label="Maëlle fighting Hakuko, the Masked Fox"></video><span class="tag">Hakuko, the Masked Fox</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="reel" id="explore" data-k="in">
-  <div class="kword" aria-hidden="true">EXPLORE</div>
-  <div class="wrap stage">
-    <div class="screen" style="--tilt:3deg"><video src="media/montair.mp4" poster="media/montair.jpg" muted loop playsinline preload="metadata" aria-label="Aerial view of Mont-Saint-Michel at night"></video><span class="tag">Mont-Saint-Michel</span></div>
-    <div class="copy">
-      <div class="eyebrow">Chapter XVIII · The Tide Door</div>
-      <h3>Climb the Grande Rue <em>to the abbey</em></h3>
-      <p>Morwen was born on Mont-Saint-Michel. Her true name is in the parish register, unless the Crown got there first. Climb past shopfronts and bunting while a waypoint meter counts down the metres.</p>
-      <div class="facts"><div><b>18</b><span>chapters</span></div><div><b>XVIII</b><span>latest chapter</span></div></div>
-    </div>
-  </div>
-</section>
-
-<section class="rail" id="chapters" data-k="rail">
-  <div class="pin">
-    <div class="wrap shead">
-      <div class="eyebrow">The story so far</div>
-      <h2>From the catacombs <em>to the tide</em></h2>
-      <div class="railbar"><i></i></div>
-    </div>
-    <div class="track" id="track"></div>
-  </div>
-</section>
-
-<section class="spells" id="spells">
-  <div class="wrap shead lift" data-k="in">
-    <div class="eyebrow">The grimoire</div>
-    <h2>Seventeen spells. <em>Fifteen slots on your bar.</em></h2>
-  </div>
-  <div class="srow" data-k="in" style="--dir:1"><b>Arcane bolt</b><span>Fireball</span><span>Ice lance</span><span>Glacial nova</span><span>Shadow chains</span><span>Chain lightning</span></div>
-  <div class="srow" data-k="in" style="--dir:-1"><span>Inferno</span><b>Meteor</b><span>Void well</span><span>Thunderstorm</span><span>Arcane aegis</span><span>Starfall</span></div>
-  <div class="srow" data-k="in" style="--dir:1"><span>Eclipse</span><span>Stinking poison</span><span>Venom serpent</span><span>Plague nova</span><b>Limit Breaker</b></div>
-  <div class="wrap note"><div><b>Master Bilel</b> teaches the poisons.</div><div><b>Limit Breaker</b> only answers at 15% health or less.</div><div><b>Level 30</b> evolves your rune.</div></div>
-</section>
-
-<section class="cast" id="cast">
+<section class="coven" id="coven">
   <div class="wrap">
-    <div class="shead lift" data-k="in">
-      <div class="eyebrow">The cast</div>
-      <h2>Witches, a ghost, <em>and a queen of the abyss</em></h2>
+    <div class="head">
+      <div class="rule cap" style="width:min(560px,100%)"><span>The coven</span></div>
+      <h2 class="bang" style="transform-origin:center">Light <span class="g">and shadow</span></h2>
     </div>
-    <div class="clist">
-      <div class="who" data-k="in"><h3>Maëlle<em>or Lucien</em></h3><p>The witch. Pick your hero and your name. A wand, a broom, and Paris after midnight.</p></div>
-      <div class="who" data-k="in"><h3>Kaen Kuroshiba</h3><p>The Master of Illusions. First the last boss, then a ghost riding your broom home across the Channel.</p></div>
-      <div class="who" data-k="in"><h3>Lyra</h3><p>Kaen's sister. She opens doors between cities, and she sings when it matters most.</p></div>
-      <div class="who" data-k="in"><h3>Morwen</h3><p>Queen of the Abyss. Small, beautiful, deadly, and born on Mont-Saint-Michel under a name the Crown wants buried.</p></div>
-      <div class="who" data-k="in"><h3>Master Bilel</h3><p>The old master. Quests, and the poison spells nobody else will teach you.</p></div>
+    <div class="duo">
+      <article class="hero-card m" data-k="in">
+        <div class="fig" style="--from:-14vw">
+          <svg class="ring" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#f2a541" stroke-width="1.2"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="80" stroke-dasharray="3 6"/><polygon points="100,8 180,146 20,146"/><polygon points="100,192 20,54 180,54"/></g></svg>
+          <img src="media/maelle.webp" alt="Maëlle, full figure" width="436" height="1043" loading="lazy">
+        </div>
+        <div class="bio">
+          <img class="face" src="media/maelle_face.webp" alt="Close-up of Maëlle under her hat" loading="lazy">
+          <h3>Maëlle</h3>
+          <div class="title">The Silver Witch</div>
+          <p>Seventeen spells, a broom, and a habit of saying yes to the wrong door. She fought Kaen. Now she flies him home.</p>
+          <div class="swatch" aria-hidden="true"><i style="background:#c9c9cf"></i><i style="background:#6b1430"></i><i style="background:#18121a"></i><i style="background:#8f97d6"></i><i style="background:#efe7d6"></i></div>
+        </div>
+      </article>
+      <article class="hero-card k" data-k="in">
+        <div class="fig" style="--from:14vw">
+          <svg class="ring" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#8a4dff" stroke-width="1.2"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="80" stroke-dasharray="3 6"/><polygon points="100,8 180,146 20,146"/><polygon points="100,192 20,54 180,54"/></g></svg>
+          <img src="media/kaen.webp" alt="Kaen Kuroshiba, full figure, violet aura and blade" width="282" height="564" loading="lazy">
+        </div>
+        <div class="bio">
+          <img class="face" src="media/kaen_face.webp" alt="Close-up of Kaen with violet eyes" loading="lazy">
+          <h3>Kaen</h3>
+          <div class="title">Master of Illusions</div>
+          <p>The last boss of Paris. Then a prisoner of the Tower, then a ghost, then a man again, at full strength.</p>
+          <div class="swatch" aria-hidden="true"><i style="background:#1e1030"></i><i style="background:#4a2380"></i><i style="background:#8a4dff"></i><i style="background:#c9a8ff"></i><i style="background:#b9925f"></i></div>
+        </div>
+      </article>
+    </div>
+    <div class="also">
+      <div class="mini"><h4>Lyra</h4><div class="title">Kaen's sister</div><p>She opens doors between cities, and she sings when it matters most.</p></div>
+      <div class="mini"><h4>Morwen</h4><div class="title">Queen of the Abyss</div><p>Small, beautiful, deadly. Born on Mont-Saint-Michel, under a name the Crown wants buried.</p></div>
+      <div class="mini"><h4>Master Bilel</h4><div class="title">The old master</div><p>Quests, and the poison spells nobody else will teach you.</p></div>
     </div>
   </div>
 </section>
 
-<section class="bosses" id="bosses">
+<section class="veil" id="veil">
   <div class="wrap">
-    <div class="shead lift" data-k="in">
-      <div class="eyebrow">Bestiary</div>
-      <h2>Who is <em>waiting for you</em></h2>
+    <div class="head">
+      <div><div class="cap" style="margin-bottom:12px">Magic is never without consequence</div><h2 class="bang">Beyond <span class="g">the veil.</span></h2></div>
+      <span class="star" aria-hidden="true" style="font-size:30px">☾ ✦ ☽</span>
     </div>
-    <div class="bgrid">
-      <div class="boss"><span class="lv">Lv 6 · Chapter I</span><b>Hakuko, the Masked Fox</b><span>Hunts the rooftops.</span></div>
-      <div class="boss"><span class="lv">Lv 12 · Chapter II</span><b>The Crimson Nine-Tails</b><span>The fox shows her true form.</span></div>
-      <div class="boss"><span class="lv">Lv 18 · Chapter III</span><b>Hrímgar, the Frost Giant</b><span>Winter walks into Paris.</span></div>
-      <div class="boss"><span class="lv">Chapter IV</span><b>Azurmaw, the Grinning Cat</b><span>The cat demon of the Seine.</span></div>
-      <div class="boss"><span class="lv">Chapter V</span><b>Gorgoloth, the Crimson Slug</b><span>Something huge and slimy.</span></div>
-      <div class="boss"><span class="lv">Chapter VII</span><b>Morwen, Queen of the Abyss</b><span>Small, beautiful, deadly.</span></div>
-      <div class="boss"><span class="lv">Chapter VIII</span><b>Kaen Kuroshiba</b><span>The final fight of Paris.</span></div>
-      <div class="boss"><span class="lv">Chapter X</span><b>Greyfang</b><span>Hound of the Hollow Crown, on the clock tower.</span></div>
-      <div class="boss"><span class="lv">Chapter XI</span><b>The Warden</b><span>Spirit of the Tower.</span></div>
-      <div class="boss"><span class="lv">Chapter XIV</span><b>Desmond Mumbash</b><span>The Smoke of Portobello.</span></div>
-      <div class="boss"><span class="lv">Chapter XV</span><b>Gog and Magog</b><span>Stone and Wing of the Crown.</span></div>
-      <div class="boss"><span class="lv">Chapter XVI</span><b>The Hollow Crown</b><span>Every face it ever wore. Then yours.</span></div>
-      <div class="boss"><span class="lv">Chapter XVIII</span><b>The Drowned Bell</b><span>Under the abbey, in the crypt.</span></div>
-      <div class="boss"><span class="lv">Open world</span><b>Orson, the Gold Chain</b><span>The gold of the open world.</span></div>
+    <div class="vgrid">
+      <div class="tile big" data-k="in"><div class="v"><video src="media/fight.mp4" poster="media/fight.jpg" muted loop playsinline preload="metadata" aria-label="Spellcasting against Hrímgar"></video></div><div class="t"><b>01 / Spellcasting</b><span>Hrímgar, the Frost Giant</span></div></div>
+      <div class="tile" data-k="in"><div class="v"><video src="media/rue.mp4" poster="media/rue.jpg" muted loop playsinline preload="metadata" aria-label="The Grande Rue of Mont-Saint-Michel"></video></div><div class="t"><b>02 / Exploration</b><span>The Grande Rue</span></div></div>
+      <div class="tile" data-k="in"><div class="v"><video src="media/eiffel.mp4" poster="media/eiffel.jpg" muted loop playsinline preload="metadata" aria-label="Flying a broom over Paris"></video></div><div class="t"><b>03 / The Supernatural</b><span>Broom over Paris</span></div></div>
+    </div>
+    <div class="vrow">
+      <div class="tile" data-k="in"><div class="v"><video src="media/ow.mp4" poster="media/ow.jpg" muted loop playsinline preload="metadata" aria-label="Open world Paris by day"></video></div><div class="t"><b>04 / Open world</b><span>All of Paris, real streets</span></div></div>
+      <div class="tile" data-k="in"><div class="v"><video src="media/fox.mp4" poster="media/fox.jpg" muted loop playsinline preload="metadata" aria-label="Fighting Hakuko"></video></div><div class="t"><b>05 / Bosses</b><span>Hakuko, the Masked Fox</span></div></div>
     </div>
   </div>
 </section>
 
-<section class="play" id="play">
+<section class="beasts" aria-label="Bosses">
+  <div class="brow" data-k="in" style="--dir:1"><b>Hakuko</b><i>✦</i><span>Nine-Tails</span><i>✦</i><b>Hrímgar</b><i>✦</i><span>Azurmaw</span><i>✦</i><span>Gorgoloth</span><i>✦</i><b>Morwen</b></div>
+  <div class="brow" data-k="in" style="--dir:-1"><span>Greyfang</span><i>✦</i><b>The Warden</b><i>✦</i><span>Gog</span><i>✦</i><span>Magog</span><i>✦</i><b>The Hollow Crown</b><i>✦</i><span>The Drowned Bell</span></div>
+</section>
+
+<section class="finale" id="play" data-k="in">
   <div class="wrap">
-    <div class="eyebrow">Free to play</div>
-    <div class="big" data-k="in">PLAY NOW</div>
-    <p class="muted" style="max-width:58ch;margin:0">Sorcière runs in a modern browser on desktop and mobile, with on-screen controls on touch screens. Nothing to install.</p>
-    <div class="pgrid">
-      <div class="pcard on">
-        <div class="eyebrow">Available now</div>
-        <h3>Browser</h3>
-        <p>The full game, with every voice line, the music and the sound packs at full quality.</p>
-        <a class="btn gold" href="https://claude.ai/artifact/PcLVQukF113ST8HwCSR4Mp"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2.5v11l9-5.5z"/></svg>Play in your browser</a>
-      </div>
-      <div class="pcard">
-        <div class="eyebrow">Next</div>
-        <h3>Windows <span class="soon">Soon</span></h3>
-        <p>A standalone Sorciere.exe that runs offline, double-click and play.</p>
-        <a class="btn ghost" aria-disabled="true">Download .exe</a>
-      </div>
-      <div class="pcard">
-        <div class="eyebrow">Next</div>
-        <h3>Game platform <span class="soon">Soon</span></h3>
-        <p>A public test page where you can play, leave feedback and follow new chapters.</p>
-        <a class="btn ghost" aria-disabled="true">Open the page</a>
-      </div>
-    </div>
-    <div class="keys" aria-label="Desktop controls">
-      <div><kbd>WASD</kbd>Move</div>
-      <div><kbd>Shift</kbd>Sprint</div>
-      <div><kbd>Space</kbd>Jump, twice for the broom</div>
-      <div><kbd>1-0</kbd>Spells, hold to charge</div>
-      <div><kbd>Z X V G H</kbd>More spell slots</div>
-      <div><kbd>F</kbd>Teleport</div>
-      <div><kbd>K</kbd>Grimoire</div>
-      <div><kbd>E</kbd>Interact</div>
-      <div><kbd>M</kbd>Map, open world</div>
+    <div class="rule cap" style="width:min(560px,100%);margin:0 auto 18px"><span>Your story. Your magic.</span></div>
+    <h2 class="bang"><span class="g">Enter Sorcière</span></h2>
+    <p>Free, in your browser, with every voice and every note of music. A Windows version is on the way.</p>
+    <div class="ctas">
+      <a class="btn gold" href="https://claude.ai/artifact/PcLVQukF113ST8HwCSR4Mp">Play now</a>
+      <span class="btn ghost">Windows <span class="soon">Soon</span></span>
     </div>
   </div>
 </section>
-
-<footer>
-  <div class="wrap"><span class="mark">SORCIÈRE</span><span>A witch action RPG in Paris · built with Three.js</span></div>
-</footer>
+<footer><div class="wrap"><span class="mark">Sorcière</span><span>A supernatural action RPG · Paris, London, Mont-Saint-Michel</span></div></footer>
 
 <script>
 (()=>{
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const row=document.querySelector('.mrow');
+const W=['Paris','Calais','The Channel','London','The Tower','Westminster','The Sorbonne','Mont-Saint-Michel'];
+let h='';for(let k=0;k<3;k++)for(const w of W)h+=`<span>${w}</span><i>✦</i>`;row.innerHTML=h;
+const L=[...document.querySelectorAll('.word span')];L.forEach((s,i)=>{const c=i-(L.length-1)/2;s.style.setProperty('--dy',(-50-Math.abs(c)*30+(i%2?-24:16)).toFixed(0));s.style.setProperty('--rz',(c*5).toFixed(1))});
 
-/* chapters */
-const CH=[
- ['I','The Masked Fox','Hakuko hunts the rooftops.','Paris','paris','media/s_fox.jpg'],
- ['II','The Crimson Nine-Tails','The fox shows her true form.','Paris','paris'],
- ['III','Hrímgar, the Frost Giant','Winter walks into Paris.','Paris','paris','media/s_fight.jpg'],
- ['IV','Azurmaw','The cat demon of the Seine.','Paris','paris'],
- ['V','Gorgoloth','Something huge and slimy.','Paris','paris'],
- ['VI','Master Bilel','Quests and poison spells with the old master.','Paris','paris'],
- ['VII','Morwen, Queen of the Abyss','Small, beautiful, deadly.','Paris','paris'],
- ['VIII','Kaen Kuroshiba','The Master of Illusions. Final fight.','Paris','paris'],
- ['IX','The Crossing','Lyra, Calais and the cursed Channel.','Calais · the Channel','channel'],
- ['X','Greyfang','London, Big Ben and the Tower.','London','london'],
- ['XI','The Escape',"The Tower's questions, the Warden and the flight home.",'London · the Channel','channel'],
- ['XII','Ash and Silver','The ash, the long way back to London, six ravens, and a heartbeat.','Dover · London','london'],
- ['XIII',"The Crown's Shadow","A shadow over St Paul's, a trap, a sword thrown across the dark, and Kaen at full strength.",'London','london'],
- ['XIV','The Smoke of Portobello','What the Crown really is, an old man in a cloaked pub, and a brother made of smoke.','London','london'],
- ['XV','Beneath Westminster','A cloaked abbey, a tunnel full of wings, and two guardians of stone.','London','london'],
- ['XVI','The Hollow Crown','The smoke in the chair, the run to the light, every old face. And yours.','London','london'],
- ['XVII','The Sorbonne','Lyra opens a door home. Somewhere under the Sorbonne, someone still remembers Morwen.','Paris','paris'],
- ['XVIII','The Tide Door','Morwen was born on Mont-Saint-Michel. Her true name is in the parish register, unless the Crown got there first.','Mont-Saint-Michel','mont','media/s_montair.jpg']];
-const track=document.getElementById('track');
-for(const c of CH){const a=document.createElement('article');a.className='card '+c[4]+(c[5]?' shot':'');
-  a.innerHTML=(c[5]?`<img src="${c[5]}" alt="" loading="lazy">`:'')+`<div class="num">${c[0]}</div><div class="where">${c[3]}</div><div><h3>${c[1]}</h3></div><p>${c[2]}</p>`;track.appendChild(a)}
-
-/* marquee */
-const PL=['Paris','Calais','The Channel','Dover','London','The Tower','Westminster','The Sorbonne','Mont-Saint-Michel','New Orleans'];
-const BS=['Hakuko','Nine-Tails','Hrímgar','Azurmaw','Gorgoloth','Morwen','Kaen','Greyfang','The Warden','The Hollow Crown','The Drowned Bell'];
-const rows=[...document.querySelectorAll('.mrow')];
-const fill=(el,words)=>{let h='';for(let k=0;k<3;k++)for(const w of words)h+=`<span>${w}</span><i>✦</i>`;el.innerHTML=h};
-fill(rows[0],PL);fill(rows[1],BS);
-
-/* videos only play while on screen */
+/* videos play only on screen */
 const vids=[...document.querySelectorAll('video')];
-if(reduce){vids.forEach(v=>{v.removeAttribute('autoplay');v.pause();v.controls=true})}
-else if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{for(const e of es){const v=e.target;if(e.isIntersecting){const p=v.play();p&&p.catch(()=>{})}else v.pause()}},{rootMargin:'120px'});vids.forEach(v=>io.observe(v))}
+if(reduce)vids.forEach(v=>v.controls=true);
+else if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{for(const e of es){const v=e.target;if(e.isIntersecting){const p=v.play();p&&p.catch(()=>{})}else v.pause()}},{rootMargin:'100px'});vids.forEach(v=>io.observe(v))}
 
-/* wordmark letters scatter as the hero leaves */
-const L=[...document.querySelectorAll('.wordmark span')];L.forEach((s,i)=>{const c=i-(L.length-1)/2;s.style.setProperty('--dy',(-60-Math.abs(c)*38+(i%2?-30:20)).toFixed(0));s.style.setProperty('--rz',(c*4).toFixed(1))});
-
-const nav=document.getElementById('nav');
-const K=[...document.querySelectorAll('[data-k]')];
-const rail=document.querySelector('.rail'),pin=rail.querySelector('.pin'),bar=rail.querySelector('.railbar i');
-let over=0,narrow=false;
-function layout(){narrow=innerWidth<=760||reduce;if(narrow){rail.style.height='';return}over=Math.max(0,track.scrollWidth-innerWidth+32);rail.style.height=(innerHeight+over)+'px'}
+/* floating motes, gold and violet */
+const fx=document.getElementById('fx'),g=fx.getContext('2d');let dpr=1,P=[];
+function size(){dpr=Math.min(2,devicePixelRatio||1);fx.width=innerWidth*dpr;fx.height=innerHeight*dpr;fx.style.width=innerWidth+'px';fx.style.height=innerHeight+'px';
+  P=Array.from({length:Math.round(innerWidth/22)},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.8+.6,s:Math.random()*.4+.15,ph:Math.random()*6.3,c:Math.random()<.6?'255,196,80':'150,90,255'}))}
+/* sparkle burst at Maëlle's hand */
+const sp=document.getElementById('spark'),sg=sp.getContext('2d');
+const K=[...document.querySelectorAll('[data-k]')];const nav=document.getElementById('nav');
+const spins=[...document.querySelectorAll('.rune,.ring')];
 let mx=0,lastY=scrollY,vel=0,last=performance.now();
 function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;const vh=innerHeight,y=scrollY;
-  vel+=((y-lastY)/Math.max(dt,.001)-vel)*Math.min(1,dt*6);lastY=y;
-  nav.classList.toggle('solid',y>40);
+  vel+=((y-lastY)/Math.max(dt,.001)-vel)*Math.min(1,dt*6);lastY=y;nav.classList.toggle('solid',y>30);
   if(!reduce){
-    for(const el of K){const r=el.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)continue;const m=el.dataset.k;let p;
-      if(m==='out')p=clamp(-r.top/Math.max(1,r.height*.9),0,1);
-      else if(m==='rail'){p=clamp(-r.top/Math.max(1,r.height-vh),0,1);if(!narrow){track.style.setProperty('--x',(p*over).toFixed(1));bar.parentElement.style.setProperty('--rp',p.toFixed(4))}}
-      else p=clamp((vh-r.top)/(vh+r.height),0,1);
-      el.style.setProperty('--p',p.toFixed(4))}
-    mx+=dt*(40+Math.min(900,Math.abs(vel))*.6);
-    rows.forEach((r,i)=>{const w=r.scrollWidth/3||1;const d=+r.dataset.m;const x=((mx*(i?1.1:1))%w);r.style.transform=`translateX(${d>0?-x:x-w}px) skewX(${clamp(-vel*.004,-10,10)*d}deg)`})}
+    for(const el of K){const r=el.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)continue;
+      const p=el.dataset.k==='out'?clamp(-r.top/Math.max(1,r.height*.85),0,1):clamp((vh-r.top)/(vh+r.height),0,1);el.style.setProperty('--p',p.toFixed(4))}
+    const sd=(now*.006+y*.08)%360;spins.forEach(s=>s.style.setProperty('--spin',sd.toFixed(2)+'deg'));
+    mx+=dt*(60+Math.min(900,Math.abs(vel))*.7);const w=row.scrollWidth/3||1;row.style.transform=`translateX(${-(mx%w)}px) skewX(${clamp(-vel*.004,-12,12)}deg)`;
+    g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,innerWidth,innerHeight);
+    for(const q of P){q.y-=q.s*(1+Math.abs(vel)*.004);q.x+=Math.sin(now*.0007+q.ph)*.25;if(q.y<-10){q.y=innerHeight+10;q.x=Math.random()*innerWidth}
+      const a=.35+.35*Math.sin(now*.003+q.ph);g.fillStyle=`rgba(${q.c},${a})`;g.beginPath();g.arc(q.x,q.y,q.r,0,6.283);g.fill();
+      if(q.r>2){g.strokeStyle=`rgba(${q.c},${a*.6})`;g.beginPath();g.moveTo(q.x-5,q.y);g.lineTo(q.x+5,q.y);g.moveTo(q.x,q.y-5);g.lineTo(q.x,q.y+5);g.stroke()}}
+    sg.clearRect(0,0,240,240);const t=now*.001;sg.globalCompositeOperation='lighter';
+    for(let i=0;i<3;i++){sg.strokeStyle=`rgba(${i?'190,150,255':'255,210,110'},.75)`;sg.lineWidth=1.6;sg.beginPath();sg.ellipse(120,120,70-i*14,26+i*6,t*(i%2?-1.2:1)+i,0,6.283);sg.stroke()}
+    for(let i=0;i<14;i++){const a=t*1.6+i*.45,r=50+18*Math.sin(t*2+i);const x=120+Math.cos(a)*r,yy=120+Math.sin(a)*r*.45;sg.fillStyle=`rgba(255,230,160,${.5+.5*Math.sin(t*4+i)})`;sg.beginPath();sg.arc(x,yy,1.8,0,6.283);sg.fill()}
+    sg.globalCompositeOperation='source-over'}
   requestAnimationFrame(tick)}
-layout();addEventListener('resize',layout);addEventListener('load',layout);requestAnimationFrame(tick);
+size();addEventListener('resize',size);requestAnimationFrame(tick);
 })();
 </script>
 </body>
