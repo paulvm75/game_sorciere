@@ -149,7 +149,7 @@ function epShock(c,col){const m=new THREE.Mesh(new THREE.SphereGeometry(1,32,16)
 function epAura(dt){if(!W||!W.g)return;const on=P.lbT>0&&P.alive&&MODE!=='open';if(on&&!EP.aura){const g=new THREE.Group();const m=new THREE.MeshBasicMaterial({color:0xffc040,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
     const cy=new THREE.Mesh(new THREE.CylinderGeometry(.42,.7,2.4,20,1,true),m);cy.position.y=1.15;g.add(cy);const gl=glowSprite(0xffd070,3.2,0);gl.position.y=1.1;g.add(gl);scene.add(g);EP.aura={g,m,gl,cy}}
   const A=EP.aura;if(!A)return;const tgt=on?1:0;A.k=(A.k||0)+(tgt-(A.k||0))*Math.min(1,dt*3);A.g.visible=A.k>.02;if(!A.g.visible)return;A.g.position.copy(W.g.position);A.g.position.y+=EP.lev;const t=performance.now()*.001;
-  A.m.opacity=A.k*(.13+Math.sin(t*9)*.04);A.cy.rotation.y+=dt*2;A.cy.scale.set(1+Math.sin(t*7)*.06,1+Math.sin(t*5)*.04,1+Math.cos(t*7)*.06);A.gl.material.opacity=A.k*.22;
+  A.m.opacity=A.k*(.2+Math.sin(t*9)*.05);A.cy.rotation.y+=dt*2;A.cy.scale.set(1+Math.sin(t*7)*.06,1+Math.sin(t*5)*.04,1+Math.cos(t*7)*.06);A.gl.material.opacity=A.k*.36;
   if(on&&Math.random()<.5)SP.emit(V3(W.g.position.x+rand(-.5,.5),W.g.position.y+EP.lev+rand(0,1.8),W.g.position.z+rand(-.5,.5)),{c0:0xfff0c0,c1:0xff9010,s0:.35,s1:.03,life:.6,up:3,speed:.2})}
 {const _rv=revive;revive=function(){EP.levT=0;EP.lev=0;return _rv.apply(this,arguments)}}
 {const _ec=endCutscene;endCutscene=function(){_ec.apply(this,arguments);if(!CS.active&&EP.levT)EP.levT=0}}
