@@ -5,8 +5,13 @@ const PHA={tex:{},avg:{aerial_grass_rock:[.447,.38,.141],brick_wall_04:[.431,.34
     cobblestone_floor_04:{m:2.6,s:.9,c:.25,n:.9},cobblestone_square:{m:2.8,s:.85,c:.2,n:.8},herringbone_pavement:{m:1.8,s:.8,c:.2,n:.6},patterned_paving:{m:3,s:.8,c:.2,n:.6},
     aerial_grass_rock:{m:6,s:.75,c:.3,n:.5,far:140},grass_path_2:{m:4,s:.7,c:.3,n:.5,far:140},forest_leaves_02:{m:1.4,s:.95,c:.25,n:1,far:120}},
   scanT:0,n:0};
-function phTex(n){if(PHA.tex[n])return PHA.tex[n];const L=new THREE.TextureLoader();const d=L.load('assets/ph/'+n+'_d.jpg'),nn=L.load('assets/ph/'+n+'_n.jpg');
-  for(const t of[d,nn]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8}return PHA.tex[n]={d,n:nn}}
+/* all new assets ship in one bundle (assets/pack.wasm): [u32 header length][json index][bytes] */
+const PACK={p:null};function packGet(){if(PACK.p)return PACK.p;PACK.p=fetch('assets/pack.wasm').then(r=>r.ok?r.arrayBuffer():null).then(b=>{if(!b)return null;const hl=new DataView(b).getUint32(0,true);
+  const idx=JSON.parse(new TextDecoder().decode(new Uint8Array(b,4,hl)));return{b,o:4+hl,idx}}).catch(e=>{console.warn('pack',e);return null});return PACK.p}
+function packSlice(P,k){const e=P&&P.idx[k];return e?P.b.slice(P.o+e[0],P.o+e[0]+e[1]):null}
+function packTex(k,c){const cv=document.createElement('canvas');cv.width=cv.height=2;const x=cv.getContext('2d');x.fillStyle=c;x.fillRect(0,0,2,2);const t=new THREE.Texture(cv);t.needsUpdate=true;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
+  packGet().then(P=>{const b=packSlice(P,k);if(!b)return;const u=URL.createObjectURL(new Blob([b],{type:'image/jpeg'}));const im=new Image();im.onload=()=>{t.image=im;t.needsUpdate=true;URL.revokeObjectURL(u)};im.src=u});return t}
+function phTex(n){if(PHA.tex[n])return PHA.tex[n];const a=PHA.avg[n]||[.5,.5,.5];return PHA.tex[n]={d:packTex('t:'+n+'_d','rgb('+a.map(v=>Math.round(v*255)).join(',')+')'),n:packTex('t:'+n+'_n','rgb(128,128,255)')}}
 /* inject world-space triplanar detail into a standard material: works on boxes, instanced meshes, anything, no UVs needed */
 function phDetail(mat,name,o){if(!mat||mat._ph||!mat.isMeshStandardMaterial)return mat;mat._ph=name;const C=Object.assign({},PHA.cfg[name]||{m:3,s:.8,c:.3,n:.6},o||{});const T=phTex(name);
   const a=PHA.avg[name]||[.5,.5,.5],al=Math.pow(a[0]*.3+a[1]*.59+a[2]*.11,2.2);
@@ -30,7 +35,7 @@ setInterval(()=>{try{phScan()}catch(x){console.warn('phScan',x)}},1200);
 
 /* ---------- models: loaded once, placed as instanced meshes (one InstancedMesh per sub-mesh) ---------- */
 const ASM={buf:{},sc:{}};
-function asLoad(n){if(ASM.sc[n])return ASM.sc[n];ASM.sc[n]=fetch('assets/m/'+n+'.wasm').then(r=>r.ok?r.arrayBuffer():null).then(b=>b&&new Promise(res=>{const L=new THREE.GLTFLoader();if(window.MeshoptDecoder)L.setMeshoptDecoder(MeshoptDecoder);L.parse(b,'',g=>res(g.scene),e=>{console.warn('asLoad',n,e);res(null)})})).catch(e=>{console.warn('asLoad',n,e);return null});return ASM.sc[n]}
+function asLoad(n){if(ASM.sc[n])return ASM.sc[n];ASM.sc[n]=packGet().then(P=>packSlice(P,'m:'+n)).then(b=>b&&new Promise(res=>{const L=new THREE.GLTFLoader();if(window.MeshoptDecoder)L.setMeshoptDecoder(MeshoptDecoder);L.parse(b,'',g=>res(g.scene),e=>{console.warn('asLoad',n,e);res(null)})})).catch(e=>{console.warn('asLoad',n,e);return null});return ASM.sc[n]}
 /* items: [{x,y,z,ry,s}] ; o.h = target height (metres), o.base = sit on ground ; returns the group */
 function asPlace(n,items,parent,o){o=o||{};const G=new THREE.Group();G.name='as_'+n;(parent||scene).add(G);if(!items.length)return G;
   asLoad(n).then(root=>{if(!root)return;root.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(root),sz=bb.getSize(V3());const k=o.h?o.h/Math.max(.001,sz.y):(o.k||1);
