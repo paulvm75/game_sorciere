@@ -16,7 +16,6 @@ function gsLoad(key){const f=GS.want[key];if(!GS.buf[f])GS.buf[f]=fetch('assets/
 function gsKeyOf(sx,o){if(!o)return null;const h=o.hairCol;
   if(sx==='m'&&o.hair==='hairPart'&&h===0x0b0a10)return 'kaen';
   if(sx==='f'&&o.hair==='hairLong'&&h===0x0e0e12)return 'lyra';
-  if(sx==='f'&&(h===0xd8c89a||h===0xeadfb8||h===0xffcf55))return 'morwen';
   if(sx==='f'&&h===0xc8c8d4)return 'maelle';return null}
 function gsHide(o){if(o.userData.gsKeep)return;Object.defineProperty(o,'visible',{get(){return false},set(){},configurable:true})}
 /* swap: g = actor group, root = node that owns the skeleton (its frame is the anims frame), keep(o) = meshes to leave visible */
@@ -24,6 +23,7 @@ function gsSwap(g,root,key,keep){if(GS.off||!g||!root||g.userData.gs)return;cons
   const sb={};root.traverse(o=>{if(o.isBone&&!sb[o.name])sb[o.name]=o});if(!sb.pelvis)return;
   const U={uGold:{value:0},uBolt:{value:0},uV:{value:0},uT:{value:0}};gsLoad(key).then(buf=>{if(!buf)return;new THREE.GLTFLoader().parse(buf.slice(0),'',gl=>{const T=gl.scene;const tb={};T.traverse(o=>{if(o.isBone)tb[o.name]=o;if(o.isMesh){o.castShadow=true;o.frustumCulled=false;o.userData.gsKeep=true;if(o.material){const m=o.material;m.side=THREE.DoubleSide;if(m.map){m.map.anisotropy=4;m.emissiveMap=m.map;m.emissive=new THREE.Color(0x4a4048);m.emissiveIntensity=1}m.roughness=Math.max(.55,m.roughness||.8);m.metalness=Math.min(.15,m.metalness||0);gsLook(o,key,U);m.needsUpdate=true}}});
     if(!tb.Hips)return;
+    try{gsPostLoad(g,T,key,U)}catch(x){console.warn(x)}
     /* hide what the actor used to show */
     g.traverse(o=>{if((o.isMesh||o.isSkinnedMesh)&&!(keep&&keep(o)))gsHide(o)});
     root.add(T);T.updateMatrixWorld(true);
