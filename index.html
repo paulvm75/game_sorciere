@@ -13507,27 +13507,39 @@ gsMouthCal=function(T){if(T.userData.mcal!==undefined)return T.userData.mcal;T.u
   skin=sn?skin/sn:1;
   // width: walk sideways along the lip line while it stays dark
   let half=.022*H*.5;if(P&&uv){const thr=best+(skin-best)*.78;let x=0;for(;x<.04*H;x+=st){const h=hit(hp.x+x,my),h2=hit(hp.x-x,my);if(lum(h)>thr&&lum(h2)>thr)break}if(x>.006*H)half=Math.min(.03*H,Math.max(.007*H,x))}
-  return T.userData.mcal={mc:new THREE.Vector3(hp.x,my,mz),H,half,hi,sm,my0,best,skin}};
-/* the face itself: only the chin and lower lip drop a little; Kaen's lip corners pull in a touch */
+  const rgb=h=>{if(!h||!P)return null;const px=Math.min(P.w-1,Math.max(0,Math.round(h.u*P.w))),py=Math.min(P.h-1,Math.max(0,Math.round((P.flip?1-h.v:h.v)*P.h)));const o=(py*P.w+px)*4;return[P.d[o]/255,P.d[o+1]/255,P.d[o+2]/255]};
+  const acc=[0,0,0];let an=0;for(const[dx,dy]of[[-.016,.011],[.016,.011],[-.022,0],[.022,0],[0,-.016],[-.012,-.013],[.012,-.013],[-.008,.012],[.008,.012]]){const c=rgb(hit(hp.x+dx,my+dy));if(c&&c[0]+c[1]+c[2]>.6){acc[0]+=c[0];acc[1]+=c[1];acc[2]+=c[2];an++}}
+  const skinC=an?new THREE.Color(acc[0]/an,acc[1]/an,acc[2]/an):new THREE.Color(.9,.7,.6);
+  return T.userData.mcal={mc:new THREE.Vector3(hp.x,my,mz),H,half,hi,sm,my0,best,skin,skinC}};
+/* the face itself: the painted mouth is covered with skin and a clean anime mouth is drawn on the surface; it opens with the voice, the lower lip and chin follow */
 gsMouthInject=function(m,U){const prev=m.onBeforeCompile,pk=m.customProgramCacheKey;
-  m.onBeforeCompile=function(sh,r){if(prev&&prev!==THREE.Material.prototype.onBeforeCompile)prev.call(this,sh,r);for(const k of['uMouth','uMC','uMH','uNar','uMW'])sh.uniforms[k]=U[k];
-    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMH,uNar,uMW;uniform vec3 uMC;').replace('#include <begin_vertex>',`#include <begin_vertex>
-{vec3 d=transformed-uMC;float r=uMH;float front=smoothstep(-.03*r,-.008*r,d.z);
- float jx=1.-smoothstep(uMW*.8,uMW*1.6,abs(d.x));float jy=smoothstep(.0,-.004*r,d.y)*(1.-smoothstep(.045*r,.075*r,-d.y));
- transformed.y-=uMouth*.0042*jx*jy*front;
- float cx=smoothstep(uMW*.35,uMW*.95,abs(d.x))*(1.-smoothstep(uMW*1.1,uMW*1.7,abs(d.x)))*(1.-smoothstep(.004*r,.012*r,abs(d.y)))*front;transformed.x-=sign(d.x)*uNar*uMW*cx;}`)};
-  m.customProgramCacheKey=function(){return(pk?pk.call(this):'')+'|mouth2'};m.needsUpdate=true};
-/* the opening itself */
-{const _pl=gsPostLoad;gsPostLoad=function(g,T,key,U){U.uMW={value:.012};T.userData.gsKey=key;_pl.apply(this,arguments);U.uNar.value=key==='kaen'||key==='kaen_lb'?.22:0;
-  try{const c=gsMouthCal(T);if(!c)return;U.uMW.value=c.half;if(g.userData.gsGhostM)return;
-    const sk=c.sm.skeleton,bone=sk.bones[c.hi],BI=sk.boneInverses[c.hi];const sc=new THREE.Vector3().setFromMatrixScale(BI).x;
-    const pos=new THREE.Vector3(c.mc.x,c.mc.y+(key==='lyra'?.0022:.0006),c.mc.z+.0012).applyMatrix4(BI);const q=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().extractRotation(BI));
-    const geo=new THREE.PlaneGeometry(1,1);geo.translate(0,-.32,0);
-    const mt=new THREE.MeshBasicMaterial({map:mouthTex(),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
-    const me=new THREE.Mesh(geo,mt);me.position.copy(pos);me.quaternion.copy(q);me.renderOrder=3;me.frustumCulled=false;me.userData.gsKeep=true;
-    const MWK={lyra:.62},MHK={lyra:.75,maelle:.9};const w=Math.max(c.half*2*(key==='kaen'||key==='kaen_lb'?.92:1),.026*c.H*.6)*(MWK[key]||1);me.userData.mw={w:w*sc,h:.0085*sc*(MHK[key]||1)};me.scale.set(w*sc,.0001,1);me.visible=false;bone.add(me);U.mouthMesh=me}catch(x){console.warn('mouth',x)}}}
-/* open it with the voice */
-{const _mt=muTick;muTick=function(dt){_mt(dt);for(const e of GS.list){const me=e.U&&e.U.mouthMesh;if(!me)continue;const k=e.U.uMouth.value;me.visible=k>.06;if(me.visible){const s=me.userData.mw;me.scale.set(s.w*(.9+k*.12),s.h*Math.pow(k,.85),1)}}}}
+  m.onBeforeCompile=function(sh,r){if(prev&&prev!==THREE.Material.prototype.onBeforeCompile)prev.call(this,sh,r);for(const k of['uMouth','uMC','uMOn','uMSkin','uMW','uMEr','uMCurve','uMHt'])sh.uniforms[k]=U[k];
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMOn;uniform vec3 uMC;varying vec3 vMp;').replace('#include <begin_vertex>',`#include <begin_vertex>
+vMp=transformed;
+{vec3 d=transformed-uMC;float front=smoothstep(-.03,-.012,d.z);float jx=1.-smoothstep(uMW*.9,uMW*2.,abs(d.x));float jy=smoothstep(-.001,-.006,d.y)*(1.-smoothstep(.03,.055,-d.y));
+ transformed.y-=uMouth*uMOn*.0026*jx*jy*front;}`);
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMEr,uMOn,uMCurve,uMHt;uniform vec3 uMC,uMSkin;varying vec3 vMp;').replace('#include <map_fragment>',`#include <map_fragment>
+if(uMOn>.5){vec3 d=vMp-uMC;float front=smoothstep(-.026,-.014,d.z);
+ // cover the painted mouth with skin
+ float er=(1.-smoothstep(.55,1.,length(vec2(d.x/uMEr,(d.y+.001)/.0085))))*front;diffuseColor.rgb=mix(diffuseColor.rgb,uMSkin,er);
+ // the new mouth: a soft line, a little curve, corners fading out
+ float t=clamp(d.x/uMW,-1.,1.);float yl=uMCurve*t*t*.0022;float cf=1.-smoothstep(.75,1.05,abs(d.x/uMW));
+ float o=uMouth*uHtO(t);
+ float lineD=abs(d.y-yl)-.00045;float line=(1.-smoothstep(0.,.00045,lineD))*cf*front;
+ float inside=step(d.y,yl)*step(yl-o,d.y)*cf*front*step(.02,uMouth);
+ float iy=clamp((yl-d.y)/max(o,1e-4),0.,1.);
+ vec3 inC=mix(vec3(.16,.04,.05),vec3(.08,.02,.025),smoothstep(.2,.7,iy));inC=mix(inC,vec3(.86,.83,.79),(1.-smoothstep(.12,.3,iy))*(1.-smoothstep(.45,.8,abs(t)))*smoothstep(.25,.6,uMouth)*.85);
+ float lip=(1.-smoothstep(.0,.0022,abs(d.y-(yl-o)-.0006)))*cf*front*smoothstep(.05,.3,uMouth);
+ diffuseColor.rgb=mix(diffuseColor.rgb,uMSkin*vec3(.86,.62,.6),lip*.45);
+ diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.28,.09,.09),line*.85);
+ diffuseColor.rgb=mix(diffuseColor.rgb,inC,inside);}`).replace('void main() {','float uHtO(float t){return uMHt*(1.-t*t*.85);}\nvoid main() {')};
+  m.customProgramCacheKey=function(){return(pk?pk.call(this):'')+'|mouth3'};m.needsUpdate=true};
+/* per character: size of the new mouth, how much of the old one to cover, smile curve, how far it opens */
+const MOUTHK={kaen:{w:.0145,er:.031,cu:-.15,ht:.0062},kaen_lb:{w:.0145,er:.03,cu:-.15,ht:.0062},maelle:{w:.0125,er:.022,cu:.35,ht:.0058},lyra:{w:.0095,er:.017,cu:.5,ht:.0048}};
+{const _pl=gsPostLoad;gsPostLoad=function(g,T,key,U){const K=MOUTHK[key]||MOUTHK.maelle;
+  U.uMW={value:K.w};U.uMEr={value:K.er};U.uMCurve={value:K.cu};U.uMHt={value:K.ht};U.uMOn={value:0};U.uMSkin={value:new THREE.Color(.9,.7,.6)};T.userData.gsKey=key;
+  _pl.apply(this,arguments);if(U.uNar)U.uNar.value=0;
+  try{const c=gsMouthCal(T);if(!c)return;U.uMC.value.copy(c.mc);U.uMSkin.value.copy(c.skinC);U.uMOn.value=g.userData.gsGhostM?0:1}catch(x){console.warn('mouth',x)}}}
 /* ================= opening film: Maëlle's story (Higgsfield clips + ElevenLabs narration) =================
    Plays before the story starts on New Game, and every time Chapter I is chosen. Skippable. */
 const FILM={subs:[[1.45, 5.95, "Paris, after midnight... when the whole city is asleep."], [10.55, 13.31, "Hi. I'm Maëlle. I'm a witch."], [13.51, 15.69, "Well... still learning."], [20.57, 24.45, "I grew up right here, under the rooftops,\nwith my grandparents."], [25.34, 26.98, "Grandma talked to the moon."], [27.2, 29.9, "Everyone thought she was just a sweet old lady..."], [30.02, 31.26, "she was a witch."], [31.99, 34.69, "She put my very first light in my hands."], [34.89, 35.79, "I was seven."], [40.35, 44.31, "Then, ten years ago... something rose from the river."], [44.35, 46.55, "A crown, made of smoke."], [47.31, 50.29, "That night, every clock in the flat stopped."], [50.51, 52.99, "And in the morning... they were gone."], [53.46, 58.94, "All they left me was her book, her hat...\nand an old broom that wouldn't stop glowing."], [60.82, 65.52, "So I taught myself.\nNight after night, on the roofs of Paris."], [65.68, 69.76, "No coven. No master. A lot of falling."], [74.59, 76.71, "But one night... I flew."], [78.47, 81.43, "Tonight, Paris is far too quiet."], [81.53, 85.23, "And someone is running across my rooftops."], [85.27, 86.7, "There you are."], [88.46, 91.76, "Wherever you are, Grandma...\nI'm coming to find you."]],el:null,on:false};
