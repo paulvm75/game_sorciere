@@ -72,7 +72,7 @@ function clashFilmCues(){const crk=(a,b,st)=>{const r=[];for(let t=a;t<b;t+=st)r
     setTimeout(()=>{const l0=lx;lx=null;if(l0)l0.out(1.1)},140)})}}
 
 /* after the clash film: quick cut back in-game. Kaen alone on one knee, a small blast, he is gone. Her limit breaker fades. */
-function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let T=0,gone=false;
+function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let T=0,gone=false,B=null,fl=null;
   const dir=V3(kp.x-P.pos.x,0,kp.z-P.pos.z);if(dir.lengthSq()<.01)dir.set(0,0,1);dir.normalize();const side=V3(dir.z,0,-dir.x);
   e.invuln=true;e.busy=99;e.m.lock=99;P.invuln=Math.max(P.invuln||0,99);P.heroAnim='Spell_Simple_Idle_Loop';
   try{act.setBase('Crouch_Idle_Loop',.05)}catch(x){}
@@ -84,13 +84,33 @@ function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let T=0,gone=fa
     /* 1. Kaen, alone, on one knee. Quiet. */
     {dur:1.5,fov:38,cut:true,cam:kCam,onStart:()=>{try{DR.silence(4)}catch(x){}try{noise(1.5,.04,300,'lowpass',null,{brown:true})}catch(x){}},
       update:dt=>{upd(dt);fade(dt);if(Math.random()<.4)SP.emit(V3(kp.x+rand(-1,1),kp.y+rand(.3,1.8),kp.z+rand(-1,1)),{c0:0x9fd0ff,c1:0x203060,s0:.25,s1:.03,life:.8,up:.8,speed:.3})}},
-    /* 2. a small blast: he is gone */
-    {dur:1.9,fov:44,cam:k=>{const c=kCam(1);c.pos.addScaledVector(dir,-1.2*k).add(V3(0,k*.6,0));return c},
-      onStart:()=>{const c=eCenter(e);flash(c,0xffffff,9);flash(c,0x8a60ff,7);ring(kp,0xb090ff,1,6,.5);SP.emit(c,{n:110,c0:0xffffff,c1:0x7a40ff,speed:9,life:.8,s0:.5,s1:.05});
-        SM.emit(V3(kp.x,kp.y+.6,kp.z),{n:26,c0:0x8070a0,c1:0x1a1024,s0:1.2,s1:4.5,speed:4,life:1.6,a:.55,up:1.2});P.shake=.7;try{sfx.boom()}catch(x){}try{vib([60,30,90])}catch(x){}
-        after(.08,()=>{gone=true;e.m.g.visible=false;try{kShieldHide(e)}catch(x){}})},
-      update:dt=>{upd(dt);fade(dt);if(Math.random()<.5)SP.emit(V3(kp.x+rand(-.8,.8),kp.y+rand(.2,1.5),kp.z+rand(-.8,.8)),{c0:0xd0b8ff,c1:0x301060,s0:.3,s1:.03,life:1,up:1.2,speed:.4})}},
+    /* 2. he burns: embers eat him from the crown down, he flakes into ash and drifts away */
+    {dur:3.6,fov:42,cam:k=>{const c=kCam(1);c.pos.addScaledVector(dir,-1.4*k).add(V3(0,k*.5,0));c.look.y+=k*.25;return c},
+      onStart:()=>{const c=eCenter(e);B=kBurn(e.m.g,kp.y,2.3);flash(c,0xff9040,4);P.shake=.25;try{kShieldHide(e)}catch(x){}
+        try{noise(3.4,.09,700,'bandpass',null,{q:.6,wet:.15,attack:.4})}catch(x){}try{noise(3.2,.05,2600,'highpass',null,{wet:.1,attack:.3})}catch(x){}try{sx('wind',.5,null,{rate:.55})}catch(x){}
+        fl=new THREE.PointLight(0xff8a3a,0,9,2);fl.position.copy(headOf(kp,1));scene.add(fl)},
+      update:(dt,k)=>{upd(dt);fade(dt);const b=Math.min(1.08,k/.82);if(B)B.set(b);const top=kp.y+2.3*(1-b);
+        if(fl){fl.intensity=(b<1?2.2:2.2*(1-(k-.82)/.18))*(.8+Math.random()*.4);fl.position.set(kp.x,top+.2,kp.z)}
+        if(b<1.02){for(let q=0;q<5;q++){const y=Math.max(kp.y+.05,top+rand(-.25,.15));SP.emit(V3(kp.x+rand(-.45,.45),y,kp.z+rand(-.45,.45)),{c0:q%2?0xffd27a:0xff7a30,c1:q%2?0x8a2cff:0x401060,s0:rand(.18,.35),s1:.02,life:rand(.9,1.6),up:rand(1.6,3),speed:.5})}
+          if(Math.random()<.5)SM.emit(V3(kp.x+rand(-.3,.3),top+.3,kp.z+rand(-.3,.3)),{c0:0x3a2a30,c1:0x0a0608,s0:.5,s1:1.8,life:1.8,a:.35,up:1.4,speed:.4});
+          if(Math.random()<.35)SP.emit(V3(kp.x+rand(-.5,.5),top,kp.z+rand(-.5,.5)),{c0:0x8a8090,c1:0x1a141c,s0:.12,s1:.04,life:2.2,up:1.2,speed:1.2})}
+        if(b>=1&&!gone){gone=true;e.m.g.visible=false;try{sfx.blink()}catch(x){}SP.emit(V3(kp.x,kp.y+.5,kp.z),{n:40,c0:0xffc070,c1:0x6020c0,s0:.25,s1:.02,life:1.4,up:2,speed:2})}}},
     /* 3. Maëlle: the gold drains out of her */
     {dur:2,fov:36,cut:true,cam:k=>({pos:headOf(P.pos,1.5).addScaledVector(dir,2.9-k*.4).addScaledVector(side,-1.1),look:headOf(P.pos,1.35)}),
       update:dt=>{upd(dt);fade(dt*1.3)}}
-  ],()=>{P.lbT=0;P.lb2=0;P.lbRamp=0;try{lbSet(0)}catch(x){}P.heroAnim=null;e.m.g.visible=false;done()})}
+  ],()=>{if(fl)scene.remove(fl);P.lbT=0;P.lb2=0;P.lbRamp=0;try{lbSet(0)}catch(x){}P.heroAnim=null;e.m.g.visible=false;done()})}
+/* burn-away: a noisy front sweeps down the body, the edge glows ember-gold into violet, behind it nothing is left */
+function kBurn(g,y0,h){const U={uB:{value:0},uY0:{value:y0},uH:{value:h}};const fades=[];
+  const NZ='float kbH(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}float kbN(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(kbH(i),kbH(i+vec3(1,0,0)),f.x),mix(kbH(i+vec3(0,1,0)),kbH(i+vec3(1,1,0)),f.x),f.y),mix(mix(kbH(i+vec3(0,0,1)),kbH(i+vec3(1,0,1)),f.x),mix(kbH(i+vec3(0,1,1)),kbH(i+vec3(1,1,1)),f.x),f.y),f.z);}';
+  g.traverse(o=>{if(!o.visible)return;if(o.isSprite||o.isPoints){fades.push([o.material,o.material.opacity]);return}if(!o.isMesh||!o.material)return;
+    const ms=Array.isArray(o.material)?o.material:[o.material];
+    ms.forEach((m,ix)=>{if(m.isShaderMaterial||m.isMeshBasicMaterial){if(m.transparent||m.isShaderMaterial){fades.push([m,m.opacity!==undefined?m.opacity:1,m.uniforms]);return}}
+      if(m._kb)return;let mm=m;if(m.__shared||!m.onBeforeCompile||m.onBeforeCompile===THREE.Material.prototype.onBeforeCompile){mm=m.clone();mm.onBeforeCompile=m.onBeforeCompile;mm.customProgramCacheKey=m.customProgramCacheKey;if(Array.isArray(o.material))o.material[ix]=mm;else o.material=mm}
+      const prev=mm.onBeforeCompile,pk=mm.customProgramCacheKey;mm._kb=1;
+      mm.onBeforeCompile=function(sh,r){if(prev&&prev!==THREE.Material.prototype.onBeforeCompile)prev.call(this,sh,r);for(const k in U)sh.uniforms[k]=U[k];
+        sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vKbW;').replace('#include <project_vertex>','#include <project_vertex>\nvKbW=(modelMatrix*vec4(transformed,1.)).xyz;');
+        sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vKbW;uniform float uB,uY0,uH;float kbE=0.;'+NZ)
+          .replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\n{float hn=clamp((vKbW.y-uY0)/uH,0.,1.);float n=kbN(vKbW*10.)*.6+kbN(vKbW*29.)*.4;float th=(1.-hn)*.82+n*.38;float cut=uB*1.22;if(th<cut-.0)discard;kbE=1.-smoothstep(0.,.085,th-cut);}')
+          .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,vec3(.05,.03,.04),smoothstep(0.,.9,kbE)*.85);totalEmissiveRadiance+=mix(vec3(.9,.22,1.5),vec3(4.,1.7,.35),smoothstep(.5,.95,kbE))*kbE*kbE*1.8;')};
+      mm.customProgramCacheKey=function(){return 'kb|'+(pk?pk.call(this):'')};mm.needsUpdate=true})});
+  return{set(k){U.uB.value=k;for(const[m,o0,un]of fades){const a=Math.max(0,1-k*1.4);if(m.opacity!==undefined)m.opacity=o0*a;if(un&&un.uA)un.uA.value*=a}}}}
