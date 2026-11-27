@@ -21,12 +21,12 @@ function gsMouthInject(m,U){const prev=m.onBeforeCompile,pk=m.customProgramCache
  float wn=(1.-smoothstep(.012*r,.03*r,length(vec2(d.x*.7,d.y*1.4))))*wz;transformed.x-=d.x*uNar*wn;}`)};
   m.customProgramCacheKey=function(){return(pk?pk.call(this):'')+'|mouth'};m.needsUpdate=true}
 /* ---------- ghosts: if the actor was a ghost before the swap, the new model is one too ---------- */
-function gsGhostOf(g,T){if(g.userData.gsGhostCol!=null)return{col:g.userData.gsGhostCol,src:null};let src=null;
+function gsGhostOf(g,T,key){if(key!=='kaen'&&key!=='kaen_lb')return null;if(g.userData.gsGhostCol!=null)return{col:g.userData.gsGhostCol,src:null};let src=null;
   g.traverse(o=>{if(src||!o.isMesh||!o.material||o.userData.gsKeep)return;for(let q=o;q;q=q.parent)if(q===T)return;const m=o.material;if(m.transparent&&(m.blending===THREE.AdditiveBlending||m.opacity<.9))src=m});
   return src?{col:0xb07cff,src}:null}
 function gsPostLoad(g,T,key,U){U.uMouth={value:0};U.uMH={value:1};U.uMC={value:new THREE.Vector3(0,-99,0)};U.uNar={value:key==='kaen'||key==='kaen_lb'?.16:0};
   T.userData.gsKey=key;const c=gsMouthCal(T);if(c){U.uMC.value.copy(c.mc);U.uMH.value=c.H}
-  const gh=gsGhostOf(g,T);
+  const gh=gsGhostOf(g,T,key);
   T.traverse(o=>{if(!o.isMesh)return;if(gh){const m0=o.material;const m=new THREE.MeshBasicMaterial({map:m0.map||null,color:new THREE.Color(gh.col),transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,skinning:!!o.isSkinnedMesh});
       m.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n{float l=dot(diffuseColor.rgb/max(diffuse,vec3(.001)),vec3(.3,.59,.11));diffuseColor.rgb=diffuse*(.35+l*1.25);}')};m.customProgramCacheKey=()=>'gsGhost';
       o.material=m;o.castShadow=false;o.userData.gsGhost=gh}gsMouthInject(o.material,U)});
@@ -72,3 +72,30 @@ function talkTick(dt){talkInit();let audio=false;
 {const _q=buildQueen;buildQueen=function(){const m=_q.apply(this,arguments);try{m.g.traverse(o=>{if(!o.isMesh||!o.material||!o.material.isMeshStandardMaterial)return;const t=o.material;const h=t.color.getHex();
     if(h===0x14080c){t.roughness=.55;t.metalness=.05;t.sheen=1}else if(h===0x5a0a16){t.roughness=.42;t.metalness=.45;t.emissive.setHex(0x3a0610)}else if(h===0x24040a){t.roughness=.7;t.emissive.setHex(0x120206)}
     if(t.map)t.map.anisotropy=8;t.needsUpdate=true})}catch(x){}return m};if(ETYPES.queen&&ETYPES.queen.build===_q)ETYPES.queen.build=buildQueen}
+/* ---------- Maëlle's limit breaker aura: uneven, rising flames of energy instead of a capsule ---------- */
+function auraMat(inner){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+  uniforms:{uT:{value:0},uK:{value:0},uB:{value:0},uIn:{value:inner?1:0}},
+  vertexShader:`uniform float uT,uIn;varying vec2 vU;varying vec3 vN,vV;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
+void main(){vU=uv;vec3 p=position;float a=uv.x*6.2832;float w=n2(vec2(uv.x*7.+uIn*3.,uv.y*3.-uT*2.2))*.55+n2(vec2(uv.x*15.,uv.y*6.-uT*3.7))*.3;
+ float bulge=pow(sin(uv.y*3.1416),.6)*(.6+w*.9);p.xz*=bulge+.15;p.y+= (w-.4)*.25*uv.y;
+ vec4 mv=modelViewMatrix*vec4(p,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`uniform float uT,uK,uB,uIn;varying vec2 vU;varying vec3 vN,vV;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*n2(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return s;}
+void main(){vec2 q=vec2(vU.x*(uIn>.5?5.:8.),vU.y*2.2-uT*(uIn>.5?1.6:1.15));float f=fbm(q+vec2(fbm(q*1.3+uT*.3)*1.4,0.));
+ float tongues=smoothstep(.36+vU.y*.36,.7,f)*(.6+.4*n2(vec2(vU.x*22.,vU.y*9.-uT*4.)));float base=smoothstep(0.,.12,vU.y)*(1.-smoothstep(.55,1.,vU.y));
+ float rim=pow(1.-abs(dot(vN,vV)),1.6);float a=clamp(tongues*base*(.7+rim*1.2)*uK*(uIn>.5?.85:1.3),0.,1.);
+ vec3 gold=mix(vec3(1.,.55,.12),vec3(1.,.92,.6),tongues);vec3 blue=mix(vec3(.2,.5,1.),vec3(.75,.92,1.),tongues);
+ float sw=step(.5,fract(vU.x*3.+fbm(q*.7)*1.5+uT*.2));vec3 col=mix(gold,mix(gold,blue,sw),uB);
+ gl_FragColor=vec4(col*a*1.8,a);}`})}
+epAura=function(dt){if(!W||!W.g)return;const on=P.lbT>0&&P.alive&&MODE!=='open';
+  if(on&&!EP.aura2){const g=new THREE.Group();const geo=new THREE.CylinderGeometry(.72,.72,3.1,56,32,true);const m1=auraMat(false),m2=auraMat(true);
+    const o1=new THREE.Mesh(geo,m1);o1.position.y=1.35;g.add(o1);const o2=new THREE.Mesh(geo,m2);o2.position.y=1.05;o2.scale.set(.72,.82,.72);g.add(o2);
+    const gl=glowSprite(0xffc860,3.4,0);gl.position.y=1.1;g.add(gl);scene.add(g);EP.aura2={g,m1,m2,gl,o1,o2,k:0,b:0}}
+  if(EP.aura&&EP.aura.g)EP.aura.g.visible=false;
+  const A=EP.aura2;if(!A)return;A.k+=((on?1:0)-A.k)*Math.min(1,dt*3);A.b+=((on&&P.lb2?1:0)-A.b)*Math.min(1,dt*3);A.g.visible=A.k>.02;if(!A.g.visible)return;
+  A.g.position.copy(W.g.position);A.g.position.y+=EP.lev||0;const t=performance.now()*.001;
+  for(const m of[A.m1,A.m2]){m.uniforms.uT.value=t;m.uniforms.uK.value=A.k;m.uniforms.uB.value=A.b}A.o1.rotation.y+=dt*.6;A.o2.rotation.y-=dt*.9;
+  const s=1+(FIN.boost||0)*.25;A.g.scale.set(s,s*(1+Math.sin(t*3.1)*.03),s);A.gl.material.color.setHex(A.b>.5?0xa8c8ff:0xffc860);A.gl.material.opacity=A.k*(.28+Math.sin(t*7)*.05);
+  if(on&&Math.random()<.6){const c=Math.random()<A.b*.5;SP.emit(V3(W.g.position.x+rand(-.55,.55),W.g.position.y+(EP.lev||0)+rand(0,1.9),W.g.position.z+rand(-.55,.55)),{c0:c?0xd8ecff:0xfff0c0,c1:c?0x3080ff:0xff9010,s0:.32,s1:.03,life:.7,up:3.4,speed:.25})}}
