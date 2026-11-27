@@ -13613,7 +13613,7 @@ function playFilm(done,opt){opt=opt||{};const SUBS=opt.subs||FILM.subs;if(FILM.o
    '<button id="filmTap" style="display:none;position:absolute;font:700 18px/1 Outfit,system-ui,sans-serif;color:#1a0f06;background:#f3c463;border:0;border-radius:999px;padding:16px 26px;cursor:pointer">▶ Play the story</button>';
   document.body.appendChild(o);if(opt.noSkip)o.querySelector('#filmSkip').style.display='none';requestAnimationFrame(()=>o.style.opacity='1');const cues=(opt.cues||[]).slice().sort((a,b)=>a[0]-b[0]);let ci=0,nearDone=false;
   const v=o.querySelector('#filmV'),sub=o.querySelector('#filmS'),tap=o.querySelector('#filmTap');let cur=-1,ended=false,raf=0;
-  v.src=opt.src||'assets/intro_maelle.mp4';v.volume=1;if(keepA){v.muted=true;v.setAttribute('muted','')}
+  v.src=opt.src||'assets/intro_maelle.mp4';v.volume=1;if(keepA&&!opt.videoAudio){v.muted=true;v.setAttribute('muted','')}if(opt.kick)v.animate([{transform:'scale(1.14)',filter:'brightness(2.2) saturate(1.4)'},{transform:'scale(1)',filter:'brightness(1) saturate(1)'}],{duration:900,easing:'cubic-bezier(.15,.8,.25,1)'});
   const tick=()=>{const t=v.currentTime;while(ci<cues.length&&t>=cues[ci][0]){try{cues[ci][1]()}catch(x){}ci++}if(opt.nearEnd&&!nearDone&&v.duration&&t>=v.duration-opt.nearEnd[0]){nearDone=true;try{opt.nearEnd[1]()}catch(x){}}let k=-1;for(let i=0;i<SUBS.length;i++){const s=SUBS[i];if(t>=s[0]&&t<s[1]){k=i;break}}
     if(k!==cur){cur=k;if(k<0)sub.style.opacity='0';else{sub.textContent=SUBS[k][2];sub.style.opacity='1'}}raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
   const finish=()=>{if(ended)return;ended=true;cancelAnimationFrame(raf);removeEventListener('keydown',key,true);if(!opt.instant)o.style.opacity='0';try{v.pause()}catch(e){}
@@ -13628,38 +13628,50 @@ function playFilm(done,opt){opt=opt||{};const SUBS=opt.subs||FILM.subs;if(FILM.o
 /* choosing Chapter I always replays it */
 {const _ac=applyChapter;applyChapter=function(id){const r=_ac.apply(this,arguments);if(id==='kitsune'&&MODE!=='open')playFilm(null);return r}}
 
-/* light burst: a kinetic gold-white flare that hides the cut between the game and the film */
+/* light burst: an epic kinetic flare (shockwave, anamorphic streak, spinning rays, white peak) that hides the cut between game and film */
 function lxBurst(inD,cb,tint){const o=document.createElement('div');const t=tint||'255,196,70';
-  o.style.cssText='position:fixed;inset:0;z-index:100001;pointer-events:none;overflow:hidden;opacity:0';
-  o.innerHTML='<div style="position:absolute;left:50%;top:50%;width:300vmax;height:300vmax;margin:-150vmax 0 0 -150vmax;background:repeating-conic-gradient(from 0deg,rgba('+t+',.0) 0deg,rgba('+t+',.55) 2deg,rgba(255,255,255,.0) 5deg,rgba(255,255,255,0) 11deg);mix-blend-mode:screen"></div>'+
-   '<div style="position:absolute;inset:-20%;background:radial-gradient(circle at 50% 50%,#fff 0%,rgba(255,250,235,.98) 18%,rgba('+t+',.85) 42%,rgba('+t+',.0) 75%)"></div>'+
-   '<div style="position:absolute;inset:0;background:#fff;opacity:0"></div>';
-  document.body.appendChild(o);const [rays,glow,white]=o.children;
-  const A=(el,k,d,ease)=>el.animate(k,{duration:d*1000,easing:ease||'cubic-bezier(.5,0,.2,1)',fill:'forwards'});
-  A(o,[{opacity:0},{opacity:1}],inD*.6);A(rays,[{transform:'scale(.35) rotate(0deg)'},{transform:'scale(1.25) rotate(70deg)'}],inD,'cubic-bezier(.6,0,.9,.6)');
-  A(glow,[{transform:'scale(.2)'},{transform:'scale(1.6)'}],inD,'cubic-bezier(.7,0,.9,.5)');A(white,[{opacity:0},{opacity:0,offset:.55},{opacity:1}],inD);
-  setTimeout(()=>{try{cb&&cb()}catch(x){console.warn('lx',x)}},inD*1000);
-  return{out:(d=.9)=>{A(white,[{opacity:1},{opacity:0}],d*.55,'ease-out');A(glow,[{transform:'scale(1.6)',opacity:1},{transform:'scale(3.2)',opacity:0}],d,'ease-out');
-    A(rays,[{transform:'scale(1.25) rotate(70deg)',opacity:1},{transform:'scale(2.6) rotate(110deg)',opacity:0}],d,'ease-out');setTimeout(()=>o.remove(),d*1000+50)}}}
-/* game sound under the film: the clash cues from the in-game cutscene, timed to the picture */
-function clashFilmCues(){const crk=(a,b,st)=>{const r=[];for(let t=a;t<b;t+=st)r.push([t,()=>{try{DR.crack()}catch(x){}}]);return r};
-  return[[0,()=>{try{DR.silence(16)}catch(x){}try{sfx.chain&&sfx.chain()}catch(x){}try{sx('clash',.9)}catch(x){}try{DR.sub(2.6,.3)}catch(x){}}],...crk(.05,3.9,.11),
-    [1.9,()=>{try{DR.riser(2.1)}catch(x){}try{DR.heart()}catch(x){}}],
-    [3.9,()=>{try{if(!sfxPlay('inferno',.7,{rate:.9}))sfx.inferno&&sfx.inferno()}catch(x){}try{DR.sub(2.4,.4)}catch(x){}}],
-    [4.7,()=>{try{sfx.meteor&&sfx.meteor()}catch(x){}try{sx('impact',1,null,{rate:.8})}catch(x){}}],[4.95,()=>{try{DR.slam()}catch(x){}try{vib([120,60,260])}catch(x){}}],
-    [5.3,()=>{try{noise(2.2,.07,700,'lowpass',null,{brown:true})}catch(x){}}],[6.3,()=>{try{thud(.4,60)}catch(x){}}],
-    [7.2,()=>{try{thud(.5,48)}catch(x){}try{noise(1.6,.04,300,'lowpass',null,{brown:true})}catch(x){}}],
-    [8.2,()=>{try{sx('heart',.8)||DR.heart()}catch(x){}}],[9.4,()=>{try{DR.heart()}catch(x){}}],
-    [10.1,()=>{try{tone(660,2.2,'sine',.035,.8,0,null,.6);tone(990,2,'sine',.02,.8,.15,null,.6)}catch(x){}}]]}
-/* the final clash with Kaen: in-game clash, the gold surge flares into the film, the film flares back into the game. Cannot be skipped. */
+  o.style.cssText='position:fixed;inset:0;z-index:100001;pointer-events:none;overflow:hidden';
+  const L=(css)=>{const d=document.createElement('div');d.style.cssText='position:absolute;left:50%;top:50%;'+css;o.appendChild(d);return d};
+  const rays=L('width:320vmax;height:320vmax;margin:-160vmax 0 0 -160vmax;opacity:0;mix-blend-mode:screen;background:repeating-conic-gradient(from 0deg,rgba('+t+',0) 0deg,rgba(255,255,255,.75) 1.2deg,rgba('+t+',.5) 2.6deg,rgba('+t+',0) 6deg,rgba(0,0,0,0) 9deg)');
+  const rays2=L('width:320vmax;height:320vmax;margin:-160vmax 0 0 -160vmax;opacity:0;mix-blend-mode:screen;background:repeating-conic-gradient(from 3deg,rgba(255,255,255,0) 0deg,rgba('+t+',.45) 1deg,rgba(255,255,255,0) 4deg,rgba(0,0,0,0) 15deg)');
+  const ring=L('width:40vmax;height:40vmax;margin:-20vmax 0 0 -20vmax;border-radius:50%;opacity:0;mix-blend-mode:screen;background:radial-gradient(circle,rgba(255,255,255,0) 52%,rgba(255,255,255,.95) 60%,rgba('+t+',.8) 64%,rgba(120,180,255,.5) 67%,rgba(255,80,200,.35) 69%,rgba(0,0,0,0) 72%)');
+  const streak=L('width:240vw;height:3.2vh;margin:-1.6vh 0 0 -120vw;opacity:0;mix-blend-mode:screen;background:radial-gradient(ellipse at center,#fff 0%,rgba(255,255,255,.95) 12%,rgba('+t+',.7) 35%,rgba(120,170,255,.3) 60%,rgba(0,0,0,0) 75%);filter:blur(1px)');
+  const glow=L('width:220vmax;height:220vmax;margin:-110vmax 0 0 -110vmax;opacity:0;background:radial-gradient(circle,#fff 0%,rgba(255,250,235,.98) 10%,rgba('+t+',.85) 26%,rgba('+t+',0) 50%)');
+  const white=L('left:0;top:0;width:100%;height:100%;background:#fff;opacity:0');
+  document.body.appendChild(o);const ms=inD*1000;
+  const A=(el,k,d,ease,delay)=>el.animate(k,{duration:d,delay:delay||0,easing:ease||'cubic-bezier(.5,0,.2,1)',fill:'forwards'});
+  A(ring,[{opacity:0,transform:'scale(.1)'},{opacity:1,transform:'scale(.6)',offset:.25},{opacity:0,transform:'scale(5.5)'}],ms*1.1,'cubic-bezier(.2,.6,.3,1)');
+  A(streak,[{opacity:0,transform:'scaleX(.05) scaleY(.4)'},{opacity:1,transform:'scaleX(.6) scaleY(1)',offset:.4},{opacity:1,transform:'scaleX(1.3) scaleY(2.4)'}],ms,'cubic-bezier(.3,0,.2,1)',ms*.1);
+  A(rays,[{opacity:0,transform:'scale(.25) rotate(-20deg)'},{opacity:1,transform:'scale(1.3) rotate(80deg)'}],ms,'cubic-bezier(.55,0,.85,.55)');
+  A(rays2,[{opacity:0,transform:'scale(.3) rotate(30deg)'},{opacity:.9,transform:'scale(1.4) rotate(-60deg)'}],ms,'cubic-bezier(.55,0,.85,.55)');
+  A(glow,[{opacity:0,transform:'scale(.05)'},{opacity:1,transform:'scale(1.2)'}],ms,'cubic-bezier(.75,0,.9,.4)');
+  A(white,[{opacity:0},{opacity:0,offset:.62},{opacity:.85,offset:.72},{opacity:.35,offset:.8},{opacity:1}],ms,'linear');
+  const cv=(typeof renderer!=='undefined'&&renderer.domElement)||document.querySelector('canvas');if(cv)A(cv,[{transform:'none'},{transform:'scale(1.06) translate(.6%,-.4%)',offset:.5},{transform:'scale(1.16) translate(-.8%,.5%)'}],ms,'cubic-bezier(.6,0,1,.6)');
+  try{whoosh(inD+.15,300,4200,.22,{wet:.5});setTimeout(()=>{try{sfx.boom()}catch(x){}try{DR.sub(1.8,.45)}catch(x){}try{sx('impact',1,null,{rate:.7})}catch(x){}},ms*.92)}catch(x){}
+  setTimeout(()=>{try{cb&&cb()}catch(x){console.warn('lx',x)}},ms);
+  return{out:(d=1)=>{const D=d*1000;if(cv)cv.animate([{transform:'scale(1.16)'},{transform:'none'}],{duration:D*.8,easing:'cubic-bezier(.15,.8,.25,1)'});
+    A(white,[{opacity:1},{opacity:0}],D*.45,'ease-out');A(glow,[{opacity:1,transform:'scale(1.2)'},{opacity:0,transform:'scale(3)'}],D,'ease-out');
+    A(streak,[{opacity:1,transform:'scaleX(1.3) scaleY(2.4)'},{opacity:0,transform:'scaleX(2.2) scaleY(.2)'}],D*.8,'ease-out');
+    A(rays,[{opacity:1,transform:'scale(1.3) rotate(80deg)'},{opacity:0,transform:'scale(2.8) rotate(130deg)'}],D,'ease-out');A(rays2,[{opacity:.9,transform:'scale(1.4) rotate(-60deg)'},{opacity:0,transform:'scale(3) rotate(-110deg)'}],D,'ease-out');
+    setTimeout(()=>{o.remove();if(cv)cv.style.transform=''},D+60)}}}
+/* game sound under the film: the clash cues, louder, music up; the film keeps only its own audio of Kaen struggling at the end */
+function filmMix(on){try{if(on){FILM.sb=sfxBus?sfxBus.gain.value:null;if(sfxBus)sfxBus.gain.value=3.4;CLIP.duckT=0;BM.duck=0;for(const k in BM.tr){const t=BM.tr[k];if(t&&t.g&&t.playing){t.v=1;t.g.gain.setTargetAtTime(.95,AC.currentTime,.4)}}}
+  else if(sfxBus&&FILM.sb!=null)sfxBus.gain.value=FILM.sb}catch(x){}}
+function clashFilmCues(){const crk=(a,b,st)=>{const r=[];for(let t=a;t<b;t+=st)r.push([t,()=>{try{noise(.2,.17,rand(1800,5200),'bandpass');tone(rand(1600,2800),.09,'square',.03,.5)}catch(x){}}]);return r};
+  return[[0,()=>{filmMix(1);try{sfx.chain&&sfx.chain()}catch(x){}try{sx('clash',1)}catch(x){}try{DR.sub(2.8,.5)}catch(x){}}],[.9,()=>{try{sx('clash',1)}catch(x){}}],...crk(.05,4.4,.09),
+    [1.9,()=>{try{DR.riser(2.1)}catch(x){}try{sx('riser',1)}catch(x){}try{DR.heart()}catch(x){}}],[3.1,()=>{try{sx('clash',1,null,{rate:.85})}catch(x){}}],
+    [3.9,()=>{try{if(!sfxPlay('inferno',1,{rate:.9}))sfx.inferno&&sfx.inferno()}catch(x){}try{DR.sub(2.4,.55)}catch(x){}}],
+    [4.7,()=>{try{sfx.meteor&&sfx.meteor()}catch(x){}try{sx('impact',1,null,{rate:.8})}catch(x){}}],[4.95,()=>{try{DR.slam()}catch(x){}try{sfx.boom()}catch(x){}try{vib([120,60,260])}catch(x){}}],
+    [5.3,()=>{try{noise(1.4,.12,800,'lowpass',null,{brown:true})}catch(x){}}],[6.3,()=>{try{thud(.45,60)}catch(x){}}]]}
+/* the final clash with Kaen: in-game clash up to the moment the beams meet, the flare carries into the film, the film flares back into the game. Cannot be skipped. */
 {const _kc=kaenClash;kaenClash=function(e,finish){if(MODE==='open'||e._clashFilm)return _kc.apply(this,arguments);e._clashFilm=1;let lx=null;
-  const _pc=playCutscene;playCutscene=function(shots,done){playCutscene=_pc;shots=shots.slice(0,6);const s=shots[5],u=s.update;let f=false;
-    s.update=(dt,k)=>{if(u)u(dt,k);if(!f&&k>=.72){f=true;lx=lxBurst(.55,null)}};return _pc.call(this,shots,done)};
+  const _pc=playCutscene;playCutscene=function(shots,done){playCutscene=_pc;shots=shots.slice(0,4);const s=shots[3],u=s.update;let f=false;s.dur=2.1;
+    s.update=(dt,k)=>{if(u)u(dt,Math.min(1,k*1.15));if(!f&&k>=.6){f=true;lx=lxBurst(.75,null)}};return _pc.call(this,shots,done)};
   return _kc.call(this,e,function(){const a=arguments,self=this;const after=()=>{try{clashAfter(e,()=>{if(finish)finish.apply(self,a)})}catch(x){console.warn('clashAfter',x);if(finish)finish.apply(self,a)}};
     if(!lx)lx=lxBurst(.2,null);
-    playFilm(()=>{after();try{fadeEl.style.transition='none';fadeEl.style.opacity='0'}catch(x){}if(lx)lx.out(1)},
-      {src:'assets/clash_final.mp4',subs:[],instant:true,noSkip:true,gameAudio:true,cues:clashFilmCues(),nearEnd:[.5,()=>{lx=lxBurst(.5,null,'150,170,255')}]});
-    setTimeout(()=>{const l0=lx;lx=null;if(l0)l0.out(.9)},120)})}}
+    playFilm(()=>{filmMix(0);after();try{fadeEl.style.transition='none';fadeEl.style.opacity='0'}catch(x){}if(lx)lx.out(1.1)},
+      {src:'assets/clash_final.mp4',subs:[],instant:true,noSkip:true,gameAudio:true,videoAudio:true,kick:true,cues:clashFilmCues(),nearEnd:[.7,()=>{lx=lxBurst(.7,null,'150,175,255')}]});
+    setTimeout(()=>{const l0=lx;lx=null;if(l0)l0.out(1.1)},140)})}}
 
 /* after the clash film: quick cut back in-game. Kaen alone on one knee, a small blast, he is gone. Her limit breaker fades. */
 function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let T=0,gone=false;
