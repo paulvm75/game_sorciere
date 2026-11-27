@@ -51,12 +51,12 @@ function nzM(){if(NZ.M)return NZ.M;const M=Object.assign({},c2m());
   const wt=waterTex.clone(),wn=waterN.clone();wt.needsUpdate=wn.needsUpdate=true;wt.repeat.set(22,40);wn.repeat.set(22,40);NZ.seaT=[wt,wn];
   M.sea=std({map:wt,normalMap:wn,color:0x6a8aa8,roughness:.12,metalness:.55,emissive:0xffffff,emissiveMap:wt,emissiveIntensity:.28,envMapIntensity:1.3});
   M.brick=std({color:0x8a4a3a,roughness:.85,map:rep(new THREE.CanvasTexture(nz(64,64,'#9a5644',x=>{x.fillStyle='rgba(40,20,16,.5)';for(let r=0;r<16;r++){x.fillRect(0,r*4,64,1);for(let c=0;c<8;c++)x.fillRect(c*8+(r%2)*4,r*4,1,4)}})),4,8)});
-  M.white=std({color:0xe6e2d6,roughness:.8});M.slate=std({color:0x3a3c48,roughness:.7,metalness:.2});M.ben=std({color:0xc8b07a,roughness:.75,emissive:0x1a1408,map:M.stone.map});
+  phTag(M.brick,'castle_brick_02_red',{c:.3});M.white=phTag(std({color:0xe6e2d6,roughness:.8}),'plastered_wall_02');M.slate=phTag(std({color:0x3a3c48,roughness:.7,metalness:.2}),'grey_roof_tiles',{c:.05});M.ben=std({color:0xc8b07a,roughness:.75,emissive:0x1a1408,map:M.stone.map});
   M.steel=std({color:0x7aa0c8,roughness:.4,metalness:.6});M.lead=std({color:0xa8b4b0,roughness:.5,metalness:.4});M.red=std({color:0xc01818,roughness:.45,emissive:0x200000});
   M.grass=std({color:0x3a5a30,roughness:1});M.glow=(c,o)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o||.8,blending:THREE.AdditiveBlending,depthWrite:false});
   M.win=[0,1,2].map(v=>{const map=nz(64,64,'#e8e2d4',x=>{x.fillStyle='#2a2a36';for(const r of[10,38])for(const c of[8,26,44])x.fillRect(c,r,12,16)});
     const em=nz(64,64,'#000',x=>{for(const r of[10,38])for(const c of[8,26,44])if(Math.random()<.4){x.fillStyle=Math.random()<.85?'#ffc870':'#a8c8ff';x.fillRect(c+1,r+1,10,14)}});
-    return std({map:new THREE.CanvasTexture(map),emissive:0xffffff,emissiveMap:new THREE.CanvasTexture(em),emissiveIntensity:.75,roughness:.85})});
+    return phTag(std({map:new THREE.CanvasTexture(map),emissive:0xffffff,emissiveMap:new THREE.CanvasTexture(em),emissiveIntensity:.75,roughness:.85}),['brick_wall_04','plastered_wall_02','castle_brick_02_red'][v],{mask:1,c:.2})});
   return NZ.M=M}
 function nzGroundMat(w,d){const og=scene.getObjectByName('groundMain');if(!og)return std({color:0x4a4658,roughness:1});const m=og.material.clone();
   for(const k of['map','normalMap','roughnessMap'])if(m[k]){m[k]=m[k].clone();m[k].repeat.set(m[k].repeat.x*w/484,m[k].repeat.y*d/572);m[k].needsUpdate=true}return m}
@@ -70,14 +70,14 @@ function nzGlow(G,c,s,o,x,y,z){const g=glowSprite(c,s,o);g.position.set(x,y,z);G
 function nzHouses(G,list){const M=nzM();if(!list.length)return;const bg=new THREE.BoxGeometry(1,1,1);bg.translate(0,.5,0);
   const sh=new THREE.Shape();sh.moveTo(-.5,0);sh.lineTo(.5,0);sh.lineTo(0,1);sh.lineTo(-.5,0);const pg=new THREE.ExtrudeGeometry(sh,{depth:1,bevelEnabled:false});pg.translate(0,0,-.5);
   const o=new THREE.Object3D(),col=new THREE.Color();
-  for(let v=0;v<3;v++){const L=list.filter((h,i)=>i%3===v);if(!L.length)continue;const B=new THREE.InstancedMesh(bg,M.win[v],L.length),R=new THREE.InstancedMesh(pg,std({roughness:.8}),L.length);
+  for(let v=0;v<3;v++){const L=list.filter((h,i)=>i%3===v);if(!L.length)continue;const B=new THREE.InstancedMesh(bg,M.win[v],L.length),R=new THREE.InstancedMesh(pg,phTag(std({roughness:.8}),v===1?'thatch_roof_angled':'grey_roof_tiles',{c:.1}),L.length);
     L.forEach((h,i)=>{o.position.set(h.x,h.y||0,h.z);o.rotation.set(0,0,0);o.scale.set(h.w,h.h,h.d);o.updateMatrix();B.setMatrixAt(i,o.matrix);B.setColorAt(i,col.setHex(h.c));
       const along=h.w>h.d;o.position.set(h.x,(h.y||0)+h.h,h.z);o.rotation.y=along?Math.PI/2:0;o.scale.set((along?h.d:h.w)+.7,h.rh,(along?h.w:h.d)+.7);o.updateMatrix();R.setMatrixAt(i,o.matrix);R.setColorAt(i,col.setHex(h.rc));
       boxes.push({x0:h.x-h.w/2,x1:h.x+h.w/2,z0:h.z-h.d/2,z1:h.z+h.d/2,h:(h.y||0)+h.h+h.rh*.6,nz:1});nzLot(h.x-h.w/2-.3,h.x+h.w/2+.3,h.z-h.d/2-.3,h.z+h.d/2+.3,h.h,h.y||0,'tile',h.rh);NZ.mapR.push([h.x-h.w/2,h.z-h.d/2,h.w,h.d])});
     B.instanceMatrix.needsUpdate=R.instanceMatrix.needsUpdate=true;B.castShadow=B.receiveShadow=R.castShadow=true;G.add(B);G.add(R)}}
 function nzBlob(r,d,det){const g=new THREE.IcosahedronGeometry(r,det==null?2:det);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const n=1+d*(Math.sin(x*3.1/r+y*2.3/r)*.5+Math.sin(z*4.7/r-x*1.3/r)*.35+Math.sin(y*5.9/r+z*2.1/r)*.25);p.setXYZ(i,x*n,y*n*.88,z*n)}g.computeVertexNormals();return g}
 function nzTrees(G,list){if(!list.length)return;const hsh=(x,z,k)=>{const v=Math.sin(x*12.9898+z*78.233+(k||0)*37.719)*43758.5453;return v-Math.floor(v)};
-  const fm=std({color:0xffffff,roughness:.9,envMapIntensity:.25}),tm=std({color:0x4a3628,roughness:1}),bm=std({color:0xd8d4cc,roughness:.8,map:(()=>{const t=new THREE.CanvasTexture(mkCanvas(32,64,x=>{x.fillStyle='#e4e0d6';x.fillRect(0,0,32,64);x.fillStyle='#2a2622';for(let k=0;k<26;k++)x.fillRect(rand(0,32),rand(0,64),rand(3,9),rand(1,2.2))}));return rep(t,2,1)})()});
+  const fm=phTag(std({color:0xffffff,roughness:.9,envMapIntensity:.25}),'forest_leaves_02',{c:.15}),tm=std({color:0x4a3628,roughness:1}),bm=std({color:0xd8d4cc,roughness:.8,map:(()=>{const t=new THREE.CanvasTexture(mkCanvas(32,64,x=>{x.fillStyle='#e4e0d6';x.fillRect(0,0,32,64);x.fillStyle='#2a2622';for(let k=0;k<26;k++)x.fillRect(rand(0,32),rand(0,64),rand(3,9),rand(1,2.2))}));return rep(t,2,1)})()});
   const cat=t=>{const h=hsh(t[0],t[1]);return h<.38?'O':h<.56?'B':h<.68?'P':h<.8?'N':h<.9?'W':'A'};
   const SP={O:{th:2.5,tr:1,bl:[[0,3.9,0,1.15],[.95,3.4,.35,.82],[-.85,3.6,-.5,.84],[.1,4.7,-.2,.78],[-.3,3.2,.95,.72]],r:1.6,c:[.27,.42,.18]},
     B:{th:3.3,tr:.95,bl:[[0,4.8,0,1.3],[.65,5.7,.25,.92],[-.6,4.1,.45,.95],[.3,4.2,-.7,.8]],r:1.5,c:[.24,.5,.24]},
@@ -182,7 +182,7 @@ function nzCountry(G){const M=nzM();const Z0=CLIFF_Z,Z1=LON_Z-2;
       path(nzRoadX,7,'#5e5a4c',Z0-4,LON_Z);path(nzRoadX,4.8,'#3e3c38',Z0-4,LON_Z)});
     const t=new THREE.CanvasTexture(tex);t.anisotropy=8;
     const tg=new THREE.PlaneGeometry(540,CD+2,135,Math.round(CD/4));tg.rotateX(-Math.PI/2);tg.translate(0,0,zc);const pa=tg.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,nzLand(pa.getX(i),pa.getZ(i)));tg.computeVertexNormals();NZT.push({pa,cols:135,z0:pa.getZ(0),dz:pa.getZ(136)-pa.getZ(0),rows:Math.round(CD/4)});
-    const tm=new THREE.Mesh(tg,nzDetailMat(std({map:t,roughness:.95,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.13})));tm.receiveShadow=true;tm.name='nzLand';G.add(tm)}
+    const tm=new THREE.Mesh(tg,phTag(nzDetailMat(std({map:t,roughness:.95,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.13})),'aerial_grass_rock',{c:.2,s:.7}));tm.receiveShadow=true;tm.name='nzLand';G.add(tm)}
   /* ---- the river: a proper ribbon of water, a spring pond, reeds ---- */
   {const wt=waterN.clone();wt.needsUpdate=true;wt.wrapS=wt.wrapT=THREE.RepeatWrapping;const rm=std({color:0x2c4862,roughness:.06,metalness:.75,normalMap:wt,normalScale:new THREE.Vector2(.55,.55),emissive:0x081624,transparent:true,opacity:.93});
     const rp=[],uv=[],ri=[];let n=0,len=0,lx=null;for(let z=RIV_Z0+4;z>LON_Z+3;z-=3){const x=nzRiverX(z),w=nzRiverHW(z)+5;if(lx!=null)len+=Math.hypot(x-lx,3);lx=x;rp.push(x-w,.2,z,x+w,.2,z);uv.push(0,len/12,1,len/12);if(n){const a=(n-1)*2;ri.push(a,a+2,a+1,a+1,a+2,a+3)}n++}

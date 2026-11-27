@@ -71,7 +71,7 @@ function makeFacade(){
         x.fillStyle='rgba(0,0,0,.6)';x.fillRect(X+62,y+24,4,80);x.fillRect(X+38,y+60,52,3);if(Math.random()<.4){x.fillStyle='rgba(0,0,0,.45)';x.fillRect(X+38,y+24,rand(10,26),80)}}}}
   }))}
   for(const t of [map,normal,...ems]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8}
-  return ems.map(e=>new THREE.MeshStandardMaterial({color:0xcfc6cc,map,normalMap:normal,normalScale:new THREE.Vector2(.8,.8),roughness:.85,metalness:0,emissive:0xffffff,emissiveMap:e,emissiveIntensity:.7,envMapIntensity:.4}));
+  return ems.map(e=>phTag(new THREE.MeshStandardMaterial({color:0xcfc6cc,map,normalMap:normal,normalScale:new THREE.Vector2(.8,.8),roughness:.85,metalness:0,emissive:0xffffff,emissiveMap:e,emissiveIntensity:.7,envMapIntensity:.4}),'plastered_wall_02'));
 }
 const facadeMats=makeFacade();
 function buildingGeo(w,h,d,x,z){
@@ -132,7 +132,7 @@ function cityFlush(A,parent,sty){const {bGeos,mans,chims,walks,dormers,awnings,c
   bGeos.forEach((l,i)=>{if(l.length){const m=new THREE.Mesh(mergeGeos(l),(sty&&sty.facade||facadeMats)[i]);m.receiveShadow=true;P0.add(m)}});
   const zincTex=canvasTex(128,128,(x)=>{x.fillStyle='#5a6678';x.fillRect(0,0,128,128);for(let k=0;k<128;k+=8){x.fillStyle='rgba(20,25,35,.5)';x.fillRect(k,0,2,128)}});rep(zincTex,1,1);
   const mg=new THREE.CylinderGeometry(.6*Math.SQRT1_2,Math.SQRT1_2,1,4,1);mg.rotateY(Math.PI/4);mg.translate(0,.5,0);
-  instanced(sty&&sty.roofGeo||mg,sty&&sty.roofMat||std({color:0x6a7890,map:zincTex,roughness:.45,metalness:.55,envMapIntensity:.9}),mans,(o,m)=>{o.position.set(m.x,m.y,m.z);if(sty&&sty.roofGeo&&m.w>m.d){o.rotation.y=Math.PI/2;o.scale.set(m.d+.5,m.hm,m.w+.5)}else o.scale.set(m.w+.5,m.hm,m.d+.5)});
+  instanced(sty&&sty.roofGeo||mg,sty&&sty.roofMat||phTag(std({color:0x6a7890,map:zincTex,roughness:.45,metalness:.55,envMapIntensity:.9}),'grey_roof_tiles',{c:.05}),mans,(o,m)=>{o.position.set(m.x,m.y,m.z);if(sty&&sty.roofGeo&&m.w>m.d){o.rotation.y=Math.PI/2;o.scale.set(m.d+.5,m.hm,m.w+.5)}else o.scale.set(m.w+.5,m.hm,m.d+.5)});
   instanced(new THREE.BoxGeometry(.9,1.8,.9),std({color:0x8a5040,roughness:.9}),chims,(o,c)=>{o.position.set(c.x,c.y,c.z)});
   const dg=new THREE.BoxGeometry(1.1,1.4,.9);
   if(sty&&sty.noDormers)dormers.length=0;
@@ -182,7 +182,7 @@ if(MODE!=='open'){
   const cobC=mkCanvas(512,512,(x)=>{x.drawImage(cobH,0,0);x.globalCompositeOperation='multiply';x.fillStyle='#3a3444';x.fillRect(0,0,512,512);x.globalCompositeOperation='source-over';for(let k=0;k<400;k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(30,70)|0},${rand(60,90)|0},.25)`;x.fillRect(rand(0,512),rand(0,512),rand(4,20),rand(4,20))}});
   const rough=mkCanvas(256,256,(x)=>{x.fillStyle='#d0d0d0';x.fillRect(0,0,256,256);for(let k=0;k<22;k++){const cx=rand(0,256),cy=rand(0,256),r=rand(10,40);const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'#484848');g.addColorStop(1,'rgba(72,72,72,0)');x.fillStyle=g;x.fillRect(0,0,256,256)}});
   const cobMap=rep(new THREE.CanvasTexture(cobC),35,40),cobN=rep(heightToNormal(cobH,1.6),35,40),cobR=rep(new THREE.CanvasTexture(rough),9,9);
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(WB.x1-WB.x0+60,WB.z1-WB.z0+60),std({map:cobMap,normalMap:cobN,roughnessMap:cobR,roughness:1,metalness:0,envMapIntensity:.55,color:0xb0a8b8}));ground.name='groundMain';ground.rotation.x=-Math.PI/2;ground.position.set((WB.x0+WB.x1)/2,0,(WB.z0+WB.z1)/2);ground.receiveShadow=true;scene.add(ground);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(WB.x1-WB.x0+60,WB.z1-WB.z0+60),phTag(std({map:cobMap,normalMap:cobN,roughnessMap:cobR,roughness:1,metalness:0,envMapIntensity:.55,color:0xb0a8b8}),'cobblestone_floor_04'));ground.name='groundMain';ground.rotation.x=-Math.PI/2;ground.position.set((WB.x0+WB.x1)/2,0,(WB.z0+WB.z1)/2);ground.receiveShadow=true;scene.add(ground);
   // river
   const wnC=mkCanvas(256,256,(x)=>{x.fillStyle='#808080';x.fillRect(0,0,256,256);for(let k=0;k<300;k++){const cx=rand(0,256),cy=rand(0,256),r=rand(4,20);const g=x.createRadialGradient(cx,cy,0,cx,cy,r);const v=Math.random()<.5?255:0;g.addColorStop(0,`rgba(${v},${v},${v},.2)`);g.addColorStop(1,'rgba(128,128,128,0)');x.fillStyle=g;x.fillRect(0,0,256,256)}});
   const waterN=rep(heightToNormal(wnC,4),20,1);
