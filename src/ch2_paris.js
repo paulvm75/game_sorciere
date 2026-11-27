@@ -178,7 +178,7 @@ function ch2Finale(center,orb,lines){STATS.won=true;writeSave();snow.force=false
     {dur:6.5,fov:50,cut:true,title:['Paris','The 7th & the 16th'],onStart:()=>{ch2ExpandParis();CH2.mourn=true},cam:k=>({pos:V3(-40+k*36,86-k*16,150-k*30),look:V3(-126,8,-50)}),update:up},
     {dur:4.2,fov:34,cut:true,cam:k=>({pos:headOf(P.pos,.9).addScaledVector(fw(),3.4-k*.6).addScaledVector(V3(fw().z,0,-fw().x),1.2),look:headOf(P.pos,.9)}),onStart:()=>{P.heroAnim='Crouch_Idle_Loop';W.talking=false},update:up},
     {who:'@',text:lines[1][1],cam:witchShot(1,3.2,1.3),update:up},
-    {dur:3.6,fov:40,cut:true,cam:bookShot(1,2.2,.9),onStart:()=>{book=buildJournal();book.position.copy(headOf(P.pos,7)).addScaledVector(fw(),1.1);scene.add(book);sx('book',.9,()=>{try{sfx.gem()}catch(e){}});flash(book.position,0xb080ff,6)},update:dt=>{bookTick(dt);up(dt)}},
+    {dur:3.6,fov:40,cut:true,cam:bookShot(1,2.2,.9),onStart:()=>{if(!book){book=buildJournal();book.position.copy(headOf(P.pos,7)).addScaledVector(fw(),1.1);scene.add(book)}sx('book',.9,()=>{try{sfx.gem()}catch(e){}});flash(book.position,0xb080ff,6)},update:dt=>{bookTick(dt);up(dt)}},
     {who:"Kaen's Journal",text:LY.ly01,cam:bookShot(-1,1.4,.6),update:bookTick},
     {who:"Kaen's Journal",text:LY.ly02,cam:bookShot(1,1.2,.45),update:bookTick},
     {who:"Kaen's Journal",text:LY.ly03,cam:witchShot(-1,2.6,1.4),update:bookTick},
@@ -199,9 +199,43 @@ function ch2Finale(center,orb,lines){STATS.won=true;writeSave();snow.force=false
     {who:'Lyra',text:LY.ly12,cam:lyShot(2.3),update:dt=>{if(lyr)lyr.update(dt)}},
     {who:'Lyra',text:LY.ly13,cam:lyShot(2.1),update:dt=>{if(lyr)lyr.update(dt)}},
     {who:'@',text:'London, then. Bilel would have gone.',cam:witchShot(-1,3.4),update:dt=>{if(lyr)lyr.update(dt)}}];
-  playCutscene(shots,()=>{CH2.mourn=false;P.heroAnim=null;setDawn(.55);if(book){scene.remove(book);book=null}if(lyr){scene.remove(lyr.g);lyr=null}CH2.st=Math.max(CH2.st,1);ch2Save();lyraToTroca();
-    toast('Lyra waits at the Trocadéro, across the river from the tower. The real Paris is open: the 7th and the 16th.','Lyra',true);
-})}
+  const iB=shots.findIndex(x=>x.cam&&x.dur===3.6&&!x.who);const A=iB>0?shots.slice(0,iB):shots,B=iB>0?shots.slice(iB):[];
+  const endAll=()=>{CH2.mourn=false;P.heroAnim=null;setDawn(.55);if(book){scene.remove(book);book=null}if(lyr){scene.remove(lyr.g);lyr=null}CH2.st=Math.max(CH2.st,1);ch2Save();lyraToTroca();
+    toast('Lyra waits at the Trocadéro, across the river from the tower. The real Paris is open: the 7th and the 16th.','Lyra',true)};
+  if(!B.length){playCutscene(shots,endAll);return}
+  playCutscene(A,()=>{P.heroAnim=null;jrStage(center,b=>{book=b;bt=0;playCutscene(B,endAll)})})}
+
+/* ---------- Kaen's journal waits where his spirit faded: walk to it, read it, and the truth begins ---------- */
+const JR={g:null,btn:null,on:false,t:0,cb:null,o:null};
+function jrStage(center,cb){let at=center?V3(center.x,0,center.z):P.pos.clone();if(Math.hypot(at.x-P.pos.x,at.z-P.pos.z)>22||!validSpot(at.x,at.z,1)){const f=V3(Math.sin(P.face),0,Math.cos(P.face));at=c2safe(P.pos,f,5,8)}at.y=groundAt(at.x,at.z);
+  const g=new THREE.Group();g.position.copy(at);scene.add(g);const book=buildJournal();book.position.set(0,1.15,0);book.scale.setScalar(1.6);g.add(book);
+  const bm=new THREE.MeshBasicMaterial({color:0xb080ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(.55,.9,16,24,1,true),bm);beam.position.y=8;g.add(beam);
+  const rm=new THREE.MeshBasicMaterial({color:0xd8b0ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});const rg=new THREE.Mesh(new THREE.RingGeometry(1.1,1.35,48),rm);rg.rotation.x=-Math.PI/2;rg.position.y=.05;g.add(rg);
+  const gl=glowSprite(0xc090ff,5,.0);gl.position.y=1.2;g.add(gl);
+  JR.g=g;JR.book=book;JR.bm=bm;JR.rm=rm;JR.rg=rg;JR.gl=gl;JR.on=true;JR.t=0;JR.cb=cb;JR.at=at;JR.read=false;
+  /* the spirit's last light gathers into the book */
+  for(let i=0;i<40;i++){const a=Math.random()*TAU,r=rand(3,7);SP.emit(V3(at.x+Math.sin(a)*r,at.y+rand(.5,4),at.z+Math.cos(a)*r),{c0:0xffffff,c1:0x8040e0,s0:.5,s1:.05,life:1.2,speed:-r*1.2})}
+  flash(headOf(at,1),0xb080ff,14);runeFlash(at,0xa060ff,5,2);sx('book',.9);try{sfx.gem()}catch(x){}
+  if(!JR.btn){const b=document.createElement('button');b.id='jrBtn';b.innerHTML='<i>📖</i><span>Read Kaen\'s journal</span><b>E</b>';document.body.appendChild(b);
+    const st=document.createElement('style');st.textContent='#jrBtn{position:fixed;left:50%;bottom:150px;transform:translate(-50%,10px) scale(.94);z-index:40;display:flex;align-items:center;gap:10px;padding:12px 20px 12px 16px;border-radius:999px;border:1px solid rgba(214,184,255,.6);background:linear-gradient(180deg,rgba(54,26,96,.88),rgba(18,8,36,.9));color:#f1e6ff;font:600 16px Outfit,system-ui,sans-serif;letter-spacing:.02em;box-shadow:0 0 24px rgba(160,100,255,.45);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}#jrBtn.on{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1);animation:jrP 1.6s ease-in-out infinite}#jrBtn i{font-style:normal;font-size:20px}#jrBtn b{font:700 12px Outfit,sans-serif;border:1px solid rgba(241,230,255,.5);border-radius:6px;padding:2px 7px;opacity:.85}@keyframes jrP{50%{box-shadow:0 0 38px rgba(190,130,255,.75)}}';document.head.appendChild(st);
+    b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();jrRead()});addEventListener('keydown',e=>{if(JR.on&&!JR.read&&JR.near&&(e.code==='KeyE'||e.code==='Enter')&&!CS.active){e.preventDefault();jrRead()}});JR.btn=b}
+  JR.o=CH2.obj;CH2.obj=()=>JR.on?`Read <b>Kaen's journal</b> · ${Math.round(Math.hypot(P.pos.x-at.x,P.pos.z-at.z))}m`:null;
+  after(.6,()=>toast('His spirit left something behind. Go and read it.',"Kaen's journal",true))}
+function jrRead(){if(!JR.on||JR.read)return;JR.read=true;JR.btn.classList.remove('on');const g=JR.g,book=JR.book,at=JR.at;
+  P.face=Math.atan2(at.x-P.pos.x,at.z-P.pos.z);P.heroAnim='Spell_Simple_Idle_Loop';try{sfx.blink()}catch(x){}sx('riser',.8,null,{rate:1.2});
+  /* the book rises to her, pages race, the light swallows the screen and opens on the first page */
+  const p0=book.getWorldPosition(V3());const s0=book.scale.x;const tg=()=>headOf(P.pos,1.25).addScaledVector(V3(Math.sin(P.face),0,Math.cos(P.face)),1.1);
+  const fov0=camera.fov;let lx=null;
+  playCutscene([{dur:1.25,fov:30,snap:true,cam:k=>{const e=k*k*(3-2*k);const b=book.getWorldPosition(V3());const f=V3(Math.sin(P.face),0,Math.cos(P.face)),r=V3(f.z,0,-f.x);return{pos:b.clone().addScaledVector(f,-(3.2-e*2.4)).addScaledVector(r,.9-e*.7).add(V3(0,.9-e*.4,0)),look:b}},
+    onStart:()=>{scene.attach(book);},update:(dt,k)=>{const e=1-Math.pow(1-k,3);book.position.copy(p0.clone().lerp(tg(),e));book.position.y+=Math.sin(k*Math.PI)*.6;book.scale.setScalar(s0+(1-s0)*e);book.rotation.y=P.face+Math.PI+(1-e)*TAU*.5;
+      for(let q=0;q<4;q++)SP.emit(book.position.clone().add(V3(rand(-.4,.4),rand(0,.5),rand(-.4,.4))),{c0:0xffffff,c1:0xa060ff,s0:.35,s1:.03,life:.7,up:1.6});
+      JR.bm.opacity*=.9;JR.rm.opacity*=.9;if(k>.62&&!lx){lx=lxBurst(.45,null,'200,150,255')}}}],
+    ()=>{JR.on=false;CH2.obj=JR.o;scene.remove(g);P.heroAnim='Crouch_Idle_Loop';const cb=JR.cb;JR.cb=null;if(cb)cb(book);setTimeout(()=>{if(lx)lx.out(1)},120)})}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!JR.on||!JR.g)return;JR.t+=dt;const g=JR.g,t=JR.t;const bm=JR.bm,rm=JR.rm,gl=JR.gl.material;
+  if(!JR.read){bm.opacity=Math.min(.3,t*.15)+Math.sin(t*2)*.05;rm.opacity=Math.min(.7,t*.5)*(.7+Math.sin(t*3)*.3);JR.rg.scale.setScalar(1+Math.sin(t*1.6)*.08);gl.opacity=Math.min(.5,t*.4);
+    JR.book.position.y=1.15+Math.sin(t*1.8)*.08;JR.book.rotation.y+=dt*.5;if(Math.random()<.5)SP.emit(V3(g.position.x+rand(-.8,.8),g.position.y+rand(0,.4),g.position.z+rand(-.8,.8)),{c0:0xe8d8ff,c1:0x6020c0,s0:.3,s1:.03,life:1.4,up:2})}
+  const d=Math.hypot(P.pos.x-g.position.x,P.pos.z-g.position.z);JR.near=d<3;if(JR.btn)JR.btn.classList.toggle('on',JR.near&&!JR.read&&!CS.active&&started)}}
 
 /* ---------- load / new game ---------- */
 {const _sg=startGame;startGame=function(fromSave){const r=_sg.apply(this,arguments);if(MODE==='open')return r;

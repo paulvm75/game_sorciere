@@ -19,10 +19,15 @@ function gsKeyOf(sx,o){if(!o)return null;const h=o.hairCol;
   if(sx==='f'&&h===0xc8c8d4)return 'maelle';return null}
 function gsHide(o){if(o.userData.gsKeep)return;Object.defineProperty(o,'visible',{get(){return false},set(){},configurable:true})}
 /* swap: g = actor group, root = node that owns the skeleton (its frame is the anims frame), keep(o) = meshes to leave visible */
-function gsSwap(g,root,key,keep){if(GS.off||!g||!root||g.userData.gs)return;const R=gsRest();if(!R)return;g.userData.gs={key,pending:true};
-  const sb={};root.traverse(o=>{if(o.isBone&&!sb[o.name])sb[o.name]=o});if(!sb.pelvis)return;
-  const U={uGold:{value:0},uBolt:{value:0},uV:{value:0},uT:{value:0}};gsLoad(key).then(buf=>{if(!buf)return;new THREE.GLTFLoader().parse(buf.slice(0),'',gl=>{const T=gl.scene;const tb={};T.traverse(o=>{if(o.isBone)tb[o.name]=o;if(o.isMesh){o.castShadow=true;o.frustumCulled=false;o.userData.gsKeep=true;if(o.material){const m=o.material;m.side=THREE.DoubleSide;if(m.map){m.map.anisotropy=4;m.emissiveMap=m.map;m.emissive=new THREE.Color(0x4a4048);m.emissiveIntensity=1}m.roughness=Math.max(.55,m.roughness||.8);m.metalness=Math.min(.15,m.metalness||0);gsLook(o,key,U);m.needsUpdate=true}}});
-    if(!tb.Hips)return;
+/* while the new model loads, the old look never shows: the skeleton node stays hidden (or the previous new model stays on) */
+function gsPend(root,on){if(on){if(root._gsPend)return;root._gsPend=1;const d=Object.getOwnPropertyDescriptor(root,'visible');root._gsV=d&&'value' in d?d.value:true;
+    Object.defineProperty(root,'visible',{get(){return root._gsPend?false:root._gsV},set(v){root._gsV=v},configurable:true})}else if(root._gsPend){root._gsPend=0}}
+function gsSwap(g,root,key,keep,prev){if(GS.off||!g||!root||(g.userData.gs&&!prev))return;const R=gsRest();if(!R)return;g.userData.gs={key,pending:true};
+  const sb={};root.traverse(o=>{if(o.isBone&&!sb[o.name])sb[o.name]=o});if(!sb.pelvis){g.userData.gs=prev||null;return}
+  if(!prev)gsPend(root,true);const fail=()=>{gsPend(root,false);if(prev)g.userData.gs=prev};
+  const U={uGold:{value:0},uBolt:{value:0},uV:{value:0},uT:{value:0}};gsLoad(key).then(buf=>{if(!buf){fail();return}new THREE.GLTFLoader().parse(buf.slice(0),'',gl=>{try{const T=gl.scene;const tb={};T.traverse(o=>{if(o.isBone)tb[o.name]=o;if(o.isMesh){o.castShadow=true;o.frustumCulled=false;o.userData.gsKeep=true;if(o.material){const m=o.material;m.side=THREE.DoubleSide;if(m.map){m.map.anisotropy=4;m.emissiveMap=m.map;m.emissive=new THREE.Color(0x4a4048);m.emissiveIntensity=1}m.roughness=Math.max(.55,m.roughness||.8);m.metalness=Math.min(.15,m.metalness||0);gsLook(o,key,U);m.needsUpdate=true}}});
+    if(!tb.Hips){fail();return}
+    if(prev){const i=GS.list.indexOf(prev);if(i>=0)GS.list.splice(i,1);if(prev.moved)for(const m of prev.moved){m.ob.add(m.c);m.c.matrix.copy(m.mat);m.c.matrix.decompose(m.c.position,m.c.quaternion,m.c.scale)}if(prev.T&&prev.T.parent)prev.T.parent.remove(prev.T)}
     T.traverse(o=>{if(o.isSkinnedMesh)gsSmoothNormals(o.geometry)});
     try{gsPostLoad(g,T,key,U)}catch(x){console.warn(x)}
     /* hide what the actor used to show */
@@ -36,7 +41,7 @@ function gsSwap(g,root,key,keep){if(GS.off||!g||!root||g.userData.gs)return;cons
       else{const p=tb[n].parent&&cal[tb[n].parent.name];if(p)qc.copy(p.qc)}
       cal[n]={qc,tr:tq[n],sr:R.q[GS_MAP[n]],srcI:R.q[GS_MAP[n]].clone().invert()}}
     const hipOff=tp.Hips.clone().multiplyScalar(s).sub(R.p.pelvis);
-    const e={g,root,T,tb,sb,cal,order,s,hipOff,key,keep,U,pose:gsPose(key,R)};g.userData.gs=e;g.userData.gsModel=T;GS.list.push(e);gsTickOne(e);try{gsHandFix(e)}catch(x){console.warn(x)}const w=g.userData.gsWant;if(w&&w!==key){g.userData.gsWant=null;gsReplace(g,w)}},err=>{console.warn('gs',err)})})}
+    const e={g,root,T,tb,sb,cal,order,s,hipOff,key,keep,U,pose:gsPose(key,R)};g.userData.gs=e;g.userData.gsModel=T;GS.list.push(e);gsTickOne(e);try{gsHandFix(e)}catch(x){console.warn(x)}gsPend(root,false);const w=g.userData.gsWant;if(w&&w!==key){g.userData.gsWant=null;gsReplace(g,w)}}catch(x){console.warn(x);fail()}},err=>{console.warn('gs',err);fail()})})}
 function gsTickOne(e){const{root,T,tb,sb,cal,order}=e;root.updateMatrixWorld(true);
   const rq=root.getWorldQuaternion(new THREE.Quaternion()),rqi=rq.clone().invert();const Tq=T.getWorldQuaternion(new THREE.Quaternion());
   for(const n of order){const t=tb[n],s=sb[GS_MAP[n]],k=cal[n];
@@ -91,9 +96,8 @@ function gsPose(key,R){if(key==='maelle'||key==='lyra'){const fz=Math.sign((R.p.
   off.Spine01=rx(chest*.5);off.Spine=rx(chest);off.neck=rx(-fz*.12);off.Head=rx(-fz*.3);off.LeftShoulder=rz(-.05*sx);off.RightShoulder=rz(.05*sx);
   damp.Hips=.55;damp.Spine02=.35;return{off,damp}}
 /* swap a live actor to another model (Kaen tearing into his limit breaker form) */
-function gsReplace(g,key){const e=g.userData.gs;if(e&&e.pending){g.userData.gsWant=key;return}if(!e||e.key===key)return;const i=GS.list.indexOf(e);if(i>=0)GS.list.splice(i,1);
-  if(e.moved)for(const m of e.moved){m.ob.add(m.c);m.c.matrix.copy(m.mat);m.c.matrix.decompose(m.c.position,m.c.quaternion,m.c.scale)}
-  if(e.T&&e.T.parent)e.T.parent.remove(e.T);g.userData.gs=null;gsSwap(g,e.root,key,e.keep)}
+function gsReplace(g,key){const e=g.userData.gs;if(e&&e.pending){g.userData.gsWant=key;return}if(!e||e.key===key)return;
+  gsSwap(g,e.root,key,e.keep,e)}
 /* the hero's look follows her limit breaker */
 function gsHeroLook(dt){const e=W&&W.g&&W.g.userData.gs;if(!e||!e.U)return;const U=e.U;U.uT.value+=dt;
   const on=e.key==='maelle'&&MODE!=='open'&&P.lbT>0&&P.alive;const tg=on?Math.max(.35,P.lbRamp||0):0;U.uGold.value+=(tg-U.uGold.value)*Math.min(1,dt*3);
@@ -131,3 +135,6 @@ function gsMenuArm(){const e=W&&W.g&&W.g.userData.gs;if(!e||!e.pose||e.key!=='ma
   if(on){const R=gsRest(),fz=Math.sign((R.p.ball_l.z-R.p.foot_l.z)||1),sx=Math.sign((R.p.thigh_l.x-R.p.pelvis.x)||1);const q=(ax,a)=>new THREE.Quaternion().setFromAxisAngle(ax,a);const X=new THREE.Vector3(1,0,0),Z=new THREE.Vector3(0,0,1);
     const up=q(X,-fz*.7).multiply(q(Z,-sx*.25));e.pose.off.RightArm=up;e.pose.off.RightForeArm=q(X,-fz*1.25).multiply(q(Z,-sx*.25));e.pose.off.RightHand=q(X,-fz*1.3).multiply(q(Z,-sx*.25))}
   else{delete e.pose.off.RightArm;delete e.pose.off.RightForeArm;delete e.pose.off.RightHand}}
+
+/* fetch every cast model early so a character never waits on the network when it first appears */
+{let gsPre=0;const _mt3=muTick;muTick=function(dt){_mt3(dt);if(gsPre||GS.off)return;gsPre=1;let i=0;const ks=['maelle','kaen','lyra','kaen_lb'];const nx=()=>{if(i>=ks.length)return;const p=gsLoad(ks[i++]);p&&p.then?p.then(nx,nx):nx()};gsLoad('maelle');setTimeout(nx,800)}}
