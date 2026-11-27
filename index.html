@@ -13389,9 +13389,7 @@ function gsMouthInject(m,U){const prev=m.onBeforeCompile,pk=m.customProgramCache
  float wn=(1.-smoothstep(.012*r,.03*r,length(vec2(d.x*.7,d.y*1.4))))*wz;transformed.x-=d.x*uNar*wn;}`)};
   m.customProgramCacheKey=function(){return(pk?pk.call(this):'')+'|mouth'};m.needsUpdate=true}
 /* ---------- ghosts: if the actor was a ghost before the swap, the new model is one too ---------- */
-function gsGhostOf(g,T,key){if(key!=='kaen'&&key!=='kaen_lb')return null;if(g.userData.gsGhostCol!=null)return{col:g.userData.gsGhostCol,src:null};let src=null;
-  g.traverse(o=>{if(src||!o.isMesh||!o.material||o.userData.gsKeep)return;for(let q=o;q;q=q.parent)if(q===T)return;const m=o.material;if(m.transparent&&(m.blending===THREE.AdditiveBlending||m.opacity<.9))src=m});
-  return src?{col:0xb07cff,src}:null}
+function gsGhostOf(g,T,key){if(key!=='kaen'&&key!=='kaen_lb')return null;return g.userData.gsGhostCol!=null?{col:g.userData.gsGhostCol,src:null}:null}
 function gsPostLoad(g,T,key,U){U.uMouth={value:0};U.uMH={value:1};U.uMC={value:new THREE.Vector3(0,-99,0)};U.uNar={value:key==='kaen'||key==='kaen_lb'?.16:0};
   T.userData.gsKey=key;const c=gsMouthCal(T);if(c){U.uMC.value.copy(c.mc);U.uMH.value=c.H}
   const gh=gsGhostOf(g,T,key);
@@ -13513,11 +13511,12 @@ gsMouthCal=function(T){if(T.userData.mcal!==undefined)return T.userData.mcal;T.u
   return T.userData.mcal={mc:new THREE.Vector3(hp.x,my,mz),H,half,hi,sm,my0,best,skin,skinC}};
 /* the face itself: the painted mouth is covered with skin and a clean anime mouth is drawn on the surface; it opens with the voice, the lower lip and chin follow */
 gsMouthInject=function(m,U){const prev=m.onBeforeCompile,pk=m.customProgramCacheKey;
-  m.onBeforeCompile=function(sh,r){if(prev&&prev!==THREE.Material.prototype.onBeforeCompile)prev.call(this,sh,r);for(const k of['uMouth','uMC','uMOn','uMSkin','uMW','uMEr','uMCurve','uMHt'])sh.uniforms[k]=U[k];
-    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMOn;uniform vec3 uMC;varying vec3 vMp;').replace('#include <begin_vertex>',`#include <begin_vertex>
+  m.onBeforeCompile=function(sh,r){if(prev&&prev!==THREE.Material.prototype.onBeforeCompile)prev.call(this,sh,r);for(const k of['uMouth','uMC','uMOn','uMSkin','uMW','uMEr','uMCurve','uMHt','uMJaw','uMNar'])sh.uniforms[k]=U[k];
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMOn,uMJaw,uMNar;uniform vec3 uMC;varying vec3 vMp;').replace('#include <begin_vertex>',`#include <begin_vertex>
 vMp=transformed;
+{vec3 d=transformed-uMC;float fr=smoothstep(-.03,-.012,d.z);float cx=smoothstep(.006,.018,abs(d.x))*(1.-smoothstep(.028,.042,abs(d.x)));float cy=1.-smoothstep(.004,.011,abs(d.y+.0005));transformed.x-=sign(d.x)*uMNar*.016*cx*cy*fr*uMJaw;}
 {vec3 d=transformed-uMC;float front=smoothstep(-.03,-.012,d.z);float jx=1.-smoothstep(uMW*.9,uMW*2.,abs(d.x));float jy=smoothstep(-.001,-.006,d.y)*(1.-smoothstep(.03,.055,-d.y));
- transformed.y-=uMouth*uMOn*.0026*jx*jy*front;}`);
+ transformed.y-=uMouth*uMJaw*.0032*jx*jy*front;}`);
     sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMEr,uMOn,uMCurve,uMHt;uniform vec3 uMC,uMSkin;varying vec3 vMp;').replace('#include <map_fragment>',`#include <map_fragment>
 if(uMOn>.5){vec3 d=vMp-uMC;float front=smoothstep(-.026,-.014,d.z);
  // cover the painted mouth with skin
@@ -13537,9 +13536,9 @@ if(uMOn>.5){vec3 d=vMp-uMC;float front=smoothstep(-.026,-.014,d.z);
 /* per character: size of the new mouth, how much of the old one to cover, smile curve, how far it opens */
 const MOUTHK={kaen:{w:.0145,er:.031,cu:-.15,ht:.0062},kaen_lb:{w:.0145,er:.03,cu:-.15,ht:.0062},maelle:{w:.0125,er:.022,cu:.35,ht:.0058},lyra:{w:.0095,er:.017,cu:.5,ht:.0048}};
 {const _pl=gsPostLoad;gsPostLoad=function(g,T,key,U){const K=MOUTHK[key]||MOUTHK.maelle;
-  U.uMW={value:K.w};U.uMEr={value:K.er};U.uMCurve={value:K.cu};U.uMHt={value:K.ht};U.uMOn={value:0};U.uMSkin={value:new THREE.Color(.9,.7,.6)};T.userData.gsKey=key;
+  U.uMW={value:K.w};U.uMEr={value:K.er};U.uMCurve={value:K.cu};U.uMHt={value:K.ht};U.uMOn={value:0};U.uMJaw={value:0};U.uMNar={value:key==='kaen'?.24:key==='kaen_lb'?.16:0};U.uMSkin={value:new THREE.Color(.9,.7,.6)};T.userData.gsKey=key;
   _pl.apply(this,arguments);if(U.uNar)U.uNar.value=0;
-  try{const c=gsMouthCal(T);if(!c)return;U.uMC.value.copy(c.mc);U.uMSkin.value.copy(c.skinC);U.uMOn.value=g.userData.gsGhostM?0:1}catch(x){console.warn('mouth',x)}}}
+  try{const c=gsMouthCal(T);if(!c)return;U.uMC.value.copy(c.mc);U.uMSkin.value.copy(c.skinC);U.uMOn.value=0;U.uMJaw.value=g.userData.gsGhostM?0:1}catch(x){console.warn('mouth',x)}}}
 /* ================= opening film: Maëlle's story (Higgsfield clips + ElevenLabs narration) =================
    Plays before the story starts on New Game, and every time Chapter I is chosen. Skippable. */
 const FILM={subs:[[1.45, 5.95, "Paris, after midnight... when the whole city is asleep."], [10.55, 13.31, "Hi. I'm Maëlle. I'm a witch."], [13.51, 15.69, "Well... still learning."], [20.57, 24.45, "I grew up right here, under the rooftops,\nwith my grandparents."], [25.34, 26.98, "Grandma talked to the moon."], [27.2, 29.9, "Everyone thought she was just a sweet old lady..."], [30.02, 31.26, "she was a witch."], [31.99, 34.69, "She put my very first light in my hands."], [34.89, 35.79, "I was seven."], [40.35, 44.31, "Then, ten years ago... something rose from the river."], [44.35, 46.55, "A crown, made of smoke."], [47.31, 50.29, "That night, every clock in the flat stopped."], [50.51, 52.99, "And in the morning... they were gone."], [53.46, 58.94, "All they left me was her book, her hat...\nand an old broom that wouldn't stop glowing."], [60.82, 65.52, "So I taught myself.\nNight after night, on the roofs of Paris."], [65.68, 69.76, "No coven. No master. A lot of falling."], [74.59, 76.71, "But one night... I flew."], [78.47, 81.43, "Tonight, Paris is far too quiet."], [81.53, 85.23, "And someone is running across my rooftops."], [85.27, 86.7, "There you are."], [88.46, 91.76, "Wherever you are, Grandma...\nI'm coming to find you."]],el:null,on:false};

@@ -21,9 +21,7 @@ function gsMouthInject(m,U){const prev=m.onBeforeCompile,pk=m.customProgramCache
  float wn=(1.-smoothstep(.012*r,.03*r,length(vec2(d.x*.7,d.y*1.4))))*wz;transformed.x-=d.x*uNar*wn;}`)};
   m.customProgramCacheKey=function(){return(pk?pk.call(this):'')+'|mouth'};m.needsUpdate=true}
 /* ---------- ghosts: if the actor was a ghost before the swap, the new model is one too ---------- */
-function gsGhostOf(g,T,key){if(key!=='kaen'&&key!=='kaen_lb')return null;if(g.userData.gsGhostCol!=null)return{col:g.userData.gsGhostCol,src:null};let src=null;
-  g.traverse(o=>{if(src||!o.isMesh||!o.material||o.userData.gsKeep)return;for(let q=o;q;q=q.parent)if(q===T)return;const m=o.material;if(m.transparent&&(m.blending===THREE.AdditiveBlending||m.opacity<.9))src=m});
-  return src?{col:0xb07cff,src}:null}
+function gsGhostOf(g,T,key){if(key!=='kaen'&&key!=='kaen_lb')return null;return g.userData.gsGhostCol!=null?{col:g.userData.gsGhostCol,src:null}:null}
 function gsPostLoad(g,T,key,U){U.uMouth={value:0};U.uMH={value:1};U.uMC={value:new THREE.Vector3(0,-99,0)};U.uNar={value:key==='kaen'||key==='kaen_lb'?.16:0};
   T.userData.gsKey=key;const c=gsMouthCal(T);if(c){U.uMC.value.copy(c.mc);U.uMH.value=c.H}
   const gh=gsGhostOf(g,T,key);
