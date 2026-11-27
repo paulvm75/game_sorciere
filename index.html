@@ -13284,6 +13284,7 @@ function gsSwap(g,root,key,keep){if(GS.off||!g||!root||g.userData.gs)return;cons
   const sb={};root.traverse(o=>{if(o.isBone&&!sb[o.name])sb[o.name]=o});if(!sb.pelvis)return;
   const U={uGold:{value:0},uBolt:{value:0},uV:{value:0},uT:{value:0}};gsLoad(key).then(buf=>{if(!buf)return;new THREE.GLTFLoader().parse(buf.slice(0),'',gl=>{const T=gl.scene;const tb={};T.traverse(o=>{if(o.isBone)tb[o.name]=o;if(o.isMesh){o.castShadow=true;o.frustumCulled=false;o.userData.gsKeep=true;if(o.material){const m=o.material;m.side=THREE.DoubleSide;if(m.map){m.map.anisotropy=4;m.emissiveMap=m.map;m.emissive=new THREE.Color(0x4a4048);m.emissiveIntensity=1}m.roughness=Math.max(.55,m.roughness||.8);m.metalness=Math.min(.15,m.metalness||0);gsLook(o,key,U);m.needsUpdate=true}}});
     if(!tb.Hips)return;
+    T.traverse(o=>{if(o.isSkinnedMesh)gsSmoothNormals(o.geometry)});
     try{gsPostLoad(g,T,key,U)}catch(x){console.warn(x)}
     /* hide what the actor used to show */
     g.traverse(o=>{if((o.isMesh||o.isSkinnedMesh)&&!(keep&&keep(o)))gsHide(o)});
@@ -13319,7 +13320,7 @@ function gsHero(){if(GS.off||!W||!W.ch||!W.g||W.g.userData.gs)return;if(HERO.g!=
   const hand=[];W.g.traverse(q=>{if(q.isBone&&/^hand_[lr]$/.test(q.name))hand.push(q)});
   const inHand=o=>{let p=o.parent;while(p){if(hand.includes(p)||p===W.broom)return true;p=p.parent}return false};
   gsSwap(W.g,root,'maelle',inHand)}
-{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started)return;try{gsHero()}catch(x){}gsTick()}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!started)return;try{gsHero();gsMenuArm()}catch(x){}gsTick()}}
 {const _sh=setHero;setHero=function(){const r=_sh.apply(this,arguments);try{gsHero()}catch(x){}return r}}
 
 /* ---------- looks: Maëlle's limit breaker (gold hair + cape, blue lightning at x2), Kaen's glowing veins ---------- */
@@ -13330,13 +13331,13 @@ function gsLook(o,key,U){if(key!=='maelle'&&key!=='kaen_lb')return;const m=o.mat
      .replace('#include <map_fragment>',`#include <map_fragment>
 {vec3 c=diffuseColor.rgb;float mx=max(c.r,max(c.g,c.b)),mn=min(c.r,min(c.g,c.b));float sat=(mx-mn)/(mx+1e-4);float lum=dot(c,vec3(.3,.59,.11));`+
      (key==='maelle'?`float gr=c.g/max(c.r,.001);float skn=smoothstep(.4,.5,gr)*(1.-smoothstep(.88,.96,gr))*smoothstep(-.01,.05,c.g-c.b)*smoothstep(.05,.13,sat)*smoothstep(.08,.18,lum);gSkin=skn;
-c=mix(c,c*vec3(.7,.53,.42),skn*.9);diffuseColor.rgb=c;lum=dot(c,vec3(.3,.59,.11));
+float sl=dot(c,vec3(.3,.59,.11));c=mix(c,mix(c*vec3(.56,.4,.3),vec3(.48,.31,.21)*(.75+sl*.5),.72),skn*.97);diffuseColor.rgb=c;lum=dot(c,vec3(.3,.59,.11));
 float red=step(c.g*1.4,c.r)*step(c.b*.95,c.r)*smoothstep(.22,.45,sat)*smoothstep(.04,.14,mx);
 float hair=smoothstep(.4,.62,lum)*(1.-smoothstep(.22,.4,sat))*step(c.g*.93,c.b);float gm=uGold*max(red,hair);
 diffuseColor.rgb=mix(c,vec3(1.,.74,.26)*(.55+lum*1.7),gm*.92);gGlow=gm;`
      :`gVein=smoothstep(.06,.25,c.b-max(c.r,c.g)*.85)*smoothstep(.35,.65,c.b);`)+`}`)
      .replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
-totalEmissiveRadiance*=mix(1.,.55,gSkin);totalEmissiveRadiance+=vec3(1.,.72,.28)*gGlow*.45;
+totalEmissiveRadiance*=mix(1.,.3,gSkin);totalEmissiveRadiance+=vec3(1.,.72,.28)*gGlow*.45;
 {vec3 p=vGp*7.;float f=.6+.4*sin(uT*23.+p.y*2.);float b1=abs(sin(p.y*3.3+sin(p.x*2.7+uT*6.)*1.9+uT*4.));float b2=abs(sin(p.x*4.1-p.z*2.3+sin(p.y*3.1-uT*5.)*1.6));
 float bl=max(smoothstep(.986,.999,b1),smoothstep(.988,.999,b2));totalEmissiveRadiance+=vec3(.35,.72,1.)*bl*uBolt*f*3.;}
 totalEmissiveRadiance+=diffuseColor.rgb*vec3(.6,.9,1.3)*gVein*uV*(1.8+.6*sin(uT*5.+vGp.y*9.));`)};
@@ -13377,7 +13378,20 @@ function gsHandFix(e){e.moved=[];const pairs=[['hand_r','RightHand'],['hand_l','
     for(const c of ob.children.slice()){if(c.isBone)continue;c.updateMatrixWorld(true);const Wc=c.matrixWorld.clone();Wc.elements[12]+=np.x-op.x;Wc.elements[13]+=np.y-op.y;Wc.elements[14]+=np.z-op.z;
       e.moved.push({c,ob,mat:c.matrix.clone()});nb.add(c);const X=new THREE.Matrix4().copy(nb.matrixWorld).invert().multiply(Wc);X.decompose(c.position,c.quaternion,c.scale);
       c.updateMatrixWorld(true);const ws=c.getWorldScale(new THREE.Vector3()).x,gs=e.g.getWorldScale(new THREE.Vector3()).x;if(ws<gs*.3)c.scale.multiplyScalar(gs/ws)}}
-  if(e.g===W.g&&W.orb&&W.orb.parent){const w=W.orb.parent;w.updateMatrixWorld(true);const ws=w.getWorldScale(new THREE.Vector3()).x,gs=e.g.getWorldScale(new THREE.Vector3()).x;if(ws<gs*.3)w.scale.multiplyScalar(gs/ws)}}
+  if(e.g===W.g&&W.orb&&W.orb.parent){const w=W.orb.parent;w.updateMatrixWorld(true);const ws=w.getWorldScale(new THREE.Vector3()).x,gs=e.g.getWorldScale(new THREE.Vector3()).x;if(ws<gs*.3)w.scale.multiplyScalar(gs/ws);
+    w.traverse(o=>{if(o.isMesh&&o!==W.orb&&o.material&&o.material.color){o.material=o.material.clone();o.material.color.setHex(0x8a5a32);o.material.roughness=.45;o.material.metalness=.1;o.material.emissive=new THREE.Color(0x2a160a);o.scale.x*=1.35;o.scale.z*=1.35}});
+    if(!w.userData.ring){const r=new THREE.Mesh(new THREE.CylinderGeometry(.0135,.0135,.03,10),new THREE.MeshStandardMaterial({color:0xd8a640,metalness:.9,roughness:.3,emissive:0x3a2608}));r.rotation.z=Math.PI/2;r.position.x=-.04;w.add(r);w.userData.ring=r}
+    if(W.orb){W.orb.scale.multiplyScalar(1.4)}}}
+
+/* soften the faceted look: vertices that share a position share one averaged normal */
+function gsSmoothNormals(geo){const P=geo.attributes.position,N=geo.attributes.normal;if(!P||!N)return;const n=P.count,map=new Map(),acc=[];const k=v=>Math.round(P.getX(v)*2e4)+'_'+Math.round(P.getY(v)*2e4)+'_'+Math.round(P.getZ(v)*2e4);
+  const id=new Int32Array(n);for(let i=0;i<n;i++){const key=k(i);let j=map.get(key);if(j===undefined){j=acc.length/3;map.set(key,j);acc.push(0,0,0)}id[i]=j;acc[j*3]+=N.getX(i);acc[j*3+1]+=N.getY(i);acc[j*3+2]+=N.getZ(i)}
+  for(let i=0;i<n;i++){const j=id[i];let x=acc[j*3],y=acc[j*3+1],z=acc[j*3+2];const l=Math.hypot(x,y,z)||1;N.setXYZ(i,x/l,y/l,z/l)}N.needsUpdate=true}
+/* title screen: she holds her wand out in front of her, so you can see it */
+function gsMenuArm(){const e=W&&W.g&&W.g.userData.gs;if(!e||!e.pose||e.key!=='maelle')return;const on=!started;if(e._menuArm===on)return;e._menuArm=on;
+  if(on){const R=gsRest(),fz=Math.sign((R.p.ball_l.z-R.p.foot_l.z)||1),sx=Math.sign((R.p.thigh_l.x-R.p.pelvis.x)||1);const q=(ax,a)=>new THREE.Quaternion().setFromAxisAngle(ax,a);const X=new THREE.Vector3(1,0,0),Z=new THREE.Vector3(0,0,1);
+    const up=q(X,-fz*.7).multiply(q(Z,-sx*.25));e.pose.off.RightArm=up;e.pose.off.RightForeArm=q(X,-fz*1.25).multiply(q(Z,-sx*.25));e.pose.off.RightHand=q(X,-fz*1.3).multiply(q(Z,-sx*.25))}
+  else{delete e.pose.off.RightArm;delete e.pose.off.RightForeArm;delete e.pose.off.RightHand}}
 /* ================= cast polish: talking mouths, Kaen's ghosts, Morwen's original look, a calmer Kaen ================= */
 /* ---------- mouth: find the mouth on each generated model (front profile of the face), then let the jaw drop while they talk ---------- */
 const GS_MOUTHY={kaen:.883,maelle:.821,lyra:.879},GS_MOUTHN={kaen_lb:-.068};
@@ -13904,7 +13918,7 @@ function startGame(fromSave,skipIntro){initAudio();setTimeout(bmPrefetch,3000);s
   camera.position.set(P.pos.x+Math.sin(yaw)*camDist,8,P.pos.z+Math.cos(yaw)*camDist);W.g.position.copy(P.pos);W.g.rotation.y=P.face;
   const go=()=>{toast(P.weak?'Follow the green beams to find your stones':'Hunt what hides in the stone. Seven demons wait for you.',P.weak?'Weakened':'Paris, after dark');writeSave()};
   if((fromSave&&save)||skipIntro)go();else playIntro(go)}
-function menuPreview(dt,now){try{gsHero();gsTick();gsHeroLook(dt)}catch(x){}const t=now*.001;const narrow=innerWidth<760;W.g.position.copy(SPAWN);W.g.rotation.y=Math.PI*.15+Math.sin(t*.25)*.35;
+function menuPreview(dt,now){try{gsHero();gsMenuArm();gsTick();gsHeroLook(dt)}catch(x){}const t=now*.001;const narrow=innerWidth<760;W.g.position.copy(SPAWN);W.g.rotation.y=Math.PI*.15+Math.sin(t*.25)*.35;
   P.walkT=0;animateHero(dt,0,false,t);W.castArm.rotation.x=W.castBase+Math.sin(t*1.6)*.05;W.body.position.y=Math.sin(t*1.2)*.02;
   if(Math.random()<.4)SP.emit(orbPos(),{c0:W.orbCol,c1:0x3a1a80,s0:.35,s1:.05,life:.9,up:.7,speed:.5});
   const cp=V3(SPAWN.x+1.9,1.8,SPAWN.z+4.4);const r=V3(1,0,0);camera.position.copy(cp);camera.lookAt(SPAWN.x+(narrow?0:1.6),narrow?1.1:1.55,SPAWN.z);
@@ -14147,7 +14161,7 @@ function mmDragInit(){const D=$('mmDrag');
   const up=e=>{CVW.ptrs.delete(e.pointerId);if(CVW.ptrs.size<2)CVW.pinch=0};D.addEventListener('pointerup',up);D.addEventListener('pointercancel',up);
   D.addEventListener('wheel',e=>{e.preventDefault();CVW.idle=0;CVW.dist=clamp(CVW.dist*(1+Math.sign(e.deltaY)*.1),1.4,8)},{passive:false});
   D.addEventListener('dblclick',()=>{mmDefView();CVW.idle=0})}
-{const _mp=menuPreview;menuPreview=function(dt,now){dt=Math.max(0,Math.min(dt||0,.05));try{gsHero();gsTick();gsHeroLook(dt)}catch(x){}if(!isFinite(CVW.curD)||Math.abs(CVW.curD)>50){CVW.curD=CVW.dist;CVW.cur=CVW.rot;CVW.curP=CVW.pitch}if(!CVW.on){CVW.cur=W.g.rotation.y;return _mp(dt,now)}const t=now*.001;const narrow=innerWidth<760;
+{const _mp=menuPreview;menuPreview=function(dt,now){dt=Math.max(0,Math.min(dt||0,.05));try{gsHero();gsMenuArm();gsTick();gsHeroLook(dt)}catch(x){}if(!isFinite(CVW.curD)||Math.abs(CVW.curD)>50){CVW.curD=CVW.dist;CVW.cur=CVW.rot;CVW.curP=CVW.pitch}if(!CVW.on){CVW.cur=W.g.rotation.y;return _mp(dt,now)}const t=now*.001;const narrow=innerWidth<760;
   CVW.idle=(CVW.idle||0)+dt;capeTierSync();const sw=CVW.idle>4?Math.sin(t*.25)*.35*Math.min(1,(CVW.idle-4)/3):0;const k=1-Math.exp(-dt*(CVW.idle>4?2.2:9));CVW.cur+=(CVW.rot+sw-CVW.cur)*k;CVW.curP+=(CVW.pitch-CVW.curP)*k;CVW.curD+=(CVW.dist-CVW.curD)*k;
   W.g.position.copy(SPAWN);W.g.rotation.y=CVW.cur;P.walkT=0;animateHero(dt,0,false,t);W.castArm.rotation.x=W.castBase+Math.sin(t*1.6)*.05;W.body.position.y=Math.sin(t*1.2)*.02;
   if(Math.random()<.3)SP.emit(orbPos(),{c0:W.orbCol,c1:0x3a1a80,s0:.35,s1:.05,life:.9,up:.7,speed:.5});
