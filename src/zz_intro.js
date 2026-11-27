@@ -27,5 +27,5 @@ function playFilm(done,opt){opt=opt||{};const SUBS=opt.subs||FILM.subs;if(FILM.o
 {const _ac=applyChapter;applyChapter=function(id){const r=_ac.apply(this,arguments);if(id==='kitsune'&&MODE!=='open')playFilm(null);return r}}
 
 /* the final clash with Kaen: when the two attacks meet, a pre-rendered cinematic plays, then the fight goes on */
-{const _kc=kaenClash;kaenClash=function(e,finish){if(MODE==='open'||e._clashFilm)return _kc.apply(this,arguments);e._clashFilm=1;const a=arguments,self=this;
-  playFilm(()=>_kc.apply(self,a),{src:'assets/clash_final.mp4',subs:[]})}}
+{const _kc=kaenClash;kaenClash=function(e,finish){if(MODE==='open'||e._clashFilm)return _kc.apply(this,arguments);e._clashFilm=1;
+  return _kc.call(this,e,function(){const a=arguments,self=this;playFilm(()=>{if(finish)finish.apply(self,a)},{src:'assets/clash_final.mp4',subs:[]})})}}
