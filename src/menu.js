@@ -188,7 +188,7 @@ function mmDragInit(){const D=$('mmDrag');
   const up=e=>{CVW.ptrs.delete(e.pointerId);if(CVW.ptrs.size<2)CVW.pinch=0};D.addEventListener('pointerup',up);D.addEventListener('pointercancel',up);
   D.addEventListener('wheel',e=>{e.preventDefault();CVW.idle=0;CVW.dist=clamp(CVW.dist*(1+Math.sign(e.deltaY)*.1),1.4,8)},{passive:false});
   D.addEventListener('dblclick',()=>{mmDefView();CVW.idle=0})}
-{const _mp=menuPreview;menuPreview=function(dt,now){dt=Math.max(0,Math.min(dt||0,.05));if(!isFinite(CVW.curD)||Math.abs(CVW.curD)>50){CVW.curD=CVW.dist;CVW.cur=CVW.rot;CVW.curP=CVW.pitch}if(!CVW.on){CVW.cur=W.g.rotation.y;return _mp(dt,now)}const t=now*.001;const narrow=innerWidth<760;
+{const _mp=menuPreview;menuPreview=function(dt,now){dt=Math.max(0,Math.min(dt||0,.05));try{gsHero();gsTick();gsHeroLook(dt)}catch(x){}if(!isFinite(CVW.curD)||Math.abs(CVW.curD)>50){CVW.curD=CVW.dist;CVW.cur=CVW.rot;CVW.curP=CVW.pitch}if(!CVW.on){CVW.cur=W.g.rotation.y;return _mp(dt,now)}const t=now*.001;const narrow=innerWidth<760;
   CVW.idle=(CVW.idle||0)+dt;capeTierSync();const sw=CVW.idle>4?Math.sin(t*.25)*.35*Math.min(1,(CVW.idle-4)/3):0;const k=1-Math.exp(-dt*(CVW.idle>4?2.2:9));CVW.cur+=(CVW.rot+sw-CVW.cur)*k;CVW.curP+=(CVW.pitch-CVW.curP)*k;CVW.curD+=(CVW.dist-CVW.curD)*k;
   W.g.position.copy(SPAWN);W.g.rotation.y=CVW.cur;P.walkT=0;animateHero(dt,0,false,t);W.castArm.rotation.x=W.castBase+Math.sin(t*1.6)*.05;W.body.position.y=Math.sin(t*1.2)*.02;
   if(Math.random()<.3)SP.emit(orbPos(),{c0:W.orbCol,c1:0x3a1a80,s0:.35,s1:.05,life:.9,up:.7,speed:.5});

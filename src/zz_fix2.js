@@ -97,3 +97,37 @@ epAura=function(dt){if(!W||!W.g)return;const on=P.lbT>0&&P.alive&&MODE!=='open';
   for(const m of[A.m1,A.m2]){m.uniforms.uT.value=t;m.uniforms.uK.value=A.k;m.uniforms.uB.value=A.b}A.o1.rotation.y+=dt*.6;A.o2.rotation.y-=dt*.9;
   const s=1+(FIN.boost||0)*.25;A.g.scale.set(s,s*(1+Math.sin(t*3.1)*.03),s);A.gl.material.color.setHex(A.b>.5?0xa8c8ff:0xffc860);A.gl.material.opacity=A.k*(.28+Math.sin(t*7)*.05);
   if(on&&Math.random()<.6){const c=Math.random()<A.b*.5;SP.emit(V3(W.g.position.x+rand(-.55,.55),W.g.position.y+(EP.lev||0)+rand(0,1.9),W.g.position.z+rand(-.55,.55)),{c0:c?0xd8ecff:0xfff0c0,c1:c?0x3080ff:0xff9010,s0:.32,s1:.03,life:.7,up:3.4,speed:.25})}}
+/* ---------- title screen: the real 3D Maëlle stands in the menu ---------- */
+/* ---------- epic typography for the title screen and the loading screen; no italics anywhere there ---------- */
+{const st=document.createElement('style');st.textContent=`
+#boot *,#start *,#mm *,#mmCard2 *,#mmChar *{font-style:normal!important}
+#boot .bt-title,#mm h1{font:700 clamp(60px,8.6vw,124px)/1 Cinzel,'Trajan Pro',Georgia,serif!important;letter-spacing:.07em!important;text-transform:uppercase;font-variation-settings:normal!important;
+  background:linear-gradient(180deg,#fff6dc 0%,#ffd98a 30%,#f0a940 58%,#b8691c 82%,#7a3c0c 100%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+  filter:drop-shadow(0 2px 0 rgba(60,24,4,.85)) drop-shadow(0 0 26px rgba(246,180,80,.35)) drop-shadow(0 8px 30px rgba(0,0,0,.6));padding:.05em 0 .08em}
+#mm h1{font-size:clamp(48px,5.6vw,84px)!important;letter-spacing:.06em!important}
+#boot .bt-title{animation:sbGlow 4.5s ease-in-out infinite}
+@keyframes sbGlow{0%,100%{filter:drop-shadow(0 2px 0 rgba(60,24,4,.85)) drop-shadow(0 0 22px rgba(246,180,80,.28)) drop-shadow(0 8px 30px rgba(0,0,0,.6))}50%{filter:drop-shadow(0 2px 0 rgba(60,24,4,.85)) drop-shadow(0 0 40px rgba(255,200,110,.55)) drop-shadow(0 8px 30px rgba(0,0,0,.6))}}
+#boot .bt-over,#mm .mmOver{font:600 12px/1 Cinzel,Georgia,serif!important;letter-spacing:.5em!important;color:#e6c27e!important;opacity:.9}
+#mm .mmTag{font:300 16px/1.5 Outfit,system-ui,sans-serif!important;letter-spacing:.02em;color:#efe4cf!important;opacity:.82}
+#mm .mi .mtx b{font:700 19px/1.15 Cinzel,Georgia,serif!important;letter-spacing:.09em!important;text-transform:uppercase;color:#fbefd6!important;text-shadow:0 0 18px rgba(246,180,80,.18)}
+#mm .mi .mtx small{font:400 12.5px/1.4 Outfit,system-ui,sans-serif!important;letter-spacing:.04em;color:#d9ccb2!important;opacity:.72}
+#mm .mi .mnum{font:700 17px/1 Cinzel,Georgia,serif!important;color:#e6b35e!important;letter-spacing:.04em}
+#mm .mi{position:relative;transition:background .25s,box-shadow .25s,transform .25s}
+#mm .mi::before{content:'';position:absolute;left:0;top:18%;bottom:18%;width:2px;background:linear-gradient(180deg,transparent,#f6c46e,transparent);opacity:0;transition:opacity .25s}
+#mm .mi:hover,#mm .mi:focus-visible{background:linear-gradient(90deg,rgba(246,180,80,.14),rgba(246,180,80,0) 75%)!important;box-shadow:inset 0 0 0 1px rgba(246,196,110,.22);transform:translateX(4px)}
+#mm .mi:hover::before,#mm .mi:focus-visible::before{opacity:1}
+#mm .mmRule b,#boot .bt-orn b{color:#f6c46e;text-shadow:0 0 10px rgba(246,196,110,.8)}
+#mmCard2 .c2o,#mmCard2 .c2lv{font-family:Cinzel,Georgia,serif!important;letter-spacing:.22em}
+#mmCard2 #nameIn,#mmChar #nameIn{font:700 20px Cinzel,Georgia,serif!important;letter-spacing:.08em}
+/* loading bar */
+#boot .bt-bar{width:min(380px,76vw)!important;height:6px!important;border-radius:6px!important;background:rgba(20,12,36,.85)!important;box-shadow:0 0 0 1px rgba(230,190,120,.35),0 0 0 4px rgba(10,6,20,.6),0 0 22px rgba(246,180,80,.12)}
+#boot .bt-bar::before,#boot .bt-bar::after{content:'';position:absolute;top:50%;width:9px;height:9px;margin-top:-4.5px;transform:rotate(45deg);background:#0c0818;box-shadow:0 0 0 1px rgba(230,190,120,.6)}
+#boot .bt-bar::before{left:-14px}#boot .bt-bar::after{right:-14px}
+#boot .bt-bar i{border-radius:6px!important;background:linear-gradient(90deg,#7a3c0c,#d08a32 40%,#ffd98a 80%,#fff6dc)!important;box-shadow:0 0 14px rgba(246,180,80,.6)}
+#boot .bt-bar i::after{content:'';position:absolute;inset:0;border-radius:6px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.55) 50%,transparent 100%);background-size:40% 100%;background-repeat:no-repeat;animation:sbShine 1.6s linear infinite;mix-blend-mode:overlay}
+@keyframes sbShine{0%{background-position:-40% 0}100%{background-position:140% 0}}
+#boot .bt-bar em{width:14px!important;height:14px!important;margin:-7px 0 0 -7px!important;background:radial-gradient(circle,#fff,#ffe3a0 45%,rgba(246,180,80,0) 72%)!important;box-shadow:0 0 18px 6px rgba(246,196,110,.7)!important}
+#boot .bt-st{width:min(380px,76vw)!important;margin-top:16px!important;font:600 11px/1.2 Cinzel,Georgia,serif!important;letter-spacing:.32em!important;text-transform:uppercase;color:#e9d6b0!important}
+#boot #btPc{font:700 12px/1.2 Cinzel,Georgia,serif!important;letter-spacing:.1em!important;color:#f6c46e!important;opacity:.95!important}
+#boot .bt-tip{font:300 14px/1.5 Outfit,system-ui,sans-serif!important;letter-spacing:.02em;color:#d8cbb0!important}
+`;document.head.appendChild(st)}

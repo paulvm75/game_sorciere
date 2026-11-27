@@ -285,7 +285,7 @@ function startGame(fromSave,skipIntro){initAudio();setTimeout(bmPrefetch,3000);s
   camera.position.set(P.pos.x+Math.sin(yaw)*camDist,8,P.pos.z+Math.cos(yaw)*camDist);W.g.position.copy(P.pos);W.g.rotation.y=P.face;
   const go=()=>{toast(P.weak?'Follow the green beams to find your stones':'Hunt what hides in the stone. Seven demons wait for you.',P.weak?'Weakened':'Paris, after dark');writeSave()};
   if((fromSave&&save)||skipIntro)go();else playIntro(go)}
-function menuPreview(dt,now){const t=now*.001;const narrow=innerWidth<760;W.g.position.copy(SPAWN);W.g.rotation.y=Math.PI*.15+Math.sin(t*.25)*.35;
+function menuPreview(dt,now){try{gsHero();gsTick();gsHeroLook(dt)}catch(x){}const t=now*.001;const narrow=innerWidth<760;W.g.position.copy(SPAWN);W.g.rotation.y=Math.PI*.15+Math.sin(t*.25)*.35;
   P.walkT=0;animateHero(dt,0,false,t);W.castArm.rotation.x=W.castBase+Math.sin(t*1.6)*.05;W.body.position.y=Math.sin(t*1.2)*.02;
   if(Math.random()<.4)SP.emit(orbPos(),{c0:W.orbCol,c1:0x3a1a80,s0:.35,s1:.05,life:.9,up:.7,speed:.5});
   const cp=V3(SPAWN.x+1.9,1.8,SPAWN.z+4.4);const r=V3(1,0,0);camera.position.copy(cp);camera.lookAt(SPAWN.x+(narrow?0:1.6),narrow?1.1:1.55,SPAWN.z);

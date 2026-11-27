@@ -79,7 +79,8 @@ float bl=max(smoothstep(.986,.999,b1),smoothstep(.988,.999,b2));totalEmissiveRad
 totalEmissiveRadiance+=diffuseColor.rgb*vec3(.6,.9,1.3)*gVein*uV*(1.8+.6*sin(uT*5.+vGp.y*9.));`)};
   m.customProgramCacheKey=()=>'gsLook_'+key}
 /* ---------- posture: Kaen stands and walks like a fighter (wide stance, arms off the body, chest up, steady hips) ---------- */
-function gsPose(key,R){if(key!=='kaen'&&key!=='kaen_lb')return null;const sx=Math.sign((R.p.thigh_l.x-R.p.pelvis.x)||1),fz=Math.sign((R.p.ball_l.z-R.p.foot_l.z)||1);
+function gsPose(key,R){if(key==='maelle'||key==='lyra'){const fz=Math.sign((R.p.ball_l.z-R.p.foot_l.z)||1),rx=a=>new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),a);return{off:{neck:rx(-fz*.08),Head:rx(-fz*.2)},damp:{}}}
+  if(key!=='kaen'&&key!=='kaen_lb')return null;const sx=Math.sign((R.p.thigh_l.x-R.p.pelvis.x)||1),fz=Math.sign((R.p.ball_l.z-R.p.foot_l.z)||1);
   const rz=a=>new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),a),rx=a=>new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),a);
   const arm=.14,leg=.055,chest=-fz*.07,off={},damp={};
   for(const n of['LeftArm','LeftForeArm','LeftHand'])off[n]=rz(arm*sx);for(const n of['RightArm','RightForeArm','RightHand'])off[n]=rz(-arm*sx);
