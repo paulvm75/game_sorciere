@@ -44,10 +44,11 @@ gsMouthCal=function(T){if(T.userData.mcal!==undefined)return T.userData.mcal;T.u
   return T.userData.mcal={mc:new THREE.Vector3(hp.x,my,mz),H,half,hi,sm,my0,best,skin,skinC}};
 /* the face itself: the painted mouth is covered with skin and a clean anime mouth is drawn on the surface; it opens with the voice, the lower lip and chin follow */
 gsMouthInject=function(m,U){const prev=m.onBeforeCompile,pk=m.customProgramCacheKey;
-  m.onBeforeCompile=function(sh,r){if(prev&&prev!==THREE.Material.prototype.onBeforeCompile)prev.call(this,sh,r);for(const k of['uMouth','uMC','uMOn','uMSkin','uMW','uMEr','uMCurve','uMHt','uMJaw','uMNar'])sh.uniforms[k]=U[k];
-    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMOn,uMJaw,uMNar;uniform vec3 uMC;varying vec3 vMp;').replace('#include <begin_vertex>',`#include <begin_vertex>
+  m.onBeforeCompile=function(sh,r){if(prev&&prev!==THREE.Material.prototype.onBeforeCompile)prev.call(this,sh,r);for(const k of['uMouth','uMC','uMOn','uMSkin','uMW','uMEr','uMCurve','uMHt','uMJaw','uMNar','uMSlim'])sh.uniforms[k]=U[k];
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMOn,uMJaw,uMNar,uMSlim;uniform vec3 uMC;varying vec3 vMp;').replace('#include <begin_vertex>',`#include <begin_vertex>
 vMp=transformed;
-{vec3 d=transformed-uMC;float fr=smoothstep(-.03,-.012,d.z);float cx=smoothstep(.006,.018,abs(d.x))*(1.-smoothstep(.028,.042,abs(d.x)));float cy=1.-smoothstep(.004,.011,abs(d.y+.0005));transformed.x-=sign(d.x)*uMNar*.016*cx*cy*fr*uMJaw;}
+{vec3 d=transformed-uMC;float fr=smoothstep(-.03,-.012,d.z);float cx=smoothstep(.006,.018,abs(d.x))*(1.-smoothstep(.028,.042,abs(d.x)));float cy=1.-smoothstep(.004,.011,abs(d.y+.0005));transformed.x-=sign(d.x)*uMNar*.016*cx*cy*fr*uMJaw;
+ float sy=smoothstep(-.09,-.04,d.y)*(1.-smoothstep(.02,.075,d.y));float sz=smoothstep(-.16,-.07,d.z);transformed.x=uMC.x+(transformed.x-uMC.x)*(1.-uMSlim*sy*sz*(1.-smoothstep(.08,.13,abs(d.x))));}
 {vec3 d=transformed-uMC;float front=smoothstep(-.03,-.012,d.z);float jx=1.-smoothstep(uMW*.9,uMW*2.,abs(d.x));float jy=smoothstep(-.001,-.006,d.y)*(1.-smoothstep(.03,.055,-d.y));
  transformed.y-=uMouth*uMJaw*.0032*jx*jy*front;}`);
     sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float uMouth,uMW,uMEr,uMOn,uMCurve,uMHt;uniform vec3 uMC,uMSkin;varying vec3 vMp;').replace('#include <map_fragment>',`#include <map_fragment>
@@ -69,6 +70,6 @@ if(uMOn>.5){vec3 d=vMp-uMC;float front=smoothstep(-.026,-.014,d.z);
 /* per character: size of the new mouth, how much of the old one to cover, smile curve, how far it opens */
 const MOUTHK={kaen:{w:.0145,er:.031,cu:-.15,ht:.0062},kaen_lb:{w:.0145,er:.03,cu:-.15,ht:.0062},maelle:{w:.0125,er:.022,cu:.35,ht:.0058},lyra:{w:.0095,er:.017,cu:.5,ht:.0048}};
 {const _pl=gsPostLoad;gsPostLoad=function(g,T,key,U){const K=MOUTHK[key]||MOUTHK.maelle;
-  U.uMW={value:K.w};U.uMEr={value:K.er};U.uMCurve={value:K.cu};U.uMHt={value:K.ht};U.uMOn={value:0};U.uMJaw={value:0};U.uMNar={value:key==='kaen'?.24:key==='kaen_lb'?.16:0};U.uMSkin={value:new THREE.Color(.9,.7,.6)};T.userData.gsKey=key;
+  U.uMW={value:K.w};U.uMEr={value:K.er};U.uMCurve={value:K.cu};U.uMHt={value:K.ht};U.uMOn={value:0};U.uMJaw={value:0};U.uMNar={value:key==='kaen'?.42:key==='kaen_lb'?.16:0};U.uMSlim={value:key==='kaen'?.2:0};U.uMSkin={value:new THREE.Color(.9,.7,.6)};T.userData.gsKey=key;
   _pl.apply(this,arguments);if(U.uNar)U.uNar.value=0;
   try{const c=gsMouthCal(T);if(!c)return;U.uMC.value.copy(c.mc);U.uMSkin.value.copy(c.skinC);U.uMOn.value=0;U.uMJaw.value=g.userData.gsGhostM?0:1}catch(x){console.warn('mouth',x)}}}
