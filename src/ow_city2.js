@@ -18,7 +18,7 @@ function cityMats(){if(CM.asphalt)return;
   CM.mark=std({color:0xe8e8e0,roughness:.6,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-4});
   CM.curb=std({color:0xa8a49c,roughness:.8});
   {const pH=mkCanvas(256,256,(x)=>{x.fillStyle='#4a4640';x.fillRect(0,0,256,256);for(let r=0;r<16;r++)for(let c=0;c<16;c++){const l=rand(150,200)|0;x.fillStyle=`rgb(${l},${l},${l})`;x.fillRect(c*16+(r%2)*8+1,r*16+1,14,14)}});const pC=mkCanvas(256,256,(x)=>{x.drawImage(pH,0,0);x.globalCompositeOperation='multiply';x.fillStyle='#968c7c';x.fillRect(0,0,256,256)});const t=new THREE.CanvasTexture(pC);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
-    CM.paving=std({map:t,normalMap:rep(heightToNormal(pH,1.1),1,1),roughness:.85,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,envMapIntensity:.5})}
+    CM.paving=phTag(std({map:t,normalMap:rep(heightToNormal(pH,1.1),1,1),roughness:.85,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,envMapIntensity:.5}),'herringbone_pavement',{s:.6})}
   const gH=mkCanvas(256,256,(x)=>{x.fillStyle='#8a8a8a';x.fillRect(0,0,256,256);for(let r=0;r<8;r++)for(let c=0;c<4;c++){const l=rand(185,235)|0;x.fillStyle=`rgb(${l},${l},${l})`;x.fillRect(c*64+(r%2)*32+1,r*32+1,62,30)}});
   const gC=mkCanvas(256,256,(x)=>{x.drawImage(gH,0,0);x.globalCompositeOperation='multiply';x.fillStyle='#9a948c';x.fillRect(0,0,256,256);x.globalCompositeOperation='source-over';for(let k=0;k<1500;k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(40,80)|0},${rand(40,70)|0},${rand(.03,.1)})`;x.fillRect(rand(0,256),rand(0,256),rand(1,4),rand(1,4))}});
   const grC=mkCanvas(256,256,(x)=>{x.fillStyle='#46602f';x.fillRect(0,0,256,256);for(let k=0;k<7000;k++){x.fillStyle=`rgba(${rand(40,120)|0},${rand(80,150)|0},${rand(30,70)|0},.5)`;x.fillRect(rand(0,256),rand(0,256),1,rand(2,5))}});
@@ -28,8 +28,8 @@ function cityMats(){if(CM.asphalt)return;
     sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D tGrass;varying float vGrass;').replace('#include <map_fragment>','vec2 gq=vUv*.7;float gn=.5+.5*sin(vUv.x*.21+sin(vUv.y*.17)*2.3)*sin(vUv.y*.19+sin(vUv.x*.13)*1.7);vec4 gT=texture2D(tGrass,gq+vec2(0.,floor(gq.x)*.37))*(.82+.3*gn);vec4 texelColor=mix(texture2D(map,vUv),gT,vGrass);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;').replace('#include <normal_fragment_maps>',THREE.ShaderChunk.normal_fragment_maps.replace('mapN.xy *= normalScale;','mapN.xy *= normalScale*(1.-vGrass);'))};m.customProgramCacheKey=()=>'groundG2';
   m.stencilWrite=true;m.stencilRef=1;m.stencilFunc=THREE.NotEqualStencilFunc;m.stencilZPass=THREE.KeepStencilOp;m.stencilFail=THREE.KeepStencilOp;m.stencilZFail=THREE.KeepStencilOp;CM.ground=m;
   CM.hole=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false,stencilWrite:true,stencilRef:1,stencilFunc:THREE.AlwaysStencilFunc,stencilZPass:THREE.ReplaceStencilOp,stencilFail:THREE.ReplaceStencilOp,stencilZFail:THREE.ReplaceStencilOp});
-  const stC=noiseCanvas(128,128,'#b8ac94',.25,500);CM.quay=std({map:rep(new THREE.CanvasTexture(stC),1,1),normalMap:rep(heightToNormal(stC,2.5),1,1),roughness:.85,color:0xd8ccb4});
-  CM.roofTop=std({color:0x5a5a62,roughness:.8,side:THREE.DoubleSide});
+  const stC=noiseCanvas(128,128,'#b8ac94',.25,500);CM.quay=phTag(std({map:rep(new THREE.CanvasTexture(stC),1,1),normalMap:rep(heightToNormal(stC,2.5),1,1),roughness:.85,color:0xd8ccb4}),'cobblestone_square');
+  CM.roofTop=phTag(std({color:0x5a5a62,roughness:.8,side:THREE.DoubleSide}),'grey_roof_tiles',{c:.05});
   CM.zincD=CM.zinc.clone();CM.zincD.side=THREE.DoubleSide;OW.windowMats.push(CM.zincD);
   CM.tileD=CM.tile.clone();CM.tileD.side=THREE.DoubleSide}
 /* ---------- build ---------- */

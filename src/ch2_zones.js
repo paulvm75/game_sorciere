@@ -51,12 +51,12 @@ function nzM(){if(NZ.M)return NZ.M;const M=Object.assign({},c2m());
   const wt=waterTex.clone(),wn=waterN.clone();wt.needsUpdate=wn.needsUpdate=true;wt.repeat.set(22,40);wn.repeat.set(22,40);NZ.seaT=[wt,wn];
   M.sea=std({map:wt,normalMap:wn,color:0x6a8aa8,roughness:.12,metalness:.55,emissive:0xffffff,emissiveMap:wt,emissiveIntensity:.28,envMapIntensity:1.3});
   M.brick=std({color:0x8a4a3a,roughness:.85,map:rep(new THREE.CanvasTexture(nz(64,64,'#9a5644',x=>{x.fillStyle='rgba(40,20,16,.5)';for(let r=0;r<16;r++){x.fillRect(0,r*4,64,1);for(let c=0;c<8;c++)x.fillRect(c*8+(r%2)*4,r*4,1,4)}})),4,8)});
-  phTag(M.brick,'castle_brick_02_red',{c:.3});M.white=phTag(std({color:0xe6e2d6,roughness:.8}),'plastered_wall_02');M.slate=phTag(std({color:0x3a3c48,roughness:.7,metalness:.2}),'grey_roof_tiles',{c:.05});M.ben=std({color:0xc8b07a,roughness:.75,emissive:0x1a1408,map:M.stone.map});
+  phTag(M.brick,'castle_brick_02_red');M.white=phTag(std({color:0xe6e2d6,roughness:.8}),'plastered_wall_02');M.slate=phTag(std({color:0x3a3c48,roughness:.7,metalness:.2}),'grey_roof_tiles',{c:.05});M.ben=std({color:0xc8b07a,roughness:.75,emissive:0x1a1408,map:M.stone.map});
   M.steel=std({color:0x7aa0c8,roughness:.4,metalness:.6});M.lead=std({color:0xa8b4b0,roughness:.5,metalness:.4});M.red=std({color:0xc01818,roughness:.45,emissive:0x200000});
   M.grass=std({color:0x3a5a30,roughness:1});M.glow=(c,o)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o||.8,blending:THREE.AdditiveBlending,depthWrite:false});
   M.win=[0,1,2].map(v=>{const map=nz(64,64,'#e8e2d4',x=>{x.fillStyle='#2a2a36';for(const r of[10,38])for(const c of[8,26,44])x.fillRect(c,r,12,16)});
     const em=nz(64,64,'#000',x=>{for(const r of[10,38])for(const c of[8,26,44])if(Math.random()<.4){x.fillStyle=Math.random()<.85?'#ffc870':'#a8c8ff';x.fillRect(c+1,r+1,10,14)}});
-    return phTag(std({map:new THREE.CanvasTexture(map),emissive:0xffffff,emissiveMap:new THREE.CanvasTexture(em),emissiveIntensity:.75,roughness:.85}),['brick_wall_04','plastered_wall_02','castle_brick_02_red'][v],{mask:1,c:.2})});
+    return phTag(std({map:new THREE.CanvasTexture(map),emissive:0xffffff,emissiveMap:new THREE.CanvasTexture(em),emissiveIntensity:.75,roughness:.85}),['brick_wall_04','plastered_wall_02','castle_brick_02_red'][v],{mask:1})});
   return NZ.M=M}
 function nzGroundMat(w,d){const og=scene.getObjectByName('groundMain');if(!og)return std({color:0x4a4658,roughness:1});const m=og.material.clone();
   for(const k of['map','normalMap','roughnessMap'])if(m[k]){m[k]=m[k].clone();m[k].repeat.set(m[k].repeat.x*w/484,m[k].repeat.y*d/572);m[k].needsUpdate=true}return m}

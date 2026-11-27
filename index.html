@@ -933,7 +933,7 @@ function cityMats(){if(CM.asphalt)return;
   CM.mark=std({color:0xe8e8e0,roughness:.6,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-4});
   CM.curb=std({color:0xa8a49c,roughness:.8});
   {const pH=mkCanvas(256,256,(x)=>{x.fillStyle='#4a4640';x.fillRect(0,0,256,256);for(let r=0;r<16;r++)for(let c=0;c<16;c++){const l=rand(150,200)|0;x.fillStyle=`rgb(${l},${l},${l})`;x.fillRect(c*16+(r%2)*8+1,r*16+1,14,14)}});const pC=mkCanvas(256,256,(x)=>{x.drawImage(pH,0,0);x.globalCompositeOperation='multiply';x.fillStyle='#968c7c';x.fillRect(0,0,256,256)});const t=new THREE.CanvasTexture(pC);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;
-    CM.paving=std({map:t,normalMap:rep(heightToNormal(pH,1.1),1,1),roughness:.85,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,envMapIntensity:.5})}
+    CM.paving=phTag(std({map:t,normalMap:rep(heightToNormal(pH,1.1),1,1),roughness:.85,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2,envMapIntensity:.5}),'herringbone_pavement',{s:.6})}
   const gH=mkCanvas(256,256,(x)=>{x.fillStyle='#8a8a8a';x.fillRect(0,0,256,256);for(let r=0;r<8;r++)for(let c=0;c<4;c++){const l=rand(185,235)|0;x.fillStyle=`rgb(${l},${l},${l})`;x.fillRect(c*64+(r%2)*32+1,r*32+1,62,30)}});
   const gC=mkCanvas(256,256,(x)=>{x.drawImage(gH,0,0);x.globalCompositeOperation='multiply';x.fillStyle='#9a948c';x.fillRect(0,0,256,256);x.globalCompositeOperation='source-over';for(let k=0;k<1500;k++){x.fillStyle=`rgba(${rand(40,90)|0},${rand(40,80)|0},${rand(40,70)|0},${rand(.03,.1)})`;x.fillRect(rand(0,256),rand(0,256),rand(1,4),rand(1,4))}});
   const grC=mkCanvas(256,256,(x)=>{x.fillStyle='#46602f';x.fillRect(0,0,256,256);for(let k=0;k<7000;k++){x.fillStyle=`rgba(${rand(40,120)|0},${rand(80,150)|0},${rand(30,70)|0},.5)`;x.fillRect(rand(0,256),rand(0,256),1,rand(2,5))}});
@@ -943,8 +943,8 @@ function cityMats(){if(CM.asphalt)return;
     sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D tGrass;varying float vGrass;').replace('#include <map_fragment>','vec2 gq=vUv*.7;float gn=.5+.5*sin(vUv.x*.21+sin(vUv.y*.17)*2.3)*sin(vUv.y*.19+sin(vUv.x*.13)*1.7);vec4 gT=texture2D(tGrass,gq+vec2(0.,floor(gq.x)*.37))*(.82+.3*gn);vec4 texelColor=mix(texture2D(map,vUv),gT,vGrass);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;').replace('#include <normal_fragment_maps>',THREE.ShaderChunk.normal_fragment_maps.replace('mapN.xy *= normalScale;','mapN.xy *= normalScale*(1.-vGrass);'))};m.customProgramCacheKey=()=>'groundG2';
   m.stencilWrite=true;m.stencilRef=1;m.stencilFunc=THREE.NotEqualStencilFunc;m.stencilZPass=THREE.KeepStencilOp;m.stencilFail=THREE.KeepStencilOp;m.stencilZFail=THREE.KeepStencilOp;CM.ground=m;
   CM.hole=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false,stencilWrite:true,stencilRef:1,stencilFunc:THREE.AlwaysStencilFunc,stencilZPass:THREE.ReplaceStencilOp,stencilFail:THREE.ReplaceStencilOp,stencilZFail:THREE.ReplaceStencilOp});
-  const stC=noiseCanvas(128,128,'#b8ac94',.25,500);CM.quay=std({map:rep(new THREE.CanvasTexture(stC),1,1),normalMap:rep(heightToNormal(stC,2.5),1,1),roughness:.85,color:0xd8ccb4});
-  CM.roofTop=std({color:0x5a5a62,roughness:.8,side:THREE.DoubleSide});
+  const stC=noiseCanvas(128,128,'#b8ac94',.25,500);CM.quay=phTag(std({map:rep(new THREE.CanvasTexture(stC),1,1),normalMap:rep(heightToNormal(stC,2.5),1,1),roughness:.85,color:0xd8ccb4}),'cobblestone_square');
+  CM.roofTop=phTag(std({color:0x5a5a62,roughness:.8,side:THREE.DoubleSide}),'grey_roof_tiles',{c:.05});
   CM.zincD=CM.zinc.clone();CM.zincD.side=THREE.DoubleSide;OW.windowMats.push(CM.zincD);
   CM.tileD=CM.tile.clone();CM.tileD.side=THREE.DoubleSide}
 /* ---------- build ---------- */
@@ -6464,12 +6464,12 @@ function nzM(){if(NZ.M)return NZ.M;const M=Object.assign({},c2m());
   const wt=waterTex.clone(),wn=waterN.clone();wt.needsUpdate=wn.needsUpdate=true;wt.repeat.set(22,40);wn.repeat.set(22,40);NZ.seaT=[wt,wn];
   M.sea=std({map:wt,normalMap:wn,color:0x6a8aa8,roughness:.12,metalness:.55,emissive:0xffffff,emissiveMap:wt,emissiveIntensity:.28,envMapIntensity:1.3});
   M.brick=std({color:0x8a4a3a,roughness:.85,map:rep(new THREE.CanvasTexture(nz(64,64,'#9a5644',x=>{x.fillStyle='rgba(40,20,16,.5)';for(let r=0;r<16;r++){x.fillRect(0,r*4,64,1);for(let c=0;c<8;c++)x.fillRect(c*8+(r%2)*4,r*4,1,4)}})),4,8)});
-  phTag(M.brick,'castle_brick_02_red',{c:.3});M.white=phTag(std({color:0xe6e2d6,roughness:.8}),'plastered_wall_02');M.slate=phTag(std({color:0x3a3c48,roughness:.7,metalness:.2}),'grey_roof_tiles',{c:.05});M.ben=std({color:0xc8b07a,roughness:.75,emissive:0x1a1408,map:M.stone.map});
+  phTag(M.brick,'castle_brick_02_red');M.white=phTag(std({color:0xe6e2d6,roughness:.8}),'plastered_wall_02');M.slate=phTag(std({color:0x3a3c48,roughness:.7,metalness:.2}),'grey_roof_tiles',{c:.05});M.ben=std({color:0xc8b07a,roughness:.75,emissive:0x1a1408,map:M.stone.map});
   M.steel=std({color:0x7aa0c8,roughness:.4,metalness:.6});M.lead=std({color:0xa8b4b0,roughness:.5,metalness:.4});M.red=std({color:0xc01818,roughness:.45,emissive:0x200000});
   M.grass=std({color:0x3a5a30,roughness:1});M.glow=(c,o)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o||.8,blending:THREE.AdditiveBlending,depthWrite:false});
   M.win=[0,1,2].map(v=>{const map=nz(64,64,'#e8e2d4',x=>{x.fillStyle='#2a2a36';for(const r of[10,38])for(const c of[8,26,44])x.fillRect(c,r,12,16)});
     const em=nz(64,64,'#000',x=>{for(const r of[10,38])for(const c of[8,26,44])if(Math.random()<.4){x.fillStyle=Math.random()<.85?'#ffc870':'#a8c8ff';x.fillRect(c+1,r+1,10,14)}});
-    return phTag(std({map:new THREE.CanvasTexture(map),emissive:0xffffff,emissiveMap:new THREE.CanvasTexture(em),emissiveIntensity:.75,roughness:.85}),['brick_wall_04','plastered_wall_02','castle_brick_02_red'][v],{mask:1,c:.2})});
+    return phTag(std({map:new THREE.CanvasTexture(map),emissive:0xffffff,emissiveMap:new THREE.CanvasTexture(em),emissiveIntensity:.75,roughness:.85}),['brick_wall_04','plastered_wall_02','castle_brick_02_red'][v],{mask:1})});
   return NZ.M=M}
 function nzGroundMat(w,d){const og=scene.getObjectByName('groundMain');if(!og)return std({color:0x4a4658,roughness:1});const m=og.material.clone();
   for(const k of['map','normalMap','roughnessMap'])if(m[k]){m[k]=m[k].clone();m[k].repeat.set(m[k].repeat.x*w/484,m[k].repeat.y*d/572);m[k].needsUpdate=true}return m}
@@ -13699,7 +13699,7 @@ function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let T=0,gone=fa
 /* ---------- asset pack: Polyhaven PBR detail (triplanar, world space) + Quaternius / Polyhaven models ---------- */
 const PHA={tex:{},avg:{aerial_grass_rock:[.447,.38,.141],brick_wall_04:[.431,.349,.263],castle_brick_02_red:[.506,.38,.286],cobblestone_floor_04:[.541,.49,.384],cobblestone_square:[.51,.475,.404],forest_leaves_02:[.557,.439,.227],grass_path_2:[.553,.506,.388],grey_roof_tiles:[.38,.361,.294],herringbone_pavement:[.353,.306,.251],patterned_paving:[.345,.325,.302],plastered_wall_02:[.733,.694,.639],thatch_roof_angled:[.329,.314,.286]},
   /* per texture: metres per tile, colour strength, how much of its own colour to keep, normal strength, mask dark parts (windows) */
-  cfg:{plastered_wall_02:{m:3.2,s:.85,c:.25,n:.55,mask:1},castle_brick_02_red:{m:2.4,s:.9,c:.55,n:.7},brick_wall_04:{m:2.2,s:.9,c:.6,n:.7,mask:1},grey_roof_tiles:{m:2.6,s:.85,c:.2,n:.8},thatch_roof_angled:{m:2.4,s:.95,c:.5,n:.9},
+  cfg:{plastered_wall_02:{m:3.2,s:.85,c:.25,n:.55,mask:1},castle_brick_02_red:{m:2.4,s:.75,c:.9,n:.7},brick_wall_04:{m:2.2,s:.8,c:.9,n:.7,mask:1},grey_roof_tiles:{m:2.6,s:.85,c:.2,n:.8},thatch_roof_angled:{m:2.4,s:.95,c:.5,n:.9},
     cobblestone_floor_04:{m:2.6,s:.9,c:.25,n:.9},cobblestone_square:{m:2.8,s:.85,c:.2,n:.8},herringbone_pavement:{m:1.8,s:.8,c:.2,n:.6},patterned_paving:{m:3,s:.8,c:.2,n:.6},
     aerial_grass_rock:{m:6,s:.75,c:.3,n:.5,far:140},grass_path_2:{m:4,s:.7,c:.3,n:.5,far:140},forest_leaves_02:{m:1.4,s:.95,c:.25,n:1,far:120}},
   scanT:0,n:0};
@@ -13724,7 +13724,7 @@ function phDetail(mat,name,o){if(!mat||mat._ph||!mat.isMeshStandardMaterial)retu
 /* materials are tagged where they are made (userData.ph = texture name); a light scan picks up new ones as zones get built */
 function phScan(root){(root||scene).traverse(o=>{if(!o.isMesh)return;const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms)if(m&&m.userData&&m.userData.ph&&!m._ph)phDetail(m,m.userData.ph,m.userData.phO)})}
 function phTag(m,name,o){if(m){m.userData.ph=name;if(o)m.userData.phO=o}return m}
-{const _mt=muTick;muTick=function(dt){_mt(dt);PHA.scanT-=dt;if(PHA.scanT<=0){PHA.scanT=1.5;try{phScan()}catch(x){console.warn('phScan',x)}}}}
+setInterval(()=>{try{phScan()}catch(x){console.warn('phScan',x)}},1200);
 
 /* ---------- models: loaded once, placed as instanced meshes (one InstancedMesh per sub-mesh) ---------- */
 const ASM={buf:{},sc:{}};
@@ -13737,7 +13737,7 @@ function asPlace(n,items,parent,o){o=o||{};const G=new THREE.Group();G.name='as_
       const im=new THREE.InstancedMesh(m.geometry,m.material,items.length);const local=new THREE.Matrix4().multiplyMatrices(base,m.matrixWorld);
       items.forEach((it,i)=>{const s=k*(it.s||1);q.setFromAxisAngle(Y,it.ry||0);M.compose(T.set(it.x,it.y,it.z),q,S.set(s,s*(it.sy||1),s));M.multiply(local);im.setMatrixAt(i,M)});
       im.instanceMatrix.needsUpdate=true;im.castShadow=o.shadow!==false;im.receiveShadow=true;im.frustumCulled=false;G.add(im)});
-    if(o.done)o.done(G,k*sz.y)});return G}
+    if(o.done)o.done(G,k*sz.y)}).catch(e=>console.warn('asPlace',n,e&&e.message));return G}
 
 /* ---------- Paris: Victorian street lamps replace the plain posts ---------- */
 function asLampSwap(){scene.traverse(m=>{if(!m.isInstancedMesh||m.userData.asSw)return;const p=m.geometry&&m.geometry.parameters;if(!p||m.geometry.type!=='CylinderGeometry'||Math.abs(p.radiusTop-.07)>.001||Math.abs(p.height-4.4)>.01)return;m.userData.asSw=1;
@@ -13756,19 +13756,26 @@ function asCountry(G,o){const{HK,inH,nearRiver,nearRoad,inTown,Z0,Z1}=o;const Y=
   /* village greens: market stalls, a well, carts and hay */
   {const S1=[],S2=[],W=[],C=[],H=[],BN=[];for(const T of NZTOWNS){if(!T.f)continue;
       for(let k=0;k<26;k++){const z=T.z+rand(-T.r*.45,T.r*.45),rx=nzRoadX(z),s=Math.random()<.5?-1:1,x=rx+s*rand(7.5,12);if(inH(x,z,2.5)||nearRiver(x,z,3)||lotAt(x,z))continue;
-        const ry=Math.atan2(rx-x,0)+rand(-.2,.2),it={x,y:Y(x,z),z,ry};const L=[S1,S2,C,H,H,BN][k%6];if(L.length>=(L===H?18:8))continue;L.push(it);if(L===S1||L===S2)solid(x,z,2.4,2.8,2.4)}
+        const ry=Math.atan2(rx-x,0)+rand(-.2,.2),it={x,y:Y(x,z),z,ry};const L=[S1,S2,C,H,H,BN][(Math.random()*6)|0];if(L.length>=(L===H?18:8))continue;L.push(it);if(L===S1||L===S2)solid(x,z,2.4,2.8,2.4)}
       for(let k=0;k<12;k++){const z=T.z+rand(-20,20),x=nzRoadX(z)+(Math.random()<.5?-1:1)*rand(9,16);if(inH(x,z,3)||nearRiver(x,z,4)||lotAt(x,z))continue;W.push({x,y:Y(x,z),z,ry:rand(0,TAU)});solid(x,z,2,2,2.2);break}}
     asPlace('q_medievalvillage_MarketStand_1',S1,G,{h:2.7,env:.3});asPlace('q_medievalvillage_MarketStand_2',S2,G,{h:2.7,env:.3});asPlace('q_medievalvillage_Well',W,G,{h:2.5,env:.3});
-    asPlace('q_medievalvillage_Cart',C,G,{h:1.5,env:.3});asPlace('q_medievalvillage_Hay',H,G,{h:1.3,env:.2});asPlace('ph_painted_wooden_bench',BN,G,{h:.95,env:.3})}
+    asPlace('q_medievalvillage_Cart',C,G,{h:1.5,env:.3});asPlace('q_medievalvillage_Hay',H,G,{h:1,env:.2});asPlace('ph_painted_wooden_bench',BN,G,{h:.95,env:.3})}
   /* wooden fences along the lane between villages */
   {const F=[];for(let z=Z0-40;z>LON_Z+30;z-=5.6){if(Math.random()<.35)continue;const rx=nzRoadX(z),d=(nzRoadX(z-1)-nzRoadX(z+1))/2;const ry=Math.atan2(1,d);
       for(const s of[-1,1]){const x=rx+s*6.4;if(inTown(x,z,-6)||inH(x,z,1.5)||nearRiver(x,z,3))continue;F.push({x,y:Y(x,z),z,ry})}}
     asPlace('q_farmbuildings_Fence',F,G,{h:1.05,tint:0x8a6a50,env:.2,k:1})}
   /* field stones and old stumps */
-  {const R=[],S=[];for(let k=0;k<500&&(R.length<70||S.length<18);k++){const x=rand(-250,250),z=rand(Z1+30,Z0-30);if(!free(x,z,2)||inTown(x,z,10))continue;
+  {const R=[],S=[];for(let k=0;k<500&&(R.length<70||S.length<18);k++){const x=rand(-250,250),z=rand(Z1+30,Z0-30);if(inH(x,z,3)||nearRoad(x,z,5)||nearRiver(x,z,6))continue;
       if(R.length<70)R.push({x,y:Y(x,z)-.15,z,ry:rand(0,TAU),s:rand(.6,1.6)});else S.push({x,y:Y(x,z)-.05,z,ry:rand(0,TAU),s:rand(.8,1.2)})}
     asPlace('ph_rock_07',R,G,{h:.9,env:.2});asPlace('ph_tree_stump_01',S,G,{h:.6,env:.2})}}
-{let t=0;const _mt=muTick;muTick=function(dt){_mt(dt);t-=dt;if(t<=0&&MODE!=='open'){t=2;try{asLampSwap()}catch(x){console.warn('lampSwap',x)}}}}
+setInterval(()=>{if(MODE!=='open')try{asLampSwap()}catch(x){console.warn('lampSwap',x)}},2000);
+/* open world: roofs, terracotta, leaves get the same treatment once its materials exist */
+setInterval(()=>{if(MODE!=='open'||typeof CM==='undefined'||CM._ph)return;if(!CM.zinc||!CM.leaf)return;CM._ph=1;
+  for(const k of['zinc','zincD'])if(CM[k])phTag(CM[k],'grey_roof_tiles',{c:.05});for(const k of['tile','tileD'])if(CM[k])phTag(CM[k],'grey_roof_tiles',{c:.05,s:.7});phTag(CM.leaf,'forest_leaves_02',{c:.15,s:.7})},2500);
+/* credits line under the main menu */
+setInterval(()=>{const mm=document.getElementById('mm');if(!mm||document.getElementById('asCred'))return;const d=document.createElement('div');d.id='asCred';
+  d.style.cssText='margin:14px 4px 2px;font:500 10.5px/1.5 Outfit,system-ui,sans-serif;letter-spacing:.04em;color:rgba(243,215,154,.55);text-align:center';
+  d.textContent='Art assets: Poly Haven, Quaternius, Grab3D (CC0).';mm.appendChild(d)},1500);
 /* ---------- pickups ---------- */
 const stones=[],potions=[];
 function spawnStones(n){for(const s of stones)scene.remove(s.g);stones.length=0;const base=Math.random()*TAU;
