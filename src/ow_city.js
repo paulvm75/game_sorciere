@@ -23,7 +23,6 @@ function cityParse(buf){const dv=new DataView(buf);let o=0;const u8=()=>dv.getUi
   const IC=CITY.IC,add=(kind,it,bb,m=0)=>{const i0=Math.floor((bb[0]-m)/IC),i1=Math.floor((bb[2]+m)/IC),j0=Math.floor((bb[1]-m)/IC),j1=Math.floor((bb[3]+m)/IC);for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const key=(i+500)*2000+(j+500);let c=CITY.cells.get(key);if(!c)CITY.cells.set(key,c={b:[],e:[],p:[],q:[],w:[]});c[kind].push(it)}};
   for(const e of CITY.edges)add('e',e,e.bb,e.w/2+e.sw+2);for(const b of CITY.bld)add('b',b,b.bb,1);for(const p of CITY.parks)add('p',p,p.bb);for(const p of CITY.plazas)add('q',p,p.bb);for(const w of CITY.water)add('w',w,w.bb);
   CITY.ok=true}
-function cityCell(x,z){return CITY.cells.get((Math.floor(x/CITY.IC)+500)*2000+Math.floor(z/CITY.IC)+500)}
 function cityQuery(x,z,r,kind,fn){const IC=CITY.IC,i0=Math.floor((x-r)/IC),i1=Math.floor((x+r)/IC),j0=Math.floor((z-r)/IC),j1=Math.floor((z+r)/IC);const seen=i0!==i1||j0!==j1?new Set():null;
   for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const c=CITY.cells.get((i+500)*2000+j+500);if(!c)continue;for(const it of c[kind]){if(seen){if(seen.has(it))continue;seen.add(it)}if(fn(it)===false)return}}}
 /* ---------- polygon helpers ---------- */

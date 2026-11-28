@@ -3,12 +3,6 @@
    2. When the character speaks, a small mouth opening (dark inside, a hint of upper teeth, soft edges) grows down from that line, parented to the head bone.
    3. The chin and lower lip drop by a few millimetres with it. Nothing else on the face moves. */
 const MOUTH={tex:null};
-function mouthTex(){if(MOUTH.tex)return MOUTH.tex;const W=256,H=128,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-  const shape=()=>{x.beginPath();x.moveTo(W*.04,H*.2);x.bezierCurveTo(W*.3,H*.1,W*.7,H*.1,W*.96,H*.2);x.bezierCurveTo(W*.8,H*.95,W*.2,H*.95,W*.04,H*.2);x.closePath()};
-  x.filter='blur(3px)';shape();const g=x.createRadialGradient(W*.5,H*.55,4,W*.5,H*.5,W*.5);g.addColorStop(0,'#1a0507');g.addColorStop(.55,'#2c0a0d');g.addColorStop(1,'#5a1c20');x.fillStyle=g;x.fill();
-  x.save();x.filter='blur(2px)';shape();x.clip();const t=x.createLinearGradient(0,H*.12,0,H*.34);t.addColorStop(0,'rgba(236,228,218,.95)');t.addColorStop(1,'rgba(150,130,125,0)');x.fillStyle=t;x.fillRect(W*.2,0,W*.6,H*.36);
-  const tg=x.createLinearGradient(0,H*.6,0,H*.85);tg.addColorStop(0,'rgba(140,50,60,0)');tg.addColorStop(1,'rgba(150,56,64,.55)');x.fillStyle=tg;x.fillRect(W*.25,H*.6,W*.5,H*.3);x.restore();
-  const T=new THREE.CanvasTexture(c);T.anisotropy=4;MOUTH.tex=T;return T}
 function mouthPixels(map){try{const im=map&&map.image;if(!im||!im.width)return null;const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);
     return{w:im.width,h:im.height,d:x.getImageData(0,0,im.width,im.height).data,flip:!!map.flipY}}catch(e){return null}}
 gsMouthCal=function(T){if(T.userData.mcal!==undefined)return T.userData.mcal;T.userData.mcal=null;let sm=null;T.traverse(o=>{if(!sm&&o.isSkinnedMesh)sm=o});if(!sm)return null;

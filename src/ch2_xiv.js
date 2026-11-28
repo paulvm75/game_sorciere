@@ -282,9 +282,6 @@ function nhPub(G){const g=NH.pubG=new THREE.Group();G.add(g);const fx=NH_PUB.fx,
       nhOld(a,.24,.78);cane.visible=false;NH.alf=a;g.add(a.g);if(CH2.st>=16)a.g.visible=false;nhSeatAlf()}}
   if(CH2.st>=15||nhPubSeen())nhUncloak(true);if(CH2.st>=15)nhLights(1,true)}
 function nhSeatAlf(){const a=NH.alf;if(!a||!NH.seat)return;if(NH.cane)NH.cane.visible=false;a.g.position.copy(NH.seat);a.g.rotation.y=Math.PI/2;try{a.setBase('Sitting_Idle_Loop',.2);a.update(.2)}catch(x){}}
-function nhReveal(){if(NH.shown)return;NH.shown=true;const v=NH.veil;const c=V3(NH_PUB.fx,2,NH_PUB.z+7.3);if(NH.veilBox){const i=boxes.indexOf(NH.veilBox);if(i>=0)boxes.splice(i,1)}
-  flash(c,0xb0ff90,18);sx('portal',.8,null,{rate:.8});for(let k=0;k<5;k++)SP.emit(V3(c.x,rand(.3,8),c.z+rand(-1.2,1.2)),{n:30,c0:0xffffff,c1:0x8aff60,speed:4,life:1.2,s0:.45,s1:.05});
-  if(v)addFx(null,1.8,(f,k)=>{v.mat.uniforms.uO.value=1-k},()=>{v.m.visible=false});if(CH2.st===14&&!X4.said.rev){X4.said.rev=1;toast('A gap between the houses that was not there a second ago.','Portobello Road')}}
 {const _mt=muTick;muTick=function(dt){_mt(dt);if(!NH.built||MODE==='open'||CH2.zone!=='north')return;const dd=Math.hypot(P.pos.x-NH_PUB.door.x,P.pos.z-NH_PUB.door.z);
   if(NH.alf&&NH.alf.g.visible&&dd<90)try{NH.alf.update(dt)}catch(x){}if(NH.lamp&&dd<90){NH.lamp.gl.material.opacity=.8+Math.sin(time*9)*.08+Math.sin(time*23)*.05;NH.lamp.g.rotation.z=Math.sin(time*.9)*.05}
   if(NH.fire&&dd<60){NH.fire.em.material.opacity=.7+Math.random()*.3;if(Math.random()<.4)FL.emit(NH.fire.p,{n:1,c0:0xffe0a0,c1:0xff4000,s0:.35,s1:.05,life:.5,up:1.2,jitter:.25})}

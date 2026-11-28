@@ -45,12 +45,6 @@ function chRigid(geo,bones,SK,bone,off,rot,scl){// rigid accessory attached to b
   const g=geo.clone();if(scl)g.scale(scl,scl,scl);if(rot)g.applyMatrix4(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(rot[0],rot[1],rot[2])));const b=bones.findIndex(x=>x.name===bone);const p=SK[bone];g.translate(p.x+(off?off[0]:0),p.y+(off?off[1]:0),p.z+(off?off[2]:0));
   const n=g.attributes.position.count;g.setAttribute('skinIndex',new THREE.Float32BufferAttribute(new Array(n*4).fill(0).map((v,i)=>i%4===0?b:0),4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(new Array(n*4).fill(0).map((v,i)=>i%4===0?1:0),4));if(!g.attributes.uv)g.setAttribute('uv',new THREE.Float32BufferAttribute(new Float32Array(n*2),2));
   const ng=g.index?g:g;ng.computeBoundingSphere();return ng}
-function chToBind(scene,mesh){// put the skeleton into its true bind pose (the glTF node pose is not the bind pose)
-  scene.updateMatrixWorld(true);const sk=mesh.skeleton,B=sk.bones;const ri=new THREE.Matrix4().copy(scene.matrixWorld).invert();
-  const Brel=B.map((b,i)=>new THREE.Matrix4().multiplyMatrices(mesh.bindMatrix,sk.boneInverses[i].clone().invert()));
-  const loc=new THREE.Matrix4(),pw=new THREE.Matrix4();
-  B.forEach((b,i)=>{const pi=B.indexOf(b.parent);if(pi>=0)pw.copy(Brel[pi]);else pw.multiplyMatrices(ri,b.parent.matrixWorld);loc.copy(pw).invert().multiply(Brel[i]);loc.decompose(b.position,b.quaternion,b.scale)});
-  scene.updateMatrixWorld(true)}
 function chBuildSex(sx){const src=CH.src;const body=src['body_'+sx];body.scene.updateMatrixWorld(true);const bodyM=chFind(body,o=>o.name==='Body');const bones=bodyM.skeleton.bones;const SK=chSkel(bones);
   const S={sx,bones,SK,geo:{}};const G=S.geo;
   G.body=chExtract(bodyM,bones);G.bodyLOD=chExtract(chFind(body,o=>o.name==='BodyLOD'),bones);

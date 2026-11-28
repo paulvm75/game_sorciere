@@ -1,5 +1,4 @@
 /* ---------- world build (real Paris) ---------- */
-function _v3(a,b,c){return V3(a,b,c)}
 function face4(mb,a,b,c,d,n,uvs,col){// a..d arrays [x,y,z]; ensures front face along n
   const ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];const cx=uy*vz-uz*vy,cy=uz*vx-ux*vz,cz=ux*vy-uy*vx;
   if(cx*n[0]+cy*n[1]+cz*n[2]>=0)mb.quad(a,b,c,d,n[0],n[1],n[2],uvs,col);else mb.quad(a,d,c,b,n[0],n[1],n[2],[uvs[0],uvs[1],uvs[6],uvs[7],uvs[4],uvs[5],uvs[2],uvs[3]],col)}

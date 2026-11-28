@@ -12,12 +12,6 @@ class MB{constructor(){this.p=[];this.n=[];this.u=[];this.c=[];this.i=[];this.v=
   build(){if(!this.v)return null;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(this.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(this.n,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(this.u,2));g.setAttribute('color',new THREE.Float32BufferAttribute(this.c,3));
     g.setIndex(this.v>65000?new THREE.Uint32BufferAttribute(this.i,1):new THREE.Uint16BufferAttribute(this.i,1));g.computeBoundingSphere();return g}}
 // facade box: 4 textured sides + top
-function facadeBox(mb,x0,x1,z0,z1,y0,y1,fw,fh,col,base){const vo=(base-y0)/fh,vh=(y1-y0)/fh;const w=x1-x0,d=z1-z0;
-  mb.quad([x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1],0,0,1,[0,-vo,w/fw,-vo,w/fw,vh-vo,0,vh-vo],col);
-  mb.quad([x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0],0,0,-1,[0,-vo,w/fw,-vo,w/fw,vh-vo,0,vh-vo],col);
-  mb.quad([x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],1,0,0,[0,-vo,d/fw,-vo,d/fw,vh-vo,0,vh-vo],col);
-  mb.quad([x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0],-1,0,0,[0,-vo,d/fw,-vo,d/fw,vh-vo,0,vh-vo],col);
-  mb.quad([x0,y1,z1],[x1,y1,z1],[x1,y1,z0],[x0,y1,z0],0,1,0,[.01,.99,.02,.99,.02,.98,.01,.98],col)}
 /* ---------- templates + materials ---------- */
 const TG={};const CM={};const COL={};let FACL=[];
 function initWorldAssets(){

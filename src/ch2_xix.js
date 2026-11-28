@@ -120,7 +120,6 @@ mwBuild=function(){if(MW.a)return MW.a;let a=null;try{a=makeCHActor('f',{skin:0x
 /* ================= NEW ORLEANS: flags, fence, benches, painters, a real crowd ================= */
 const X19={npc:{},crowd:[],walk:[],flags:[],found:{},fight:0,said:{},e:null,ph:1,built:0,t:0,cmp:{k:{cd:3,ang:0,an:''},l:{cd:6,an:''},m:{cd:4,an:''}}};
 try{Object.assign(X19.found,JSON.parse(localStorage.getItem('sorciere-x19')||'{}'))}catch(x){}
-function x19Save(){try{localStorage.setItem('sorciere-x19',JSON.stringify(X19.found))}catch(x){}}
 function x9Fleur(x,cx,cy,s,col){x.save();x.translate(cx,cy);x.scale(s,s);x.fillStyle=col;x.beginPath();
   x.moveTo(0,-1);x.bezierCurveTo(.32,-.62,.3,-.18,.1,.08);x.lineTo(-.1,.08);x.bezierCurveTo(-.3,-.18,-.32,-.62,0,-1);x.fill();
   for(const sg of[-1,1]){x.beginPath();x.moveTo(sg*.08,.02);x.bezierCurveTo(sg*.25,-.45,sg*.95,-.45,sg*.78,.02);x.bezierCurveTo(sg*.68,-.22,sg*.42,-.12,sg*.3,.12);x.lineTo(sg*.08,.12);x.fill()}

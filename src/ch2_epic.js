@@ -73,9 +73,6 @@ buildJournal=function(){const g=new THREE.Group();const inner=new THREE.Group();
 
 /* ================= 2 · BILEL: he runs in, stops in front of Kaen, the magic blade goes through him ================= */
 {const _pc=playCutscene;playCutscene=function(shots,done){try{const i=shots.findIndex(s=>s.text==='NOT HER!');if(i>=0&&FIN.ally)epSacrifice(shots,i);const j=shots.findIndex(s=>s.text==='You... will... PAY FOR HIM!!!');if(j>=0)epAwaken(shots,j)}catch(e){console.warn('epic',e)}return _pc.call(this,shots,done)}}
-function epBlade(){const g=new THREE.Group();const L=2.5;const core=new THREE.Mesh(new THREE.BoxGeometry(.035,.012,L).translate(0,0,L/2),new THREE.MeshBasicMaterial({color:0xffffff}));
-  const glow=new THREE.Mesh(new THREE.BoxGeometry(.16,.06,L).translate(0,0,L/2),new THREE.MeshBasicMaterial({color:0xa040ff,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));
-  const hilt=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.32,8).rotateX(Math.PI/2).translate(0,0,-.16),std({color:0x14101a,roughness:.5}));g.add(core,glow,hilt);const tip=glowSprite(0xd0a0ff,.9,.9);tip.position.z=L;g.add(tip);g.userData={glow,tip,L};return g}
 function epSacrifice(shots,i){const A=FIN.ally,e=BM.finalFor||bossRef;if(!A||!e)return;const act=e.m.actor;const upd=finKaenUpd(e);
   const kp=e.pos.clone();const toW=V3(P.pos.x-kp.x,0,P.pos.z-kp.z).normalize();const side=V3(toW.z,0,-toW.x);
   const strike=P.pos.clone().addScaledVector(toW,-2.7);strike.y=groundAt(strike.x,strike.z);const mid=P.pos.clone().addScaledVector(toW,-1.6);mid.y=groundAt(mid.x,mid.z);

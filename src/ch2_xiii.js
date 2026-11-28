@@ -110,7 +110,6 @@ function x3Drop(){if(!X3.arena)return;scene.remove(X3.arena.g);X3.arena.g.traver
 {const _g=groundAt;groundAt=function(x,z,y){if(X3.arena&&MODE!=='open'){const C=X3.C;if(Math.hypot(x-C.x,z-C.z)<X3.R+1.2&&(y===undefined||y>C.y-8))return C.y}return _g.apply(this,arguments)}}
 
 /* ---------- Vesper ---------- */
-function shadowMat(op){return new THREE.MeshBasicMaterial({color:0x07040e,transparent:true,opacity:op||.6,depthWrite:false,skinning:true})}
 /* the Crown's Shadow is not a man: a horned, faceless wraith of smoke and claws */
 let WR_TEX=null;
 function wraithTatter(){if(WR_TEX)return WR_TEX;WR_TEX=canvasTex(128,256,(x,w,h)=>{x.clearRect(0,0,w,h);const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(20,10,34,1)');g.addColorStop(.6,'rgba(12,6,22,.9)');g.addColorStop(1,'rgba(10,4,20,0)');x.fillStyle=g;
