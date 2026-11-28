@@ -424,7 +424,7 @@ addEventListener('keydown',e=>{if(e.code==='KeyB'&&!e.repeat){if(ubOk()){ubFire(
   const rdy=!UB.on&&UB.cd<=0;ubEl.style.setProperty('--p',(UB.on?UB.t/UB.DUR:1-UB.cd/UB.CD).toFixed(3));ubEl.classList.toggle('rdy',rdy);ubEl.classList.toggle('on',!!UB.on);
   if(vis&&P.flying&&!UB.told){UB.told=1;toast('Ultra boost: press <b>B</b> (or tap the chip) for a few seconds of storm speed. Then it recharges.','Lyra\'s gift',true)}
   if(rdy&&!UB.was&&vis&&P.flying)toast('Ultra boost ready · <b>B</b>','Broom');UB.was=rdy;
-  if(!CS.active&&MODE!=='open'){const tf=UB.on?82:60;if(Math.abs(camera.fov-tf)>.05){camera.fov=lerp(camera.fov,tf,Math.min(1,dt*(UB.on?6:2.5)));camera.updateProjectionMatrix()}}}}
+  if(!CS.active&&MODE!=='open'){const tf=(UB.on?82:60)+(window.CAMSP||0);if(Math.abs(camera.fov-tf)>.05){camera.fov=lerp(camera.fov,tf,Math.min(1,dt*(UB.on?6:2.5)));camera.updateProjectionMatrix()}}}}
 
 /* ---------- town names as you arrive ---------- */
 {const _ne=nzEnter;nzEnter=function(){for(const t of NZTOWNS)t.seen=0;return _ne.apply(this,arguments)}}

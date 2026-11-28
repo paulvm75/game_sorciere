@@ -33,19 +33,24 @@ function audTick(dt){
 
 /* ---------- camera: over-the-shoulder framing, weighted vertical follow, FOV that breathes with speed, a little roll ---------- */
 const CAMX={off:0,fovD:0,sy:null,roll:0,init:0};
-{const _uc=updateCamera;updateCamera=function(dt){const r=_uc.apply(this,arguments);try{
+{const _uc=updateCamera;updateCamera=function(dt){
+  /* the base camera smooths toward its target from where it was: hand it back its own position, never the framed one, or the two fight and the image shakes */
+  if(CAMX.base&&CAMX.on)camera.position.copy(CAMX.base);CAMX.on=false;
+  const r=_uc.apply(this,arguments);try{
   if(!CAMX.init){CAMX.init=1;if(camDist===11.5)camDist=10}
-  if((typeof PL!=='undefined'&&PL.on)||CS.active){if(CAMX.fovD){camera.fov-=CAMX.fovD;CAMX.fovD=0;camera.updateProjectionMatrix()}CAMX.sy=null;return r}
+  if((typeof PL!=='undefined'&&PL.on)||CS.active){if(CAMX.fovD){camera.fov-=CAMX.fovD;CAMX.fovD=0;camera.updateProjectionMatrix()}CAMX.sy=null;CAMX.off=0;return r}
+  (CAMX.base||(CAMX.base=V3())).copy(camera.position);CAMX.on=true;dt=Math.min(dt,.05);
   /* weighted vertical: jumps lift the camera a little later and softer */
-  if(CAMX.sy==null||Math.abs(CAMX.sy-P.pos.y)>8)CAMX.sy=P.pos.y;CAMX.sy=lerp(CAMX.sy,P.pos.y,1-Math.exp(-dt*(P.flying?6:3.2)));const lagY=(P.pos.y-CAMX.sy)*.55;camera.position.y-=lagY;
-  /* shoulder: frame Maëlle a touch left of centre like a modern action game (less when flying or in a tight spot) */
-  const d=camera.position.distanceTo(camTarget),want=(P.flying?.35:.95)*Math.min(1,d/9);CAMX.off=lerp(CAMX.off,want,1-Math.exp(-dt*4));
-  const rx=Math.cos(yaw),rz=-Math.sin(yaw);const cx=camera.position.x+rx*CAMX.off,cz=camera.position.z+rz*CAMX.off;
-  if(!camBlocked(cx,camera.position.y,cz)){camera.position.x=cx;camera.position.z=cz}
-  const lt=V3(camTarget.x+rx*CAMX.off*.75,camTarget.y-lagY*.5-.15,camTarget.z+rz*CAMX.off*.75);camera.lookAt(lt);
+  if(CAMX.sy==null||Math.abs(CAMX.sy-P.pos.y)>8)CAMX.sy=P.pos.y;CAMX.sy=lerp(CAMX.sy,P.pos.y,1-Math.exp(-dt*(P.flying?6:3.2)));const lagY=(P.pos.y-CAMX.sy)*.55;
+  /* shoulder: frame Maëlle a touch left of centre; eases out smoothly near walls instead of snapping */
+  const rx=Math.cos(yaw),rz=-Math.sin(yaw),d=camera.position.distanceTo(camTarget);
+  let want=(P.flying?.35:.95)*Math.min(1,d/9);if(camBlocked(camera.position.x+rx*want,camera.position.y,camera.position.z+rz*want))want=0;
+  CAMX.off=lerp(CAMX.off,want,1-Math.exp(-dt*3));
+  camera.position.x+=rx*CAMX.off;camera.position.z+=rz*CAMX.off;camera.position.y-=lagY;
+  camera.lookAt(camTarget.x+rx*CAMX.off*.75,camTarget.y-lagY*.5-.15,camTarget.z+rz*CAMX.off*.75);
   /* FOV with speed */
-  const sp=P.boosting?11:P.flying?5:(P.moveAmt>.8&&(keys.ShiftLeft||keys.ShiftRight||(joy.id!==null&&Math.hypot(joy.x,joy.y)>.93)))?4.5:0;
-  const nd=lerp(CAMX.fovD,sp,1-Math.exp(-dt*3));if(Math.abs(nd-CAMX.fovD)>.01){camera.fov+=nd-CAMX.fovD;CAMX.fovD=nd;camera.updateProjectionMatrix()}
-  /* roll into strafes, and a faint breath */
-  let ix=0;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;if(joy.id!==null)ix+=joy.x;CAMX.roll=lerp(CAMX.roll,-ix*(P.flying?.035:.012),1-Math.exp(-dt*4));
-  camera.rotateZ(CAMX.roll+Math.sin(time*.9)*.0018);camera.rotateX(Math.sin(time*.63)*.0012)}catch(x){}return r}}
+  let sp=P.boosting?11:P.flying?5:(P.moveAmt>.8&&(keys.ShiftLeft||keys.ShiftRight||(joy.id!==null&&Math.hypot(joy.x,joy.y)>.93)))?4.5:0;if(MODE!=='open'){window.CAMSP=sp;sp=0}
+  const nd=lerp(CAMX.fovD,sp,1-Math.exp(-dt*3));if(Math.abs(nd-CAMX.fovD)>.05){camera.fov+=nd-CAMX.fovD;CAMX.fovD=nd;camera.updateProjectionMatrix()}
+  /* gentle roll into strafes */
+  let ix=0;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;if(joy.id!==null)ix+=joy.x;CAMX.roll=lerp(CAMX.roll,-ix*(P.flying?.03:.01),1-Math.exp(-dt*3));
+  if(Math.abs(CAMX.roll)>.0005)camera.rotateZ(CAMX.roll)}catch(x){}return r}}
