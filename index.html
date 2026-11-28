@@ -1011,7 +1011,7 @@ function buildOpenWorld(){const t0=performance.now();
     if(!l.park&&!l.bridge&&!l.canal){const R=l.r||Math.max(l.w,l.d)/2;const pl=new THREE.Mesh(new THREE.CircleGeometry(R+5,40),std({color:0x6a6252,roughness:.92,metalness:0,envMapIntensity:.3}));pl.rotation.x=-Math.PI/2;pl.position.y=.08/LS;pl.receiveShadow=true;g.add(pl)}
     g.updateMatrixWorld(true);
     if(!l.park&&!l.bridge&&!l.canal&&l.n!=='Tour Eiffel'&&l.n!=='Arc de Triomphe'){g.traverse(o=>{if(o.isMesh&&o.geometry.type==='BoxGeometry'&&o.castShadow){const bb=new THREE.Box3().setFromObject(o);if(bb.max.y-bb.min.y>4&&bb.max.x-bb.min.x>2.5&&bb.max.z-bb.min.z>2.5&&bb.min.y<base+3)addBox({x0:bb.min.x,x1:bb.max.x,z0:bb.min.z,z1:bb.max.z,h:bb.max.y,lm:true})}})}
-    if(l.n==='Tour Eiffel'){EIFFEL.x=l.x;EIFFEL.z=l.z;const S=LS*l.k;OW.decks.push({x0:l.x-7.5*S,x1:l.x+7.5*S,z0:l.z-7.5*S,z1:l.z+7.5*S,y:21.75*S},{x0:l.x-3.2*S,x1:l.x+3.2*S,z0:l.z-3.2*S,z1:l.z+3.2*S,y:38.55*S})}
+    if(l.n==='Tour Eiffel'){EIFFEL.x=l.x;EIFFEL.z=l.z;const S=LS*l.k;OW.decks.push({x0:l.x-6.9*S,x1:l.x+6.9*S,z0:l.z-6.9*S,z1:l.z+6.9*S,y:11.66*S},{x0:l.x-4.1*S,x1:l.x+4.1*S,z0:l.z-4.1*S,z1:l.z+4.1*S,y:23.45*S})}
     if(l.n==='Arc de Triomphe'){ARC.x=l.x;ARC.z=l.z;OW.decks.push({x0:l.x-11.3*LS,x1:l.x+11.3*LS,z0:l.z-4.8*LS,z1:l.z+4.8*LS,y:24.1*LS})}
     if(g.userData.spin)OW.spinners.push(g.userData.spin)}
   for(const p of PARKS){OW.parks.push(p);OW.spots.push({x:p.x,z:p.z,r:Math.min(p.W,p.D)*.42,name:p.name})}
@@ -6765,10 +6765,11 @@ function nzBigBen(G){const M=nzM(),x=-118,z=-9832;NZ.bb=V3(x,0,z);
   const pin=[];for(let px=-197;px<=-123;px+=3)for(const s of[-1,1])pin.push([px,-9834+s*10.2]);CITY_PARENT=G;instanced(new THREE.ConeGeometry(.35,3,4),M.ben,pin,(o,p)=>{o.position.set(p[0],17.5,p[1])});CITY_PARENT=null;
   nzBox(G,8,9,8,-160,15,-9834,M.ben,false);nzCone(G,4.6,14,-160,24,-9834,M.slate,8,0);
   nzBox(G,13,42,13,-202,0,-9834,M.ben,true);for(const a of[-1,1])for(const b of[-1,1])nzCone(G,.8,6,-202+a*6,42,-9834+b*6,M.ben,4);
-  nzBox(G,8,40,8,x,0,z,M.ben,true);c2box(G,9.6,9,9.6,x,40,z,M.ben,false);const ck=nzClockTex();
-  for(const[dx,dz,ry]of[[0,4.85,0],[0,-4.85,Math.PI],[4.85,0,Math.PI/2],[-4.85,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(3.6,32),new THREE.MeshBasicMaterial({map:ck,color:0xfff2c8}));f.position.set(x+dx,44.5,z+dz);f.rotation.y=ry;G.add(f);nzGlow(G,0xffe8b0,9,.4,x+dx*1.05,44.5,z+dz*1.05)}
-  c2box(G,8,6,8,x,49,z,M.ben,false);for(const[dx,dz]of[[0,4.02],[0,-4.02],[4.02,0],[-4.02,0]]){const ar=new THREE.Mesh(new THREE.BoxGeometry(dz?5:.1,3.6,dz?.1:5),std({color:0x14100c}));ar.position.set(x+dx,51.6,z+dz);G.add(ar)}
-  nzCone(G,6.2,15,x,55,z,M.slate);for(const a of[-1,1])for(const b of[-1,1])nzCone(G,.6,5,x+a*4.4,55,z+b*4.4,M.gold);nzCone(G,.5,4,x,70,z,M.gold,6);
+  const T=new THREE.Group();G.add(T);NZ.bbT=T;
+  nzBox(T,8,40,8,x,0,z,M.ben,true);c2box(T,9.6,9,9.6,x,40,z,M.ben,false);const ck=nzClockTex();
+  for(const[dx,dz,ry]of[[0,4.85,0],[0,-4.85,Math.PI],[4.85,0,Math.PI/2],[-4.85,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(3.6,32),new THREE.MeshBasicMaterial({map:ck,color:0xfff2c8}));f.position.set(x+dx,44.5,z+dz);f.rotation.y=ry;T.add(f);nzGlow(T,0xffe8b0,9,.4,x+dx*1.05,44.5,z+dz*1.05)}
+  c2box(T,8,6,8,x,49,z,M.ben,false);for(const[dx,dz]of[[0,4.02],[0,-4.02],[4.02,0],[-4.02,0]]){const ar=new THREE.Mesh(new THREE.BoxGeometry(dz?5:.1,3.6,dz?.1:5),std({color:0x14100c}));ar.position.set(x+dx,51.6,z+dz);T.add(ar)}
+  nzCone(T,6.2,15,x,55,z,M.slate);for(const a of[-1,1])for(const b of[-1,1])nzCone(T,.6,5,x+a*4.4,55,z+b*4.4,M.gold);nzCone(T,.5,4,x,70,z,M.gold,6);
   boxes.push({x0:x-4.8,x1:x+4.8,z0:z-4.8,z1:z+4.8,h:70,nz:1});NZ.mapP.push([x,z])}
 function nzEye(G,x,z){const M=nzM();const w=new THREE.Group();w.position.set(x,33,z);G.add(w);const rimM=std({color:0xe8eef4,metalness:.7,roughness:.3});
   w.add(new THREE.Mesh(new THREE.TorusGeometry(30,.45,8,120),rimM));const inner=new THREE.Mesh(new THREE.TorusGeometry(28.6,.2,6,120),rimM);w.add(inner);
@@ -13860,7 +13861,39 @@ setInterval(()=>{if(MODE!=='open'||typeof CM==='undefined'||CM._ph)return;if(!CM
 /* credits line under the main menu */
 setInterval(()=>{const mm=document.getElementById('mm');if(!mm||document.getElementById('asCred'))return;const d=document.createElement('div');d.id='asCred';
   d.style.cssText='margin:14px 4px 2px;font:500 10.5px/1.5 Outfit,system-ui,sans-serif;letter-spacing:.04em;color:rgba(243,215,154,.55);text-align:center';
-  d.textContent='Art assets: Poly Haven, Quaternius, Grab3D (CC0).';mm.appendChild(d)},1500);
+  d.textContent='Art assets: Poly Haven, Quaternius, Grab3D (CC0). BigBen by Daqian Dong (CC-BY 3.0, via Poly Pizza).';mm.appendChild(d)},1500);
+/* ================= LANDMARKS: real Eiffel Tower (Grab3D, CC0) and Big Ben (Daqian Dong, CC-BY) replace the procedural ones ================= */
+const LMK={em:[]};
+function lmApply(){const k=MODE==='open'?(OW.lampK==null?1:OW.lampK):1;LMK.k=k;for(const e of LMK.em)e.m.emissiveIntensity=e.b*k}
+function lmFit(root,H){root.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(root),k=H/Math.max(.001,bb.max.y-bb.min.y);
+  const w=new THREE.Group();root.scale.multiplyScalar(k);root.position.set(-(bb.min.x+bb.max.x)/2*k,-bb.min.y*k,-(bb.min.z+bb.max.z)/2*k);w.add(root);return w}
+/* ---------- Eiffel ---------- */
+function lmEiffel(g,S){const H=67*S;
+  const old=g.children.filter(o=>o.isMesh),pts=g.children.find(o=>o.isPoints);
+  asLoad('lm_eiffel').then(src=>{if(!src)return;const root=src.parent?src.clone(true):src;const w=lmFit(root,H);
+    root.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=false;const m=o.material=o.material.clone();
+      if(/iron|body/i.test(m.name)){m.color.setHex(/body/i.test(m.name)?0xb8844a:0x9a6634);m.metalness=.35;m.roughness=.55;m.emissive=new THREE.Color(0xffa23c);if(m.map)m.emissiveMap=m.map;LMK.em.push({m,b:/body/i.test(m.name)?.4:.36})}
+      else{m.emissive=new THREE.Color(0xfff0d0);LMK.em.push({m,b:.25})}});
+    lmApply();g.add(w);for(const o of old)o.visible=false;
+    /* the twinkle now sits on the real lattice */
+    if(pts){const sp=pts.geometry.attributes.position.array,n=sp.length/3,home=[],v=V3();w.updateMatrixWorld(true);const ms=[];root.traverse(o=>{if(o.isMesh)ms.push(o)});
+      const inv=new THREE.Matrix4().copy(g.matrixWorld).invert();
+      for(let i=0;i<n;i++){const o=ms[(Math.random()*ms.length)|0],P=o.geometry.attributes.position;v.fromBufferAttribute(P,(Math.random()*P.count)|0).applyMatrix4(o.matrixWorld).applyMatrix4(inv);home.push([v.x,v.y,v.z])}
+      window.__sparkle=()=>{for(let i=0;i<n;i++){const on=Math.random()<.35;sp[i*3]=home[i][0];sp[i*3+1]=on?home[i][1]:-999;sp[i*3+2]=home[i][2]}pts.geometry.attributes.position.needsUpdate=true}}
+  })}
+{const _be=buildEiffelAt;buildEiffelAt=function(g,S=1){const r=_be.apply(this,arguments);lmEiffel(g,S);return r}}
+if(MODE!=='open')for(const o of scene.children)if(o.isGroup&&o.position.x===EIFFEL.x&&o.position.z===EIFFEL.z&&o.children.some(c=>c.isPoints)){lmEiffel(o,1);break}
+/* ---------- Big Ben ---------- */
+function lmBigBen(G){const T=NZ.bbT,at=NZ.bb;if(!T||!at||T.userData.lm)return;T.userData.lm=1;
+  asLoad('lm_bigben').then(src=>{if(!src)return;const root=src.parent?src.clone(true):src;const H=74,w=lmFit(root,H);w.position.set(at.x,0,at.z);
+    root.traverse(o=>{if(!o.isMesh)return;o.castShadow=o.receiveShadow=true;const m=o.material=o.material.clone();m.color.setHex(0xa89a80);m.roughness=.8;m.metalness=0;m.emissive=new THREE.Color(0xffd890);if(m.map)m.emissiveMap=m.map;LMK.em.push({m,b:.2})});
+    w.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(w);const cy=H*.7,hw=Math.max(bb.max.x-at.x,at.x-bb.min.x);
+    for(const[dx,dz]of[[0,1],[0,-1],[1,0],[-1,0]]){const gl=glowSprite(0xffe8b0,7,.55);gl.position.set(at.x+dx*(hw*.78+.4),cy,at.z+dz*(hw*.78+.4));G.add(gl)}
+    lmApply();G.add(w);T.visible=false})}
+{const _bb=nzBigBen;nzBigBen=function(G){const r=_bb.apply(this,arguments);lmBigBen(G);return r}}
+if(typeof NZ!=='undefined'&&NZ.bbT&&NZ.bbT.parent)lmBigBen(NZ.bbT.parent);
+/* night lighting follows the street lamps in the open world, always on in the story */
+{const _mt=muTick;muTick=function(dt){_mt(dt);if(!LMK.em.length)return;const k=MODE==='open'?(OW.lampK==null?1:OW.lampK):1;if(LMK.k!==k)lmApply()}}
 /* ================= GLACIAL NOVA v2: a crystal wave that tears out of the ground ================= */
 const ICE2=(()=>{
   /* one faceted crystal: hex shaft, slight taper, pointed tip, jittered verts, flat facets */

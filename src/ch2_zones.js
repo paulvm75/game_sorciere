@@ -317,10 +317,11 @@ function nzBigBen(G){const M=nzM(),x=-118,z=-9832;NZ.bb=V3(x,0,z);
   const pin=[];for(let px=-197;px<=-123;px+=3)for(const s of[-1,1])pin.push([px,-9834+s*10.2]);CITY_PARENT=G;instanced(new THREE.ConeGeometry(.35,3,4),M.ben,pin,(o,p)=>{o.position.set(p[0],17.5,p[1])});CITY_PARENT=null;
   nzBox(G,8,9,8,-160,15,-9834,M.ben,false);nzCone(G,4.6,14,-160,24,-9834,M.slate,8,0);
   nzBox(G,13,42,13,-202,0,-9834,M.ben,true);for(const a of[-1,1])for(const b of[-1,1])nzCone(G,.8,6,-202+a*6,42,-9834+b*6,M.ben,4);
-  nzBox(G,8,40,8,x,0,z,M.ben,true);c2box(G,9.6,9,9.6,x,40,z,M.ben,false);const ck=nzClockTex();
-  for(const[dx,dz,ry]of[[0,4.85,0],[0,-4.85,Math.PI],[4.85,0,Math.PI/2],[-4.85,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(3.6,32),new THREE.MeshBasicMaterial({map:ck,color:0xfff2c8}));f.position.set(x+dx,44.5,z+dz);f.rotation.y=ry;G.add(f);nzGlow(G,0xffe8b0,9,.4,x+dx*1.05,44.5,z+dz*1.05)}
-  c2box(G,8,6,8,x,49,z,M.ben,false);for(const[dx,dz]of[[0,4.02],[0,-4.02],[4.02,0],[-4.02,0]]){const ar=new THREE.Mesh(new THREE.BoxGeometry(dz?5:.1,3.6,dz?.1:5),std({color:0x14100c}));ar.position.set(x+dx,51.6,z+dz);G.add(ar)}
-  nzCone(G,6.2,15,x,55,z,M.slate);for(const a of[-1,1])for(const b of[-1,1])nzCone(G,.6,5,x+a*4.4,55,z+b*4.4,M.gold);nzCone(G,.5,4,x,70,z,M.gold,6);
+  const T=new THREE.Group();G.add(T);NZ.bbT=T;
+  nzBox(T,8,40,8,x,0,z,M.ben,true);c2box(T,9.6,9,9.6,x,40,z,M.ben,false);const ck=nzClockTex();
+  for(const[dx,dz,ry]of[[0,4.85,0],[0,-4.85,Math.PI],[4.85,0,Math.PI/2],[-4.85,0,-Math.PI/2]]){const f=new THREE.Mesh(new THREE.CircleGeometry(3.6,32),new THREE.MeshBasicMaterial({map:ck,color:0xfff2c8}));f.position.set(x+dx,44.5,z+dz);f.rotation.y=ry;T.add(f);nzGlow(T,0xffe8b0,9,.4,x+dx*1.05,44.5,z+dz*1.05)}
+  c2box(T,8,6,8,x,49,z,M.ben,false);for(const[dx,dz]of[[0,4.02],[0,-4.02],[4.02,0],[-4.02,0]]){const ar=new THREE.Mesh(new THREE.BoxGeometry(dz?5:.1,3.6,dz?.1:5),std({color:0x14100c}));ar.position.set(x+dx,51.6,z+dz);T.add(ar)}
+  nzCone(T,6.2,15,x,55,z,M.slate);for(const a of[-1,1])for(const b of[-1,1])nzCone(T,.6,5,x+a*4.4,55,z+b*4.4,M.gold);nzCone(T,.5,4,x,70,z,M.gold,6);
   boxes.push({x0:x-4.8,x1:x+4.8,z0:z-4.8,z1:z+4.8,h:70,nz:1});NZ.mapP.push([x,z])}
 function nzEye(G,x,z){const M=nzM();const w=new THREE.Group();w.position.set(x,33,z);G.add(w);const rimM=std({color:0xe8eef4,metalness:.7,roughness:.3});
   w.add(new THREE.Mesh(new THREE.TorusGeometry(30,.45,8,120),rimM));const inner=new THREE.Mesh(new THREE.TorusGeometry(28.6,.2,6,120),rimM);w.add(inner);

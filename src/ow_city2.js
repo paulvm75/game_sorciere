@@ -95,7 +95,7 @@ function buildOpenWorld(){const t0=performance.now();
     if(!l.park&&!l.bridge&&!l.canal){const R=l.r||Math.max(l.w,l.d)/2;const pl=new THREE.Mesh(new THREE.CircleGeometry(R+5,40),std({color:0x6a6252,roughness:.92,metalness:0,envMapIntensity:.3}));pl.rotation.x=-Math.PI/2;pl.position.y=.08/LS;pl.receiveShadow=true;g.add(pl)}
     g.updateMatrixWorld(true);
     if(!l.park&&!l.bridge&&!l.canal&&l.n!=='Tour Eiffel'&&l.n!=='Arc de Triomphe'){g.traverse(o=>{if(o.isMesh&&o.geometry.type==='BoxGeometry'&&o.castShadow){const bb=new THREE.Box3().setFromObject(o);if(bb.max.y-bb.min.y>4&&bb.max.x-bb.min.x>2.5&&bb.max.z-bb.min.z>2.5&&bb.min.y<base+3)addBox({x0:bb.min.x,x1:bb.max.x,z0:bb.min.z,z1:bb.max.z,h:bb.max.y,lm:true})}})}
-    if(l.n==='Tour Eiffel'){EIFFEL.x=l.x;EIFFEL.z=l.z;const S=LS*l.k;OW.decks.push({x0:l.x-7.5*S,x1:l.x+7.5*S,z0:l.z-7.5*S,z1:l.z+7.5*S,y:21.75*S},{x0:l.x-3.2*S,x1:l.x+3.2*S,z0:l.z-3.2*S,z1:l.z+3.2*S,y:38.55*S})}
+    if(l.n==='Tour Eiffel'){EIFFEL.x=l.x;EIFFEL.z=l.z;const S=LS*l.k;OW.decks.push({x0:l.x-6.9*S,x1:l.x+6.9*S,z0:l.z-6.9*S,z1:l.z+6.9*S,y:11.66*S},{x0:l.x-4.1*S,x1:l.x+4.1*S,z0:l.z-4.1*S,z1:l.z+4.1*S,y:23.45*S})}
     if(l.n==='Arc de Triomphe'){ARC.x=l.x;ARC.z=l.z;OW.decks.push({x0:l.x-11.3*LS,x1:l.x+11.3*LS,z0:l.z-4.8*LS,z1:l.z+4.8*LS,y:24.1*LS})}
     if(g.userData.spin)OW.spinners.push(g.userData.spin)}
   for(const p of PARKS){OW.parks.push(p);OW.spots.push({x:p.x,z:p.z,r:Math.min(p.W,p.D)*.42,name:p.name})}

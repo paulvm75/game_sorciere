@@ -82,4 +82,4 @@ setInterval(()=>{if(MODE!=='open'||typeof CM==='undefined'||CM._ph)return;if(!CM
 /* credits line under the main menu */
 setInterval(()=>{const mm=document.getElementById('mm');if(!mm||document.getElementById('asCred'))return;const d=document.createElement('div');d.id='asCred';
   d.style.cssText='margin:14px 4px 2px;font:500 10.5px/1.5 Outfit,system-ui,sans-serif;letter-spacing:.04em;color:rgba(243,215,154,.55);text-align:center';
-  d.textContent='Art assets: Poly Haven, Quaternius, Grab3D (CC0).';mm.appendChild(d)},1500);
+  d.textContent='Art assets: Poly Haven, Quaternius, Grab3D (CC0). BigBen by Daqian Dong (CC-BY 3.0, via Poly Pizza).';mm.appendChild(d)},1500);
