@@ -11,7 +11,9 @@ function playFilm(done,opt){opt=opt||{};const SUBS=opt.subs||FILM.subs;if(FILM.o
    '<button id="filmTap" style="display:none;position:absolute;font:700 18px/1 Outfit,system-ui,sans-serif;color:#1a0f06;background:#f3c463;border:0;border-radius:999px;padding:16px 26px;cursor:pointer">▶ Play</button>';
   document.body.appendChild(o);if(opt.noSkip)o.querySelector('#filmSkip').style.display='none';requestAnimationFrame(()=>o.style.opacity='1');const cues=(opt.cues||[]).slice().sort((a,b)=>a[0]-b[0]);let ci=0,nearDone=false;
   const v=o.querySelector('#filmV'),sub=o.querySelector('#filmS'),tap=o.querySelector('#filmTap');let cur=-1,ended=false,raf=0;
-  {const src=opt.src||'assets/intro_maelle.mp4';v.src=(FILM.pre&&FILM.pre[src]&&FILM.pre[src].url)||src}v.volume=1;if(keepA&&!opt.videoAudio){v.muted=true;v.setAttribute('muted','')}if(opt.kick)v.animate([{transform:'scale(1.14)',filter:'brightness(2.2) saturate(1.4)'},{transform:'scale(1)',filter:'brightness(1) saturate(1)'}],{duration:900,easing:'cubic-bezier(.15,.8,.25,1)'});
+  {const src=opt.src||'assets/intro_maelle.mp4';v.src=(FILM.pre&&FILM.pre[src]&&FILM.pre[src].url)||src}v.volume=1;if(opt.xfade){o.style.background='transparent';v.style.opacity='0';v.style.transition='opacity .45s ease-out';let fd=0;const first=()=>{if(fd)return;fd=1;v.style.opacity='1';if(opt.kick)try{v.animate([{transform:'scale(1.12)',filter:'brightness(2.4) saturate(1.4)'},{transform:'scale(1)',filter:'brightness(1) saturate(1)'}],{duration:1000,easing:'cubic-bezier(.15,.8,.25,1)'})}catch(e){}setTimeout(()=>{o.style.background='#000'},480);try{opt.onFirst&&opt.onFirst()}catch(e){}};
+    try{if(v.requestVideoFrameCallback)v.requestVideoFrameCallback(()=>first())}catch(e){}v.addEventListener('playing',()=>setTimeout(first,90));setTimeout(first,3000)}
+  if(keepA&&!opt.videoAudio){v.muted=true;v.setAttribute('muted','')}if(opt.kick&&!opt.xfade)v.animate([{transform:'scale(1.14)',filter:'brightness(2.2) saturate(1.4)'},{transform:'scale(1)',filter:'brightness(1) saturate(1)'}],{duration:900,easing:'cubic-bezier(.15,.8,.25,1)'});
   const tick=()=>{const t=v.currentTime;while(ci<cues.length&&t>=cues[ci][0]){try{cues[ci][1]()}catch(x){}ci++}if(opt.nearEnd&&!nearDone&&v.duration&&t>=v.duration-opt.nearEnd[0]){nearDone=true;try{opt.nearEnd[1]()}catch(x){}}let k=-1;for(let i=0;i<SUBS.length;i++){const s=SUBS[i];if(t>=s[0]&&t<s[1]){k=i;break}}
     if(k!==cur){cur=k;if(k<0)sub.style.opacity='0';else{sub.textContent=SUBS[k][2];sub.style.opacity='1'}}raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
   const finish=()=>{if(ended)return;ended=true;cancelAnimationFrame(raf);removeEventListener('keydown',key,true);if(!opt.instant)o.style.opacity='0';try{v.pause()}catch(e){}
@@ -70,8 +72,8 @@ function clashFilmCues(){const crk=(a,b,st)=>{const r=[];for(let t=a;t<b;t+=st)r
   return _kc.call(this,e,function(){const a=arguments,self=this;const after=()=>{try{clashAfter(e,()=>{if(finish)finish.apply(self,a)})}catch(x){console.warn('clashAfter',x);if(finish)finish.apply(self,a)}};
     if(!lx)lx=lxBurst(.2,null);
     playFilm(()=>{filmMix(0);after();try{fadeEl.style.transition='none';fadeEl.style.opacity='0'}catch(x){}if(lx)lx.out(1.1)},
-      {src:'assets/clash_final.mp4',subs:[],instant:true,noSkip:true,gameAudio:true,videoAudio:true,kick:true,cues:clashFilmCues(),nearEnd:[.7,()=>{lx=lxBurst(.7,null,'150,175,255')}]});
-    setTimeout(()=>{const l0=lx;lx=null;if(l0)l0.out(1.1)},140)})}}
+      {src:'assets/clash_final.mp4',subs:[],instant:true,xfade:true,noSkip:true,gameAudio:true,videoAudio:true,kick:true,cues:clashFilmCues(),nearEnd:[.7,()=>{lx=lxBurst(.7,null,'150,175,255')}],
+      onFirst:()=>{const l0=lx;lx=null;if(l0)l0.out(.9)}})})}}
 
 /* after the clash film: quick cut back in-game. Kaen alone on one knee, a small blast, he is gone. Her limit breaker fades. */
 function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let gone=false,B=null,fl=null;

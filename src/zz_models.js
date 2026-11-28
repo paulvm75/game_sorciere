@@ -24,7 +24,7 @@ function gsPend(root,on){if(on){if(root._gsPend)return;root._gsPend=1;const d=Ob
     Object.defineProperty(root,'visible',{get(){return root._gsPend?false:root._gsV},set(v){root._gsV=v},configurable:true})}else if(root._gsPend){root._gsPend=0}}
 function gsSwap(g,root,key,keep,prev){if(GS.off||!g||!root||(g.userData.gs&&!prev))return;const R=gsRest();if(!R)return;g.userData.gs={key,pending:true};
   const sb={};root.traverse(o=>{if(o.isBone&&!sb[o.name])sb[o.name]=o});if(!sb.pelvis){g.userData.gs=prev||null;return}
-  if(!prev)gsPend(root,true);const fail=()=>{gsPend(root,false);if(prev)g.userData.gs=prev};
+  if(!prev){gsPend(root,true);g._gsPl=[];g.traverse(o=>{if(o.isMesh&&!(keep&&keep(o))){gsPend(o,true);g._gsPl.push(o)}})}const unp=()=>{if(g._gsPl){for(const o of g._gsPl)gsPend(o,false);g._gsPl=null}};const fail=()=>{gsPend(root,false);unp();if(prev)g.userData.gs=prev};
   const U={uGold:{value:0},uBolt:{value:0},uV:{value:0},uT:{value:0}};gsLoad(key).then(buf=>{if(!buf){fail();return}new THREE.GLTFLoader().parse(buf.slice(0),'',gl=>{try{const T=gl.scene;const tb={};T.traverse(o=>{if(o.isBone)tb[o.name]=o;if(o.isMesh){o.castShadow=true;o.frustumCulled=false;o.userData.gsKeep=true;if(o.material){const m=o.material;m.side=THREE.DoubleSide;if(m.map){m.map.anisotropy=4;m.emissiveMap=m.map;m.emissive=new THREE.Color(0x4a4048);m.emissiveIntensity=1}m.roughness=Math.max(.55,m.roughness||.8);m.metalness=Math.min(.15,m.metalness||0);gsLook(o,key,U);m.needsUpdate=true}}});
     if(!tb.Hips){fail();return}
     if(prev){const i=GS.list.indexOf(prev);if(i>=0)GS.list.splice(i,1);if(prev.moved)for(const m of prev.moved){m.ob.add(m.c);m.c.matrix.copy(m.mat);m.c.matrix.decompose(m.c.position,m.c.quaternion,m.c.scale)}if(prev.T&&prev.T.parent)prev.T.parent.remove(prev.T)}
@@ -41,7 +41,7 @@ function gsSwap(g,root,key,keep,prev){if(GS.off||!g||!root||(g.userData.gs&&!pre
       else{const p=tb[n].parent&&cal[tb[n].parent.name];if(p)qc.copy(p.qc)}
       cal[n]={qc,tr:tq[n],sr:R.q[GS_MAP[n]],srcI:R.q[GS_MAP[n]].clone().invert()}}
     const hipOff=tp.Hips.clone().multiplyScalar(s).sub(R.p.pelvis);
-    const e={g,root,T,tb,sb,cal,order,s,hipOff,key,keep,U,pose:gsPose(key,R)};g.userData.gs=e;g.userData.gsModel=T;GS.list.push(e);gsTickOne(e);try{gsHandFix(e)}catch(x){console.warn(x)}gsPend(root,false);const w=g.userData.gsWant;if(w&&w!==key){g.userData.gsWant=null;gsReplace(g,w)}}catch(x){console.warn(x);fail()}},err=>{console.warn('gs',err);fail()})})}
+    const e={g,root,T,tb,sb,cal,order,s,hipOff,key,keep,U,pose:gsPose(key,R)};g.userData.gs=e;g.userData.gsModel=T;GS.list.push(e);gsTickOne(e);try{gsHandFix(e)}catch(x){console.warn(x)}gsPend(root,false);unp();const w=g.userData.gsWant;if(w&&w!==key){g.userData.gsWant=null;gsReplace(g,w)}}catch(x){console.warn(x);fail()}},err=>{console.warn('gs',err);fail()})})}
 function gsTickOne(e){const{root,T,tb,sb,cal,order}=e;root.updateMatrixWorld(true);
   const rq=root.getWorldQuaternion(new THREE.Quaternion()),rqi=rq.clone().invert();
   for(const n of order){const t=tb[n],s=sb[GS_MAP[n]],k=cal[n];
@@ -74,9 +74,8 @@ function gsLook(o,key,U){if(key!=='maelle'&&key!=='kaen_lb')return;const m=o.mat
     sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vGp;uniform float uGold,uBolt,uV,uT;float gGlow=0.,gVein=0.,gSkin=0.;')
      .replace('#include <map_fragment>',`#include <map_fragment>
 {vec3 c=diffuseColor.rgb;float mx=max(c.r,max(c.g,c.b)),mn=min(c.r,min(c.g,c.b));float sat=(mx-mn)/(mx+1e-4);float lum=dot(c,vec3(.3,.59,.11));`+
-     (key==='maelle'?`float gr=c.g/max(c.r,.001);float skn=smoothstep(.4,.5,gr)*(1.-smoothstep(.88,.96,gr))*smoothstep(-.01,.05,c.g-c.b)*smoothstep(.05,.13,sat)*smoothstep(.08,.18,lum);gSkin=skn;
-float sl=dot(c,vec3(.3,.59,.11));c=mix(c,mix(c*vec3(.56,.4,.3),vec3(.48,.31,.21)*(.75+sl*.5),.72),skn*.97);diffuseColor.rgb=c;lum=dot(c,vec3(.3,.59,.11));
-float red=step(c.g*1.4,c.r)*step(c.b*.95,c.r)*smoothstep(.22,.45,sat)*smoothstep(.04,.14,mx);
+     (key==='maelle'?`gSkin=texture2D(map,vUv).a<.99?1.:0.;
+float red=step(c.g*1.4,c.r)*step(c.b*.95,c.r)*smoothstep(.22,.45,sat)*smoothstep(.04,.14,mx)*(1.-gSkin);
 float hair=smoothstep(.4,.62,lum)*(1.-smoothstep(.22,.4,sat))*step(c.g*.93,c.b);float gm=uGold*max(red,hair);
 diffuseColor.rgb=mix(c,vec3(1.,.74,.26)*(.55+lum*1.7),gm*.92);gGlow=gm;`
      :`gVein=smoothstep(.06,.25,c.b-max(c.r,c.g)*.85)*smoothstep(.35,.65,c.b);`)+`}`)
@@ -118,8 +117,8 @@ function gsHeroLook(dt){const e=W&&W.g&&W.g.userData.gs;if(!e||!e.U)return;const
 /* whatever the old skeleton held (Maëlle's wand, Kaen's katana) moves into the new model's hands, keeping its grip */
 function gsHandFix(e){e.moved=[];const pairs=[['hand_r','RightHand'],['hand_l','LeftHand']];e.root.updateMatrixWorld(true);
   for(const[o,n]of pairs){const ob=e.sb[o],nb=e.tb[n];if(!ob||!nb)continue;const op=new THREE.Vector3().setFromMatrixPosition(ob.matrixWorld),np=new THREE.Vector3().setFromMatrixPosition(nb.matrixWorld);
-    for(const c of ob.children.slice()){if(c.isBone)continue;c.updateMatrixWorld(true);const Wc=c.matrixWorld.clone();Wc.elements[12]+=np.x-op.x;Wc.elements[13]+=np.y-op.y;Wc.elements[14]+=np.z-op.z;
-      e.moved.push({c,ob,mat:c.matrix.clone()});nb.add(c);const X=new THREE.Matrix4().copy(nb.matrixWorld).invert().multiply(Wc);X.decompose(c.position,c.quaternion,c.scale);
+    for(const c of ob.children.slice()){if(c.isBone)continue;c.updateMatrixWorld(true);const Wc=c.matrixWorld.clone();c.userData.gsWs=c.getWorldScale(new THREE.Vector3()).x/Math.max(1e-6,e.g.getWorldScale(new THREE.Vector3()).x);Wc.elements[12]+=np.x-op.x;Wc.elements[13]+=np.y-op.y;Wc.elements[14]+=np.z-op.z;
+      e.moved.push({c,ob,mat:c.matrix.clone()});nb.add(c);const X=new THREE.Matrix4().copy(nb.matrixWorld).invert().multiply(Wc);X.decompose(c.position,c.quaternion,c.scale);c.matrixAutoUpdate=true;
       c.updateMatrixWorld(true);const ws=c.getWorldScale(new THREE.Vector3()).x,gs=e.g.getWorldScale(new THREE.Vector3()).x;if(ws<gs*.3)c.scale.multiplyScalar(gs/ws)}}
   if(e.g===W.g&&W.orb&&W.orb.parent){const w=W.orb.parent;w.updateMatrixWorld(true);const ws=w.getWorldScale(new THREE.Vector3()).x,gs=e.g.getWorldScale(new THREE.Vector3()).x;if(ws<gs*.3)w.scale.multiplyScalar(gs/ws);
     w.traverse(o=>{if(o.isMesh&&o!==W.orb&&o.material&&o.material.color){o.material=o.material.clone();o.material.color.setHex(0x8a5a32);o.material.roughness=.45;o.material.metalness=.1;o.material.emissive=new THREE.Color(0x2a160a);o.scale.x*=1.35;o.scale.z*=1.35}});
@@ -138,3 +137,7 @@ function gsMenuArm(){const e=W&&W.g&&W.g.userData.gs;if(!e||!e.pose||e.key!=='ma
 
 /* fetch every cast model early so a character never waits on the network when it first appears */
 {let gsPre=0;const _mt3=muTick;muTick=function(dt){_mt3(dt);if(gsPre||GS.off)return;gsPre=1;let i=0;const ks=['maelle','kaen','lyra','kaen_lb'];const nx=()=>{if(i>=ks.length)return;const p=gsLoad(ks[i++]);p&&p.then?p.then(nx,nx):nx()};gsLoad('maelle');setTimeout(nx,800)}}
+
+/* anything moved into a new model's hand keeps its real size: the new rig rescales after the move, which shrank Kaen's katana to almost nothing */
+{const _v1=new THREE.Vector3(),_v2=new THREE.Vector3();const _mt9=muTick;muTick=function(dt){_mt9(dt);for(const e of GS.list){if(!e.moved||!e.moved.length)continue;const gs=e.g.getWorldScale(_v2).x;if(!(gs>0))continue;
+  for(const m of e.moved){const c=m.c,w=c.userData.gsWs;if(!w||!c.parent)continue;c.parent.updateMatrixWorld(true);c.updateMatrixWorld(true);const cur=c.getWorldScale(_v1).x/gs;if(cur>0&&Math.abs(cur/w-1)>.02)c.scale.multiplyScalar(w/cur)}}}}

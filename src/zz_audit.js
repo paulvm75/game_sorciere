@@ -37,20 +37,34 @@ const CAMX={off:0,fovD:0,sy:null,roll:0,init:0};
   /* the base camera smooths toward its target from where it was: hand it back its own position, never the framed one, or the two fight and the image shakes */
   if(CAMX.base&&CAMX.on)camera.position.copy(CAMX.base);CAMX.on=false;
   const r=_uc.apply(this,arguments);try{
-  if(!CAMX.init){CAMX.init=1;if(camDist===11.5)camDist=10}
+  if(!CAMX.init){CAMX.init=1;if(camDist===11.5)camDist=10.5}
   if((typeof PL!=='undefined'&&PL.on)||CS.active){if(CAMX.fovD){camera.fov-=CAMX.fovD;CAMX.fovD=0;camera.updateProjectionMatrix()}CAMX.sy=null;CAMX.off=0;return r}
   (CAMX.base||(CAMX.base=V3())).copy(camera.position);CAMX.on=true;dt=Math.min(dt,.05);
   /* weighted vertical: jumps lift the camera a little later and softer */
-  if(CAMX.sy==null||Math.abs(CAMX.sy-P.pos.y)>8)CAMX.sy=P.pos.y;CAMX.sy=lerp(CAMX.sy,P.pos.y,1-Math.exp(-dt*(P.flying?6:3.2)));const lagY=(P.pos.y-CAMX.sy)*.55;
+  if(CAMX.sy==null||Math.abs(CAMX.sy-P.pos.y)>8)CAMX.sy=P.pos.y;CAMX.sy=lerp(CAMX.sy,P.pos.y,1-Math.exp(-dt*(P.flying?6:3.2)));const lagY=(P.pos.y-CAMX.sy)*.3;
   /* shoulder: frame Maëlle a touch left of centre; eases out smoothly near walls instead of snapping */
   const rx=Math.cos(yaw),rz=-Math.sin(yaw),d=camera.position.distanceTo(camTarget);
-  let want=(P.flying?.35:.95)*Math.min(1,d/9);if(camBlocked(camera.position.x+rx*want,camera.position.y,camera.position.z+rz*want))want=0;
+  let want=(P.flying?.2:.45)*Math.min(1,d/9);if(camBlocked(camera.position.x+rx*want,camera.position.y,camera.position.z+rz*want))want=0;
   CAMX.off=lerp(CAMX.off,want,1-Math.exp(-dt*3));
   camera.position.x+=rx*CAMX.off;camera.position.z+=rz*CAMX.off;camera.position.y-=lagY;
-  camera.lookAt(camTarget.x+rx*CAMX.off*.75,camTarget.y-lagY*.5-.15,camTarget.z+rz*CAMX.off*.75);
+  camera.lookAt(camTarget.x+rx*CAMX.off*.75,camTarget.y-lagY*.5,camTarget.z+rz*CAMX.off*.75);
   /* FOV with speed */
-  let sp=P.boosting?11:P.flying?5:(P.moveAmt>.8&&(keys.ShiftLeft||keys.ShiftRight||(joy.id!==null&&Math.hypot(joy.x,joy.y)>.93)))?4.5:0;if(MODE!=='open'){window.CAMSP=sp;sp=0}
+  let sp=P.boosting?7:P.flying?2.5:(P.moveAmt>.8&&(keys.ShiftLeft||keys.ShiftRight||(joy.id!==null&&Math.hypot(joy.x,joy.y)>.93)))?2.5:0;if(MODE!=='open'){window.CAMSP=sp;sp=0}
   const nd=lerp(CAMX.fovD,sp,1-Math.exp(-dt*3));if(Math.abs(nd-CAMX.fovD)>.05){camera.fov+=nd-CAMX.fovD;CAMX.fovD=nd;camera.updateProjectionMatrix()}
-  /* gentle roll into strafes */
-  let ix=0;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;if(joy.id!==null)ix+=joy.x;CAMX.roll=lerp(CAMX.roll,-ix*(P.flying?.03:.01),1-Math.exp(-dt*3));
-  if(Math.abs(CAMX.roll)>.0005)camera.rotateZ(CAMX.roll)}catch(x){}return r}}
+}catch(x){}return r}}
+
+/* ---------- Maëlle's skin: bronzed once in the texture with a smoothed mask (the old per-pixel colour key left pale and dark patches on her face) ---------- */
+function gsBronze(tex){if(!tex||!tex.image||tex.__bronze)return;tex.__bronze=1;try{const im=tex.image,W0=im.width,H0=im.height;const cv=document.createElement('canvas');cv.width=W0;cv.height=H0;const x=cv.getContext('2d');x.drawImage(im,0,0);
+  const D=x.getImageData(0,0,W0,H0),d=D.data;const S=4,w=W0/S|0,h=H0/S|0;let m=new Float32Array(w*h);
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){let acc=0;for(let v=0;v<S;v++)for(let u=0;u<S;u++){const k=((j*S+v)*W0+i*S+u)*4;const r=d[k]/255,g=d[k+1]/255,b=d[k+2]/255;
+      const mx=Math.max(r,g,b),mn=Math.min(r,g,b),sat=(mx-mn)/(mx+1e-4),lum=r*.3+g*.59+b*.11,gr=g/Math.max(r,.001);
+      if(r>=g&&g>=b-.02&&gr>.4&&gr<.97&&sat>.03&&sat<.7&&lum>.1)acc++}m[j*w+i]=acc/(S*S)}
+  /* close small holes, then soften the edges */
+  const blur=(a,R)=>{const o=new Float32Array(a.length);for(let j=0;j<h;j++)for(let i=0;i<w;i++){let s=0,n=0;for(let v=-R;v<=R;v++){const y=j+v;if(y<0||y>=h)continue;for(let u=-R;u<=R;u++){const xx=i+u;if(xx<0||xx>=w)continue;s+=a[y*w+xx];n++}}o[j*w+i]=s/n}return o};
+  m=blur(m,2);for(let k=0;k<m.length;k++)m[k]=Math.min(1,Math.max(0,(m[k]-.3)/.35));m=blur(m,1);
+  for(let y=0;y<H0;y++){const fy=Math.min(h-1,y/S);for(let xx=0;xx<W0;xx++){const t=m[(fy|0)*w+Math.min(w-1,xx/S|0)];if(t<=0)continue;const k=(y*W0+xx)*4;
+      const r=d[k],g=d[k+1],b=d[k+2];d[k]=r+(r*.9+3-r)*t;d[k+1]=g+(g*.8+2-g)*t;d[k+2]=b+(b*.73-b)*t;if(t>.5)d[k+3]=Math.min(d[k+3],250)}}
+  x.putImageData(D,0,0);tex.image=cv;tex.needsUpdate=true}catch(e){}}
+{const _pl=gsPostLoad;gsPostLoad=function(g,T,key,U){if(key==='maelle')try{T.traverse(o=>{if(o.isMesh&&o.material&&o.material.map&&o.material.map.image&&o.material.map.image.width>=1024)gsBronze(o.material.map)})}catch(e){}return _pl.apply(this,arguments)}}
+/* open world crowd: never draw before the crowd instancing exists (it threw every frame and froze the rest of the update) */
+{const _up=updatePeople;updatePeople=function(){if(!NPI)return;return _up.apply(this,arguments)}}

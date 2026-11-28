@@ -41,7 +41,7 @@ function cmbSave(){try{localStorage.setItem('sorc_cmb',JSON.stringify(CMB.seen))
 function cmbOk(e){const t=performance.now();if(e._cmbT&&t-e._cmbT<900)return false;e._cmbT=t;return true}
 (function(){const st=document.createElement('style');st.textContent=`
 #cmbBan{position:fixed;left:50%;top:24%;transform:translate(-50%,-50%);z-index:60;pointer-events:none;text-align:center;opacity:0}
-#cmbBan b{display:block;font:italic 900 clamp(34px,6vw,78px)/1 Georgia,serif;letter-spacing:.04em;color:#fff;text-shadow:0 0 18px var(--c),0 0 42px var(--c),0 4px 0 rgba(0,0,0,.45)}
+#cmbBan b{display:block;font:italic 900 clamp(28px,4.4vw,58px)/1 Georgia,serif;letter-spacing:.04em;color:#fff;text-shadow:0 0 18px var(--c),0 0 42px var(--c),0 4px 0 rgba(0,0,0,.45)}
 #cmbBan i{display:inline-block;margin-top:8px;font:700 clamp(11px,1.3vw,15px)/1 system-ui,sans-serif;letter-spacing:.32em;color:var(--c);background:rgba(8,6,20,.55);padding:6px 12px;border-radius:20px;font-style:normal}
 #cmbBan.on{animation:cmbIn 1.5s cubic-bezier(.2,1.4,.4,1) forwards}
 @keyframes cmbIn{0%{opacity:0;transform:translate(-50%,-50%) scale(2.2)}12%{opacity:1;transform:translate(-50%,-50%) scale(.94)}20%{transform:translate(-50%,-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1.04)}}
