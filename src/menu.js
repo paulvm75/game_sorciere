@@ -155,14 +155,14 @@ function mmDefView(){CVW.rot=Math.PI*.15;CVW.pitch=.08;CVW.dist=innerWidth<760?6
 function mmSettings(){const C=$('mmSet');const row=(id,t,d,cls)=>`<div class="mmRow"><span><b>${t}</b><small>${d}</small></span><button class="mmTg ${cls||''}" id="${id}"></button></div>`;
   C.innerHTML=`<div class="mmHd"><button class="mmBack" aria-label="Back">${svgI('back')}</button><h2>Settings</h2></div>
   <div class="mmRow" style="grid-template-columns:1fr"><span><b>Difficulty</b><small>How hard the night hits back.</small></span><div id="mmDiff"></div></div>
-  ${row('mmSnd','Sound','Effects and voices')}${row('mmMus','Music','The score of the night')}${row('mmGfx','Graphics','Lower it if the game stutters')}
+  ${row('mmSnd','Sound','Effects and voices')}${row('mmMus','Music','The score of the night')}${row('mmGfx','Graphics','Lower it if the game stutters')}${row('mmVib','Vibration','Phone and controller rumble on hits')}
   ${MODE==='open'?row('mmSafe','Safe mode','Quest monsters cannot hurt you'):''}${row('mmPil','Pilot mode','Development restrictions disabled. Opens the open world before the story is done.','grn')}`;
   const d=$('mmDiff');d.appendChild($('diffSeg'));d.appendChild($('diffDesc'));
   C.querySelector('.mmBack').addEventListener('click',()=>mmShowSet(false));
-  $('mmSnd').addEventListener('click',()=>{$('soundBtn').click();mmSync()});$('mmMus').addEventListener('click',()=>{$('musicBtn').click();mmSync()});$('mmGfx').addEventListener('click',()=>{$('gfxBtn').click();mmSync()});
+  $('mmSnd').addEventListener('click',()=>{$('soundBtn').click();mmSync()});$('mmMus').addEventListener('click',()=>{$('musicBtn').click();mmSync()});$('mmGfx').addEventListener('click',()=>{$('gfxBtn').click();mmSync()});$('mmVib').addEventListener('click',()=>{$('vibBtn').click();mmSync()});
   if($('mmSafe'))$('mmSafe').addEventListener('click',()=>{$('safeBtn').click();mmSync()});
   $('mmPil').addEventListener('click',()=>{MM.pilot=!MM.pilot;try{localStorage.setItem('sorciere-pilot',MM.pilot?'1':'0')}catch(e){}mmSync();mmList()});mmSync()}
-function mmSync(){const t=(id,on,txt)=>{const b=$(id);if(!b)return;b.classList.toggle('on',on);b.textContent=txt||(on?'On':'Off')};t('mmSnd',!muted);t('mmMus',!!musicOn);t('mmGfx',true,(($('gfxBtn')||{}).textContent||'').replace('Graphics: ','')||'Auto');if(typeof SAFE!=='undefined')t('mmSafe',SAFE);t('mmPil',MM.pilot)}
+function mmSync(){const t=(id,on,txt)=>{const b=$(id);if(!b)return;b.classList.toggle('on',on);b.textContent=txt||(on?'On':'Off')};t('mmSnd',!muted);t('mmVib',typeof VIBE==='undefined'||VIBE);t('mmMus',!!musicOn);t('mmGfx',true,(($('gfxBtn')||{}).textContent||'').replace('Graphics: ','')||'Auto');if(typeof SAFE!=='undefined')t('mmSafe',SAFE);t('mmPil',MM.pilot)}
 function mmShowSet(on){$('mm').classList.toggle('sub',on);document.querySelector('.mmList').classList.toggle('off',on);$('mmSet').classList.toggle('on',on);if(on)mmSync();else mmList()}
 /* ---------- character viewer ---------- */
 function mmChar(){const C=$('mmChar');const lv=save&&save.level||1;const kn=SPELLS.filter(s=>!s.teach&&(MODE==='open'||lv>=s.lvl)).length+((save&&save.taught)||[]).length;const bt=((save&&save.beaten)||[]).filter(b=>BOSS_ORDER.includes(b)).length;

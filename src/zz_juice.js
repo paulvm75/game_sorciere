@@ -2,7 +2,11 @@
 
 /* ---------- 1. hits: freeze-frame, shake, squash, spark, vibration ---------- */
 const JU={t:0,pt:0};
-function buzz(ms,weak,strong,dur){try{vib(Math.round(ms))}catch(x){}
+let VIBE=(()=>{try{return localStorage.getItem('sorciere-vib')!=='0'}catch(x){return true}})();
+{const _v=vib;vib=function(){if(!VIBE)return;return _v.apply(this,arguments)}}
+function vibSync(){const b=$('vibBtn');if(b)b.textContent=VIBE?'Vibration on':'Vibration off'}
+try{$('vibBtn').addEventListener('click',()=>{VIBE=!VIBE;try{localStorage.setItem('sorciere-vib',VIBE?'1':'0')}catch(x){}vibSync();if(VIBE)buzz(40,.5,.6,120)});vibSync()}catch(x){}
+function buzz(ms,weak,strong,dur){if(!VIBE)return;try{vib(Math.round(ms))}catch(x){}
   try{const gs=navigator.getGamepads?navigator.getGamepads():[];for(const g of gs){if(g&&g.vibrationActuator&&g.vibrationActuator.playEffect)g.vibrationActuator.playEffect('dual-rumble',{duration:dur||ms*3,weakMagnitude:Math.min(1,weak),strongMagnitude:Math.min(1,strong)})}}catch(x){}}
 function juSpark(p,col,sz){const s=glowSprite(new THREE.Color(col||'#ffffff'),1,1);s.position.copy(p);s.renderOrder=6;addFx(s,.12,(f,k)=>{const q=k<.3?k/.3:1-(k-.3)/.7;s.scale.setScalar(sz*(.5+q));s.material.opacity=q})}
 function juPunch(e,a){const g=e.m&&e.m.g;if(!g||e.def.boss||e._pun)return;e._pun=1;const s0=g.scale.clone();
