@@ -63,7 +63,7 @@ function gsBronze(tex){if(!tex||!tex.image||tex.__bronze)return;tex.__bronze=1;t
   const blur=(a,R)=>{const o=new Float32Array(a.length);for(let j=0;j<h;j++)for(let i=0;i<w;i++){let s=0,n=0;for(let v=-R;v<=R;v++){const y=j+v;if(y<0||y>=h)continue;for(let u=-R;u<=R;u++){const xx=i+u;if(xx<0||xx>=w)continue;s+=a[y*w+xx];n++}}o[j*w+i]=s/n}return o};
   m=blur(m,2);for(let k=0;k<m.length;k++)m[k]=Math.min(1,Math.max(0,(m[k]-.3)/.35));m=blur(m,1);
   for(let y=0;y<H0;y++){const fy=Math.min(h-1,y/S);for(let xx=0;xx<W0;xx++){const t=m[(fy|0)*w+Math.min(w-1,xx/S|0)];if(t<=0)continue;const k=(y*W0+xx)*4;
-      const r=d[k],g=d[k+1],b=d[k+2];d[k]=r+(r*.9+3-r)*t;d[k+1]=g+(g*.8+2-g)*t;d[k+2]=b+(b*.73-b)*t;if(t>.5)d[k+3]=Math.min(d[k+3],250)}}
+      const r=d[k],g=d[k+1],b=d[k+2];const l=r*.3+g*.59+b*.11,dr=r+(l-r)*.38,dg=g+(l-g)*.38,db=b+(l-b)*.38;d[k]=r+(dr*.86-r)*t;d[k+1]=g+(dg*.78-g)*t;d[k+2]=b+(db*.69-b)*t;if(t>.5)d[k+3]=Math.min(d[k+3],250)}}
   x.putImageData(D,0,0);tex.image=cv;tex.needsUpdate=true}catch(e){}}
 {const _pl=gsPostLoad;gsPostLoad=function(g,T,key,U){if(key==='maelle')try{T.traverse(o=>{if(o.isMesh&&o.material&&o.material.map&&o.material.map.image&&o.material.map.image.width>=1024)gsBronze(o.material.map)})}catch(e){}return _pl.apply(this,arguments)}}
 /* open world crowd: never draw before the crowd instancing exists (it threw every frame and froze the rest of the update) */

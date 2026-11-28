@@ -79,8 +79,8 @@ float red=step(c.g*1.4,c.r)*step(c.b*.95,c.r)*smoothstep(.22,.45,sat)*smoothstep
 float hair=smoothstep(.4,.62,lum)*(1.-smoothstep(.22,.4,sat))*step(c.g*.93,c.b);float gm=uGold*max(red,hair);
 diffuseColor.rgb=mix(c,vec3(1.,.74,.26)*(.55+lum*1.7),gm*.92);gGlow=gm;`
      :`gVein=smoothstep(.06,.25,c.b-max(c.r,c.g)*.85)*smoothstep(.35,.65,c.b);`)+`}`)
-     .replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
-totalEmissiveRadiance*=mix(1.,.3,gSkin);totalEmissiveRadiance+=vec3(1.,.72,.28)*gGlow*.45;
+     .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.9,gSkin);').replace('#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\nmetalnessFactor*=1.-gSkin;').replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+totalEmissiveRadiance*=mix(1.,.12,gSkin);totalEmissiveRadiance+=vec3(1.,.72,.28)*gGlow*.45;
 {vec3 p=vGp*7.;float f=.6+.4*sin(uT*23.+p.y*2.);float b1=abs(sin(p.y*3.3+sin(p.x*2.7+uT*6.)*1.9+uT*4.));float b2=abs(sin(p.x*4.1-p.z*2.3+sin(p.y*3.1-uT*5.)*1.6));
 float bl=max(smoothstep(.986,.999,b1),smoothstep(.988,.999,b2));totalEmissiveRadiance+=vec3(.35,.72,1.)*bl*uBolt*f*3.;}
 totalEmissiveRadiance+=diffuseColor.rgb*vec3(.6,.9,1.3)*gVein*uV*(1.8+.6*sin(uT*5.+vGp.y*9.));`)};
