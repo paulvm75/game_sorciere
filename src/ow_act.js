@@ -92,4 +92,4 @@ function updateDog(d,dt){const m=d.m;d.t+=dt;let mv=0;
   collide(d.pos,.4,false,false);d.pos.y=groundAt(d.pos.x,d.pos.z);d.walkT+=dt*mv*14;m.g.rotation.y=d.face;
   m.legs.forEach((L,i)=>L.rotation.x=Math.sin(d.walkT+(i%2?Math.PI:0)+(i>1?Math.PI/2:0))*.7*mv);m.tail.rotation.y=Math.sin(d.t*(d.own?14:6))*.6;m.head.rotation.x=Math.sin(d.t*2)*.05;
   const sit=mv<.05&&d.own;m.body.rotation.x=lerp(m.body.rotation.x,sit?-.35:0,dt*6);m.body.position.y=lerp(m.body.position.y,sit?-.08:0,dt*6);
-  d.barkT-=dt;if(d.barkT<=0){d.barkT=rand(d.own?8:5,d.own?20:14);if(Math.hypot(d.pos.x-P.pos.x,d.pos.z-P.pos.z)<40)bark(d.br.s,clamp((d.pos.x-P.pos.x)/30,-1,1))}}
+  d.barkT-=dt;if(d.barkT<=0){d.barkT=rand(d.own?8:5,d.own?20:14);if(Math.hypot(d.pos.x-P.pos.x,d.pos.z-P.pos.z)<40)dogBark(d.br.s,clamp((d.pos.x-P.pos.x)/30,-1,1))}}

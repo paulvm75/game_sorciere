@@ -37,8 +37,8 @@ function doInteract(){if(!inter||owUI||actMenu)return;const it=inter;initAudio()
   if(it.k==='venue'){it.fn();return}if(it.k==='npcv'){openActMenu(it.n);return}
   if(it.k==='npc')openActMenu(it.n);else if(it.k==='shop')openShop(it.s);else if(it.k==='metro')openMetro(it.e);else if(it.k==='quest')openQuest(it.sp.q);else if(it.k==='romance')openRomance(it.sp);else if(it.k==='host')it.sp.open(it.n);
   else if(it.k==='adopt'){if(myDog){toast('You already have a dog. '+myDog.name+' would be jealous.');return}askName('Name your '+it.d.br.name.toLowerCase(),['Biscuit','Croquette','Réglisse','Moustache','Pistache'][(Math.random()*5)|0],(nm)=>{adoptDog(it.d,nm)})}
-  else if(it.k==='pet'){bark(it.d.br.s);for(let k=0;k<6;k++)SP.emit(V3(it.d.pos.x,it.d.pos.y+1,it.d.pos.z),{c0:0xff6a9a,c1:0xff2060,s0:.6,s1:.2,life:1,up:2,speed:1});toast(it.d.name+' is very happy')}}
-function adoptDog(d,name){d.own=true;d.name=name;d.home=null;myDog=d;OWS.dog={breed:d.br.id,name};owSave();bark(d.br.s);toast(name+' is now your dog. They will follow you everywhere.','Adopted!');sfx.gem()}
+  else if(it.k==='pet'){dogBark(it.d.br.s);for(let k=0;k<6;k++)SP.emit(V3(it.d.pos.x,it.d.pos.y+1,it.d.pos.z),{c0:0xff6a9a,c1:0xff2060,s0:.6,s1:.2,life:1,up:2,speed:1});toast(it.d.name+' is very happy')}}
+function adoptDog(d,name){d.own=true;d.name=name;d.home=null;myDog=d;OWS.dog={breed:d.br.id,name};owSave();dogBark(d.br.s);toast(name+' is now your dog. They will follow you everywhere.','Adopted!');sfx.gem()}
 let ctaKey='';
 function updateCTA(){const pr=$('owPrompt');const it=inter;const key=it?it.k+'|'+it.label+'|'+it.sub:'';if(key!==ctaKey){ctaKey=key;if(it){pr.innerHTML=`<span class="ic">${it.icon||'E'}</span><span class="tx"><b>${it.label}</b><small>${it.html?it.html+' ':''}${it.html?'':it.sub||''}</small></span><kbd>${isTouch?'Tap':'E'}</kbd>`;pr.classList.add('show')}else pr.classList.remove('show')}}
 /* ---------- shops ---------- */

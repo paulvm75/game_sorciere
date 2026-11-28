@@ -142,10 +142,6 @@ function kfOn(){if(MODE==='open'||KF.lb)return false;const e=bossRef;return!!(e&
 {const _kt=kaenTransform;kaenTransform=function(){KF.lb=false;return _kt.apply(this,arguments)}}
 
 /* ---------- Kaen's end: his violet blast against her golden one. Hers wins. ---------- */
-function clashBeam(col,w){const g=new THREE.Group();const geo=new THREE.CylinderGeometry(1,1,1,12,1,true);
-  const o=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));o.scale.set(w,1,w);g.add(o);
-  const c=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}));c.scale.set(w*.35,1,w*.35);g.add(c);
-  g.userData={o,c,w};g.set=(a,b,t)=>{const d=V3().subVectors(b,a);const L=d.length()||.01;g.position.copy(a).addScaledVector(d,.5);g.quaternion.setFromUnitVectors(V3(0,1,0),d.normalize());const p=1+Math.sin(t*40)*.12,W=g.userData.w;o.scale.set(W*p,L,W*p);c.scale.set(W*.35*p,L,W*.35*p)};scene.add(g);return g}
 /* dramatic sound kit (synth + sample pack, no new assets) */
 const DR={
   heart:()=>{thud(.42,58);setTimeout(()=>thud(.3,52),230)},
@@ -229,10 +225,10 @@ function kShieldTick(dt){const e=bossRef;if(MODE==='open'||!e||e.dead||e.type!==
 {const _mt=muTick;muTick=function(dt){_mt(dt);try{kShieldTick(dt)}catch(x){console.warn('ksh',x)}}}
 {const _rm=removeEnemy;removeEnemy=function(e){if(e&&e.kSm){scene.remove(e.kSm);e.kSm=null}return _rm.apply(this,arguments)}}
 
-{const _ke=killEnemy;killEnemy=function(e){if(e&&e.type==='illusion'&&MODE!=='open'&&!e._clash&&e.def&&e.def.boss&&e.ai&&e.ai.lbDone&&!CS.active){e._clash=true;
+{const _ke=killEnemy;killEnemy=function(e){if(e&&e.type==='illusion'&&MODE!=='open'&&!e._clash&&e.def&&e.def.boss&&e.ai&&e.ai.lbDone){e._clash=true;
   try{e.hp=0;e.invuln=true;e.busy=99;e.m.lock=99;e.kShield=0;kShieldHide(e);P.invuln=99;for(const p of eProjs)scene.remove(p.s);eProjs.length=0;const bf=$('bossFill');if(bf)bf.style.transform='scaleX(0)';
     const c=eCenter(e);flash(c,0xffffff,10);SP.emit(c,{n:80,c0:0xffffff,c1:0xa050ff,speed:10,life:.8});hitStop=.35;P.shake=1;try{e.m.actor.once('Hit_Knockback',1.2)}catch(x){}try{sfx.boom()}catch(x){}floatText(headOf(e.pos,3),'0%','#ff6a7a',true);
-    after(1.4,()=>{try{kaenClash(e,()=>_ke(e))}catch(x){console.warn('clash',x);_ke(e)}});return}catch(x){console.warn('clash',x)}}return _ke.apply(this,arguments)}}
+    const go=()=>{if(CS.active||(typeof FILM!=='undefined'&&FILM.on)){after(.25,go);return}try{kaenClash(e,()=>_ke(e))}catch(x){console.warn('clash',x);_ke(e)}};after(1.4,go);return}catch(x){console.warn('clash',x)}}return _ke.apply(this,arguments)}}
 
 /* story river: grid types so she can swim, hop out at the banks, or hop and call the broom */
 if(MODE!=='open'){gType=function(x,z){if(x<WB.x0||x>WB.x1||z<WB.z0||z>WB.z1)return 0;if(stWater(x,z))return 2;if(stBridge(x,z))return 5;if(boxAt(x,z))return 7;return 1}}

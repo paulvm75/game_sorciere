@@ -6,16 +6,6 @@
    ===================================================================================== */
 const XG={ph:0,gog:null,mag:null,seen:0,t:0,duel:{t:0,kt:1.5,gt:3,ang:0},lt:4,jt:16,ward:null,chain:null,oldC:null,mb:6};
 const HC=()=>uP(0,178);
-function buildCrownGuard(kind){const gog=kind==='gog',s=gog?2.15:1.75;const m=buildGargoyle(s);const tint=new THREE.Color(gog?0x2e3a32:0xb4aed0),em=gog?0x0c3010:0x241050,wg=nzWingGeo(),mats=new Map();
-  m.g.traverse(o=>{if(o.isSprite){o.material=o.material.clone();o.material.color.setHex(gog?0x9dff70:0xc8a8ff)}else if(o.isMesh&&o.material&&o.material.color){let c=mats.get(o.material);if(!c){c=o.material.clone();c.color.lerp(tint,.78);if(c.emissive)c.emissive.setHex(em);c.roughness=.85;mats.set(o.material,c)}o.material=c;if(gog&&o.geometry===wg)o.visible=false}});
-  const gold=std({color:0xd8b040,roughness:.35,metalness:.9,emissive:gog?0x183a08:0x30186a,emissiveIntensity:1});const cr=new THREE.Group();cr.position.set(0,3.1*s,.18*s);m.body.add(cr);
-  const tr=new THREE.Mesh(new THREE.TorusGeometry(.3*s,.05*s,6,18),gold);tr.rotation.x=Math.PI/2;cr.add(tr);for(let k=0;k<6;k++){const c=new THREE.Mesh(new THREE.ConeGeometry(.06*s,.26*s,4),gold);const a=k/6*TAU;c.position.set(Math.cos(a)*.3*s,.13*s,Math.sin(a)*.3*s);cr.add(c)}
-  const cg=glowSprite(gog?0x9dff70:0xc8a8ff,2.2*s,.4);cr.add(cg);const st=std({color:gog?0x222a26:0x8a86a8,roughness:.9}),ex=[];
-  if(gog){for(const q of[-1,1]){const p=new THREE.Mesh(new THREE.BoxGeometry(.6*s,.34*s,.7*s),st);p.position.set(q*.78*s,2.42*s,0);p.rotation.z=q*-.3;m.body.add(p);const f=new THREE.Mesh(new THREE.DodecahedronGeometry(.34*s,0),st);f.position.set(q*.86*s,1.02*s,.42*s);m.body.add(f)}
-    const cm=new THREE.MeshBasicMaterial({color:0x9dff70});for(let k=0;k<7;k++){const c=new THREE.Mesh(new THREE.BoxGeometry(.03*s,rand(.2,.5)*s,.03*s),cm);c.position.set(rand(-.4,.4)*s,rand(1.3,2.3)*s,.44*s);c.rotation.z=rand(-.9,.9);m.body.add(c);ex.push(c)}}
-  else{const halo=new THREE.Group();halo.position.set(0,2.5*s,-.5*s);m.body.add(halo);for(let k=0;k<8;k++){const c=new THREE.Mesh(new THREE.OctahedronGeometry(.13*s,0),new THREE.MeshBasicMaterial({color:0xd8c8ff}));const a=k/8*TAU;c.position.set(Math.cos(a)*1.05*s,Math.sin(a)*1.05*s,0);c.scale.y=2.2;c.rotation.z=a-Math.PI/2;halo.add(c)}ex.push(halo)}
-  return{g:m.g,body:m.body,kind,crown:cr,anim:(e,dt,mv,l)=>{if(e.ai&&e.ai.statue)return;const t0=e.t;if(gog)e.t=t0*.5;m.anim(e,dt,mv,l);e.t=t0;if(gog){m.body.position.y=Math.abs(Math.sin(e.t*5))*.14*Math.min(1,mv*4);for(const c of ex)c.material.color.setHex(e.hp<e.maxhp*.5?0xfff0a0:0x9dff70)}else ex[0].rotation.z+=dt*(e.hp<e.maxhp*.5?2.2:.8);
-      cr.rotation.y+=dt*.6;cg.material.opacity=.3+Math.sin(e.t*4)*.12}}}
 ETYPES.gog={name:'Gog, Stone of the Crown',boss:true,hp:7200,speed:4.8,dmg:33,range:4.8,cd:2.3,xp:2600,r:2.2,h:6.2,noCalm:true,build:()=>buildCrownGuard('gog')};
 ETYPES.magog={name:'Magog, Wing of the Crown',boss:true,hp:6200,speed:8,dmg:30,range:0,cd:9,xp:2600,r:2,h:5.2,fly:1,ghost:true,kite:true,noCalm:true,build:()=>buildCrownGuard('magog')};
 

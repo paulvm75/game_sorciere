@@ -43,7 +43,7 @@ function gsSwap(g,root,key,keep,prev){if(GS.off||!g||!root||(g.userData.gs&&!pre
     const hipOff=tp.Hips.clone().multiplyScalar(s).sub(R.p.pelvis);
     const e={g,root,T,tb,sb,cal,order,s,hipOff,key,keep,U,pose:gsPose(key,R)};g.userData.gs=e;g.userData.gsModel=T;GS.list.push(e);gsTickOne(e);try{gsHandFix(e)}catch(x){console.warn(x)}gsPend(root,false);const w=g.userData.gsWant;if(w&&w!==key){g.userData.gsWant=null;gsReplace(g,w)}}catch(x){console.warn(x);fail()}},err=>{console.warn('gs',err);fail()})})}
 function gsTickOne(e){const{root,T,tb,sb,cal,order}=e;root.updateMatrixWorld(true);
-  const rq=root.getWorldQuaternion(new THREE.Quaternion()),rqi=rq.clone().invert();const Tq=T.getWorldQuaternion(new THREE.Quaternion());
+  const rq=root.getWorldQuaternion(new THREE.Quaternion()),rqi=rq.clone().invert();
   for(const n of order){const t=tb[n],s=sb[GS_MAP[n]],k=cal[n];
     const sq=s.getWorldQuaternion(_gq).premultiply(rqi);            // source bone, root frame
     const D=sq.multiply(k.srcI);                                     // source delta from rest

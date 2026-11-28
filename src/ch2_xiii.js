@@ -470,7 +470,7 @@ function kmCallouts(dt){KM.mt=(KM.mt==null?8:KM.mt)-dt;if(KM.mt>0)return;const e
   if(pct<.15&&!KM.said.m7_12)k='m7_12';else if(pct<.5&&!KM.said.m7_10)k='m7_10';else if(!KM.said.m7_06)k='m7_06';else if(KM.cd[3]<=0&&KM.en>=40&&!KM.said.m7_09)k='m7_09';else if((KM.hits||0)>10&&!KM.said.m7_08)k='m7_08';
   if(k&&!SAYQ.on&&!SAYQ.q.length){KM.said[k]=1;x3Bark('@',k);KM.mt=rand(10,15)}else KM.mt=3}
 /* in-game subtitles: every queued line uses the same little subtitle as the barks */
-sayLine=function(who,text,dur){const el=bkEl();const nm=who==='@'?(HERO.name||'Maëlle'):who;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=nm;el.firstChild.style.color=SPEAKER[who]||(who==='@'?'#f2d27a':'#ffb0b0');el.lastChild.textContent=text;void el.offsetWidth;el.classList.add('on');
+storyLine=function(who,text,dur){const el=bkEl();const nm=who==='@'?(HERO.name||'Maëlle'):who;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=nm;el.firstChild.style.color=SPEAKER[who]||(who==='@'?'#f2d27a':'#ffb0b0');el.lastChild.textContent=text;void el.offsetWidth;el.classList.add('on');
   BKS.hideT=time+dur+.6;BKS.busy=time+dur+.3;BKS.pri=5;try{bkStop(.05)}catch(x){}};
 
 /* Lyra pours her magic into Kaen: rising, spiralling ribbons, runes under both, a final bloom */

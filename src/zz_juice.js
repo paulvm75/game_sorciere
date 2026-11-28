@@ -1,7 +1,7 @@
 /* ================= JUICE: hit-stop + rumble, elemental combos (+ mini tutorial), dynamic weather ================= */
 
 /* ---------- 1. hits: freeze-frame, shake, squash, spark, vibration ---------- */
-const JU={t:0,pt:0};
+const JU={t:0};
 let VIBE=(()=>{try{return localStorage.getItem('sorciere-vib')!=='0'}catch(x){return true}})();
 {const _v=vib;vib=function(){if(!VIBE)return;return _v.apply(this,arguments)}}
 function vibSync(){const b=$('vibBtn');if(b)b.textContent=VIBE?'Vibration on':'Vibration off'}
@@ -13,10 +13,10 @@ const JU_FLARE=canvasTex(128,128,x=>{x.translate(64,64);const g=x.createRadialGr
 function juSpark(p,col,sz){const m=new THREE.SpriteMaterial({map:JU_FLARE,color:new THREE.Color(col||'#ffffff').lerp(new THREE.Color(1,1,1),.45),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,depthTest:false,rotation:Math.random()*Math.PI});
   const s=new THREE.Sprite(m);s.position.copy(p);s.renderOrder=7;addFx(s,.16,(f,k)=>{const q=k<.2?k/.2:1-(k-.2)/.8;s.scale.setScalar(sz*(.4+.8*Math.min(1,k*5)));m.opacity=q})}
 /* white hit flash on the enemy itself */
+const JU_W=new THREE.Color(1,1,1);
 function juFlash(e,amt){const g=e.m&&e.m.g;if(!g)return;if(!e._hm){e._hm=[];g.traverse(o=>{if(!o.isMesh||!o.material)return;const arr=Array.isArray(o.material)?o.material:[o.material];const out=arr.map(m=>{if(!m.emissive)return m;const c=m.clone();e._hm.push({m:c,e0:m.emissive.clone(),i0:m.emissiveIntensity||1});return c});o.material=Array.isArray(o.material)?out:out[0]})}
   if(!e._hm.length)return;e._hf=Math.max(e._hf||0,amt);if(e._hfOn)return;e._hfOn=1;
-  addFx(null,.5,(f)=>{e._hf-=1/60/.09;const k=Math.max(0,e._hf);for(const h of e._hm){h.m.emissive.copy(h.e0).lerp(JU_W,k*.85);h.m.emissiveIntensity=h.i0+k*1.4}if(k<=0)f.t=f.dur},()=>{for(const h of e._hm){h.m.emissive.copy(h.e0);h.m.emissiveIntensity=h.i0}e._hfOn=0})}
-const JU_W=new THREE.Color(1,1,1);
+  addFx(null,.5,(f)=>{const d=f.t-(f.lt||0);f.lt=f.t;e._hf-=d/.09;const k=Math.max(0,e._hf);for(const h of e._hm){h.m.emissive.copy(h.e0).lerp(JU_W,k*.85);h.m.emissiveIntensity=h.i0+k*1.4}if(k<=0)f.t=f.dur},()=>{for(const h of e._hm){h.m.emissive.copy(h.e0);h.m.emissiveIntensity=h.i0}e._hfOn=0})}
 function juPunch(e,a){const g=e.m&&e.m.g;if(!g||e.def.boss||e._pun)return;e._pun=1;const s0=g.scale.clone();
   addFx(null,.15,(f,k)=>{if(e.dead)return;const q=Math.sin(k*Math.PI)*a;g.scale.set(s0.x*(1+q*.55),s0.y*(1-q),s0.z*(1+q*.55))},()=>{if(!e.dead)g.scale.copy(s0);e._pun=0})}
 const LIGHTNING_COL={'#f1f5ff':1,'#cfe0ff':1};
@@ -56,7 +56,7 @@ function cmbBanner(name,sub,col){const b=document.getElementById('cmbBan');if(!b
 const CMB_INFO={steam:['STEAM BURST','ICE + FIRE','#cfefff','<span style="color:#8fe3ff">Ice</span> + <span style="color:#ff8a3c">Fire</span>','Freeze an enemy (Ice lance x3 or Glacial nova), then hit it with fire. It works the other way round too.'],
   shatter:['SHATTERSTORM','ICE + LIGHTNING','#bfe8ff','<span style="color:#8fe3ff">Ice</span> + <span style="color:#f1f5ff">Lightning</span>','Strike a frozen enemy with Chain lightning or Thunderstorm. The ice explodes and arcs to its friends.'],
   toxic:['TOXIC BLAST','POISON + FIRE','#b6ff5a','<span style="color:#9dff5a">Poison</span> + <span style="color:#ff8a3c">Fire</span>','Poison them first, then set them on fire. The gas ignites and spreads to everyone close.']};
-function cmbHit(id){const I=CMB_INFO[id];cmbBanner(I[0],I[1],I[2]);if(!CMB.seen[id]){CMB.seen[id]=1;CMB.tut[id]=1;cmbSave();const n=Object.keys(CMB.seen).length;after(1.3,()=>toast(`${I[1].replace(' + ',' + ')} = ${I[0]}. ${n<3?(3-n)+' more to find.':'You found them all.'}`,'Combo discovered!'))}}
+function cmbHit(id){const I=CMB_INFO[id];cmbBanner(I[0],I[1],I[2]);if(!CMB.seen[id]){CMB.seen[id]=1;CMB.tut[id]=1;cmbSave();const n=Object.keys(CMB.seen).length;after(1.3,()=>toast(`${I[1]} = ${I[0]}. ${n<3?(3-n)+' more to find.':'You found them all.'}`,'Combo discovered!'))}}
 function cmbFx(c,col,n){SP.emit(c,{n:n||50,c0:0xffffff,c1:col,speed:14,life:.7,s0:.7,s1:.05});ring(V3(c.x,groundAt(c.x,c.z),c.z),col,.6,9,.4);flash(c,col,14);P.shake=Math.max(P.shake,.8);hitStop=Math.max(hitStop,.045);buzz(60,.6,1,200)}
 function cmbArea(c,R,dmgMain,dmgOther,main,col,each){CMB.lock=1;try{for(const o of enemies){if(o.dead)continue;if(o!==main&&Math.hypot(o.pos.x-c.x,o.pos.z-c.z)>R+o.def.r)continue;damageEnemy(o,(o===main?dmgMain:dmgOther)*power(),col);if(!o.dead&&each)each(o)}}finally{CMB.lock=0}}
 function cmbSteam(e){const c=eCenter(e);e.frozen=0;e.chill=0;e.chillT=0;e.burn=0;
@@ -95,7 +95,7 @@ function wxSet(s,quiet){if(!WX_STATES[s])return;WX.cur=s;WX.t=rand(150,300);cons
 function wxPick(){let n=0;for(const w of WX_W)n+=w[1];let r=Math.random()*n;for(const w of WX_W){r-=w[1];if(r<=0)return w[0]===WX.cur?'clear':w[0]}return 'clear'}
 WX.mat=new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Vector3()},uT:{value:0},uA:{value:0},uW:{value:new THREE.Vector2(2.2,.8)},uCol:{value:new THREE.Color(0xb8c4e0)}},transparent:true,depthWrite:false,fog:false,
   vertexShader:`attribute vec3 p;attribute float e;uniform vec3 uC;uniform float uT;uniform vec2 uW;varying float vE;varying float vD;
-void main(){float B=70.,H=44.;float sp=26.+p.x*10.;float y=mod(p.y*H-uT*sp,H);vec3 w=vec3(uC.x+(fract(p.x-uC.x/B+uW.x*uT/B*.0)-.5)*B,uC.y-12.+y,uC.z+(fract(p.z-uC.z/B)-.5)*B);
+void main(){float B=70.,H=44.;float sp=26.+p.x*10.;float y=mod(p.y*H-uT*sp,H);vec3 w=vec3(uC.x+(fract(p.x-uC.x/B)-.5)*B,uC.y-12.+y,uC.z+(fract(p.z-uC.z/B)-.5)*B);
 w.xz+=uW*(y/H)*1.5;vec3 d=normalize(vec3(uW.x,-sp,uW.y));w-=d*e*.85;vE=e;vec4 mv=viewMatrix*vec4(w,1.);vD=-mv.z;gl_Position=projectionMatrix*mv;}`,
   fragmentShader:`uniform float uA;uniform vec3 uCol;varying float vE;varying float vD;void main(){float a=uA*(1.-vE*.6)*smoothstep(1.,4.,vD)*(1.-smoothstep(28.,40.,vD));gl_FragColor=vec4(uCol,a*.42);}`});
 {const N=7000,p=new Float32Array(N*6),e=new Float32Array(N*2);for(let i=0;i<N;i++){const x=Math.random(),y=Math.random(),z=Math.random();for(let j=0;j<2;j++){p.set([x,y,z],i*6+j*3);e[i*2+j]=j}}

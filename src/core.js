@@ -76,7 +76,7 @@ function voice(pitch=180,syl=4,o={}){if(!AC||muted)return;nbuf();const t0=AC.cur
     fs.forEach((f,i)=>{f.frequency.setValueAtTime(f.frequency.value||v[i]*fk,t);f.frequency.linearRampToValueAtTime(v[i]*fk,t+.03)});
     gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(vol,t+.018);gain.gain.setValueAtTime(vol*(last?.8:1),t+d*.7);gain.gain.linearRampToValueAtTime(0,t+d);t+=d+rand(.015,scream?.02:.06)}
   const end=t+.05;src.start(t0);src2.start(t0);vib.start(t0);br.start(t0,Math.random());src.stop(end);src2.stop(end);vib.stop(end);br.stop(end)}
-function bark(size=1,pan=0){if(!AC||muted)return;for(let k=0;k<2;k++){const d=k*.22;const p=(380-size*120)*rand(.95,1.05);tone(p,.13,'sawtooth',.07,.55,d,null,.2,pan);noise(.09,.08,1200/size,'bandpass',null,{delay:d,q:2,pan});tone(p*2,.08,'square',.02,.5,d,null,.1,pan)}}
+function dogBark(size=1,pan=0){if(!AC||muted)return;for(let k=0;k<2;k++){const d=k*.22;const p=(380-size*120)*rand(.95,1.05);tone(p,.13,'sawtooth',.07,.55,d,null,.2,pan);noise(.09,.08,1200/size,'bandpass',null,{delay:d,q:2,pan});tone(p*2,.08,'square',.02,.5,d,null,.1,pan)}}
 let sirenNode=null;
 function siren(on){if(!AC)return;if(on&&!sirenNode&&!muted){const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter(),l=AC.createOscillator(),lg=AC.createGain();o.type='square';f.type='lowpass';f.frequency.value=1800;
     l.type='square';l.frequency.value=.9;lg.gain.value=75;l.connect(lg);lg.connect(o.frequency);o.frequency.value=510;g.gain.value=.025;o.connect(f);f.connect(g);g.connect(out(null,0,.35));o.start();l.start();sirenNode={o,l,g}}

@@ -8,10 +8,10 @@ function playFilm(done,opt){opt=opt||{};const SUBS=opt.subs||FILM.subs;if(FILM.o
   o.innerHTML='<video id="filmV" playsinline preload="auto" style="width:100%;height:100%;object-fit:contain;background:#000"></video>'+
    '<div id="filmS" style="position:absolute;left:6%;right:6%;bottom:7%;text-align:center;font:600 clamp(16px,2.3vw,30px)/1.35 Outfit,system-ui,sans-serif;color:#fff4e6;letter-spacing:.01em;text-shadow:0 0 6px #000,0 2px 10px rgba(0,0,0,.95),0 0 22px rgba(20,8,16,.8);white-space:pre-line;opacity:0;transition:opacity .15s;pointer-events:none"></div>'+
    '<button id="filmSkip" style="position:absolute;right:22px;top:18px;font:700 14px/1 Outfit,system-ui,sans-serif;letter-spacing:.08em;color:#f3d79a;background:rgba(10,6,14,.55);border:1px solid rgba(243,215,154,.45);border-radius:999px;padding:10px 16px;cursor:pointer;opacity:.75">SKIP ›</button>'+
-   '<button id="filmTap" style="display:none;position:absolute;font:700 18px/1 Outfit,system-ui,sans-serif;color:#1a0f06;background:#f3c463;border:0;border-radius:999px;padding:16px 26px;cursor:pointer">▶ Play the story</button>';
+   '<button id="filmTap" style="display:none;position:absolute;font:700 18px/1 Outfit,system-ui,sans-serif;color:#1a0f06;background:#f3c463;border:0;border-radius:999px;padding:16px 26px;cursor:pointer">▶ Play</button>';
   document.body.appendChild(o);if(opt.noSkip)o.querySelector('#filmSkip').style.display='none';requestAnimationFrame(()=>o.style.opacity='1');const cues=(opt.cues||[]).slice().sort((a,b)=>a[0]-b[0]);let ci=0,nearDone=false;
   const v=o.querySelector('#filmV'),sub=o.querySelector('#filmS'),tap=o.querySelector('#filmTap');let cur=-1,ended=false,raf=0;
-  v.src=opt.src||'assets/intro_maelle.mp4';v.volume=1;if(keepA&&!opt.videoAudio){v.muted=true;v.setAttribute('muted','')}if(opt.kick)v.animate([{transform:'scale(1.14)',filter:'brightness(2.2) saturate(1.4)'},{transform:'scale(1)',filter:'brightness(1) saturate(1)'}],{duration:900,easing:'cubic-bezier(.15,.8,.25,1)'});
+  {const src=opt.src||'assets/intro_maelle.mp4';v.src=(FILM.pre&&FILM.pre[src]&&FILM.pre[src].url)||src}v.volume=1;if(keepA&&!opt.videoAudio){v.muted=true;v.setAttribute('muted','')}if(opt.kick)v.animate([{transform:'scale(1.14)',filter:'brightness(2.2) saturate(1.4)'},{transform:'scale(1)',filter:'brightness(1) saturate(1)'}],{duration:900,easing:'cubic-bezier(.15,.8,.25,1)'});
   const tick=()=>{const t=v.currentTime;while(ci<cues.length&&t>=cues[ci][0]){try{cues[ci][1]()}catch(x){}ci++}if(opt.nearEnd&&!nearDone&&v.duration&&t>=v.duration-opt.nearEnd[0]){nearDone=true;try{opt.nearEnd[1]()}catch(x){}}let k=-1;for(let i=0;i<SUBS.length;i++){const s=SUBS[i];if(t>=s[0]&&t<s[1]){k=i;break}}
     if(k!==cur){cur=k;if(k<0)sub.style.opacity='0';else{sub.textContent=SUBS[k][2];sub.style.opacity='1'}}raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
   const finish=()=>{if(ended)return;ended=true;cancelAnimationFrame(raf);removeEventListener('keydown',key,true);if(!opt.instant)o.style.opacity='0';try{v.pause()}catch(e){}
@@ -19,8 +19,10 @@ function playFilm(done,opt){opt=opt||{};const SUBS=opt.subs||FILM.subs;if(FILM.o
   const key=e=>{e.stopImmediatePropagation();e.preventDefault();if(!opt.noSkip&&!e.repeat&&(e.code==='Escape'||e.code==='Space'||e.code==='Enter'))finish()};
   addEventListener('keydown',key,true);
   o.querySelector('#filmSkip').addEventListener('click',finish);v.addEventListener('ended',finish);v.addEventListener('error',finish);
-  const go=()=>{const p=v.play();if(p&&p.catch)p.catch(()=>{tap.style.display='block'})};
-  tap.addEventListener('click',()=>{tap.style.display='none';go()});go()}
+  const go=()=>{const p=v.play();if(p&&p.catch)p.catch(()=>{v.muted=true;const q=v.play();if(q&&q.catch)q.catch(()=>{v.muted=false;tap.style.display='block'})})};
+  /* a film that never starts must not freeze the game: show a hint, then carry on without it */
+  {let lt=-1,st=0;const wd=setInterval(()=>{if(ended){clearInterval(wd);return}if(tap.style.display==='block'){st=0;return}if(v.currentTime!==lt){lt=v.currentTime;st=0;sub.style.opacity=cur<0?'0':sub.style.opacity;return}st++;if(st===3&&cur<0){sub.textContent='Loading...';sub.style.opacity='.7'}if(st>=14){clearInterval(wd);finish()}},1000)}
+  tap.addEventListener('click',()=>{tap.style.display='none';v.play()});go()}
 /* New Game in story mode: the film comes first, then the opening cutscene */
 {const _pi=playIntro;playIntro=function(done){if(MODE==='open')return _pi.apply(this,arguments);const a=arguments,self=this;playFilm(()=>_pi.apply(self,a))}}
 /* choosing Chapter I always replays it */
@@ -72,11 +74,11 @@ function clashFilmCues(){const crk=(a,b,st)=>{const r=[];for(let t=a;t<b;t+=st)r
     setTimeout(()=>{const l0=lx;lx=null;if(l0)l0.out(1.1)},140)})}}
 
 /* after the clash film: quick cut back in-game. Kaen alone on one knee, a small blast, he is gone. Her limit breaker fades. */
-function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let T=0,gone=false,B=null,fl=null;
+function clashAfter(e,done){const act=e.m.actor,kp=e.pos.clone();let gone=false,B=null,fl=null;
   const dir=V3(kp.x-P.pos.x,0,kp.z-P.pos.z);if(dir.lengthSq()<.01)dir.set(0,0,1);dir.normalize();const side=V3(dir.z,0,-dir.x);
   e.invuln=true;e.busy=99;e.m.lock=99;P.invuln=Math.max(P.invuln||0,99);P.heroAnim='Spell_Simple_Idle_Loop';
   try{act.setBase('Crouch_Idle_Loop',.05)}catch(x){}
-  const upd=dt=>{T+=dt;if(!gone){e.t+=dt;try{kaenFx(e,dt);act.update(dt)}catch(x){}}};
+  const upd=dt=>{if(!gone){e.t+=dt;try{kaenFx(e,dt);act.update(dt)}catch(x){}}};
   const fade=dt=>{P.lbT=0;P.lb2=0;P.lbRamp=Math.max(0,(P.lbRamp||0)-dt*.7);try{lbSet(P.lbRamp)}catch(x){}
     if(P.lbRamp>.05&&Math.random()<.7)SP.emit(V3(P.pos.x+rand(-.7,.7),P.pos.y+rand(.3,2.2),P.pos.z+rand(-.7,.7)),{c0:0xffe8a0,c1:0x603000,s0:.3,s1:.03,life:1.1,up:1.6,speed:.3})};
   const kCam=k=>({pos:headOf(kp,1).addScaledVector(dir,-4.2+k*.7).addScaledVector(side,1.6).add(V3(0,.2,0)),look:headOf(kp,1.05)});
@@ -114,3 +116,20 @@ function kBurn(g,y0,h){const U={uB:{value:0},uY0:{value:y0},uH:{value:h}};const 
           .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,vec3(.05,.03,.04),smoothstep(0.,.9,kbE)*.85);totalEmissiveRadiance+=mix(vec3(.9,.22,1.5),vec3(4.,1.7,.35),smoothstep(.5,.95,kbE))*kbE*kbE*1.8;')};
       mm.customProgramCacheKey=function(){return 'kb|'+(pk?pk.call(this):'')};mm.needsUpdate=true})});
   return{set(k){U.uB.value=k;for(const[m,o0,un]of fades){const a=Math.max(0,1-k*1.4);if(m.opacity!==undefined)m.opacity=o0*a;if(un&&un.uA)un.uA.value*=a}}}}
+
+/* ---------- clash film: preload it during the fight, and light the whole clash brighter and sharper ---------- */
+function filmPrefetch(src){FILM.pre=FILM.pre||{};if(FILM.pre[src])return;const P=FILM.pre[src]={url:null};
+  fetch(src).then(r=>r.ok?r.blob():null).then(b=>{if(b)P.url=URL.createObjectURL(b)}).catch(()=>{})}
+const CLB={on:0,base:null};
+function clashLook(on){try{if(on&&!CLB.on){CLB.on=1;CLB.base={pr:renderer.getPixelRatio(),hemi:hemi.intensity,moon:moonLight.intensity,bloom:bloomPass&&bloomPass.strength,
+      lift:gradePass&&gradePass.uniforms.uLift.value,sat:gradePass&&gradePass.uniforms.uSat.value,sharp:gradePass&&gradePass.uniforms.uSharp.value,fog:scene.fog.density};
+      if(!isTouch){const pr=Math.min(window.devicePixelRatio||1,2);if(pr>CLB.base.pr){renderer.setPixelRatio(pr);resize()}}}
+    else if(!on&&CLB.on){CLB.on=0;const b=CLB.base;hemi.intensity=b.hemi;moonLight.intensity=b.moon;scene.fog.density=b.fog;if(bloomPass)bloomPass.strength=b.bloom;
+      if(gradePass){const u=gradePass.uniforms;u.uLift.value=b.lift;u.uSat.value=b.sat;u.uSharp.value=b.sharp}if(renderer.getPixelRatio()!==b.pr){renderer.setPixelRatio(b.pr);resize()}}}catch(x){console.warn('clashLook',x)}}
+{const _mt=muTick;muTick=function(dt){_mt(dt);
+  if(MODE!=='open'&&bossRef&&bossRef.type==='illusion'&&!bossRef.dead)filmPrefetch('assets/clash_final.mp4');
+  if(!CLB.on)return;const b=CLB.base;hemi.intensity=b.hemi*1.4+.28;moonLight.intensity=b.moon*1.3+.15;scene.fog.density=b.fog*.6;if(bloomPass)bloomPass.strength=Math.max(b.bloom,.62);
+  if(gradePass){const u=gradePass.uniforms;u.uLift.value=(b.lift||0)+.035;u.uSat.value=Math.max(b.sat||1,1.24);u.uSharp.value=Math.max(b.sharp||0,.4)}}}
+{const _kc=kaenClash;kaenClash=function(e,finish){if(MODE==='open')return _kc.apply(this,arguments);filmPrefetch('assets/clash_final.mp4');clashLook(true);
+  return _kc.call(this,e,function(){clashLook(false);if(finish)return finish.apply(this,arguments)})}}
+{const _ca=clashAfter;clashAfter=function(e,done){clashLook(true);return _ca.call(this,e,function(){clashLook(false);if(done)return done.apply(this,arguments)})}}
